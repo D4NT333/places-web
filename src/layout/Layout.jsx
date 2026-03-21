@@ -1,10 +1,8 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
+import { Header, Footer, Panel } from "../components";
 
 export default function LayoutScreen({
   children,
-  header = null,
-  footer = null,
-  sidebar = null,
   scroll = true,
   padding = "1.5rem",
   bg = "var(--color-background, #f5f5f5)",
@@ -16,10 +14,13 @@ export default function LayoutScreen({
   scrollToTop = false,
   sidebarWidth = "240px",
   stickyHeader = true,
+  showHeader = true,
+  showSidebar = true,
+  showFooter = true,
 }) {
   const mainRef = useRef(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Scroll al tope cuando cambia la vista (útil en SPA/routing)
   useEffect(() => {
     if (scrollToTop && mainRef.current) {
       mainRef.current.scrollTop = 0;
@@ -38,8 +39,7 @@ export default function LayoutScreen({
         ...style,
       }}
     >
-      {/* ── Header ── */}
-      {header && (
+      {showHeader && (
         <div
           className="layout-header"
           style={{
@@ -50,21 +50,19 @@ export default function LayoutScreen({
             flexShrink: 0,
           }}
         >
-          {header}
+          <Header onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
         </div>
       )}
 
-      {/* ── Body (sidebar + main) ── */}
       <div
         style={{
           display: "flex",
           flex: 1,
           overflow: "hidden",
-          minHeight: 0, // permite que flex children hagan scroll correctamente
+          minHeight: 0,
         }}
       >
-        {/* ── Sidebar opcional ── */}
-        {sidebar && (
+        {showSidebar && sidebarOpen && (
           <aside
             className="layout-sidebar"
             style={{
@@ -74,11 +72,10 @@ export default function LayoutScreen({
               height: "100%",
             }}
           >
-            {sidebar}
+            <Panel />
           </aside>
         )}
 
-        {/* ── Main content ── */}
         <main
           ref={mainRef}
           className="layout-main"
@@ -92,7 +89,6 @@ export default function LayoutScreen({
             justifyContent: centerContent ? "center" : "flex-start",
           }}
         >
-          {/* Inner wrapper respeta maxWidth y padding */}
           <div
             className="layout-content"
             style={{
@@ -109,8 +105,7 @@ export default function LayoutScreen({
         </main>
       </div>
 
-      {/* ── Footer ── */}
-      {footer && (
+      {showFooter && (
         <footer
           className="layout-footer"
           style={{
@@ -118,7 +113,7 @@ export default function LayoutScreen({
             width: "100%",
           }}
         >
-          {footer}
+          <Footer />
         </footer>
       )}
     </div>

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./styles";
 
 const statusOptions = ["Todas", "Aprobadas", "Pendientes", "Rechazadas"];
 
 export default function Panel() {
+  const navigate = useNavigate();
+
   const [openSections, setOpenSections] = useState({
     metricas: false,
     listas: false,
@@ -29,6 +32,29 @@ export default function Panel() {
       ...prev,
       [groupKey]: !prev[groupKey],
     }));
+  };
+
+  const handleStatusNavigation = (groupKey, statusLabel) => {
+    const statusMap = {
+      Todas: "todas",
+      Aprobadas: "aprobadas",
+      Pendientes: "pendientes",
+      Rechazadas: "rechazadas",
+    };
+
+    const statusValue = statusMap[statusLabel] || "todas";
+
+    const routeMap = {
+      lugares: "/submissions/places",
+      descripciones: "/submissions/descriptions",
+      fotos: "/submissions/photos",
+    };
+
+    const baseRoute = routeMap[groupKey];
+
+    if (!baseRoute) return;
+
+    navigate(`${baseRoute}?status=${statusValue}`);
   };
 
   return (
@@ -112,7 +138,12 @@ export default function Panel() {
                 }}
               >
                 {statusOptions.map((status) => (
-                  <button key={status} type="button" style={styles.statusButton}>
+                  <button
+                    key={status}
+                    type="button"
+                    style={styles.statusButton}
+                    onClick={() => handleStatusNavigation("lugares", status)}
+                  >
                     {status}
                   </button>
                 ))}
@@ -143,7 +174,14 @@ export default function Panel() {
                 }}
               >
                 {statusOptions.map((status) => (
-                  <button key={status} type="button" style={styles.statusButton}>
+                  <button
+                    key={status}
+                    type="button"
+                    style={styles.statusButton}
+                    onClick={() =>
+                      handleStatusNavigation("descripciones", status)
+                    }
+                  >
                     {status}
                   </button>
                 ))}
@@ -172,7 +210,12 @@ export default function Panel() {
                 }}
               >
                 {statusOptions.map((status) => (
-                  <button key={status} type="button" style={styles.statusButton}>
+                  <button
+                    key={status}
+                    type="button"
+                    style={styles.statusButton}
+                    onClick={() => handleStatusNavigation("fotos", status)}
+                  >
                     {status}
                   </button>
                 ))}

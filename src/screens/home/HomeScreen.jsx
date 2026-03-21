@@ -1,17 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import LayoutScreen from "../../layout";
 import styles from "./styles";
 
-import {Header} from "../../components";
-import {Footer} from "../../components";
-import {Panel} from "../../components";
 import ActivityPanel from "./components/ActivityPanel";
 import InfoPanel from "./components/InfoPanel";
 import StatsOverview from "./components/StatsOverview";
 
 export default function HomeScreen() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const stats = [
     { title: "Usuarios activos", value: "1,284", subtitle: "esta semana" },
     { title: "Nuevos lugares", value: "73", subtitle: "esta semana" },
@@ -27,16 +22,7 @@ export default function HomeScreen() {
   ];
 
   return (
-    <LayoutScreen
-      header={<Header onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />}
-      footer={<Footer />}
-      sidebar={sidebarOpen ? <Panel /> : null}
-      sidebarWidth="250px"
-      padding="1.25rem"
-      bg="#efefef"
-      scroll
-      stickyHeader
-    >
+    <LayoutScreen padding="1.25rem" bg="#efefef" scroll stickyHeader>
       <div style={styles.container}>
         <StatsOverview stats={stats} />
 
@@ -48,13 +34,12 @@ export default function HomeScreen() {
 
           <div style={styles.rightColumn}>
             <InfoPanel
-              title="API refresh en x días"
-              text="Próxima actualización programada de lugares conectados con Google Places."
+              title="Estado del sistema"
+              content="Aquí puedes mostrar alertas, estado de servicios o tareas internas."
             />
-
             <InfoPanel
-              title="Uso de cuota de Places"
-              text="Aquí luego puedes mostrar porcentaje consumido, requests del día y alertas."
+              title="Resumen general"
+              content="Este espacio puede servir para indicadores rápidos del panel."
             />
           </div>
         </section>
