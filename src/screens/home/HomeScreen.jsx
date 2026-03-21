@@ -5,9 +5,9 @@ import styles from "./styles";
 import {Header} from "../../components";
 import {Footer} from "../../components";
 import {Panel} from "../../components";
-import StatCard from "./components/StatCard";
 import ActivityPanel from "./components/ActivityPanel";
 import InfoPanel from "./components/InfoPanel";
+import StatsOverview from "./components/StatsOverview";
 
 export default function HomeScreen() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,16 +38,7 @@ export default function HomeScreen() {
       stickyHeader
     >
       <div style={styles.container}>
-        <section style={styles.statsGrid}>
-          {stats.map((item) => (
-            <StatCard
-              key={item.title}
-              title={item.title}
-              value={item.value}
-              subtitle={item.subtitle}
-            />
-          ))}
-        </section>
+        <StatsOverview stats={stats} />
 
         <section style={styles.mainGrid}>
           <ActivityPanel
