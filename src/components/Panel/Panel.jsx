@@ -57,6 +57,10 @@ export default function Panel() {
     navigate(`${baseRoute}?status=${statusValue}`);
   };
 
+  const handleNavigation = (route) => {
+    navigate(route);
+  };
+
   return (
     <aside style={styles.container}>
       <div style={styles.inner}>
@@ -83,13 +87,27 @@ export default function Panel() {
                 : styles.sectionContentClosed),
             }}
           >
-            <button type="button" style={styles.optionButton}>
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/metrics/summary")}
+            >
               Resumen general
             </button>
-            <button type="button" style={styles.optionButton}>
+
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/metrics/trends")}
+            >
               Tendencias
             </button>
-            <button type="button" style={styles.optionButton}>
+
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/metrics/popularity")}
+            >
               Popularidad
             </button>
           </div>
@@ -245,14 +263,28 @@ export default function Panel() {
                 : styles.sectionContentClosed),
             }}
           >
-            <button type="button" style={styles.optionButton}>
-              Procesos
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/management/place-registration")}
+            >
+              Agregar lugares
             </button>
-            <button type="button" style={styles.optionButton}>
-              Sincronización
+
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/management/suggestions")}
+            >
+              Sugerencias
             </button>
-            <button type="button" style={styles.optionButton}>
-              Respaldos
+
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/management/reports")}
+            >
+              Reportes
             </button>
           </div>
         </div>
@@ -278,13 +310,27 @@ export default function Panel() {
                 : styles.sectionContentClosed),
             }}
           >
-            <button type="button" style={styles.optionButton}>
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/errors/critical")}
+            >
               Críticos
             </button>
-            <button type="button" style={styles.optionButton}>
+
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/errors/warnings")}
+            >
               Advertencias
             </button>
-            <button type="button" style={styles.optionButton}>
+
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/errors/history")}
+            >
               Historial
             </button>
           </div>
