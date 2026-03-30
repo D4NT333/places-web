@@ -29,6 +29,16 @@ const styles = {
     width: "100%",
     height: "100%",
   },
+
+  infoBox: {
+  marginBottom: "12px",
+  padding: "12px 16px",
+  borderRadius: "10px",
+  backgroundColor: "#f3f4f6",
+  border: "1px solid #d1d5db",
+  fontSize: "15px",
+  color: "#111827",
+  },
 };
 
 export default styles;

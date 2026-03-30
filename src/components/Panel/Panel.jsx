@@ -266,7 +266,7 @@ export default function Panel() {
             <button
               type="button"
               style={styles.optionButton}
-              onClick={() => handleNavigation("/management/place-registration")}
+              onClick={() => handleNavigation("/management/place-registration/zone")}
             >
               Agregar lugares
             </button>
