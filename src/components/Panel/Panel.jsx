@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./styles";
 
-const statusOptions = ["Todas", "Aprobadas", "Pendientes", "Rechazadas"];
+const statusOptions = ["Todas", "Aprobadas", "Pendientes", "Devueltas", "Rechazadas"];
 
 export default function Panel() {
   const navigate = useNavigate();
@@ -36,11 +36,12 @@ export default function Panel() {
 
   const handleStatusNavigation = (groupKey, statusLabel) => {
     const statusMap = {
-      Todas: "todas",
-      Aprobadas: "aprobadas",
-      Pendientes: "pendientes",
-      Rechazadas: "rechazadas",
-    };
+    Todas: "todas",
+    Aprobadas: "aprobado",
+    Pendientes: "pendiente",
+    Devueltas: "devuelto",
+    Rechazadas: "rechazado",
+  };
 
     const statusValue = statusMap[statusLabel] || "todas";
 

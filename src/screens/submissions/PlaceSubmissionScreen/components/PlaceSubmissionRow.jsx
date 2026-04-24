@@ -12,23 +12,29 @@ export default function PlaceSubmissionRow({ item }) {
   const statusStyle =
     styles.statusBadge?.[item.status] || styles.statusBadgeDefault;
 
+  const placeName = item.name || item.placeName || "Sin nombre";
+
   return (
-    <div style={styles.row} onClick={handleOpenDetail}>  
+    <div style={styles.row} onClick={handleOpenDetail}>
       <div style={styles.placeCell}>
         <div style={styles.placePhoto}>
-          <span style={styles.photoText}>Foto lugar</span>
+          <span style={styles.photoPlaceholderText}>Foto lugar</span>
         </div>
 
-        <span style={styles.placeName}>{item.name}</span>
+        <span style={styles.placeName}>{placeName}</span>
       </div>
 
-      <div style={styles.dateCell}>{item.createdAt}</div>
+      <div style={styles.dateCell}>
+        <span style={styles.cellText}>{item.createdAt}</span>
+      </div>
 
-      <div style={styles.userCell}>{item.userName}</div>
+      <div style={styles.userCell}>
+        <span style={styles.cellText}>{item.userName}</span>
+      </div>
 
       <div style={styles.userPhotoCell}>
         <div style={styles.userPhoto}>
-          <span style={styles.userPhotoText}>Foto usuario</span>
+          <span style={styles.photoPlaceholderText}>Foto usuario</span>
         </div>
       </div>
 

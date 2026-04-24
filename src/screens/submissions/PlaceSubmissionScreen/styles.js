@@ -1,3 +1,5 @@
+const tableColumns = "2.3fr 1.2fr 1fr 1fr 1fr";
+
 const styles = {
   container: {
     display: "flex",
@@ -35,7 +37,7 @@ const styles = {
 
   tableHeader: {
     display: "grid",
-    gridTemplateColumns: "2.3fr 1.2fr 1fr 1fr 1fr",
+    gridTemplateColumns: tableColumns,
     gap: "1rem",
     alignItems: "center",
     padding: "1rem 1.25rem",
@@ -58,11 +60,36 @@ const styles = {
     fontSize: "0.95rem",
   },
 
-  headerPlace: {},
-  headerDate: {},
-  headerUser: {},
-  headerUserPhoto: {},
-  headerStatus: {},
+  headerPlace: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingLeft: "4px",
+  },
+
+  headerDate: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerUser: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerUserPhoto: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerStatus: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 };
 
 export default styles;
