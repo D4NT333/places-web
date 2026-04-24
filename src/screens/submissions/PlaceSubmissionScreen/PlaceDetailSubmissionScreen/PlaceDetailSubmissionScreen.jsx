@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 
@@ -8,13 +9,25 @@ import Pill from "./Components/Pill";
 import ActionButtons from "./Components/ActionButtons";
 
 export default function PlaceDetailSubmissionScreen() {
+  const navigate = useNavigate();
+
   return (
     <LayoutScreen>
       <main style={styles.screen}>
         <section style={styles.contentArea}>
-          <aside style={styles.leftSection}>
-            <MediaBox label="Fotos" type="photos" />
-            <MediaBox label="Ubicación" type="location" />
+          <aside style={styles.leftWrapper}>
+            <button
+              type="button"
+              style={styles.backButton}
+              onClick={() => navigate(-1)}
+            >
+              ← Volver
+            </button>
+
+            <div style={styles.leftSection}>
+              <MediaBox label="Fotos" type="photos" />
+              <MediaBox label="Ubicación" type="location" />
+            </div>
           </aside>
 
           <div style={styles.verticalDivider} />

@@ -3,12 +3,13 @@ const styles = {
   screen: {
   width: "100%",
   height: "100%",
-  padding: "20px 32px 12px",
+  padding: "2px 52px 12px",
   boxSizing: "border-box",
   display: "flex",
   flexDirection: "column",
-  gap: "16px",
+  gap: "12px",
   overflow: "hidden",
+  position: "relative",
   },
 
   contentArea: {
@@ -22,11 +23,11 @@ const styles = {
   },
 
   leftSection: {
-    height: "100%",
-    minHeight: 0,
-    display: "grid",
-    gridTemplateRows: "2fr 1fr",
-    gap: "20px",
+  height: "100%",
+  minHeight: 0,
+  display: "grid",
+  gridTemplateRows: "2fr 1fr",
+  gap: "16px",
   },
 
   verticalDivider: {
@@ -85,6 +86,26 @@ const styles = {
     gap: "34px",
     flexWrap: "wrap",
     marginBottom: "34px",
+  },
+
+    leftWrapper: {
+    height: "100%",
+    minHeight: 0,
+    display: "grid",
+    gridTemplateRows: "34px 1fr",
+    gap: "8px",
+  },
+
+  backButton: {
+    width: "150px",
+    height: "36px",
+    border: "2px solid #111827",
+    borderRadius: "999px",
+    backgroundColor: "#ffffff",
+    color: "#111827",
+    fontSize: "15px",
+    fontWeight: "800",
+    cursor: "pointer",
   },
 };
 
