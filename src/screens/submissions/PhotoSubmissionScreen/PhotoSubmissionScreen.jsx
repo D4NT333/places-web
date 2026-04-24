@@ -1,6 +1,6 @@
 import React from "react";
 import LayoutScreen from "../../../layout/Layout";
-import PhotoSubmissionCard from "./components/PhotoSubmissionCard";
+import PhotoSubmissionCard from "./Components/PhotoSubmissionCard";
 import styles from "./styles";
 
 export default function PhotoSubmissionScreen() {

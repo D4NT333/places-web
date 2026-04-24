@@ -1,71 +1,39 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./styles";
 
-function getStatusLabel(status) {
-  const map = {
-    aprobado: "Aprobado",
-    pendiente: "Pendiente",
-    rechazado: "Rechazado",
-  };
-
-  return map[status] || "Sin estado";
-}
-
-function getStatusStyle(status) {
-  const map = {
-    aprobado: styles.statusApproved,
-    pendiente: styles.statusPending,
-    rechazado: styles.statusRejected,
-  };
-
-  return map[status] || styles.statusDefault;
-}
-
 export default function PlaceSubmissionRow({ item }) {
+  const navigate = useNavigate();
+
+  const handleOpenDetail = () => {
+    navigate(`/submissions/places/${item.id}`);
+  };
+
+  const statusStyle =
+    styles.statusBadge?.[item.status] || styles.statusBadgeDefault;
+
   return (
-    <div style={styles.row}>
+    <div style={styles.row} onClick={handleOpenDetail}>  
       <div style={styles.placeCell}>
         <div style={styles.placePhoto}>
-          {item.placePhoto ? (
-            <img
-              src={item.placePhoto}
-              alt={item.placeName}
-              style={styles.photoImage}
-            />
-          ) : (
-            <span style={styles.photoPlaceholderText}>Foto lugar</span>
-          )}
+          <span style={styles.photoText}>Foto lugar</span>
         </div>
 
-        <span style={styles.placeName}>{item.placeName}</span>
+        <span style={styles.placeName}>{item.name}</span>
       </div>
 
-      <div style={styles.dateCell}>
-        <span style={styles.cellText}>{item.createdAt}</span>
-      </div>
+      <div style={styles.dateCell}>{item.createdAt}</div>
 
-      <div style={styles.userCell}>
-        <span style={styles.cellText}>{item.userName}</span>
-      </div>
+      <div style={styles.userCell}>{item.userName}</div>
 
       <div style={styles.userPhotoCell}>
         <div style={styles.userPhoto}>
-          {item.userPhoto ? (
-            <img
-              src={item.userPhoto}
-              alt={item.userName}
-              style={styles.photoImage}
-            />
-          ) : (
-            <span style={styles.photoPlaceholderText}>Foto usuario</span>
-          )}
+          <span style={styles.userPhotoText}>Foto usuario</span>
         </div>
       </div>
 
       <div style={styles.statusCell}>
-        <span style={{ ...styles.statusBadge, ...getStatusStyle(item.status) }}>
-          {getStatusLabel(item.status)}
-        </span>
+        <span style={statusStyle}>{item.statusLabel}</span>
       </div>
     </div>
   );

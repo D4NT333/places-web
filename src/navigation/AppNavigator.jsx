@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HomeScreen } from "../screens";
 import { PlaceSubmissionScreen, DescriptionSubmissionScreen, PhotoSubmissionScreen } from "../screens";
 import { ReportsScreen, SelectZoneScreen, PlaceRegistrationScreen, SuggestionsScreen } from "../screens";
+import { PlaceDetailSubmissionScreen } from "../screens";
 
 export default function AppRoutes() {
   return (
@@ -13,6 +14,9 @@ export default function AppRoutes() {
         <Route path="/submissions/places" element={<PlaceSubmissionScreen />} />
         <Route path="/submissions/descriptions" element={<DescriptionSubmissionScreen />} />
         <Route path="/submissions/photos" element={<PhotoSubmissionScreen />} />
+
+        
+        <Route path="/submissions/places/:id" element={<PlaceDetailSubmissionScreen />} />
 
         <Route path="/management/reports" element={<ReportsScreen />} />
 

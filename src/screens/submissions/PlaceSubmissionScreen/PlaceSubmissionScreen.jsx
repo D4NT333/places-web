@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import LayoutScreen from "../../../layout";
 import styles from "./styles";
-import PlaceSubmissionRow from "./components/PlaceSubmissionRow";
+import PlaceSubmissionRow from "./Components/PlaceSubmissionRow";
 import placeSubmissionsMock from "./services/placeSubmissionMock";
 
 function useQuery() {

@@ -5,6 +5,7 @@ export {default as PlaceSubmissionScreen} from "./submissions/PlaceSubmissionScr
 export {default as PhotoSubmissionScreen} from "./submissions/PhotoSubmissionScreen/PhotoSubmissionScreen";
 export {default as DescriptionSubmissionScreen} from "./submissions/DescriptionSubmissionScreen/DescriptionSubmissionScreen";
 
+export { default as PlaceDetailSubmissionScreen } from "./submissions/PlaceSubmissionScreen/PlaceDetailSubmissionScreen";
 
 export { default as SelectZoneScreen } from "./management/PlaceRegistration/SelectZoneScreen";
 export { default as PlaceRegistrationScreen } from "./management/PlaceRegistration/PlaceRegistrationScreen";
