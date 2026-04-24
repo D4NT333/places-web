@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./styles";
 
+import { icons } from "../../../assets/icons";
+
 const statusOptions = ["Todas", "Aprobadas", "Pendientes", "Devueltas", "Rechazadas"];
 
 export default function Panel() {
@@ -65,6 +67,19 @@ export default function Panel() {
   return (
     <aside style={styles.container}>
       <div style={styles.inner}>
+        <button
+          type="button"
+          style={styles.homeButton}
+          onClick={() => handleNavigation("/")}
+          title="Ir al inicio"
+        >
+          <img
+            src={icons.home}
+            alt="Inicio"
+            style={styles.homeIcon}
+          />
+        </button>
+
         <p style={styles.panelTitle}>Panel</p>
 
         {/* MÉTRICAS */}

@@ -148,6 +148,25 @@ const styles = {
     fontWeight: 700,
     transition: "transform 0.22s ease",
   },
+  homeButton: {
+  width: "62px",
+  height: "62px",
+  borderRadius: "12px",
+  border: "1px solid #e5e7eb",
+  backgroundColor: "#ffffff",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  marginBottom: "8px",
+  padding: "6px",
+  },
+
+homeIcon: {
+  width: "94px",
+  height: "94px",
+  objectFit: "contain",
+  },
 };
 
 export default styles;
