@@ -90,6 +90,40 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
+  topBar: {
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: 24,
+  marginBottom: 22,
+},
+
+filtersWrapper: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
+  gap: 10,
+  flexWrap: "wrap",
+  paddingTop: 4,
+},
+
+filterChip: {
+  border: "1px solid #d1d5db",
+  backgroundColor: "#ffffff",
+  color: "#334155",
+  borderRadius: 999,
+  padding: "8px 14px",
+  fontSize: 13,
+  fontWeight: 600,
+  cursor: "pointer",
+  transition: "all 0.18s ease",
+},
+
+filterChipActive: {
+  backgroundColor: "#0f172a",
+  color: "#ffffff",
+  borderColor: "#0f172a",
+},
 };
 
 export default styles;

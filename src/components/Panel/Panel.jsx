@@ -4,8 +4,6 @@ import styles from "./styles";
 
 import { icons } from "../../../assets/icons";
 
-const statusOptions = ["Todas", "Aprobadas", "Pendientes", "Devueltas", "Rechazadas"];
-
 export default function Panel() {
   const navigate = useNavigate();
 
@@ -16,48 +14,11 @@ export default function Panel() {
     errores: false,
   });
 
-  const [openListGroups, setOpenListGroups] = useState({
-    lugares: false,
-    descripciones: false,
-    fotos: false,
-  });
-
   const toggleSection = (sectionKey) => {
     setOpenSections((prev) => ({
       ...prev,
       [sectionKey]: !prev[sectionKey],
     }));
-  };
-
-  const toggleListGroup = (groupKey) => {
-    setOpenListGroups((prev) => ({
-      ...prev,
-      [groupKey]: !prev[groupKey],
-    }));
-  };
-
-  const handleStatusNavigation = (groupKey, statusLabel) => {
-    const statusMap = {
-    Todas: "todas",
-    Aprobadas: "aprobado",
-    Pendientes: "pendiente",
-    Devueltas: "devuelto",
-    Rechazadas: "rechazado",
-  };
-
-    const statusValue = statusMap[statusLabel] || "todas";
-
-    const routeMap = {
-      lugares: "/submissions/places",
-      descripciones: "/submissions/descriptions",
-      fotos: "/submissions/photos",
-    };
-
-    const baseRoute = routeMap[groupKey];
-
-    if (!baseRoute) return;
-
-    navigate(`${baseRoute}?status=${statusValue}`);
   };
 
   const handleNavigation = (route) => {
@@ -73,11 +34,7 @@ export default function Panel() {
           onClick={() => handleNavigation("/")}
           title="Ir al inicio"
         >
-          <img
-            src={icons.home}
-            alt="Inicio"
-            style={styles.homeIcon}
-          />
+          <img src={icons.home} alt="Inicio" style={styles.homeIcon} />
         </button>
 
         <p style={styles.panelTitle}>Panel</p>
@@ -150,111 +107,29 @@ export default function Panel() {
                 : styles.sectionContentClosed),
             }}
           >
-            {/* Propuesta de lugares */}
-            <div style={styles.subSectionBlock}>
-              <button
-                type="button"
-                style={styles.subSectionButton}
-                onClick={() => toggleListGroup("lugares")}
-              >
-                <span style={styles.arrowSmall}>
-                  {openListGroups.lugares ? "⌄" : "›"}
-                </span>
-                <span style={styles.subSectionText}>Propuesta de lugares</span>
-              </button>
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/submissions/places")}
+            >
+              Propuesta de lugares
+            </button>
 
-              <div
-                style={{
-                  ...styles.statusList,
-                  ...(openListGroups.lugares
-                    ? styles.statusListOpen
-                    : styles.statusListClosed),
-                }}
-              >
-                {statusOptions.map((status) => (
-                  <button
-                    key={status}
-                    type="button"
-                    style={styles.statusButton}
-                    onClick={() => handleStatusNavigation("lugares", status)}
-                  >
-                    {status}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/submissions/descriptions")}
+            >
+              Propuesta de descripciones
+            </button>
 
-            {/* Propuesta de descripciones */}
-            <div style={styles.subSectionBlock}>
-              <button
-                type="button"
-                style={styles.subSectionButton}
-                onClick={() => toggleListGroup("descripciones")}
-              >
-                <span style={styles.arrowSmall}>
-                  {openListGroups.descripciones ? "⌄" : "›"}
-                </span>
-                <span style={styles.subSectionText}>
-                  Propuesta de descripciones
-                </span>
-              </button>
-
-              <div
-                style={{
-                  ...styles.statusList,
-                  ...(openListGroups.descripciones
-                    ? styles.statusListOpen
-                    : styles.statusListClosed),
-                }}
-              >
-                {statusOptions.map((status) => (
-                  <button
-                    key={status}
-                    type="button"
-                    style={styles.statusButton}
-                    onClick={() =>
-                      handleStatusNavigation("descripciones", status)
-                    }
-                  >
-                    {status}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Propuesta de fotos */}
-            <div style={styles.subSectionBlock}>
-              <button
-                type="button"
-                style={styles.subSectionButton}
-                onClick={() => toggleListGroup("fotos")}
-              >
-                <span style={styles.arrowSmall}>
-                  {openListGroups.fotos ? "⌄" : "›"}
-                </span>
-                <span style={styles.subSectionText}>Propuesta de fotos</span>
-              </button>
-
-              <div
-                style={{
-                  ...styles.statusList,
-                  ...(openListGroups.fotos
-                    ? styles.statusListOpen
-                    : styles.statusListClosed),
-                }}
-              >
-                {statusOptions.map((status) => (
-                  <button
-                    key={status}
-                    type="button"
-                    style={styles.statusButton}
-                    onClick={() => handleStatusNavigation("fotos", status)}
-                  >
-                    {status}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/submissions/photos")}
+            >
+              Propuesta de fotos
+            </button>
           </div>
         </div>
 
@@ -282,7 +157,9 @@ export default function Panel() {
             <button
               type="button"
               style={styles.optionButton}
-              onClick={() => handleNavigation("/management/place-registration/zone")}
+              onClick={() =>
+                handleNavigation("/management/place-registration/zone")
+              }
             >
               Agregar lugares
             </button>
