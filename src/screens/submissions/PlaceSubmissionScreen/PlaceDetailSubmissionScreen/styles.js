@@ -17,7 +17,7 @@ const styles = {
   flex: 1,
   minHeight: 0,
   display: "grid",
-  gridTemplateColumns: "600px 2px 1fr",
+  gridTemplateColumns: "690px 2px 1fr",
   columnGap: "32px",
   boxSizing: "border-box",
   },

@@ -3,7 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 
-import MediaBox from "./Components/MediaBox";
+import PhotoCarousel from "./Components/PhotoCarousel";
+import LocationBox from "./Components/LocationBox";
 import InfoField from "./Components/InfoField";
 import Pill from "./Components/Pill";
 import ActionButtons from "./Components/ActionButtons";
@@ -112,8 +113,8 @@ export default function PlaceDetailSubmissionScreen() {
             </button>
 
             <div style={styles.leftSection}>
-              <MediaBox label="Fotos" type="photos" photos={submission?.photos || []} />
-              <MediaBox label="Ubicación" type="location" location={submission?.location} />
+              <PhotoCarousel photos={submission?.photos || []} />
+              <LocationBox location={submission?.location} />
             </div>
           </aside>
 
