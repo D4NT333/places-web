@@ -1,45 +1,87 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import styles from "./styles";
 
-export default function PlaceSubmissionRow({ item }) {
-  const navigate = useNavigate();
+function formatDate(dateString) {
+  if (!dateString) return "Sin fecha";
 
-  const handleOpenDetail = () => {
-    navigate(`/submissions/places/${item.id}`);
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Sin fecha";
+  }
+
+  return date.toISOString().split("T")[0];
+}
+
+function getStatusLabel(status) {
+  const map = {
+    in_review: "Pendiente",
+    approved: "Aprobado",
+    returned: "Devuelto",
+    rejected: "Rechazado",
   };
 
-  const statusStyle =
-    styles.statusBadge?.[item.status] || styles.statusBadgeDefault;
+  return map[status] || "Sin estado";
+}
 
-  const placeName = item.name || item.placeName || "Sin nombre";
+function getStatusStyle(status) {
+  const map = {
+    in_review: styles.statusPending,
+    approved: styles.statusApproved,
+    returned: styles.statusReturned,
+    rejected: styles.statusRejected,
+  };
 
+  return map[status] || styles.statusDefault;
+}
+
+export default function PlaceSubmissionRow({ item, onClick }) {
   return (
-    <div style={styles.row} onClick={handleOpenDetail}>
+      <div
+        style={styles.row}
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+      >
       <div style={styles.placeCell}>
-        <div style={styles.placePhoto}>
-          <span style={styles.photoPlaceholderText}>Foto lugar</span>
-        </div>
+        {item.placePhotoUrl ? (
+          <img
+            src={item.placePhotoUrl}
+            alt={item.name}
+            style={styles.placeImage}
+          />
+        ) : (
+          <div style={styles.placeImagePlaceholder}>Foto lugar</div>
+        )}
 
-        <span style={styles.placeName}>{placeName}</span>
+        <strong style={styles.placeName}>{item.name}</strong>
       </div>
 
-      <div style={styles.dateCell}>
-        <span style={styles.cellText}>{item.createdAt}</span>
-      </div>
+      <div style={styles.dateCell}>{formatDate(item.createdAt)}</div>
 
-      <div style={styles.userCell}>
-        <span style={styles.cellText}>{item.userName}</span>
-      </div>
+      <div style={styles.userCell}>{item.userName}</div>
 
       <div style={styles.userPhotoCell}>
-        <div style={styles.userPhoto}>
-          <span style={styles.photoPlaceholderText}>Foto usuario</span>
-        </div>
+        {item.userPhotoUrl ? (
+          <img
+            src={item.userPhotoUrl}
+            alt={item.userName}
+            style={styles.userImage}
+          />
+        ) : (
+          <div style={styles.userImagePlaceholder}>Foto usuario</div>
+        )}
       </div>
 
       <div style={styles.statusCell}>
-        <span style={statusStyle}>{item.statusLabel}</span>
+        <span
+          style={{
+            ...styles.statusBadge,
+            ...getStatusStyle(item.status),
+          }}
+        >
+          {getStatusLabel(item.status)}
+        </span>
       </div>
     </div>
   );

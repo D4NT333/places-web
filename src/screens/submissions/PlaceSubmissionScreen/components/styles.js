@@ -1,14 +1,26 @@
 const tableColumns = "2.3fr 1.2fr 1fr 1fr 1fr";
 
+const baseCircleImage = {
+  borderRadius: "999px",
+  border: "1px solid #d1d5db",
+  overflow: "hidden",
+  backgroundColor: "#f3f4f6",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  boxSizing: "border-box",
+  flexShrink: 0,
+};
+
 const baseStatusBadge = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  minWidth: "90px",
-  padding: "7px 14px",
+  minWidth: "86px",
+  padding: "4px 10px",
   borderRadius: "999px",
-  fontSize: "12px",
-  fontWeight: "800",
+  fontSize: "22px",
+  fontWeight: "700",
   boxSizing: "border-box",
 };
 
@@ -18,7 +30,7 @@ const styles = {
     gridTemplateColumns: tableColumns,
     gap: "1rem",
     alignItems: "center",
-    minHeight: "110px",
+    minHeight: "150px",
     padding: "0 1.25rem",
     borderBottom: "1px solid #edf0f3",
     cursor: "pointer",
@@ -33,32 +45,30 @@ const styles = {
     minWidth: 0,
   },
 
-  placePhoto: {
-    width: "46px",
-    height: "46px",
-    minWidth: "46px",
-    borderRadius: "999px",
-    border: "1px solid #d1d5db",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    backgroundColor: "#f3f4f6",
-    textAlign: "center",
-    boxSizing: "border-box",
+  placeImage: {
+    ...baseCircleImage,
+    width: "98px",
+    height: "98px",
+    minWidth: "98px",
+    objectFit: "cover",
+    display: "block",
   },
 
-  photoPlaceholderText: {
-    fontSize: "10px",
+  placeImagePlaceholder: {
+    ...baseCircleImage,
+    width: "98px",
+    height: "98px",
+    minWidth: "98px",
+    fontSize: "9px",
     color: "#6b7280",
-    lineHeight: "12px",
+    lineHeight: "11px",
     textAlign: "center",
   },
 
   placeName: {
     display: "block",
     maxWidth: "220px",
-    fontSize: "15px",
+    fontSize: "20px",
     fontWeight: "800",
     color: "#07162f",
     whiteSpace: "nowrap",
@@ -70,12 +80,16 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    fontSize: "20px",
+    color: "#07162f",
   },
 
   userCell: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    fontSize: "20px",
+    color: "#07162f",
   },
 
   userPhotoCell: {
@@ -84,68 +98,64 @@ const styles = {
     justifyContent: "center",
   },
 
+  userImage: {
+    ...baseCircleImage,
+    width: "98px",
+    height: "98px",
+    minWidth: "98px",
+    objectFit: "cover",
+    display: "block",
+  },
+
+  userImagePlaceholder: {
+    ...baseCircleImage,
+    width: "98px",
+    height: "98px",
+    minWidth: "42px",
+    fontSize: "8px",
+    color: "#6b7280",
+    lineHeight: "10px",
+    textAlign: "center",
+  },
+
   statusCell: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
 
-  cellText: {
-    fontSize: "14px",
-    color: "#07162f",
-    textAlign: "center",
-  },
-
-  userPhoto: {
-    width: "42px",
-    height: "42px",
-    minWidth: "42px",
-    borderRadius: "999px",
-    border: "1px solid #d1d5db",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    backgroundColor: "#f3f4f6",
-    textAlign: "center",
-    boxSizing: "border-box",
-  },
-
-  statusBadgeDefault: {
+  statusBadge: {
     ...baseStatusBadge,
+  },
+
+  statusPending: {
+    color: "#b45309",
+    backgroundColor: "#fef3c7",
+    border: "1px solid #f59e0b",
+  },
+
+  statusApproved: {
+    color: "#047857",
+    backgroundColor: "#d1fae5",
+    border: "1px solid #6ee7b7",
+  },
+
+  statusReturned: {
+    color: "#1d4ed8",
+    backgroundColor: "#dbeafe",
+    border: "1px solid #60a5fa",
+  },
+
+  statusRejected: {
+    color: "#b91c1c",
+    backgroundColor: "#fee2e2",
+    border: "1px solid #f87171",
+  },
+
+  statusDefault: {
+    color: "#334155",
     backgroundColor: "#f1f5f9",
     border: "1px solid #cbd5e1",
-    color: "#475569",
-  },
-
-  statusBadge: {
-    pendiente: {
-      ...baseStatusBadge,
-      backgroundColor: "#fff7ed",
-      border: "1px solid #fbbf24",
-      color: "#b45309",
-    },
-
-    aprobado: {
-      ...baseStatusBadge,
-      backgroundColor: "#ecfdf5",
-      border: "1px solid #6ee7b7",
-      color: "#047857",
-    },
-
-    devuelto: {
-      ...baseStatusBadge,
-      backgroundColor: "#eff6ff",
-      border: "1px solid #93c5fd",
-      color: "#1d4ed8",
-    },
-
-    rechazado: {
-      ...baseStatusBadge,
-      backgroundColor: "#fef2f2",
-      border: "1px solid #fca5a5",
-      color: "#b91c1c",
-    },
   },
 };
 

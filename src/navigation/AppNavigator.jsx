@@ -16,7 +16,7 @@ export default function AppRoutes() {
         <Route path="/submissions/photos" element={<PhotoSubmissionScreen />} />
 
         
-        <Route path="/submissions/places/:id" element={<PlaceDetailSubmissionScreen />} />
+        <Route path="/submissions/places/:submissionId" element={<PlaceDetailSubmissionScreen />}/>
 
         <Route path="/management/reports" element={<ReportsScreen />} />
 

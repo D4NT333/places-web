@@ -1,30 +1,30 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LayoutScreen from "../../../layout";
 import styles from "./styles";
 import PlaceSubmissionRow from "./Components/PlaceSubmissionRow";
-import placeSubmissionsMock from "./services/placeSubmissionMock";
+import getPlaceSubmissionsService from "../../../services/submissions/getPlaceSubmissions.service";
 
 const statusFilters = [
   {
     label: "Todas",
-    value: "todas",
+    value: "all",
   },
   {
     label: "Pendientes",
-    value: "pendiente",
+    value: "in_review",
   },
   {
     label: "Aprobadas",
-    value: "aprobado",
+    value: "approved",
   },
   {
     label: "Devueltas",
-    value: "devuelto",
+    value: "returned",
   },
   {
     label: "Rechazadas",
-    value: "rechazado",
+    value: "rejected",
   },
 ];
 
@@ -34,11 +34,11 @@ function useQuery() {
 
 function getStatusTitle(status) {
   const map = {
-    todas: "Todas las propuestas de lugares",
-    aprobado: "Lugares aprobados",
-    pendiente: "Lugares pendientes",
-    devuelto: "Lugares devueltos",
-    rechazado: "Lugares rechazados",
+    all: "Todas las propuestas de lugares",
+    in_review: "Lugares pendientes de revisión",
+    approved: "Lugares aprobados",
+    returned: "Lugares devueltos",
+    rejected: "Lugares rechazados",
   };
 
   return map[status] || "Todas las propuestas de lugares";
@@ -48,20 +48,56 @@ export default function PlaceSubmissionScreen() {
   const navigate = useNavigate();
   const query = useQuery();
 
-  const currentStatus = query.get("status") || "todas";
+  const currentStatus = query.get("status") || "all";
 
-  const filteredSubmissions = useMemo(() => {
-    if (currentStatus === "todas") {
-      return placeSubmissionsMock;
+  const [submissions, setSubmissions] = useState([]);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const isValidStatus = useMemo(() => {
+    return statusFilters.some((filter) => filter.value === currentStatus);
+  }, [currentStatus]);
+
+  useEffect(() => {
+    if (!isValidStatus) {
+      navigate("/submissions/places?status=all", { replace: true });
+      return;
     }
 
-    return placeSubmissionsMock.filter(
-      (item) => item.status === currentStatus
-    );
-  }, [currentStatus]);
+    async function loadSubmissions() {
+      try {
+        setLoading(true);
+        setErrorMessage("");
+
+        const data = await getPlaceSubmissionsService({
+          status: currentStatus,
+          limit: 15,
+        });
+
+        console.log("Submissions recibidas en web:", data);
+
+        setSubmissions(data.items || []);
+        setNextCursor(data.nextCursor || null);
+      } catch (error) {
+        console.error("Error cargando submissions:", error);
+        setErrorMessage(
+          error.message || "No se pudieron cargar las submissions."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadSubmissions();
+  }, [currentStatus, isValidStatus, navigate]);
 
   const handleStatusChange = (statusValue) => {
     navigate(`/submissions/places?status=${statusValue}`);
+  };
+
+  const handleOpenDetail = (submissionId) => {
+  navigate(`/submissions/places/${submissionId}`);
   };
 
   return (
@@ -103,18 +139,32 @@ export default function PlaceSubmissionScreen() {
             <div style={styles.headerStatus}>Estado</div>
           </div>
 
-          <div style={styles.rowsWrapper}>
-            {filteredSubmissions.length > 0 ? (
-              filteredSubmissions.map((item) => (
-                <PlaceSubmissionRow key={item.id} item={item} />
-              ))
-            ) : (
-              <div style={styles.emptyState}>
-                No hay submissions para este estado.
-              </div>
-            )}
+       <div style={styles.rowsWrapper}>
+        {loading ? (
+          <div style={styles.emptyState}>Cargando submissions...</div>
+        ) : errorMessage ? (
+          <div style={styles.emptyState}>{errorMessage}</div>
+        ) : submissions.length > 0 ? (
+          submissions.map((item) => (
+            <PlaceSubmissionRow
+              key={item.id}
+              item={item}
+              onClick={() => handleOpenDetail(item.id)}
+            />
+          ))
+        ) : (
+          <div style={styles.emptyState}>
+            No hay submissions para este estado.
           </div>
+        )}
+      </div>
         </div>
+
+        {nextCursor && !loading && (
+          <div style={styles.paginationHint}>
+            Hay más submissions disponibles.
+          </div>
+        )}
       </div>
     </LayoutScreen>
   );
