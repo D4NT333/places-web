@@ -124,6 +124,17 @@ filterChipActive: {
   color: "#ffffff",
   borderColor: "#0f172a",
 },
+loadMoreTrap: {
+  width: "100%",
+  height: "1px",
+},
+
+paginationHint: {
+  marginTop: "14px",
+  fontSize: "14px",
+  fontWeight: "700",
+  color: "#334155",
+},
 };
 
 export default styles;

@@ -1,9 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LayoutScreen from "../../../layout";
 import styles from "./styles";
 import PlaceSubmissionRow from "./Components/PlaceSubmissionRow";
 import getPlaceSubmissionsService from "../../../services/submissions/getPlaceSubmissions.service";
+
+const PAGE_LIMIT = 15;
+const CACHE_TTL_MS = 2 * 60 * 1000;
+
+const submissionsCache = new Map();
 
 const statusFilters = [
   {
@@ -44,6 +49,16 @@ function getStatusTitle(status) {
   return map[status] || "Todas las propuestas de lugares";
 }
 
+function getCacheKey(status) {
+  return `place-submissions:${status}`;
+}
+
+function isCacheValid(cacheEntry) {
+  if (!cacheEntry) return false;
+
+  return Date.now() - cacheEntry.savedAt < CACHE_TTL_MS;
+}
+
 export default function PlaceSubmissionScreen() {
   const navigate = useNavigate();
   const query = useQuery();
@@ -53,11 +68,88 @@ export default function PlaceSubmissionScreen() {
   const [submissions, setSubmissions] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const loadMoreRef = useRef(null);
 
   const isValidStatus = useMemo(() => {
     return statusFilters.some((filter) => filter.value === currentStatus);
   }, [currentStatus]);
+
+  const saveCache = ({ items, cursor, more }) => {
+    const cacheKey = getCacheKey(currentStatus);
+
+    submissionsCache.set(cacheKey, {
+      items,
+      nextCursor: cursor,
+      hasMore: more,
+      savedAt: Date.now(),
+    });
+  };
+
+  const loadSubmissions = async ({ reset = false } = {}) => {
+    if (loading || loadingMore) return;
+    if (!reset && !hasMore) return;
+
+    try {
+      if (reset) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      setErrorMessage("");
+
+      const data = await getPlaceSubmissionsService({
+        status: currentStatus,
+        limit: PAGE_LIMIT,
+        cursor: reset ? null : nextCursor,
+      });
+
+      const newItems = data.items || [];
+      const newCursor = data.nextCursor || null;
+
+      setSubmissions((prev) => {
+        const mergedItems = reset
+          ? newItems
+          : [
+              ...prev,
+              ...newItems.filter(
+                (newItem) =>
+                  !prev.some((currentItem) => currentItem.id === newItem.id)
+              ),
+            ];
+
+        const newHasMore = Boolean(newCursor) && newItems.length > 0;
+
+        saveCache({
+          items: mergedItems,
+          cursor: newCursor,
+          more: newHasMore,
+        });
+
+        return mergedItems;
+      });
+
+      setNextCursor(newCursor);
+
+      if (!newCursor || newItems.length === 0) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+    } catch (error) {
+      console.error("Error cargando submissions:", error);
+      setErrorMessage(
+        error.message || "No se pudieron cargar las submissions."
+      );
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     if (!isValidStatus) {
@@ -65,39 +157,59 @@ export default function PlaceSubmissionScreen() {
       return;
     }
 
-    async function loadSubmissions() {
-      try {
-        setLoading(true);
-        setErrorMessage("");
+    const cacheKey = getCacheKey(currentStatus);
+    const cachedData = submissionsCache.get(cacheKey);
 
-        const data = await getPlaceSubmissionsService({
-          status: currentStatus,
-          limit: 15,
-        });
+    if (isCacheValid(cachedData)) {
+      console.log("Usando cache:", cacheKey);
 
-        console.log("Submissions recibidas en web:", data);
-
-        setSubmissions(data.items || []);
-        setNextCursor(data.nextCursor || null);
-      } catch (error) {
-        console.error("Error cargando submissions:", error);
-        setErrorMessage(
-          error.message || "No se pudieron cargar las submissions."
-        );
-      } finally {
-        setLoading(false);
-      }
+      setSubmissions(cachedData.items || []);
+      setNextCursor(cachedData.nextCursor || null);
+      setHasMore(cachedData.hasMore ?? true);
+      setErrorMessage("");
+      return;
     }
 
-    loadSubmissions();
+    setSubmissions([]);
+    setNextCursor(null);
+    setHasMore(true);
+
+    loadSubmissions({ reset: true });
   }, [currentStatus, isValidStatus, navigate]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+
+        if (firstEntry.isIntersecting && hasMore && !loading && !loadingMore) {
+          loadSubmissions({ reset: false });
+        }
+      },
+      {
+        root: null,
+        rootMargin: "220px",
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [nextCursor, hasMore, loading, loadingMore, currentStatus]);
 
   const handleStatusChange = (statusValue) => {
     navigate(`/submissions/places?status=${statusValue}`);
   };
 
   const handleOpenDetail = (submissionId) => {
-  navigate(`/submissions/places/${submissionId}`);
+    navigate(`/submissions/places/${submissionId}`);
   };
 
   return (
@@ -139,30 +251,38 @@ export default function PlaceSubmissionScreen() {
             <div style={styles.headerStatus}>Estado</div>
           </div>
 
-       <div style={styles.rowsWrapper}>
-        {loading ? (
-          <div style={styles.emptyState}>Cargando submissions...</div>
-        ) : errorMessage ? (
-          <div style={styles.emptyState}>{errorMessage}</div>
-        ) : submissions.length > 0 ? (
-          submissions.map((item) => (
-            <PlaceSubmissionRow
-              key={item.id}
-              item={item}
-              onClick={() => handleOpenDetail(item.id)}
-            />
-          ))
-        ) : (
-          <div style={styles.emptyState}>
-            No hay submissions para este estado.
+          <div style={styles.rowsWrapper}>
+            {loading ? (
+              <div style={styles.emptyState}>Cargando submissions...</div>
+            ) : errorMessage ? (
+              <div style={styles.emptyState}>{errorMessage}</div>
+            ) : submissions.length > 0 ? (
+              submissions.map((item) => (
+                <PlaceSubmissionRow
+                  key={item.id}
+                  item={item}
+                  onClick={() => handleOpenDetail(item.id)}
+                />
+              ))
+            ) : (
+              <div style={styles.emptyState}>
+                No hay submissions para este estado.
+              </div>
+            )}
           </div>
-        )}
-      </div>
         </div>
 
-        {nextCursor && !loading && (
+        <div ref={loadMoreRef} style={styles.loadMoreTrap} />
+
+        {loadingMore && (
           <div style={styles.paginationHint}>
-            Hay más submissions disponibles.
+            Cargando más submissions...
+          </div>
+        )}
+
+        {!loading && !loadingMore && !hasMore && submissions.length > 0 && (
+          <div style={styles.paginationHint}>
+            No hay más submissions.
           </div>
         )}
       </div>

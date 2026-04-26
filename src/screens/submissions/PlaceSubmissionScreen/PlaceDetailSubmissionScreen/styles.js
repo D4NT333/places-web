@@ -107,6 +107,7 @@ const styles = {
     fontWeight: "800",
     cursor: "pointer",
   },
+  
 };
 
 export default styles;
