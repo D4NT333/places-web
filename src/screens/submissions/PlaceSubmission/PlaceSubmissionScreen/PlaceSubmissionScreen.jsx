@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import LayoutScreen from "../../../layout";
+import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 import PlaceSubmissionRow from "./Components/PlaceSubmissionRow";
-import getPlaceSubmissionsService from "../../../services/submissions/getPlaceSubmissions.service";
+import getPlaceSubmissionsService from "../../../../services/submissions/getPlaceSubmissions.service";
 
 const PAGE_LIMIT = 15;
 const CACHE_TTL_MS = 2 * 60 * 1000;

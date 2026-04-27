@@ -3,6 +3,7 @@ import { HomeScreen } from "../screens";
 import { PlaceSubmissionScreen, DescriptionSubmissionScreen, PhotoSubmissionScreen } from "../screens";
 import { ReportsScreen, SelectZoneScreen, PlaceRegistrationScreen, SuggestionsScreen } from "../screens";
 import { PlaceDetailSubmissionScreen } from "../screens";
+import { PlaceReturnSubmissionScreen } from "../screens";
 
 export default function AppRoutes() {
   return (
@@ -17,6 +18,8 @@ export default function AppRoutes() {
 
         
         <Route path="/submissions/places/:submissionId" element={<PlaceDetailSubmissionScreen />}/>
+
+        <Route path="/submissions/places/:submissionId/return" element={<PlaceReturnSubmissionScreen />}/>
 
         <Route path="/management/reports" element={<ReportsScreen />} />
 

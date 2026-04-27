@@ -8,6 +8,8 @@ import LocationBox from "./Components/LocationBox";
 import InfoField from "./Components/InfoField";
 import Pill from "./Components/Pill";
 import ActionButtons from "./Components/ActionButtons";
+import RejectionModal from "./Components/RejectionModal";
+
 import getPlaceSubmissionDetailService from "../../../../services/submissions/getPlaceSubmissionDetail.service";
 
 function formatDate(dateString) {
@@ -44,6 +46,8 @@ export default function PlaceDetailSubmissionScreen() {
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
 
   useEffect(() => {
     async function loadSubmissionDetail() {
@@ -100,6 +104,7 @@ export default function PlaceDetailSubmissionScreen() {
   }
 
   return (
+    <>
     <LayoutScreen>
       <main style={styles.screen}>
         <section style={styles.contentArea}>
@@ -134,7 +139,19 @@ export default function PlaceDetailSubmissionScreen() {
                 />
               </div>
 
-              <ActionButtons />
+              <ActionButtons
+                onAccept={() => {
+                  console.log("ACEPTAR submission");
+                }}
+                onReturn={() =>
+                  navigate(`/submissions/places/${submissionId}/return`, {
+                  state: {
+                    submission,
+                  },
+                })
+                }
+                onReject={() => setShowRejectionModal(true)}
+              />
             </div>
 
             <div style={styles.nameStatusRow}>
@@ -166,5 +183,19 @@ export default function PlaceDetailSubmissionScreen() {
         </section>
       </main>
     </LayoutScreen>
+              
+    <RejectionModal
+  visible={showRejectionModal}
+  onClose={() => setShowRejectionModal(false)}
+  onSubmit={(payload) => {
+    console.log("RECHAZO:", payload);
+
+    // Luego aquí:
+    // rejectPlaceSubmissionService(placeSubmissionId, payload)
+
+    setShowRejectionModal(false);
+  }}
+  />  
+</>
   );
 }

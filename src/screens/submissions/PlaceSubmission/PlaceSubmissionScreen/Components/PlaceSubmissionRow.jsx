@@ -35,6 +35,8 @@ function getStatusStyle(status) {
   return map[status] || styles.statusDefault;
 }
 
+
+
 export default function PlaceSubmissionRow({ item, onClick }) {
   return (
       <div
@@ -85,4 +87,5 @@ export default function PlaceSubmissionRow({ item, onClick }) {
       </div>
     </div>
   );
+  
 }

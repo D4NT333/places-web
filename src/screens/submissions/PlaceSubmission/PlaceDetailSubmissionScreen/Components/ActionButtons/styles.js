@@ -18,6 +18,10 @@ const styles = {
     fontWeight: "800",
     cursor: "pointer",
   },
+  rejectButton: {
+  borderColor: "#b91c1c",
+  color: "#b91c1c",
+},
 };
 
 export default styles;
