@@ -118,6 +118,21 @@ const styles = {
     textAlign: "center",
   },
 
+  userImageFallback: {
+  width: 72,
+  height: 72,
+  borderRadius: "50%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  border: "1px solid #d7e0ea",
+  backgroundColor: "#eef2f7",
+  color: "#10233f",
+  fontSize: 16,
+  fontWeight: 800,
+  overflow: "hidden",
+},
+
   statusCell: {
     display: "flex",
     alignItems: "center",

@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./styles";
 
 function formatDate(dateValue) {
   if (!dateValue) return "Sin fecha";
 
-  // Por si viene como Firestore Timestamp
   if (dateValue?.toDate) {
     return dateValue.toDate().toISOString().split("T")[0];
   }
@@ -22,8 +21,8 @@ function getStatusLabel(status) {
   const map = {
     in_review: "Pendiente",
     approved: "Aprobado",
-    returned: "Devuelto",
-    rejected: "Rechazado",
+    returned: "Devuelta",
+    rejected: "Rechazada",
   };
 
   return map[status] || "Sin estado";
@@ -52,6 +51,45 @@ function getPlaceImageUrl(item) {
   );
 }
 
+function getInitials(name = "") {
+  const cleanName = String(name).trim();
+
+  if (!cleanName) return "?";
+
+  const parts = cleanName.split(/\s+/).filter(Boolean);
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
+function UserAvatar({ src, name }) {
+  const [hasError, setHasError] = useState(false);
+
+  const canShowImage = Boolean(src) && !hasError;
+
+  if (!canShowImage) {
+    return (
+      <div style={styles.userImageFallback}>
+        {getInitials(name)}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt=""
+      style={styles.userImage}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
 export default function PlaceSubmissionRow({ item, onClick }) {
   const placeImageUrl = getPlaceImageUrl(item);
 
@@ -71,12 +109,15 @@ export default function PlaceSubmissionRow({ item, onClick }) {
         {placeImageUrl ? (
           <img
             src={placeImageUrl}
-            alt={item.name || "Foto del lugar"}
+            alt=""
             style={styles.placeImage}
             loading="lazy"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
           />
         ) : (
-          <div style={styles.placeImagePlaceholder}>Foto lugar</div>
+          <div style={styles.placeImagePlaceholder}>Lugar</div>
         )}
 
         <strong style={styles.placeName}>
@@ -84,23 +125,19 @@ export default function PlaceSubmissionRow({ item, onClick }) {
         </strong>
       </div>
 
-      <div style={styles.dateCell}>{formatDate(item.createdAt)}</div>
+      <div style={styles.dateCell}>
+        {formatDate(item.createdAt)}
+      </div>
 
       <div style={styles.userCell}>
         {item.userName || "Usuario desconocido"}
       </div>
 
       <div style={styles.userPhotoCell}>
-        {item.userPhotoUrl ? (
-          <img
-            src={item.userPhotoUrl}
-            alt={item.userName || "Foto del usuario"}
-            style={styles.userImage}
-            loading="lazy"
-          />
-        ) : (
-          <div style={styles.userImagePlaceholder}>Foto usuario</div>
-        )}
+        <UserAvatar
+          src={item.userPhotoUrl}
+          name={item.userName}
+        />
       </div>
 
       <div style={styles.statusCell}>
