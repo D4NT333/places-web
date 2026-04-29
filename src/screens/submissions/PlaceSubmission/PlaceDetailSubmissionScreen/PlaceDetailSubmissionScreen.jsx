@@ -170,8 +170,8 @@ export default function PlaceDetailSubmissionScreen() {
               <Pill key={subtag} label={subtag} />
             ))}
 
-            {(submission?.focuses || []).map((focus) => (
-              <Pill key={focus} label={focus} />
+            {(submission?.approaches || []).map((approach) => (
+              <Pill key={approach} label={approach} />
             ))}
           </div>
 
