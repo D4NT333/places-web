@@ -1,10 +1,15 @@
 import React from "react";
 import styles from "./styles";
 
-function formatDate(dateString) {
-  if (!dateString) return "Sin fecha";
+function formatDate(dateValue) {
+  if (!dateValue) return "Sin fecha";
 
-  const date = new Date(dateString);
+  // Por si viene como Firestore Timestamp
+  if (dateValue?.toDate) {
+    return dateValue.toDate().toISOString().split("T")[0];
+  }
+
+  const date = new Date(dateValue);
 
   if (Number.isNaN(date.getTime())) {
     return "Sin fecha";
@@ -35,40 +40,63 @@ function getStatusStyle(status) {
   return map[status] || styles.statusDefault;
 }
 
+function getPlaceImageUrl(item) {
+  const mainPhoto = item?.photos?.[0];
 
+  return (
+    mainPhoto?.thumbnailURL ||
+    mainPhoto?.mediumURL ||
+    mainPhoto?.downloadURL ||
+    item?.placePhotoUrl ||
+    null
+  );
+}
 
 export default function PlaceSubmissionRow({ item, onClick }) {
+  const placeImageUrl = getPlaceImageUrl(item);
+
   return (
-      <div
-        style={styles.row}
-        onClick={onClick}
-        role="button"
-        tabIndex={0}
-      >
+    <div
+      style={styles.row}
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          onClick?.();
+        }
+      }}
+    >
       <div style={styles.placeCell}>
-        {item.placePhotoUrl ? (
+        {placeImageUrl ? (
           <img
-            src={item.placePhotoUrl}
-            alt={item.name}
+            src={placeImageUrl}
+            alt={item.name || "Foto del lugar"}
             style={styles.placeImage}
+            loading="lazy"
           />
         ) : (
           <div style={styles.placeImagePlaceholder}>Foto lugar</div>
         )}
 
-        <strong style={styles.placeName}>{item.name}</strong>
+        <strong style={styles.placeName}>
+          {item.name || "Lugar sin nombre"}
+        </strong>
       </div>
 
       <div style={styles.dateCell}>{formatDate(item.createdAt)}</div>
 
-      <div style={styles.userCell}>{item.userName}</div>
+      <div style={styles.userCell}>
+        {item.userName || "Usuario desconocido"}
+      </div>
 
       <div style={styles.userPhotoCell}>
         {item.userPhotoUrl ? (
           <img
             src={item.userPhotoUrl}
-            alt={item.userName}
+            alt={item.userName || "Foto del usuario"}
             style={styles.userImage}
+            loading="lazy"
           />
         ) : (
           <div style={styles.userImagePlaceholder}>Foto usuario</div>
@@ -87,5 +115,4 @@ export default function PlaceSubmissionRow({ item, onClick }) {
       </div>
     </div>
   );
-  
 }

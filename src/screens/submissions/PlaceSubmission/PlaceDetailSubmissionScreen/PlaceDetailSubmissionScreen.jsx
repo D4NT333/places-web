@@ -163,17 +163,17 @@ export default function PlaceDetailSubmissionScreen() {
               {submission?.description || "Sin descripción"}
             </div>
 
-            <div style={styles.chipsRow}>
-              <Pill label={submission?.category || "Sin etiqueta"} />
+           <div style={styles.chipsRow}>
+            <Pill label={submission?.tagLabel || submission?.tagId || "Sin etiqueta"} />
 
-              {(submission?.subtags || []).map((subtag) => (
-                <Pill key={subtag} label={subtag} />
-              ))}
+            {(submission?.subtags || []).map((subtag) => (
+              <Pill key={subtag} label={subtag} />
+            ))}
 
-              {(submission?.focuses || []).map((focus) => (
-                <Pill key={focus} label={focus} />
-              ))}
-            </div>
+            {(submission?.focuses || []).map((focus) => (
+              <Pill key={focus} label={focus} />
+            ))}
+          </div>
 
             <div style={styles.chipsRow}>
               <Pill label={submission?.price || "Sin precio"} size="medium" />

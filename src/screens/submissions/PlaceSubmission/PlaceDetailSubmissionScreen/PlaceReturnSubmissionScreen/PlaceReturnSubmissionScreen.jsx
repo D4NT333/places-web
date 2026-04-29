@@ -1,11 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import LayoutScreen from "../../../../../layout";
 import styles from "./styles";
+
 import ReturnTextArea from "./Components/ReturnTextArea";
 import ReturnCorrectionItem from "./Components/ReturnCorrectionItem";
 import ReturnActionButtons from "./Components/ReturnActionButtons";
-// import getPlaceSubmissionDetailService from "../services/getPlaceSubmissionDetail.service";
+
+import getPlaceSubmissionDetailService from "../../../../../services/submissions/getPlaceSubmissionDetail.service";
 
 const correctionFields = [
   {
@@ -21,7 +23,11 @@ const correctionFields = [
   {
     key: "tag",
     label: "Etiqueta",
-    getValue: (submission) => submission?.tagLabel || submission?.tag?.label || "",
+    getValue: (submission) =>
+      submission?.tagLabel ||
+      submission?.tag?.label ||
+      submission?.tagId ||
+      "",
   },
   {
     key: "subtags",
@@ -37,38 +43,88 @@ const correctionFields = [
     },
   },
   {
-    key: "approach",
+    key: "focuses",
     label: "Enfoque",
-    getValue: (submission) =>
-      submission?.approachLabel || submission?.approach?.label || "",
+    getValue: (submission) => {
+      const focuses =
+        submission?.focuses ||
+        submission?.focusLabels ||
+        submission?.approaches ||
+        submission?.approachLabels ||
+        [];
+
+      if (Array.isArray(focuses)) {
+        return focuses.map((item) => item?.label || item).filter(Boolean);
+      }
+
+      return (
+        submission?.approachLabel ||
+        submission?.approach?.label ||
+        submission?.focus ||
+        ""
+      );
+    },
   },
   {
-    key: "priceRange",
+    key: "price",
     label: "Rango de precio",
     getValue: (submission) =>
-      submission?.priceRangeLabel || submission?.priceRange?.label || "",
+      submission?.price ||
+      submission?.priceLabel ||
+      submission?.priceRangeLabel ||
+      submission?.priceRange?.label ||
+      "",
   },
   {
     key: "photos",
     label: "Fotos",
     type: "photos",
-    getValue: (submission) => submission?.photoUrls || submission?.photos || [],
+    getValue: (submission) => {
+      const photos = submission?.photos || submission?.photoUrls || [];
+
+      if (!Array.isArray(photos)) {
+        return [];
+      }
+
+      return photos
+        .map((photo) => {
+          if (typeof photo === "string") return photo;
+
+          return (
+            photo?.thumbnailURL ||
+            photo?.mediumURL ||
+            photo?.downloadURL ||
+            photo?.url ||
+            photo?.uri ||
+            photo?.src ||
+            null
+          );
+        })
+        .filter(Boolean);
+    },
   },
   {
     key: "location",
     label: "Ubicación",
     type: "location",
-    getValue: (submission) => submission?.location || submission?.coordinates || null,
+    getValue: (submission) =>
+      submission?.location || submission?.coordinates || null,
   },
 ];
 
-export default function PlaceReturnSubmissionScreen() {
+function PlaceReturnSubmissionScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { placeSubmissionId } = useParams();
+  const params = useParams();
 
-  const [submission, setSubmission] = useState(location.state?.submission || null);
-  const [loading, setLoading] = useState(!location.state?.submission);
+  const submissionId = params.submissionId || params.placeSubmissionId;
+
+  const initialSubmissionRef = useRef(location.state?.submission || null);
+
+  const [submission, setSubmission] = useState(initialSubmissionRef.current);
+  const [loading, setLoading] = useState(!initialSubmissionRef.current);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const [generalComment, setGeneralComment] = useState("");
   const [selectedFields, setSelectedFields] = useState({});
   const [fieldComments, setFieldComments] = useState({});
@@ -77,23 +133,30 @@ export default function PlaceReturnSubmissionScreen() {
     async function loadSubmissionIfNeeded() {
       if (submission) return;
 
+      if (!submissionId) {
+        setErrorMessage("No se encontró el ID de la propuesta.");
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
+        setErrorMessage("");
 
-        // Descomenta cuando tengas el service listo/importado:
-        // const response = await getPlaceSubmissionDetailService(placeSubmissionId);
-        // setSubmission(response);
-
-        console.log("FETCH DETAIL FALLBACK:", placeSubmissionId);
+        const response = await getPlaceSubmissionDetailService(submissionId);
+        setSubmission(response);
       } catch (error) {
         console.error("Error loading submission detail:", error);
+        setErrorMessage(
+          error.message || "No se pudo cargar la propuesta para devolución."
+        );
       } finally {
         setLoading(false);
       }
     }
 
     loadSubmissionIfNeeded();
-  }, [placeSubmissionId, submission]);
+  }, [submissionId, submission]);
 
   const visibleCorrectionFields = useMemo(() => {
     return correctionFields.map((field) => ({
@@ -102,7 +165,7 @@ export default function PlaceReturnSubmissionScreen() {
     }));
   }, [submission]);
 
-  const handleToggleField = (fieldKey) => {
+  const handleToggleField = useCallback((fieldKey) => {
     setSelectedFields((prev) => {
       const isSelected = Boolean(prev[fieldKey]);
 
@@ -124,14 +187,14 @@ export default function PlaceReturnSubmissionScreen() {
         [fieldKey]: true,
       };
     });
-  };
+  }, []);
 
-  const handleChangeFieldComment = (fieldKey, value) => {
+  const handleChangeFieldComment = useCallback((fieldKey, value) => {
     setFieldComments((prev) => ({
       ...prev,
       [fieldKey]: value,
     }));
-  };
+  }, []);
 
   const selectedFieldKeys = Object.keys(selectedFields);
 
@@ -166,7 +229,7 @@ export default function PlaceReturnSubmissionScreen() {
     console.log("RETURN PAYLOAD:", payload);
 
     // Luego:
-    // await returnPlaceSubmissionService(placeSubmissionId, payload)
+    // await returnPlaceSubmissionService(submissionId, payload)
 
     navigate(-1);
   };
@@ -175,6 +238,14 @@ export default function PlaceReturnSubmissionScreen() {
     return (
       <LayoutScreen>
         <div style={styles.loadingContainer}>Cargando propuesta...</div>
+      </LayoutScreen>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <LayoutScreen>
+        <div style={styles.loadingContainer}>{errorMessage}</div>
       </LayoutScreen>
     );
   }
@@ -208,10 +279,8 @@ export default function PlaceReturnSubmissionScreen() {
                 type={field.type}
                 selected={Boolean(selectedFields[field.key])}
                 comment={fieldComments[field.key] || ""}
-                onToggle={() => handleToggleField(field.key)}
-                onCommentChange={(value) =>
-                  handleChangeFieldComment(field.key, value)
-                }
+                onToggle={handleToggleField}
+                onCommentChange={handleChangeFieldComment}
               />
             ))}
           </div>
@@ -226,3 +295,5 @@ export default function PlaceReturnSubmissionScreen() {
     </LayoutScreen>
   );
 }
+
+export default React.memo(PlaceReturnSubmissionScreen);

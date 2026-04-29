@@ -1,67 +1,32 @@
 import React from "react";
 import styles from "./styles";
 
-function renderFieldValue({ value, type, label }) {
-  if (type === "photos") {
-    const photos = Array.isArray(value) ? value : [];
+function getLocationText(value) {
+  if (!value) return "Sin ubicación";
 
-    if (photos.length === 0) {
-      return <span style={styles.emptyText}>Sin fotos</span>;
-    }
+  const latitude =
+    value.latitude ??
+    value.lat ??
+    value.coords?.latitude ??
+    value._lat ??
+    null;
 
-    return (
-      <div style={styles.photosPreview}>
-        {photos.slice(0, 4).map((photoUrl, index) => (
-          <img
-            key={`${photoUrl}-${index}`}
-            src={photoUrl}
-            alt={`Foto ${index + 1}`}
-            style={styles.photo}
-          />
-        ))}
-      </div>
-    );
+  const longitude =
+    value.longitude ??
+    value.lng ??
+    value.coords?.longitude ??
+    value._long ??
+    null;
+
+  if (latitude == null || longitude == null) {
+    return "Sin ubicación";
   }
 
-  if (type === "location") {
-    if (!value) {
-      return <span style={styles.emptyText}>Sin ubicación</span>;
-    }
-
-    const lat = value.latitude || value.lat;
-    const lng = value.longitude || value.lng;
-
-    return (
-      <span>
-        {lat && lng ? `${lat}, ${lng}` : "Ubicación registrada"}
-      </span>
-    );
-  }
-
-  if (Array.isArray(value)) {
-    if (value.length === 0) {
-      return <span style={styles.emptyText}>Sin {label.toLowerCase()}</span>;
-    }
-
-    return (
-      <div style={styles.multiValueContainer}>
-        {value.map((item, index) => (
-          <span key={`${item}-${index}`} style={styles.valueChip}>
-            {item}
-          </span>
-        ))}
-      </div>
-    );
-  }
-
-  if (!value) {
-    return <span style={styles.emptyText}>Sin {label.toLowerCase()}</span>;
-  }
-
-  return <span>{value}</span>;
+  return `${latitude}, ${longitude}`;
 }
 
 export default function ReturnCorrectionItem({
+  fieldKey,
   label,
   value,
   type,
@@ -70,38 +35,94 @@ export default function ReturnCorrectionItem({
   onToggle,
   onCommentChange,
 }) {
+  const isWide = type === "photos" || type === "location";
+
+  function renderValue() {
+    if (type === "photos") {
+      const photos = Array.isArray(value) ? value : [];
+
+      if (photos.length === 0) {
+        return <span style={styles.emptyValue}>Sin fotos</span>;
+      }
+
+      return (
+        <div style={styles.photosGrid}>
+          {photos.map((photoUrl, index) => (
+            <img
+              key={`${photoUrl}-${index}`}
+              src={photoUrl}
+              alt={`Foto ${index + 1}`}
+              style={styles.photoThumbnail}
+              loading="lazy"
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (type === "location") {
+      return getLocationText(value);
+    }
+
+    if (Array.isArray(value)) {
+      if (!value.length) return "Sin información";
+
+      return (
+        <div style={styles.tagsWrap}>
+          {value.map((item, index) => (
+            <span key={`${item}-${index}`} style={styles.miniPill}>
+              {item}
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    return value || "Sin información";
+  }
+
   return (
-    <div style={styles.container}>
+    <div
+      style={{
+        ...styles.item,
+        ...(isWide ? styles.itemWide : styles.itemCompact),
+      }}
+    >
       <div style={styles.label}>{label}</div>
 
-      <button
-        type="button"
+      <div
         style={{
           ...styles.valueBox,
           ...(selected ? styles.valueBoxSelected : {}),
-          ...(type === "photos" || type === "location"
-            ? styles.largeValueBox
-            : {}),
+          ...(isWide ? styles.valueBoxWide : styles.valueBoxCompact),
         }}
-        onClick={onToggle}
+        role="button"
+        tabIndex={0}
+        onClick={() => onToggle(fieldKey)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onToggle(fieldKey);
+          }
+        }}
       >
-        {renderFieldValue({ value, type, label })}
-      </button>
+        {renderValue()}
+      </div>
 
       {selected && (
-        <div style={styles.reasonContainer}>
-          <label style={styles.reasonLabel}>Motivo:</label>
+        <div style={styles.commentWrapper}>
+          <label style={styles.commentLabel}>Motivo:</label>
 
           <textarea
-            style={styles.reasonInput}
-            placeholder={`Escribe el motivo de corrección para ${label.toLowerCase()}...`}
+            style={styles.commentInput}
             value={comment}
-            onChange={(event) => onCommentChange(event.target.value)}
-            maxLength={250}
+            rows={2}
+            onChange={(event) => onCommentChange(fieldKey, event.target.value)}
+            placeholder={`Escribe el motivo de corrección para ${label.toLowerCase()}...`}
           />
 
-          <div style={styles.counter}>
-            {comment.trim().length}/5 mínimo
+          <div style={styles.commentFooter}>
+            {(comment || "").trim().length}/5 mínimo
           </div>
         </div>
       )}

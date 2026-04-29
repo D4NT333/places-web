@@ -1,111 +1,139 @@
 const styles = {
-  container: {
+  item: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: 8,
+    marginBottom: 18,
+  },
+
+  itemCompact: {
+    width: "fit-content",
+    maxWidth: 520,
+  },
+
+  itemWide: {
     width: "100%",
+    maxWidth: 720,
   },
 
   label: {
-    marginBottom: 8,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 800,
-    color: "#334155",
+    color: "#0f1f3a",
   },
 
   valueBox: {
-    minWidth: 180,
-    maxWidth: 620,
-    minHeight: 48,
-    border: "1px solid #cbd5e1",
-    borderRadius: 10,
+    minHeight: 42,
+    padding: "10px 18px",
+    border: "1px solid #c8d6e5",
+    borderRadius: 8,
     backgroundColor: "#ffffff",
-    padding: "10px 16px",
-    color: "#0f172a",
-    fontSize: 15,
+    color: "#071327",
+    fontSize: 14,
     fontWeight: 700,
+    lineHeight: 1.45,
     cursor: "pointer",
-    textAlign: "left",
+    boxSizing: "border-box",
+    transition: "border-color 0.15s ease, box-shadow 0.15s ease",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    overflowWrap: "anywhere",
+    whiteSpace: "normal",
   },
 
-  largeValueBox: {
-    width: "min(620px, 100%)",
-    minHeight: 170,
+  valueBoxCompact: {
+    width: "fit-content",
+    minWidth: 150,
+    maxWidth: 520,
+  },
+
+  valueBoxWide: {
+    width: "100%",
+    justifyContent: "flex-start",
   },
 
   valueBoxSelected: {
-    borderColor: "#0f172a",
-    backgroundColor: "#f8fafc",
-    boxShadow: "0 0 0 3px rgba(15, 23, 42, 0.08)",
+    borderColor: "#111827",
+    boxShadow: "0 0 0 1px #111827",
   },
 
-  emptyText: {
-    color: "#94a3b8",
-    fontWeight: 600,
-  },
-
-  multiValueContainer: {
+  tagsWrap: {
     display: "flex",
     flexWrap: "wrap",
     gap: 8,
-  },
-
-  valueChip: {
-    padding: "6px 10px",
-    borderRadius: 999,
-    backgroundColor: "#f1f5f9",
-    color: "#334155",
-    fontSize: 13,
-    fontWeight: 800,
-  },
-
-  photosPreview: {
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
     justifyContent: "center",
   },
 
-  photo: {
+  miniPill: {
+    padding: "5px 10px",
+    borderRadius: 999,
+    backgroundColor: "#eef3f8",
+    color: "#10233f",
+    fontSize: 12,
+    fontWeight: 800,
+  },
+
+  commentWrapper: {
+  width: 420,
+  maxWidth: "100%",
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+},
+
+commentLabel: {
+  fontSize: 13,
+  fontWeight: 800,
+  color: "#0f1f3a",
+},
+
+commentInput: {
+  width: "100%",
+  minHeight: 64,
+  padding: "8px 0",
+  border: "none",
+  borderBottom: "1px solid #c8d6e5",
+  backgroundColor: "transparent",
+  color: "#243041",
+  fontSize: 14,
+  lineHeight: 1.45,
+  outline: "none",
+  resize: "none",
+  boxSizing: "border-box",
+
+  // Esto mata las flechitas/scroll horrible
+  overflow: "hidden",
+  scrollbarWidth: "none",
+},
+
+commentFooter: {
+  alignSelf: "flex-end",
+  fontSize: 12,
+  color: "#607089",
+},
+
+  photosGrid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+
+  photoThumbnail: {
     width: 96,
     height: 96,
-    borderRadius: 12,
     objectFit: "cover",
-    border: "1px solid #e5e7eb",
-  },
-
-  reasonContainer: {
-    marginTop: 10,
-    maxWidth: 620,
-  },
-
-  reasonLabel: {
+    borderRadius: 10,
+    border: "1px solid #d7e0ea",
+    backgroundColor: "#eef2f7",
     display: "block",
-    marginBottom: 8,
-    fontSize: 14,
-    fontWeight: 800,
-    color: "#475569",
   },
 
-  reasonInput: {
-    width: "100%",
-    minHeight: 76,
-    resize: "vertical",
-    border: "none",
-    borderBottom: "2px solid #cbd5e1",
-    padding: "8px 0",
-    outline: "none",
-    fontSize: 14,
-    fontFamily: "inherit",
-    color: "#0f172a",
-    boxSizing: "border-box",
-  },
-
-  counter: {
-    marginTop: 6,
-    textAlign: "right",
-    fontSize: 12,
-    color: "#64748b",
+  emptyValue: {
+    color: "#7b8794",
+    fontSize: 13,
+    fontWeight: 600,
   },
 };
 

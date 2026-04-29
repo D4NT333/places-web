@@ -6,7 +6,14 @@ function getPhotoUrl(photo) {
 
   if (typeof photo === "string") return photo;
 
-  return photo.downloadURL || photo.url || photo.photoUrl || null;
+  return (
+    photo.mediumURL ||
+    photo.downloadURL ||
+    photo.thumbnailURL ||
+    photo.url ||
+    photo.photoUrl ||
+    null
+  );
 }
 
 export default function PhotoCarousel({ photos = [] }) {
@@ -17,7 +24,8 @@ export default function PhotoCarousel({ photos = [] }) {
   }, [photos]);
 
   const hasPhotos = photoUrls.length > 0;
-  const currentPhotoUrl = hasPhotos ? photoUrls[currentIndex] : null;
+  const safeCurrentIndex = Math.min(currentIndex, Math.max(photoUrls.length - 1, 0));
+  const currentPhotoUrl = hasPhotos ? photoUrls[safeCurrentIndex] : null;
 
   const handlePrevious = () => {
     if (!hasPhotos) return;
@@ -41,8 +49,9 @@ export default function PhotoCarousel({ photos = [] }) {
         <>
           <img
             src={currentPhotoUrl}
-            alt={`Foto ${currentIndex + 1}`}
+            alt={`Foto ${safeCurrentIndex + 1}`}
             style={styles.image}
+            loading="lazy"
           />
 
           {photoUrls.length > 1 && (
@@ -64,7 +73,7 @@ export default function PhotoCarousel({ photos = [] }) {
               </button>
 
               <div style={styles.counter}>
-                {currentIndex + 1} / {photoUrls.length}
+                {safeCurrentIndex + 1} / {photoUrls.length}
               </div>
             </>
           )}
