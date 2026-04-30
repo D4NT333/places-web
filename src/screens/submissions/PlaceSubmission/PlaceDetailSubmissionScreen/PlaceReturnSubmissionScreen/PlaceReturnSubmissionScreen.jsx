@@ -9,6 +9,8 @@ import ReturnActionButtons from "./Components/ReturnActionButtons";
 
 import getPlaceSubmissionDetailService from "../../../../../services/submissions/getPlaceSubmissionDetail.service";
 
+import returnPlaceSubmissionService from "../../../../../services/submissions/returnPlaceSubmission.service";
+
 const correctionFields = [
   {
     key: "name",
@@ -43,18 +45,19 @@ const correctionFields = [
     },
   },
   {
-    key: "focuses",
+    key: "approaches",
     label: "Enfoque",
     getValue: (submission) => {
-      const focuses =
+      const approaches =
+        submission?.approaches ||
+        submission?.approach ||
+        submission?.approachLabels ||
         submission?.focuses ||
         submission?.focusLabels ||
-        submission?.approaches ||
-        submission?.approachLabels ||
         [];
 
-      if (Array.isArray(focuses)) {
-        return focuses.map((item) => item?.label || item).filter(Boolean);
+      if (Array.isArray(approaches)) {
+        return approaches.map((item) => item?.label || item).filter(Boolean);
       }
 
       return (
@@ -207,32 +210,44 @@ function PlaceReturnSubmissionScreen() {
     selectedFieldKeys.length > 0 &&
     hasValidFieldComments;
 
-  const handleSubmit = () => {
-    if (!canSubmit) return;
+    const buildReturnFieldsPayload = () => {
+    const fields = {};
 
-    const correctionRequests = selectedFieldKeys.map((fieldKey) => {
-      const field = correctionFields.find((item) => item.key === fieldKey);
+    correctionFields.forEach((field) => {
+      const isSelected = Boolean(selectedFields[field.key]);
 
-      return {
-        field: fieldKey,
-        label: field?.label || fieldKey,
-        comment: fieldComments[fieldKey].trim(),
+      fields[field.key] = {
+        selected: isSelected,
+        message: isSelected ? fieldComments[field.key]?.trim() || "" : "",
       };
     });
 
-    const payload = {
-      status: "returned",
-      returnGeneralComment: generalComment.trim(),
-      correctionRequests,
-    };
+  return fields;
+};
 
+  const handleSubmit = async () => {
+  if (!canSubmit) return;
+
+  const payload = {
+    generalMessage: generalComment.trim(),
+    fields: buildReturnFieldsPayload(),
+  };
+
+  try {
     console.log("RETURN PAYLOAD:", payload);
 
-    // Luego:
-    // await returnPlaceSubmissionService(submissionId, payload)
+    const response = await returnPlaceSubmissionService(submissionId, payload);
+
+    console.log("RETURN RESPONSE:", response);
 
     navigate(-1);
-  };
+  } catch (error) {
+    console.error("Error devolviendo propuesta:", error);
+    setErrorMessage(
+      error.message || "No se pudo devolver la propuesta para corrección."
+    );
+  }
+};
 
   if (loading) {
     return (
