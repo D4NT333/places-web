@@ -32,32 +32,59 @@ export default function ReturnCorrectionItem({
   type,
   selected,
   comment,
+  selectedPhotos = {},
+  photoComments = {},
   onToggle,
   onCommentChange,
+  onTogglePhoto,
+  onPhotoCommentChange,
 }) {
   const isWide = type === "photos" || type === "location";
 
+  function renderPhotosValue() {
+    const photos = Array.isArray(value) ? value : [];
+
+    if (photos.length === 0) {
+      return <span style={styles.emptyValue}>Sin fotos</span>;
+    }
+
+    return (
+      <div style={styles.photosGrid}>
+        {photos.map((photoUrl, index) => {
+          const indexKey = String(index);
+          const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
+
+          return (
+            <button
+              key={`${photoUrl}-${index}`}
+              type="button"
+              style={{
+                ...styles.photoButton,
+                ...(isPhotoSelected ? styles.photoButtonSelected : {}),
+              }}
+              onClick={(event) => {
+                event.stopPropagation();
+                onTogglePhoto(indexKey);
+              }}
+            >
+              <img
+                src={photoUrl}
+                alt={`Foto ${index + 1}`}
+                style={styles.photoThumbnail}
+                loading="lazy"
+              />
+
+              <span style={styles.photoBadge}>Foto {index + 1}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   function renderValue() {
     if (type === "photos") {
-      const photos = Array.isArray(value) ? value : [];
-
-      if (photos.length === 0) {
-        return <span style={styles.emptyValue}>Sin fotos</span>;
-      }
-
-      return (
-        <div style={styles.photosGrid}>
-          {photos.map((photoUrl, index) => (
-            <img
-              key={`${photoUrl}-${index}`}
-              src={photoUrl}
-              alt={`Foto ${index + 1}`}
-              style={styles.photoThumbnail}
-              loading="lazy"
-            />
-          ))}
-        </div>
-      );
+      return renderPhotosValue();
     }
 
     if (type === "location") {
@@ -81,6 +108,52 @@ export default function ReturnCorrectionItem({
     return value || "Sin información";
   }
 
+  function renderPhotoComments() {
+    if (type !== "photos") return null;
+
+    const photos = Array.isArray(value) ? value : [];
+    const selectedPhotoIndexes = Object.keys(selectedPhotos);
+
+    if (selectedPhotoIndexes.length === 0) {
+      return null;
+    }
+
+    return (
+      <div style={styles.photoCommentsWrapper}>
+        {photos.map((photoUrl, index) => {
+          const indexKey = String(index);
+          const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
+
+          if (!isPhotoSelected) return null;
+
+          const currentComment = photoComments[indexKey] || "";
+
+          return (
+            <div key={`photo-comment-${indexKey}`} style={styles.photoCommentItem}>
+              <label style={styles.commentLabel}>
+                Motivo para foto {index + 1}:
+              </label>
+
+              <textarea
+                style={styles.commentInput}
+                value={currentComment}
+                rows={2}
+                onChange={(event) =>
+                  onPhotoCommentChange(indexKey, event.target.value)
+                }
+                placeholder={`Escribe qué debe corregirse en la foto ${index + 1}...`}
+              />
+
+              <div style={styles.commentFooter}>
+                {currentComment.trim().length}/5 mínimo
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -98,8 +171,14 @@ export default function ReturnCorrectionItem({
         }}
         role="button"
         tabIndex={0}
-        onClick={() => onToggle(fieldKey)}
+        onClick={() => {
+          if (type !== "photos") {
+            onToggle(fieldKey);
+          }
+        }}
         onKeyDown={(event) => {
+          if (type === "photos") return;
+
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             onToggle(fieldKey);
@@ -109,7 +188,9 @@ export default function ReturnCorrectionItem({
         {renderValue()}
       </div>
 
-      {selected && (
+      {type === "photos" && renderPhotoComments()}
+
+      {selected && type !== "photos" && (
         <div style={styles.commentWrapper}>
           <label style={styles.commentLabel}>Motivo:</label>
 

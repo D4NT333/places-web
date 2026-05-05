@@ -132,6 +132,9 @@ function PlaceReturnSubmissionScreen() {
   const [selectedFields, setSelectedFields] = useState({});
   const [fieldComments, setFieldComments] = useState({});
 
+  const [selectedPhotos, setSelectedPhotos] = useState({});
+  const [photoComments, setPhotoComments] = useState({});
+
   useEffect(() => {
     async function loadSubmissionIfNeeded() {
       if (submission) return;
@@ -199,28 +202,110 @@ function PlaceReturnSubmissionScreen() {
     }));
   }, []);
 
+  const handleTogglePhoto = useCallback((photoIndex) => {
+  setSelectedPhotos((prev) => {
+    const isSelected = Boolean(prev[photoIndex]);
+    let nextSelected = { ...prev };
+
+    if (isSelected) {
+      delete nextSelected[photoIndex];
+
+      setPhotoComments((prevComments) => {
+        const nextComments = { ...prevComments };
+        delete nextComments[photoIndex];
+        return nextComments;
+      });
+    } else {
+      nextSelected[photoIndex] = true;
+    }
+
+    setSelectedFields((prevFields) => {
+      const nextFields = { ...prevFields };
+
+      if (Object.keys(nextSelected).length > 0) {
+        nextFields.photos = true;
+      } else {
+        delete nextFields.photos;
+      }
+
+      return nextFields;
+    });
+
+    return nextSelected;
+  });
+}, []);
+
+const handleChangePhotoComment = useCallback((photoIndex, value) => {
+  setPhotoComments((prev) => ({
+    ...prev,
+    [photoIndex]: value,
+  }));
+}, []);
+
   const selectedFieldKeys = Object.keys(selectedFields);
+  const selectedPhotoIndexes = Object.keys(selectedPhotos);
 
   const hasValidFieldComments = selectedFieldKeys.every((fieldKey) => {
+    if (fieldKey === "photos") {
+      return selectedPhotoIndexes.length > 0;
+    }
+
     return fieldComments[fieldKey]?.trim().length >= 5;
   });
 
-  const canSubmit =
-    generalComment.trim().length >= 10 &&
-    selectedFieldKeys.length > 0 &&
-    hasValidFieldComments;
+  const hasValidPhotoComments = selectedPhotoIndexes.every((photoIndex) => {
+    return photoComments[photoIndex]?.trim().length >= 5;
+  });
 
-    const buildReturnFieldsPayload = () => {
-    const fields = {};
+const canSubmit =
+  generalComment.trim().length >= 10 &&
+  selectedFieldKeys.length > 0 &&
+  hasValidFieldComments &&
+  hasValidPhotoComments;
 
-    correctionFields.forEach((field) => {
-      const isSelected = Boolean(selectedFields[field.key]);
+  const buildReturnFieldsPayload = () => {
+  const fields = {};
 
-      fields[field.key] = {
-        selected: isSelected,
-        message: isSelected ? fieldComments[field.key]?.trim() || "" : "",
+  correctionFields.forEach((field) => {
+    const isSelected = Boolean(selectedFields[field.key]);
+
+    if (field.key === "photos") {
+      const photosField = visibleCorrectionFields.find(
+        (item) => item.key === "photos"
+      );
+
+      const photos = Array.isArray(photosField?.value)
+        ? photosField.value
+        : [];
+
+      const photoItems = photos.map((photoUrl, index) => {
+        const indexKey = String(index);
+        const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
+
+        return {
+          index,
+          url: photoUrl,
+          selected: isPhotoSelected,
+          message: isPhotoSelected
+            ? photoComments[indexKey]?.trim() || ""
+            : "",
+        };
+      });
+
+      fields.photos = {
+        selected: photoItems.some((photo) => photo.selected),
+        message: "",
+        items: photoItems,
       };
-    });
+
+      return;
+    }
+
+    fields[field.key] = {
+      selected: isSelected,
+      message: isSelected ? fieldComments[field.key]?.trim() || "" : "",
+    };
+  });
 
   return fields;
 };
@@ -294,8 +379,12 @@ function PlaceReturnSubmissionScreen() {
                 type={field.type}
                 selected={Boolean(selectedFields[field.key])}
                 comment={fieldComments[field.key] || ""}
+                selectedPhotos={selectedPhotos}
+                photoComments={photoComments}
                 onToggle={handleToggleField}
                 onCommentChange={handleChangeFieldComment}
+                onTogglePhoto={handleTogglePhoto}
+                onPhotoCommentChange={handleChangePhotoComment}
               />
             ))}
           </div>

@@ -109,14 +109,6 @@ export default function PlaceDetailSubmissionScreen() {
       <main style={styles.screen}>
         <section style={styles.contentArea}>
           <aside style={styles.leftWrapper}>
-            <button
-              type="button"
-              style={styles.backButton}
-              onClick={() => navigate(-1)}
-            >
-              ← Volver
-            </button>
-
             <div style={styles.leftSection}>
               <PhotoCarousel photos={submission?.photos || []} />
               <LocationBox location={submission?.location} />
@@ -159,6 +151,8 @@ export default function PlaceDetailSubmissionScreen() {
               <Pill label={getStatusLabel(submission?.status)} size="large" />
             </div>
 
+  
+
             <div style={styles.descriptionBox}>
               {submission?.description || "Sin descripción"}
             </div>
@@ -179,6 +173,17 @@ export default function PlaceDetailSubmissionScreen() {
               <Pill label={submission?.price || "Sin precio"} size="medium" />
               <Pill label="Horario no disponible" size="medium" />
             </div>
+            
+            <div style={styles.bottomActions}>
+              <button
+                type="button"
+                style={styles.backButton}
+                onClick={() => navigate(-1)}
+              >
+                Volver
+              </button>
+            </div>
+            
           </section>
         </section>
       </main>

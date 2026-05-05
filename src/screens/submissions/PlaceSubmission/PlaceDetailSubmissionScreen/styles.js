@@ -107,6 +107,12 @@ const styles = {
     fontWeight: "800",
     cursor: "pointer",
   },
+  bottomActions: {
+  marginTop: "auto",
+  display: "flex",
+  justifyContent: "flex-end",
+  paddingTop: 28,
+},
   
 };
 

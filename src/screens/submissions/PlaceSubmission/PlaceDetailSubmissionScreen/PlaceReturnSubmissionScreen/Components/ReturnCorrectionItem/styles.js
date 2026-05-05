@@ -120,21 +120,57 @@ commentFooter: {
     gap: 10,
   },
 
-  photoThumbnail: {
-    width: 96,
-    height: 96,
-    objectFit: "cover",
-    borderRadius: 10,
-    border: "1px solid #d7e0ea",
-    backgroundColor: "#eef2f7",
-    display: "block",
-  },
-
   emptyValue: {
     color: "#7b8794",
     fontSize: 13,
     fontWeight: 600,
   },
+  photoButton: {
+  position: "relative",
+  width: 88,
+  height: 88,
+  padding: 0,
+  border: "2px solid transparent",
+  borderRadius: 10,
+  overflow: "hidden",
+  cursor: "pointer",
+  backgroundColor: "#f8fafc",
+},
+
+photoButtonSelected: {
+  borderColor: "#ef4444",
+  boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.15)",
+},
+
+photoThumbnail: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+
+photoBadge: {
+  position: "absolute",
+  left: 6,
+  bottom: 6,
+  padding: "3px 7px",
+  borderRadius: 999,
+  backgroundColor: "rgba(15, 23, 42, 0.78)",
+  color: "#ffffff",
+  fontSize: 11,
+  fontWeight: 700,
+},
+
+photoCommentsWrapper: {
+  marginTop: 10,
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+},
+
+photoCommentItem: {
+  width: "100%",
+},
 };
 
 export default styles;
