@@ -16,7 +16,11 @@ function getPhotoUrl(photo) {
   );
 }
 
-export default function PhotoCarousel({ photos = [] }) {
+export default function PhotoCarousel({
+  photos = [],
+  containerStyle,
+  onCompareClick,
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const photoUrls = useMemo(() => {
@@ -24,10 +28,16 @@ export default function PhotoCarousel({ photos = [] }) {
   }, [photos]);
 
   const hasPhotos = photoUrls.length > 0;
-  const safeCurrentIndex = Math.min(currentIndex, Math.max(photoUrls.length - 1, 0));
+  const safeCurrentIndex = Math.min(
+    currentIndex,
+    Math.max(photoUrls.length - 1, 0)
+  );
+
   const currentPhotoUrl = hasPhotos ? photoUrls[safeCurrentIndex] : null;
 
-  const handlePrevious = () => {
+  const handlePrevious = (event) => {
+    event.stopPropagation();
+
     if (!hasPhotos) return;
 
     setCurrentIndex((prev) =>
@@ -35,7 +45,9 @@ export default function PhotoCarousel({ photos = [] }) {
     );
   };
 
-  const handleNext = () => {
+  const handleNext = (event) => {
+    event.stopPropagation();
+
     if (!hasPhotos) return;
 
     setCurrentIndex((prev) =>
@@ -44,7 +56,13 @@ export default function PhotoCarousel({ photos = [] }) {
   };
 
   return (
-    <div style={styles.container}>
+    <div
+      style={{
+        ...styles.container,
+        ...containerStyle,
+      }}
+      onClick={onCompareClick}
+    >
       {currentPhotoUrl ? (
         <>
           <img
