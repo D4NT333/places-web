@@ -10,6 +10,7 @@ import Pill from "./Components/Pill";
 import ActionButtons from "./Components/ActionButtons";
 import RejectionModal from "./Components/RejectionModal";
 import CorrectionCompareModal from "./Components/CorrectionCompareModal";
+import RejectionReasonModal from "./Components/RejectionReasonModal";
 
 import getPlaceSubmissionDetailService from "../../../../services/submissions/getPlaceSubmissionDetail.service";
 
@@ -58,6 +59,8 @@ export default function PlaceDetailSubmissionScreen() {
   const [returnReview, setReturnReview] = useState(null);
   const [loadingReturnReview, setLoadingReturnReview] = useState(false);
   const [activeCompareField, setActiveCompareField] = useState(null);
+
+  const [showRejectionReasonModal, setShowRejectionReasonModal] = useState(false);
 
   useEffect(() => {
     async function loadSubmissionDetail() {
@@ -111,6 +114,8 @@ export default function PlaceDetailSubmissionScreen() {
  const isReturned = submission?.status === "returned";
 const isResubmitted = submission?.status === "resubmitted";
 
+const isRejected = submission?.status === "rejected";
+
 const returnedAtLabel = formatDate(
   submission?.returnedAt || submission?.updatedAt
 );
@@ -118,6 +123,11 @@ const returnedAtLabel = formatDate(
 const correctedAtLabel = formatDate(
   submission?.resubmittedAt || submission?.updatedAt
 );
+
+const rejectedAtLabel = formatDate(
+  submission?.rejectedAt || submission?.updatedAt
+);
+
 const snapshotBeforeReturn = returnReview?.snapshotBeforeReturn || null;
 const canCompareCorrections = isResubmitted && Boolean(returnReview);
 
@@ -151,8 +161,6 @@ const getCorrectionBoxStyle = (fieldKey) => {
     outlineOffset: 2,
     borderRadius: 8,
     cursor: "pointer",
-    width: "100%",
-    boxSizing: "border-box",
   };
 };
 
@@ -320,6 +328,13 @@ function getCurrentValue(submission, fieldKey) {
                       value={correctedAtLabel}
                     />
                   ) : null}
+
+                  {isRejected ? (
+                  <InfoField
+                    label="Rechazado el:"
+                    value={rejectedAtLabel}
+                  />
+                ) : null}
                 </div>
                 <ActionButtons
                   status={submission?.status}
@@ -335,14 +350,19 @@ function getCurrentValue(submission, fieldKey) {
                     })
                   }
                   onReject={() => setShowRejectionModal(true)}
-                  onViewReason={() =>
-                    navigate(`/submissions/places/${submissionId}/return`, {
-                      state: {
-                        submission,
-                        mode: "readonly",
-                      },
-                    })
+                  onViewReason={() => {
+                  if (submission?.status === "rejected") {
+                    setShowRejectionReasonModal(true);
+                    return;
                   }
+
+                  navigate(`/submissions/places/${submissionId}/return`, {
+                    state: {
+                      submission,
+                      mode: "readonly",
+                    },
+                  });
+                }}
                 />
               </div>
 
@@ -458,6 +478,7 @@ function getCurrentValue(submission, fieldKey) {
     setSubmission((prev) => ({
       ...prev,
       status: "rejected",
+      rejectedAt: new Date().toISOString(),
       rejectionReason: finalPayload,
     }));
 
@@ -482,6 +503,12 @@ function getCurrentValue(submission, fieldKey) {
           message={getReturnFieldMessage(returnReview, activeCompareField)}
           onClose={handleCloseCompareModal}
         />
+
+        <RejectionReasonModal
+        visible={showRejectionReasonModal}
+        rejectionReason={submission?.rejectionReason}
+        onClose={() => setShowRejectionReasonModal(false)}
+      />
     </>
   );
 }

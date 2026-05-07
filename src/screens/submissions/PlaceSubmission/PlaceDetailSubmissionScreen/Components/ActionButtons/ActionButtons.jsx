@@ -8,20 +8,35 @@ export default function ActionButtons({
   onReject,
   onViewReason,
 }) {
-  const cleanStatus = String(status || "").trim();
-
-  const isReturned = cleanStatus === "returned";
-  const isResubmitted = cleanStatus === "resubmitted";
-
-  if (isReturned) {
+  if (status === "returned") {
     return (
       <div style={styles.container}>
-        <button
-          type="button"
-          style={styles.reasonButton}
-          onClick={onViewReason}
-        >
+        <button type="button" style={styles.secondaryButton} onClick={onViewReason}>
           Ver motivo
+        </button>
+      </div>
+    );
+  }
+
+  if (status === "rejected") {
+    return (
+      <div style={styles.container}>
+        <button type="button" style={styles.secondaryButton} onClick={onViewReason}>
+          Ver motivo
+        </button>
+      </div>
+    );
+  }
+
+  if (status === "resubmitted") {
+    return (
+      <div style={styles.container}>
+        <button type="button" style={styles.acceptButton} onClick={onAccept}>
+          Aceptar
+        </button>
+
+        <button type="button" style={styles.rejectButton} onClick={onReject}>
+          Rechazar
         </button>
       </div>
     );
@@ -29,29 +44,15 @@ export default function ActionButtons({
 
   return (
     <div style={styles.container}>
-      <button
-        type="button"
-        style={styles.acceptButton}
-        onClick={onAccept}
-      >
+      <button type="button" style={styles.acceptButton} onClick={onAccept}>
         Aceptar
       </button>
 
-      {!isResubmitted ? (
-        <button
-          type="button"
-          style={styles.returnButton}
-          onClick={onReturn}
-        >
-          Devolver
-        </button>
-      ) : null}
+      <button type="button" style={styles.secondaryButton} onClick={onReturn}>
+        Devolver
+      </button>
 
-      <button
-        type="button"
-        style={styles.rejectButton}
-        onClick={onReject}
-      >
+      <button type="button" style={styles.rejectButton} onClick={onReject}>
         Rechazar
       </button>
     </div>
