@@ -38,6 +38,7 @@ export default function ReturnCorrectionItem({
   onCommentChange,
   onTogglePhoto,
   onPhotoCommentChange,
+  readOnly = false,
 }) {
   const isWide = type === "photos" || type === "location";
 
@@ -61,10 +62,14 @@ export default function ReturnCorrectionItem({
               style={{
                 ...styles.photoButton,
                 ...(isPhotoSelected ? styles.photoButtonSelected : {}),
+                cursor: readOnly ? "default" : "pointer",
               }}
               onClick={(event) => {
                 event.stopPropagation();
-                onTogglePhoto(indexKey);
+
+                if (readOnly) return;
+
+                onTogglePhoto?.(indexKey);
               }}
             >
               <img
@@ -129,19 +134,31 @@ export default function ReturnCorrectionItem({
           const currentComment = photoComments[indexKey] || "";
 
           return (
-            <div key={`photo-comment-${indexKey}`} style={styles.photoCommentItem}>
+            <div
+              key={`photo-comment-${indexKey}`}
+              style={styles.photoCommentItem}
+            >
               <label style={styles.commentLabel}>
                 Motivo para foto {index + 1}:
               </label>
 
               <textarea
-                style={styles.commentInput}
+                style={{
+                  ...styles.commentInput,
+                  opacity: readOnly ? 0.85 : 1,
+                  cursor: readOnly ? "default" : "text",
+                }}
                 value={currentComment}
                 rows={2}
-                onChange={(event) =>
-                  onPhotoCommentChange(indexKey, event.target.value)
-                }
-                placeholder={`Escribe qué debe corregirse en la foto ${index + 1}...`}
+                readOnly={readOnly}
+                onChange={(event) => {
+                  if (readOnly) return;
+
+                  onPhotoCommentChange?.(indexKey, event.target.value);
+                }}
+                placeholder={`Escribe qué debe corregirse en la foto ${
+                  index + 1
+                }...`}
               />
 
               <div style={styles.commentFooter}>
@@ -168,20 +185,24 @@ export default function ReturnCorrectionItem({
           ...styles.valueBox,
           ...(selected ? styles.valueBoxSelected : {}),
           ...(isWide ? styles.valueBoxWide : styles.valueBoxCompact),
+          cursor: readOnly || type === "photos" ? "default" : "pointer",
         }}
         role="button"
-        tabIndex={0}
+        tabIndex={readOnly ? -1 : 0}
         onClick={() => {
+          if (readOnly) return;
+
           if (type !== "photos") {
-            onToggle(fieldKey);
+            onToggle?.(fieldKey);
           }
         }}
         onKeyDown={(event) => {
+          if (readOnly) return;
           if (type === "photos") return;
 
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            onToggle(fieldKey);
+            onToggle?.(fieldKey);
           }
         }}
       >
@@ -195,10 +216,19 @@ export default function ReturnCorrectionItem({
           <label style={styles.commentLabel}>Motivo:</label>
 
           <textarea
-            style={styles.commentInput}
-            value={comment}
+            style={{
+              ...styles.commentInput,
+              opacity: readOnly ? 0.85 : 1,
+              cursor: readOnly ? "default" : "text",
+            }}
+            value={comment || ""}
             rows={2}
-            onChange={(event) => onCommentChange(fieldKey, event.target.value)}
+            readOnly={readOnly}
+            onChange={(event) => {
+              if (readOnly) return;
+
+              onCommentChange?.(fieldKey, event.target.value);
+            }}
             placeholder={`Escribe el motivo de corrección para ${label.toLowerCase()}...`}
           />
 

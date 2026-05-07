@@ -7,21 +7,31 @@ export default function ReturnTextArea({
   value,
   onChange,
   minLength = 10,
+  readOnly = false,
 }) {
   return (
     <div style={styles.container}>
       <label style={styles.label}>{label}</label>
 
       <textarea
-        style={styles.textarea}
+        style={{
+          ...styles.textarea,
+          opacity: readOnly ? 0.85 : 1,
+          cursor: readOnly ? "default" : "text",
+        }}
         placeholder={placeholder}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => {
+          if (readOnly) return;
+
+          onChange?.(event.target.value);
+        }}
+        readOnly={readOnly}
         maxLength={400}
       />
 
       <div style={styles.counter}>
-        {value.trim().length}/{minLength} mínimo
+        {String(value || "").trim().length}/{minLength} mínimo
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ import getPlaceSubmissionDetailService from "../../../../../services/submissions
 
 import returnPlaceSubmissionService from "../../../../../services/submissions/returnPlaceSubmission.service";
 
+import getReturnedPlaceSubmissionReviewService from "../../../../../services/submissions/getReturnedPlaceSubmissionReview.service";
+
 const correctionFields = [
   {
     key: "name",
@@ -134,6 +136,77 @@ function PlaceReturnSubmissionScreen() {
 
   const [selectedPhotos, setSelectedPhotos] = useState({});
   const [photoComments, setPhotoComments] = useState({});
+
+  const mode = location.state?.mode || "edit";
+  const isReadonly = mode === "readonly";
+
+  const [returnReview, setReturnReview] = useState(null);
+
+  useEffect(() => {
+  async function loadReturnReviewIfReadonly() {
+    if (!isReadonly) return;
+
+    if (!submissionId) {
+      setErrorMessage("No se encontró el ID de la propuesta.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setErrorMessage("");
+
+      const data = await getReturnedPlaceSubmissionReviewService(submissionId);
+
+      setReturnReview(data);
+
+      setGeneralComment(data.generalMessage || "");
+
+      const nextSelectedFields = {};
+      const nextFieldComments = {};
+      const nextSelectedPhotos = {};
+      const nextPhotoComments = {};
+
+      const fields = data.returnFields || {};
+
+      Object.entries(fields).forEach(([fieldKey, fieldValue]) => {
+        if (!fieldValue?.selected) return;
+
+        nextSelectedFields[fieldKey] = true;
+
+        if (fieldKey !== "photos") {
+          nextFieldComments[fieldKey] = fieldValue.message || "";
+        }
+      });
+
+      const photoItems = Array.isArray(fields.photos?.items)
+        ? fields.photos.items
+        : [];
+
+      photoItems.forEach((photo) => {
+        if (!photo.selected) return;
+
+        const indexKey = String(photo.index);
+
+        nextSelectedPhotos[indexKey] = true;
+        nextPhotoComments[indexKey] = photo.message || "";
+      });
+
+      setSelectedFields(nextSelectedFields);
+      setFieldComments(nextFieldComments);
+      setSelectedPhotos(nextSelectedPhotos);
+      setPhotoComments(nextPhotoComments);
+    } catch (error) {
+      console.error("Error cargando motivo de devolución:", error);
+      setErrorMessage(
+        error.message || "No se pudo cargar el motivo de devolución."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadReturnReviewIfReadonly();
+}, [isReadonly, submissionId]);
 
   useEffect(() => {
     async function loadSubmissionIfNeeded() {
@@ -355,44 +428,52 @@ const canSubmit =
       <div style={styles.screen}>
         <section style={styles.card}>
           <div style={styles.header}>
-            <h1 style={styles.title}>Devolver para corrección</h1>
+            <h1 style={styles.title}>
+              {isReadonly ? "Motivo de devolución" : "Devolver para corrección"}
+            </h1>
+
             <p style={styles.subtitle}>
-              Selecciona los campos que el usuario debe corregir y escribe el motivo.
+              {isReadonly
+                ? "Consulta los campos que fueron solicitados para corrección."
+                : "Selecciona los campos que el usuario debe corregir y escribe el motivo."}
             </p>
           </div>
 
-          <ReturnTextArea
-            label="Comentario general"
-            placeholder="Escribe un comentario general para el usuario..."
-            value={generalComment}
-            onChange={setGeneralComment}
-            minLength={10}
-          />
+        <ReturnTextArea
+          label="Comentario general"
+          placeholder="Escribe un comentario general para el usuario..."
+          value={generalComment}
+          onChange={setGeneralComment}
+          minLength={10}
+          readOnly={isReadonly}
+        />
 
           <div style={styles.fieldsContainer}>
             {visibleCorrectionFields.map((field) => (
-              <ReturnCorrectionItem
-                key={field.key}
-                fieldKey={field.key}
-                label={field.label}
-                value={field.value}
-                type={field.type}
-                selected={Boolean(selectedFields[field.key])}
-                comment={fieldComments[field.key] || ""}
-                selectedPhotos={selectedPhotos}
-                photoComments={photoComments}
-                onToggle={handleToggleField}
-                onCommentChange={handleChangeFieldComment}
-                onTogglePhoto={handleTogglePhoto}
-                onPhotoCommentChange={handleChangePhotoComment}
-              />
-            ))}
+             <ReturnCorrectionItem
+              key={field.key}
+              fieldKey={field.key}
+              label={field.label}
+              value={field.value}
+              type={field.type}
+              selected={Boolean(selectedFields[field.key])}
+              comment={fieldComments[field.key] || ""}
+              selectedPhotos={selectedPhotos}
+              photoComments={photoComments}
+              onToggle={handleToggleField}
+              onCommentChange={handleChangeFieldComment}
+              onTogglePhoto={handleTogglePhoto}
+              onPhotoCommentChange={handleChangePhotoComment}
+              readOnly={isReadonly}
+            />
+              ))}
           </div>
 
           <ReturnActionButtons
             canSubmit={canSubmit}
             onCancel={() => navigate(-1)}
             onSubmit={handleSubmit}
+            readOnly={isReadonly}
           />
         </section>
       </div>

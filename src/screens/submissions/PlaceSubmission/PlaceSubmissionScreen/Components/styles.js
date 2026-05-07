@@ -155,6 +155,12 @@ const styles = {
     border: "1px solid #6ee7b7",
   },
 
+  resubmitted: {
+  backgroundColor: "#ECFDF3",
+  color: "#027A48",
+  borderColor: "#75E0A7",
+  },
+
   statusReturned: {
     color: "#1d4ed8",
     backgroundColor: "#dbeafe",

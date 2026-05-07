@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
@@ -34,6 +34,7 @@ function getStatusLabel(status) {
     approved: "Aprobado",
     returned: "Devuelto",
     rejected: "Rechazado",
+    resubmitted: "Corregido",
   };
 
   return map[status] || "Sin estado";
@@ -46,7 +47,6 @@ export default function PlaceDetailSubmissionScreen() {
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
   const [showRejectionModal, setShowRejectionModal] = useState(false);
 
   useEffect(() => {
@@ -74,6 +74,17 @@ export default function PlaceDetailSubmissionScreen() {
       loadSubmissionDetail();
     }
   }, [submissionId]);
+
+ const isReturned = submission?.status === "returned";
+const isResubmitted = submission?.status === "resubmitted";
+
+const returnedAtLabel = formatDate(
+  submission?.returnedAt || submission?.updatedAt
+);
+
+const correctedAtLabel = formatDate(
+  submission?.resubmittedAt || submission?.updatedAt
+);
 
   if (loading) {
     return (
@@ -105,102 +116,118 @@ export default function PlaceDetailSubmissionScreen() {
 
   return (
     <>
-    <LayoutScreen>
-      <main style={styles.screen}>
-        <section style={styles.contentArea}>
-          <aside style={styles.leftWrapper}>
-            <div style={styles.leftSection}>
-              <PhotoCarousel photos={submission?.photos || []} />
-              <LocationBox location={submission?.location} />
-            </div>
-          </aside>
+      <LayoutScreen>
+        <main style={styles.screen}>
+          <section style={styles.contentArea}>
+            <aside style={styles.leftWrapper}>
+              <div style={styles.leftSection}>
+                <PhotoCarousel photos={submission?.photos || []} />
+                <LocationBox location={submission?.location} />
+              </div>
+            </aside>
 
-          <div style={styles.verticalDivider} />
+            <div style={styles.verticalDivider} />
 
-          <section style={styles.rightSection}>
-            <div style={styles.topRow}>
-              <div style={styles.infoGroup}>
-                <InfoField
-                  label="Creado el:"
-                  value={formatDate(submission?.createdAt)}
-                />
+            <section style={styles.rightSection}>
+              <div style={styles.topRow}>
+               <div style={styles.infoGroup}>
+                  <InfoField
+                    label="Creado el:"
+                    value={formatDate(submission?.createdAt)}
+                  />
 
-                <InfoField
-                  label="Enviado por:"
-                  value={submission?.userName || "Usuario desconocido"}
+                  <InfoField
+                    label="Enviado por:"
+                    value={submission?.userName || "Usuario desconocido"}
+                  />
+
+                  {isReturned ? (
+                    <InfoField
+                      label="Devuelto el:"
+                      value={returnedAtLabel}
+                    />
+                  ) : null}
+
+                  {isResubmitted ? (
+                    <InfoField
+                      label="Corregido el:"
+                      value={correctedAtLabel}
+                    />
+                  ) : null}
+                </div>
+                <ActionButtons
+                  status={submission?.status}
+                  onAccept={() => {
+                    console.log("ACEPTAR submission");
+                  }}
+                  onReturn={() =>
+                    navigate(`/submissions/places/${submissionId}/return`, {
+                      state: {
+                        submission,
+                        mode: "edit",
+                      },
+                    })
+                  }
+                  onReject={() => setShowRejectionModal(true)}
+                  onViewReason={() =>
+                    navigate(`/submissions/places/${submissionId}/return`, {
+                      state: {
+                        submission,
+                        mode: "readonly",
+                      },
+                    })
+                  }
                 />
               </div>
 
-              <ActionButtons
-                onAccept={() => {
-                  console.log("ACEPTAR submission");
-                }}
-                onReturn={() =>
-                  navigate(`/submissions/places/${submissionId}/return`, {
-                  state: {
-                    submission,
-                  },
-                })
-                }
-                onReject={() => setShowRejectionModal(true)}
-              />
-            </div>
+              <div style={styles.nameStatusRow}>
+                <Pill label={submission?.name || "Lugar sin nombre"} size="large" />
+                <Pill label={getStatusLabel(submission?.status)} size="large" />
+              </div>
 
-            <div style={styles.nameStatusRow}>
-              <Pill label={submission?.name || "Lugar sin nombre"} size="large" />
-              <Pill label={getStatusLabel(submission?.status)} size="large" />
-            </div>
+              <div style={styles.descriptionBox}>
+                {submission?.description || "Sin descripción"}
+              </div>
 
-  
+              <div style={styles.chipsRow}>
+                <Pill label={submission?.tagLabel || submission?.tagId || "Sin etiqueta"} />
 
-            <div style={styles.descriptionBox}>
-              {submission?.description || "Sin descripción"}
-            </div>
+                {(submission?.subtags || []).map((subtag) => (
+                  <Pill key={subtag} label={subtag} />
+                ))}
 
-           <div style={styles.chipsRow}>
-            <Pill label={submission?.tagLabel || submission?.tagId || "Sin etiqueta"} />
+                {(submission?.approaches || []).map((approach) => (
+                  <Pill key={approach} label={approach} />
+                ))}
+              </div>
 
-            {(submission?.subtags || []).map((subtag) => (
-              <Pill key={subtag} label={subtag} />
-            ))}
+              <div style={styles.chipsRow}>
+                <Pill label={submission?.price || "Sin precio"} size="medium" />
+                <Pill label={submission?.schedule || "Horario no disponible"} size="medium" />
+              </div>
 
-            {(submission?.approaches || []).map((approach) => (
-              <Pill key={approach} label={approach} />
-            ))}
-          </div>
-
-            <div style={styles.chipsRow}>
-              <Pill label={submission?.price || "Sin precio"} size="medium" />
-              <Pill label="Horario no disponible" size="medium" />
-            </div>
-            
-            <div style={styles.bottomActions}>
-              <button
-                type="button"
-                style={styles.backButton}
-                onClick={() => navigate(-1)}
-              >
-                Volver
-              </button>
-            </div>
-            
+              <div style={styles.bottomActions}>
+                <button
+                  type="button"
+                  style={styles.backButton}
+                  onClick={() => navigate(-1)}
+                >
+                  Volver
+                </button>
+              </div>
+            </section>
           </section>
-        </section>
-      </main>
-    </LayoutScreen>
-              
-    <RejectionModal
-  visible={showRejectionModal}
-  onClose={() => setShowRejectionModal(false)}
-  onSubmit={(payload) => {
-    console.log("RECHAZO:", payload);
+        </main>
+      </LayoutScreen>
 
-    // Luego aquí:
-    // rejectPlaceSubmissionService(placeSubmissionId, payload)
-
-    setShowRejectionModal(false);
-  }}
-  />  
-</>
+      <RejectionModal
+        visible={showRejectionModal}
+        onClose={() => setShowRejectionModal(false)}
+        onSubmit={(payload) => {
+          console.log("RECHAZO:", payload);
+          setShowRejectionModal(false);
+        }}
+      />
+    </>
   );
 }

@@ -24,6 +24,10 @@ const statusFilters = [
     value: "approved",
   },
   {
+    label: "Corregidas",
+    value: "resubmitted",
+  },
+  {
     label: "Devueltas",
     value: "returned",
   },
@@ -42,6 +46,7 @@ function getStatusTitle(status) {
     all: "Todas las propuestas de lugares",
     in_review: "Lugares pendientes de revisión",
     approved: "Lugares aprobados",
+    resubmitted: "Lugares corregidos",
     returned: "Lugares devueltos",
     rejected: "Lugares rechazados",
   };

@@ -22,6 +22,7 @@ function getStatusLabel(status) {
     in_review: "Pendiente",
     approved: "Aprobado",
     returned: "Devuelta",
+    resubmitted: "Corregido",
     rejected: "Rechazada",
   };
 

@@ -5,7 +5,22 @@ export default function ReturnActionButtons({
   canSubmit,
   onCancel,
   onSubmit,
+  readOnly = false,
 }) {
+  if (readOnly) {
+    return (
+      <div style={styles.container}>
+        <button
+          type="button"
+          style={styles.cancelButton}
+          onClick={onCancel}
+        >
+          Volver
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.container}>
       <button
@@ -18,14 +33,15 @@ export default function ReturnActionButtons({
 
       <button
         type="button"
-        disabled={!canSubmit}
         style={{
           ...styles.submitButton,
-          ...(!canSubmit ? styles.submitButtonDisabled : {}),
+          opacity: canSubmit ? 1 : 0.45,
+          cursor: canSubmit ? "pointer" : "not-allowed",
         }}
+        disabled={!canSubmit}
         onClick={onSubmit}
       >
-        Enviar devolución
+        Devolver propuesta
       </button>
     </div>
   );
