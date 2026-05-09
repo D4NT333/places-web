@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 import H3PlaceSelectionMap from "./Components/H3PlaceSelectionMap";
-import { postDiscoverPlacesByH3 } from "../../../../services/api/places.api";
 
 export default function SelectZoneScreen() {
   const [selectedHexId, setSelectedHexId] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -16,27 +15,15 @@ export default function SelectZoneScreen() {
     console.log("Hex seleccionado:", hexId);
   };
 
-  const handleConfirmZone = async () => {
+  const handleConfirmZone = () => {
     if (!selectedHexId) return;
 
-    try {
-      setLoading(true);
-
-      const response = await postDiscoverPlacesByH3(selectedHexId);
-
-      console.log("Respuesta del backend:", response);
-
-      navigate("/management/place-registration/place", {
-        state: {
-          hexId: selectedHexId,
-          discoverResponse: response,
-        },
-      });
-    } catch (error) {
-      console.error("Error enviando hex al backend:", error);
-    } finally {
-      setLoading(false);
-    }
+    navigate("/management/place-registration/candidates", {
+      state: {
+        hexId: selectedHexId,
+        discoverResponse: null,
+      },
+    });
   };
 
   return (
@@ -70,8 +57,7 @@ export default function SelectZoneScreen() {
             color: "#fff",
             border: "none",
             borderRadius: "8px",
-            cursor:
-              !selectedHexId || loading ? "not-allowed" : "pointer",
+            cursor: !selectedHexId || loading ? "not-allowed" : "pointer",
           }}
         >
           {loading ? "Confirmando zona..." : "Confirmar zona"}

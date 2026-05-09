@@ -8,8 +8,9 @@ export {default as DescriptionSubmissionScreen} from "./submissions/DescriptionS
 export { default as PlaceDetailSubmissionScreen } from "./submissions/PlaceSubmission/PlaceDetailSubmissionScreen";
 export { default as PlaceReturnSubmissionScreen } from "./submissions/PlaceSubmission/PlaceDetailSubmissionScreen/PlaceReturnSubmissionScreen";
 
-export { default as SelectZoneScreen } from "./management/PlaceRegistration/SelectZoneScreen";
-export { default as PlaceRegistrationScreen } from "./management/PlaceRegistration/PlaceRegistrationScreen";
+export { default as SelectZoneScreen } from "./management/PlaceRegistrationScreen/SelectZoneScreen";
+export { default as PlaceCandidatesScreen } from "./management/PlaceRegistrationScreen/PlaceCandidatesScreen";
+export { default as PlaceDetailCandidatesScreen } from "./management/PlaceRegistrationScreen/PlaceDetailCandidatesScreen";
 
 
 export { default as SuggestionsScreen } from "./management/SuggestionsScreen";
