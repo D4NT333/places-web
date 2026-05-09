@@ -1,14 +1,7 @@
 import React from "react";
 import styles from "./styles";
-import CandidateInfoChip from "../CandidateInfoChip";
 
-function formatGoogleType(type) {
-  if (!type) return "Sin tipo";
-
-  return type.replaceAll("_", " ");
-}
-
-export default function CandidateMediaPanel({ candidate, importedAtLabel }) {
+export default function CandidateMediaPanel({ candidate }) {
   return (
     <aside style={styles.mediaCard}>
       <div style={styles.photoBox}>
@@ -31,24 +24,6 @@ export default function CandidateMediaPanel({ candidate, importedAtLabel }) {
         <p style={styles.addressText}>
           {candidate.address || "Sin dirección"}
         </p>
-      </div>
-
-      <div style={styles.infoStack}>
-        <CandidateInfoChip
-          label="Importado el"
-          value={importedAtLabel}
-        />
-
-        <CandidateInfoChip
-          label="Tipo de Google"
-          value={formatGoogleType(candidate.googleMainType)}
-        />
-
-        <CandidateInfoChip
-          label="Google Place ID"
-          value={candidate.googlePlaceId || "Sin ID"}
-          mono
-        />
       </div>
     </aside>
   );

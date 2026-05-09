@@ -193,6 +193,15 @@ const styles = {
     fontSize: "13px",
     fontWeight: 800,
   },
+  errorBox: {
+  padding: "10px 12px",
+  borderRadius: "12px",
+  backgroundColor: "#fee2e2",
+  border: "1px solid #fecaca",
+  color: "#991b1b",
+  fontSize: "12px",
+  fontWeight: 800,
+},
 };
 
 export default styles;

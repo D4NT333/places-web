@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState,useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 import CandidateMediaPanel from "./Components/CandidateMediaPanel";
 import CandidateReviewPanel from "./Components/CandidateReviewPanel";
+
+import { getCreateFiltersCatalogService } from "../../../../services/api/filtersCatalog.service";
 
 const fallbackCandidate = {
   id: "candidate_mock",
@@ -73,13 +75,57 @@ export default function PlaceDetailCandidatesScreen() {
   const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedSchedule, setSelectedSchedule] = useState("");
 
+  const [catalogLoading, setCatalogLoading] = useState(false);
+const [catalogError, setCatalogError] = useState("");
+
+const [catalog, setCatalog] = useState({
+  selectedTagId: null,
+  selectedTag: null,
+  tags: [],
+  subtags: [],
+  approaches: [],
+  priceConfig: null,
+});
+
   const importedAtLabel = useMemo(() => {
     return formatDate(candidate.importedAt);
   }, [candidate.importedAt]);
 
+  const loadFiltersCatalog = async (tagId = null) => {
+  try {
+    setCatalogLoading(true);
+    setCatalogError("");
+
+    const data = await getCreateFiltersCatalogService(tagId);
+
+    setCatalog(data);
+
+    if (data.selectedTagId) {
+      setSelectedTag(data.selectedTagId);
+    }
+
+    setSelectedSubtags([]);
+    setSelectedApproach("");
+    setSelectedPrice("");
+  } catch (error) {
+    console.error("Error cargando catálogo de filtros:", error);
+    setCatalogError(error.message || "No se pudo cargar el catálogo.");
+  } finally {
+    setCatalogLoading(false);
+  }
+};
+
+useEffect(() => {
+  loadFiltersCatalog();
+}, []);
+
   const handleSelectDescription = (descriptionText) => {
     setDescription(descriptionText);
   };
+
+  const handleSelectTag = async (tagId) => {
+  await loadFiltersCatalog(tagId);
+};
 
   const handleToggleSubtag = (subtag) => {
     setSelectedSubtags((prev) => {
@@ -127,78 +173,75 @@ export default function PlaceDetailCandidatesScreen() {
     <LayoutScreen>
       <div style={styles.container}>
         <div style={styles.header}>
-          <div>
-            <button type="button" style={styles.backButton} onClick={handleBack}>
-              Volver
-            </button>
+  <div style={styles.headerTextBlock}>
 
-            <h1 style={styles.title}>Detalle del candidato</h1>
+    <h1 style={styles.title}>Detalle del candidato</h1>
 
-            <p style={styles.subtitle}>
-              Revisa la información importada desde Google y completa los datos
-              necesarios para Lsearch.
-            </p>
-          </div>
+    <p style={styles.subtitle}>
+      Revisa la información importada desde Google y completa los datos
+      necesarios para Lsearch.
+    </p>
+  </div>
 
-          <div style={styles.headerActions}>
-            <span
-              style={{
-                ...styles.statusBadge,
-                ...(status === "accepted" ? styles.statusAccepted : {}),
-                ...(status === "rejected" ? styles.statusRejected : {}),
-                ...(status === "in_review" ? styles.statusPending : {}),
-              }}
-            >
-              {getStatusLabel(status)}
-            </span>
+  <div style={styles.headerActions}>
+    <button
+      type="button"
+      style={styles.rejectButton}
+      onClick={handleReject}
+    >
+      Rechazar
+    </button>
 
-            <button
-              type="button"
-              style={styles.rejectButton}
-              onClick={handleReject}
-            >
-              Rechazar
-            </button>
+    <button
+      type="button"
+      style={styles.acceptButton}
+      onClick={handleAccept}
+    >
+      Aceptar
+    </button>
+  </div>
+</div>
 
-            <button
-              type="button"
-              style={styles.acceptButton}
-              onClick={handleAccept}
-            >
-              Aceptar
-            </button>
-          </div>
-        </div>
+<div style={styles.mainContentOffset}>
+  <div style={styles.contentGrid}>
+    <CandidateMediaPanel
+      candidate={candidate}
+      importedAtLabel={importedAtLabel}
+    />
 
-        <div style={styles.contentGrid}>
-          <CandidateMediaPanel
-            candidate={candidate}
-            importedAtLabel={importedAtLabel}
-          />
+   <CandidateReviewPanel
+  candidate={candidate}
+  name={name}
+  setName={setName}
+  description={description}
+  setDescription={setDescription}
+  genericDescriptions={genericDescriptions}
+  onSelectDescription={handleSelectDescription}
+  selectedTag={selectedTag}
+  setSelectedTag={handleSelectTag}
+  selectedSubtags={selectedSubtags}
+  onToggleSubtag={handleToggleSubtag}
+  selectedApproach={selectedApproach}
+  setSelectedApproach={setSelectedApproach}
+  selectedPrice={selectedPrice}
+  setSelectedPrice={setSelectedPrice}
+  selectedSchedule={selectedSchedule}
+  setSelectedSchedule={setSelectedSchedule}
+  importedAtLabel={importedAtLabel}
+  status={status}
+  catalog={catalog}
+  catalogLoading={catalogLoading}
+  catalogError={catalogError}
+/>
+  </div>
+</div>
 
-          <CandidateReviewPanel
-            candidate={candidate}
-            name={name}
-            setName={setName}
-            description={description}
-            setDescription={setDescription}
-            genericDescriptions={genericDescriptions}
-            onSelectDescription={handleSelectDescription}
-            selectedTag={selectedTag}
-            setSelectedTag={setSelectedTag}
-            selectedSubtags={selectedSubtags}
-            onToggleSubtag={handleToggleSubtag}
-            selectedApproach={selectedApproach}
-            setSelectedApproach={setSelectedApproach}
-            selectedPrice={selectedPrice}
-            setSelectedPrice={setSelectedPrice}
-            selectedSchedule={selectedSchedule}
-            setSelectedSchedule={setSelectedSchedule}
-            importedAtLabel={importedAtLabel}
-            status={status}
-          />
-        </div>
-      </div>
+<div style={styles.footerActions}>
+  <button type="button" style={styles.backButtonBottom} onClick={handleBack}>
+    Volver
+  </button>
+</div>
+</div>
     </LayoutScreen>
   );
 }

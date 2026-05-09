@@ -5,14 +5,6 @@ const styles = {
     boxSizing: "border-box",
   },
 
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: "20px",
-    marginBottom: "14px",
-  },
-
   backButton: {
     border: "none",
     backgroundColor: "transparent",
@@ -100,9 +92,10 @@ const styles = {
 
  contentGrid: {
   display: "grid",
-  gridTemplateColumns: "380px 1fr",
+  gridTemplateColumns: "520px 1fr",
   gap: "18px",
   alignItems: "stretch",
+  minHeight: "810px",
 },
 
   bottomPanel: {
@@ -114,6 +107,47 @@ const styles = {
     color: "#4b5563",
     fontSize: "13px",
   },
+  header: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: "20px",
+  marginBottom: "0px",
+},
+
+headerTextBlock: {
+  paddingTop: "1px",
+},
+
+headerActions: {
+  display: "flex",
+  alignItems: "center",
+  gap: "20px",
+  flexWrap: "wrap",
+  justifyContent: "flex-end",
+  paddingTop: "1px",
+},
+
+mainContentOffset: {
+  marginTop: "12px",
+},
+
+footerActions: {
+  display: "flex",
+  justifyContent: "flex-end",
+  marginTop: "12px",
+},
+
+backButtonBottom: {
+  border: "1px solid #d1d5db",
+  backgroundColor: "#ffffff",
+  color: "#374151",
+  borderRadius: "999px",
+  padding: "9px 18px",
+  fontSize: "13px",
+  fontWeight: 900,
+  cursor: "pointer",
+},
 };
 
 export default styles;

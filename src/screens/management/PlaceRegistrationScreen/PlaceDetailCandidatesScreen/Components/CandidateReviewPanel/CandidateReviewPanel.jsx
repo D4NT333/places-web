@@ -1,34 +1,6 @@
 import React, { useState } from "react";
 import styles from "./styles";
 
-const mockTags = [
-  "Gastronomía",
-  "Cultura",
-  "Entretenimiento",
-  "Compras",
-];
-
-const mockSubtags = [
-  "Café",
-  "Restaurante",
-  "Local",
-  "Especialidad",
-];
-
-const mockApproaches = [
-  "Familiar",
-  "Romántico",
-  "Local",
-  "Rápido",
-];
-
-const mockPrices = [
-  "Gratis",
-  "$",
-  "$$",
-  "$$$",
-];
-
 const mockSchedules = [
   "Horario comercial",
   "Nocturno",
@@ -72,8 +44,22 @@ export default function CandidateReviewPanel({
   setSelectedSchedule,
   importedAtLabel,
   status,
+  catalog,
+  catalogLoading,
+  catalogError,
 }) {
   const [showDescriptions, setShowDescriptions] = useState(false);
+
+  const tags = catalog?.tags || [];
+  const subtags = catalog?.subtags || [];
+  const approaches = catalog?.approaches || [];
+  const priceConfig = catalog?.priceConfig || null;
+
+  const priceRanges = Array.isArray(priceConfig?.ranges)
+    ? priceConfig.ranges
+    : [];
+
+  const hasFreeOption = Boolean(priceConfig?.hasFreeOption);
 
   return (
     <section style={styles.reviewCard}>
@@ -122,7 +108,7 @@ export default function CandidateReviewPanel({
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           style={styles.textarea}
-          placeholder="Descripción que verá el usuario en Lsearch..."
+          placeholder="Descripción que verá el usuario..."
         />
 
         {showDescriptions && (
@@ -146,71 +132,85 @@ export default function CandidateReviewPanel({
       </div>
 
       <div style={styles.formSection}>
-        <label style={styles.fieldLabel}>Clasificación Lsearch</label>
+        <label style={styles.fieldLabel}>Etiqueta</label>
 
-        <div style={styles.chipGroup}>
-          {mockTags.map((tag) => {
-            const isActive = selectedTag === tag;
+        {catalogLoading ? (
+          <div style={styles.readonlyMini}>Cargando etiquetas...</div>
+        ) : catalogError ? (
+          <div style={styles.errorBox}>{catalogError}</div>
+        ) : (
+          <div style={styles.chipGroup}>
+            {tags.map((tag) => {
+              const isActive = selectedTag === tag.id;
 
-            return (
-              <button
-                key={tag}
-                type="button"
-                style={{
-                  ...styles.choiceChip,
-                  ...(isActive ? styles.choiceChipActive : {}),
-                }}
-                onClick={() => setSelectedTag(tag)}
-              >
-                {tag}
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <button
+                  key={tag.id}
+                  type="button"
+                  style={{
+                    ...styles.choiceChip,
+                    ...(isActive ? styles.choiceChipActive : {}),
+                  }}
+                  onClick={() => setSelectedTag(tag.id)}
+                >
+                  {tag.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
-        <label style={styles.smallLabel}>Subcategorías</label>
+        {subtags.length > 0 && (
+          <>
+            <label style={styles.smallLabel}>Subcategorías</label>
 
-        <div style={styles.chipGroup}>
-          {mockSubtags.map((subtag) => {
-            const isActive = selectedSubtags.includes(subtag);
+            <div style={styles.chipGroup}>
+              {subtags.map((subtag) => {
+                const isActive = selectedSubtags.includes(subtag.id);
 
-            return (
-              <button
-                key={subtag}
-                type="button"
-                style={{
-                  ...styles.choiceChip,
-                  ...(isActive ? styles.choiceChipActive : {}),
-                }}
-                onClick={() => onToggleSubtag(subtag)}
-              >
-                {subtag}
-              </button>
-            );
-          })}
-        </div>
+                return (
+                  <button
+                    key={subtag.id}
+                    type="button"
+                    style={{
+                      ...styles.choiceChip,
+                      ...(isActive ? styles.choiceChipActive : {}),
+                    }}
+                    onClick={() => onToggleSubtag(subtag.id)}
+                  >
+                    {subtag.label}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
 
-        <label style={styles.smallLabel}>Enfoque</label>
+        {approaches.length > 0 && (
+          <>
+            <label style={styles.smallLabel}>Enfoque</label>
 
-        <div style={styles.chipGroup}>
-          {mockApproaches.map((approach) => {
-            const isActive = selectedApproach === approach;
+            <div style={styles.chipGroup}>
+              {approaches.map((approach) => {
+                const isActive = selectedApproach === approach.id;
 
-            return (
-              <button
-                key={approach}
-                type="button"
-                style={{
-                  ...styles.choiceChip,
-                  ...(isActive ? styles.choiceChipActive : {}),
-                }}
-                onClick={() => setSelectedApproach(approach)}
-              >
-                {approach}
-              </button>
-            );
-          })}
-        </div>
+                return (
+                  <button
+                    key={approach.id}
+                    type="button"
+                    style={{
+                      ...styles.choiceChip,
+                      ...(isActive ? styles.choiceChipActive : {}),
+                    }}
+                    onClick={() => setSelectedApproach(approach.id)}
+                  >
+                    {approach.label}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       <div style={styles.twoColumnSection}>
@@ -218,24 +218,41 @@ export default function CandidateReviewPanel({
           <label style={styles.fieldLabel}>Precio</label>
 
           <div style={styles.readonlyMini}>
-            Rango proporcionado: no consultado
+            {priceConfig
+              ? "Rangos definidos por la etiqueta seleccionada"
+              : "Sin configuración de precio"}
           </div>
 
           <div style={styles.chipGroup}>
-            {mockPrices.map((price) => {
-              const isActive = selectedPrice === price;
+            {hasFreeOption && (
+              <button
+                type="button"
+                style={{
+                  ...styles.choiceChip,
+                  ...(selectedPrice === "free"
+                    ? styles.choiceChipActive
+                    : {}),
+                }}
+                onClick={() => setSelectedPrice("free")}
+              >
+                Gratis
+              </button>
+            )}
+
+            {priceRanges.map((range) => {
+              const isActive = selectedPrice === range.id;
 
               return (
                 <button
-                  key={price}
+                  key={range.id}
                   type="button"
                   style={{
                     ...styles.choiceChip,
                     ...(isActive ? styles.choiceChipActive : {}),
                   }}
-                  onClick={() => setSelectedPrice(price)}
+                  onClick={() => setSelectedPrice(range.id)}
                 >
-                  {price}
+                  {range.label}
                 </button>
               );
             })}

@@ -1,20 +1,24 @@
 const styles = {
   mediaCard: {
+    height: "100%",
+    boxSizing: "border-box",
     backgroundColor: "#ffffff",
     border: "1px solid #e5e7eb",
     borderRadius: "18px",
     padding: "14px",
     boxShadow: "0 12px 24px rgba(15, 23, 42, 0.07)",
+    display: "flex",
+    flexDirection: "column",
   },
 
-  pphotoBox: {
-  height: "270px",
-  borderRadius: "14px",
-  backgroundColor: "#f9fafb",
-  border: "1px dashed #cbd5e1",
-  overflow: "hidden",
-  marginBottom: "12px",
-},
+  photoBox: {
+    height: "390px",
+    borderRadius: "14px",
+    backgroundColor: "#f9fafb",
+    border: "1px dashed #cbd5e1",
+    overflow: "hidden",
+    marginBottom: "12px",
+  },
 
   photoPlaceholder: {
     height: "100%",
@@ -41,13 +45,13 @@ const styles = {
   },
 
   mapBox: {
-  height: "120px",
-  borderRadius: "14px",
-  backgroundColor: "#f3f4f6",
-  border: "1px solid #e5e7eb",
-  overflow: "hidden",
-  marginBottom: "10px",
-},
+    height: "220px",
+    borderRadius: "14px",
+    backgroundColor: "#f3f4f6",
+    border: "1px solid #e5e7eb",
+    overflow: "hidden",
+    marginBottom: "12px",
+  },
 
   mapPlaceholder: {
     height: "100%",
@@ -61,7 +65,11 @@ const styles = {
   },
 
   addressBlock: {
-    marginBottom: "10px",
+    marginTop: "auto",
+    padding: "12px",
+    borderRadius: "14px",
+    backgroundColor: "#f9fafb",
+    border: "1px solid #e5e7eb",
   },
 
   label: {
@@ -69,7 +77,6 @@ const styles = {
     fontSize: "11px",
     fontWeight: 900,
     color: "#9ca3af",
-    textTransform: "uppercase",
     marginBottom: "4px",
   },
 
@@ -78,13 +85,7 @@ const styles = {
     fontSize: "13px",
     lineHeight: 1.4,
     color: "#374151",
-    fontWeight: 600,
-  },
-
-  infoStack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
+    fontWeight: 700,
   },
 };
 
