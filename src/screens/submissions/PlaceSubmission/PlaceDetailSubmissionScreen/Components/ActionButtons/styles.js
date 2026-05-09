@@ -56,6 +56,19 @@ const styles = {
     fontSize: 14,
     cursor: "pointer",
   },
+
+  secondaryButton: {
+  minWidth: 120,
+  height: 36,
+  padding: "0 22px",
+  borderRadius: 999,
+  backgroundColor: "#FFFFFF",
+  border: "2px solid #0F172A",
+  color: "#0F172A",
+  fontWeight: 700,
+  fontSize: 14,
+  cursor: "pointer",
+},
 };
 
 export default styles;
