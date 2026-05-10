@@ -1,4 +1,4 @@
-import React, { useMemo, useState,useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
@@ -6,16 +6,7 @@ import CandidateMediaPanel from "./Components/CandidateMediaPanel";
 import CandidateReviewPanel from "./Components/CandidateReviewPanel";
 
 import { getCreateFiltersCatalogService } from "../../../../services/api/filtersCatalog.service";
-
-const fallbackCandidate = {
-  id: "candidate_mock",
-  googlePlaceId: "ChIJ001",
-  name: "Café PalReal",
-  address: "C. Lope de Vega 113, Arcos Vallarta, Guadalajara",
-  googleMainType: "cafe",
-  status: "in_review",
-  importedAt: "2026-05-09T04:31:00.000Z",
-};
+import { getGoogleCandidateDetailsService } from "../../../../services/api/googleCandidates.service";
 
 const genericDescriptions = [
   {
@@ -48,23 +39,67 @@ function formatDate(value) {
   }
 }
 
-function getStatusLabel(status) {
-  const map = {
-    in_review: "Pendiente",
-    accepted: "Aceptado",
-    rejected: "Rechazado",
-  };
-
-  return map[status] || "Pendiente";
-}
-
 export default function PlaceDetailCandidatesScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const { candidateId } = useParams();
 
-  const candidate = location.state?.candidate || fallbackCandidate;
-  const hexId = location.state?.hexId || null;
+  const candidateFromState = location.state?.candidate || null;
+  const hexId = location.state?.hexId || candidateFromState?.parentHexId || null;
+
+  const googlePlaceId =
+    candidateFromState?.googlePlaceId ||
+    candidateFromState?.id ||
+    candidateId;
+
+  const [googleDetails, setGoogleDetails] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState("");
+
+  const candidate = useMemo(() => {
+    return {
+      id: candidateFromState?.id || googlePlaceId,
+      googlePlaceId,
+
+      name:
+        googleDetails?.name ||
+        candidateFromState?.name ||
+        "Sin nombre",
+
+      address:
+        googleDetails?.address ||
+        candidateFromState?.address ||
+        "Sin dirección",
+
+      googleMainType:
+        googleDetails?.googleMainType ||
+        candidateFromState?.googleMainType ||
+        "Sin tipo",
+
+      types:
+        googleDetails?.types ||
+        candidateFromState?.types ||
+        [],
+
+      status: candidateFromState?.status || "in_review",
+
+      importedAt:
+        candidateFromState?.createdAt ||
+        candidateFromState?.importedAt ||
+        null,
+
+      parentHexId: candidateFromState?.parentHexId || hexId,
+
+      location: googleDetails?.location || candidateFromState?.location || null,
+
+      rating: googleDetails?.rating ?? null,
+      userRatingCount: googleDetails?.userRatingCount ?? null,
+      priceLevel: googleDetails?.priceLevel || null,
+      googleMapsUri: googleDetails?.googleMapsUri || null,
+      openingHours: googleDetails?.openingHours || null,
+      photos: googleDetails?.photos || [],
+    };
+  }, [candidateFromState, googleDetails, googlePlaceId, hexId]);
 
   const [status, setStatus] = useState(candidate.status || "in_review");
   const [name, setName] = useState(candidate.name || "");
@@ -76,56 +111,88 @@ export default function PlaceDetailCandidatesScreen() {
   const [selectedSchedule, setSelectedSchedule] = useState("");
 
   const [catalogLoading, setCatalogLoading] = useState(false);
-const [catalogError, setCatalogError] = useState("");
+  const [catalogError, setCatalogError] = useState("");
 
-const [catalog, setCatalog] = useState({
-  selectedTagId: null,
-  selectedTag: null,
-  tags: [],
-  subtags: [],
-  approaches: [],
-  priceConfig: null,
-});
+  const [catalog, setCatalog] = useState({
+    selectedTagId: null,
+    selectedTag: null,
+    tags: [],
+    subtags: [],
+    approaches: [],
+    priceConfig: null,
+  });
 
   const importedAtLabel = useMemo(() => {
     return formatDate(candidate.importedAt);
   }, [candidate.importedAt]);
 
+  useEffect(() => {
+    const loadGoogleDetails = async () => {
+      if (!googlePlaceId) {
+        setDetailsError("No se encontró el Google Place ID del candidato.");
+        return;
+      }
+
+      try {
+        setDetailsLoading(true);
+        setDetailsError("");
+
+        const data = await getGoogleCandidateDetailsService(googlePlaceId);
+
+        setGoogleDetails(data);
+      } catch (error) {
+        console.error("Error cargando detalles de Google:", error);
+        setDetailsError(
+          error.message || "No se pudieron cargar los detalles del candidato."
+        );
+      } finally {
+        setDetailsLoading(false);
+      }
+    };
+
+    loadGoogleDetails();
+  }, [googlePlaceId]);
+
+  useEffect(() => {
+    setStatus(candidate.status || "in_review");
+    setName(candidate.name || "");
+  }, [candidate.status, candidate.name]);
+
   const loadFiltersCatalog = async (tagId = null) => {
-  try {
-    setCatalogLoading(true);
-    setCatalogError("");
+    try {
+      setCatalogLoading(true);
+      setCatalogError("");
 
-    const data = await getCreateFiltersCatalogService(tagId);
+      const data = await getCreateFiltersCatalogService(tagId);
 
-    setCatalog(data);
+      setCatalog(data);
 
-    if (data.selectedTagId) {
-      setSelectedTag(data.selectedTagId);
+      if (data.selectedTagId) {
+        setSelectedTag(data.selectedTagId);
+      }
+
+      setSelectedSubtags([]);
+      setSelectedApproach("");
+      setSelectedPrice("");
+    } catch (error) {
+      console.error("Error cargando catálogo de filtros:", error);
+      setCatalogError(error.message || "No se pudo cargar el catálogo.");
+    } finally {
+      setCatalogLoading(false);
     }
+  };
 
-    setSelectedSubtags([]);
-    setSelectedApproach("");
-    setSelectedPrice("");
-  } catch (error) {
-    console.error("Error cargando catálogo de filtros:", error);
-    setCatalogError(error.message || "No se pudo cargar el catálogo.");
-  } finally {
-    setCatalogLoading(false);
-  }
-};
-
-useEffect(() => {
-  loadFiltersCatalog();
-}, []);
+  useEffect(() => {
+    loadFiltersCatalog();
+  }, []);
 
   const handleSelectDescription = (descriptionText) => {
     setDescription(descriptionText);
   };
 
   const handleSelectTag = async (tagId) => {
-  await loadFiltersCatalog(tagId);
-};
+    await loadFiltersCatalog(tagId);
+  };
 
   const handleToggleSubtag = (subtag) => {
     setSelectedSubtags((prev) => {
@@ -156,6 +223,18 @@ useEffect(() => {
       price: selectedPrice,
       schedule: selectedSchedule,
       status: "accepted",
+
+      googleDetails: {
+        address: candidate.address,
+        location: candidate.location,
+        googleMainType: candidate.googleMainType,
+        types: candidate.types,
+        rating: candidate.rating,
+        userRatingCount: candidate.userRatingCount,
+        priceLevel: candidate.priceLevel,
+        openingHours: candidate.openingHours,
+        photos: candidate.photos,
+      },
     };
 
     console.log("Candidato aceptado:", payload);
@@ -173,75 +252,88 @@ useEffect(() => {
     <LayoutScreen>
       <div style={styles.container}>
         <div style={styles.header}>
-  <div style={styles.headerTextBlock}>
+          <div style={styles.headerTextBlock}>
+            <h1 style={styles.title}>Detalle del candidato</h1>
 
-    <h1 style={styles.title}>Detalle del candidato</h1>
+            <p style={styles.subtitle}>
+              Revisa la información importada desde Google y completa los datos
+              necesarios para Lsearch.
+            </p>
 
-    <p style={styles.subtitle}>
-      Revisa la información importada desde Google y completa los datos
-      necesarios para Lsearch.
-    </p>
-  </div>
+            {detailsError && (
+              <p style={{ margin: "6px 0 0", color: "#991b1b" }}>
+                {detailsError}
+              </p>
+            )}
+          </div>
 
-  <div style={styles.headerActions}>
-    <button
-      type="button"
-      style={styles.rejectButton}
-      onClick={handleReject}
-    >
-      Rechazar
-    </button>
+          <div style={styles.headerActions}>
+            <button
+              type="button"
+              style={styles.rejectButton}
+              onClick={handleReject}
+            >
+              Rechazar
+            </button>
 
-    <button
-      type="button"
-      style={styles.acceptButton}
-      onClick={handleAccept}
-    >
-      Aceptar
-    </button>
-  </div>
-</div>
+            <button
+              type="button"
+              style={styles.acceptButton}
+              onClick={handleAccept}
+            >
+              Aceptar
+            </button>
+          </div>
+        </div>
 
-<div style={styles.mainContentOffset}>
-  <div style={styles.contentGrid}>
-    <CandidateMediaPanel
-      candidate={candidate}
-      importedAtLabel={importedAtLabel}
-    />
+        <div style={styles.mainContentOffset}>
+          <div style={styles.contentGrid}>
+            <CandidateMediaPanel
+              candidate={candidate}
+              details={googleDetails}
+              loadingDetails={detailsLoading}
+              importedAtLabel={importedAtLabel}
+            />
 
-   <CandidateReviewPanel
-  candidate={candidate}
-  name={name}
-  setName={setName}
-  description={description}
-  setDescription={setDescription}
-  genericDescriptions={genericDescriptions}
-  onSelectDescription={handleSelectDescription}
-  selectedTag={selectedTag}
-  setSelectedTag={handleSelectTag}
-  selectedSubtags={selectedSubtags}
-  onToggleSubtag={handleToggleSubtag}
-  selectedApproach={selectedApproach}
-  setSelectedApproach={setSelectedApproach}
-  selectedPrice={selectedPrice}
-  setSelectedPrice={setSelectedPrice}
-  selectedSchedule={selectedSchedule}
-  setSelectedSchedule={setSelectedSchedule}
-  importedAtLabel={importedAtLabel}
-  status={status}
-  catalog={catalog}
-  catalogLoading={catalogLoading}
-  catalogError={catalogError}
-/>
-  </div>
-</div>
+            <CandidateReviewPanel
+              candidate={candidate}
+              details={googleDetails}
+              loadingDetails={detailsLoading}
+              name={name}
+              setName={setName}
+              description={description}
+              setDescription={setDescription}
+              genericDescriptions={genericDescriptions}
+              onSelectDescription={handleSelectDescription}
+              selectedTag={selectedTag}
+              setSelectedTag={handleSelectTag}
+              selectedSubtags={selectedSubtags}
+              onToggleSubtag={handleToggleSubtag}
+              selectedApproach={selectedApproach}
+              setSelectedApproach={setSelectedApproach}
+              selectedPrice={selectedPrice}
+              setSelectedPrice={setSelectedPrice}
+              selectedSchedule={selectedSchedule}
+              setSelectedSchedule={setSelectedSchedule}
+              importedAtLabel={importedAtLabel}
+              status={status}
+              catalog={catalog}
+              catalogLoading={catalogLoading}
+              catalogError={catalogError}
+            />
+          </div>
+        </div>
 
-<div style={styles.footerActions}>
-  <button type="button" style={styles.backButtonBottom} onClick={handleBack}>
-    Volver
-  </button>
-</div>
-</div>
+        <div style={styles.footerActions}>
+          <button
+            type="button"
+            style={styles.backButtonBottom}
+            onClick={handleBack}
+          >
+            Volver
+          </button>
+        </div>
+      </div>
     </LayoutScreen>
   );
 }

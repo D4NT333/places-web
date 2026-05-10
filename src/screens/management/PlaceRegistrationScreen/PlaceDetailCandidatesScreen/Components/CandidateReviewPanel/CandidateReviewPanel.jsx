@@ -1,17 +1,12 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styles from "./styles";
-
-const mockSchedules = [
-  "Horario comercial",
-  "Nocturno",
-  "Fines de semana",
-  "Por confirmar",
-];
 
 function formatGoogleType(type) {
   if (!type) return "Sin tipo";
 
-  return type.replaceAll("_", " ");
+  return type
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function getStatusLabel(status) {
@@ -24,8 +19,63 @@ function getStatusLabel(status) {
   return map[status] || "Pendiente";
 }
 
+function formatGooglePriceLevel(priceLevel) {
+  if (!priceLevel) return "No consultado";
+
+  const map = {
+    PRICE_LEVEL_FREE: "Gratis",
+    PRICE_LEVEL_INEXPENSIVE: "$",
+    PRICE_LEVEL_MODERATE: "$$",
+    PRICE_LEVEL_EXPENSIVE: "$$$",
+    PRICE_LEVEL_VERY_EXPENSIVE: "$$$$",
+  };
+
+  return map[priceLevel] || priceLevel;
+}
+
+function formatRating(details) {
+  const rating = details?.rating;
+  const userRatingCount = details?.userRatingCount;
+
+  if (!rating && !userRatingCount) {
+    return "No consultado";
+  }
+
+  if (rating && userRatingCount) {
+    return `${rating} / 5 · ${userRatingCount} reviews`;
+  }
+
+  if (rating) {
+    return `${rating} / 5`;
+  }
+
+  return `${userRatingCount} reviews`;
+}
+
+function getScheduleOptions(details) {
+  const weekdayDescriptions = details?.openingHours?.weekdayDescriptions;
+
+  if (!Array.isArray(weekdayDescriptions) || weekdayDescriptions.length === 0) {
+    return [];
+  }
+
+  return weekdayDescriptions;
+}
+
+function getGoogleSchedulePreview(details) {
+  const weekdayDescriptions = details?.openingHours?.weekdayDescriptions;
+
+  if (!Array.isArray(weekdayDescriptions) || weekdayDescriptions.length === 0) {
+    return "Horario proporcionado: no disponible";
+  }
+
+  return weekdayDescriptions[0];
+}
+
 export default function CandidateReviewPanel({
   candidate,
+  details,
+  loadingDetails,
   name,
   setName,
   description,
@@ -61,6 +111,22 @@ export default function CandidateReviewPanel({
 
   const hasFreeOption = Boolean(priceConfig?.hasFreeOption);
 
+  const googleType =
+    details?.googleMainType || candidate?.googleMainType || "Sin tipo";
+
+  const googlePriceLabel = formatGooglePriceLevel(details?.priceLevel);
+  const googleRatingLabel = formatRating(details);
+
+  const googleScheduleOptions = useMemo(() => {
+    return getScheduleOptions(details);
+  }, [details]);
+
+  const googleSchedulePreview = useMemo(() => {
+  return getGoogleSchedulePreview(details);
+}, [details]);
+
+  const hasGoogleSchedule = googleScheduleOptions.length > 0;
+
   return (
     <section style={styles.reviewCard}>
       <div style={styles.reviewTopGrid}>
@@ -72,7 +138,7 @@ export default function CandidateReviewPanel({
         <div style={styles.readonlyField}>
           <span style={styles.readonlyLabel}>Tipo de Google</span>
           <strong style={styles.readonlyValue}>
-            {formatGoogleType(candidate.googleMainType)}
+            {formatGoogleType(googleType)}
           </strong>
         </div>
 
@@ -218,9 +284,9 @@ export default function CandidateReviewPanel({
           <label style={styles.fieldLabel}>Precio</label>
 
           <div style={styles.readonlyMini}>
-            {priceConfig
-              ? "Rangos definidos por la etiqueta seleccionada"
-              : "Sin configuración de precio"}
+            {loadingDetails
+              ? "Consultando rango proporcionado..."
+              : `Rango proporcionado: ${googlePriceLabel}`}
           </div>
 
           <div style={styles.chipGroup}>
@@ -259,32 +325,42 @@ export default function CandidateReviewPanel({
           </div>
         </div>
 
-        <div style={styles.formSection}>
-          <label style={styles.fieldLabel}>Horario</label>
+       <div style={styles.formSection}>
+  <label style={styles.fieldLabel}>Horario</label>
 
-          <div style={styles.readonlyMini}>
-            Horario proporcionado: no consultado
-          </div>
+  <div style={styles.readonlyMini}>
+    {loadingDetails
+      ? "Consultando horario proporcionado..."
+      : googleSchedulePreview}
+  </div>
 
-          <select
-            value={selectedSchedule}
-            onChange={(event) => setSelectedSchedule(event.target.value)}
-            style={styles.select}
-          >
-            <option value="">Seleccionar horario</option>
+  <select
+    value={selectedSchedule}
+    onChange={(event) => setSelectedSchedule(event.target.value)}
+    style={styles.select}
+  >
+    <option value="">Seleccionar horario</option>
 
-            {mockSchedules.map((schedule) => (
-              <option key={schedule} value={schedule}>
-                {schedule}
-              </option>
-            ))}
-          </select>
-        </div>
+    {hasGoogleSchedule && (
+      <option value="google_schedule_full">
+        Usar horario completo de Google
+      </option>
+    )}
+
+    {googleScheduleOptions.map((schedule) => (
+      <option key={schedule} value={schedule}>
+        {schedule}
+      </option>
+    ))}
+  </select>
+</div>
       </div>
 
       <div style={styles.googleStatsBox}>
         <span>Calificación y número de reviews</span>
-        <strong>No consultado en modo soft</strong>
+        <strong>
+          {loadingDetails ? "Consultando..." : googleRatingLabel}
+        </strong>
       </div>
     </section>
   );

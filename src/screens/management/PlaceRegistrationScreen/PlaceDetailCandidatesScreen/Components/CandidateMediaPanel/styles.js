@@ -87,6 +87,71 @@ const styles = {
     color: "#374151",
     fontWeight: 700,
   },
+  photoCarousel: {
+  width: "100%",
+  height: "100%",
+  position: "relative",
+  overflow: "hidden",
+  borderRadius: "14px",
+},
+
+photoImage: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+
+photoNavButton: {
+  position: "absolute",
+  top: "50%",
+  transform: "translateY(-50%)",
+  width: "32px",
+  height: "32px",
+  borderRadius: "999px",
+  border: "1px solid rgba(255, 255, 255, 0.75)",
+  backgroundColor: "rgba(15, 23, 42, 0.55)",
+  color: "#ffffff",
+  fontSize: "22px",
+  fontWeight: 900,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+photoNavButtonLeft: {
+  left: "10px",
+},
+
+photoNavButtonRight: {
+  right: "10px",
+},
+
+photoCounter: {
+  position: "absolute",
+  right: "10px",
+  bottom: "10px",
+  padding: "5px 9px",
+  borderRadius: "999px",
+  backgroundColor: "rgba(15, 23, 42, 0.65)",
+  color: "#ffffff",
+  fontSize: "11px",
+  fontWeight: 900,
+},
+
+map: {
+  width: "100%",
+  height: "100%",
+  borderRadius: "14px",
+},
+mapFrame: {
+  width: "100%",
+  height: "100%",
+  border: "none",
+  display: "block",
+  borderRadius: "14px",
+},
 };
 
 export default styles;

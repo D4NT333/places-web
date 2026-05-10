@@ -37,3 +37,11 @@ export async function getGoogleCandidatesSummaryService() {
 
   return response.data.data;
 }
+
+export async function getGoogleCandidateDetailsService(googlePlaceId) {
+  const response = await client.get(
+    `/api/places/admin/google-places/candidates/${googlePlaceId}/details`
+  );
+
+  return response.data.data;
+}
