@@ -1,8 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 import PlaceCandidateRow from "./Components/PlaceCandidateRow";
+
+import { getGoogleCandidatesService } from "../../../../services/api/googleCandidates.service";
+
+const PAGE_LIMIT = 15;
 
 const statusFilters = [
   {
@@ -20,49 +24,6 @@ const statusFilters = [
   {
     label: "Rechazadas",
     value: "rejected",
-  },
-];
-
-const mockCandidates = [
-  {
-    id: "candidate_001",
-    googlePlaceId: "ChIJ001",
-    name: "Café PalReal",
-    address: "C. Lope de Vega 113, Arcos Vallarta, Guadalajara",
-    googleMainType: "cafe",
-    status: "in_review",
-  },
-  {
-    id: "candidate_002",
-    googlePlaceId: "ChIJ002",
-    name: "Digitalife",
-    address: "C. Garibaldi 2410, Ladrón de Guevara, Guadalajara",
-    googleMainType: "electronics_store",
-    status: "in_review",
-  },
-  {
-    id: "candidate_003",
-    googlePlaceId: "ChIJ003",
-    name: "TINTA CATRINA Tattoo Studio",
-    address: "C. Luis Pérez Verdía 305, Ladrón de Guevara, Guadalajara",
-    googleMainType: "body_art_service",
-    status: "accepted",
-  },
-  {
-    id: "candidate_004",
-    googlePlaceId: "ChIJ004",
-    name: "AUREA Interiorismo Urbano",
-    address: "C. Luis Pérez Verdía 267, Ladrón de Guevara, Guadalajara",
-    googleMainType: "corporate_office",
-    status: "rejected",
-  },
-  {
-    id: "candidate_005",
-    googlePlaceId: "ChIJ005",
-    name: "Mujer Consultorio de Atención Integral",
-    address: "C. Luis Pérez Verdía 313, Ladrón de Guevara, Guadalajara",
-    googleMainType: "doctor",
-    status: "in_review",
   },
 ];
 
@@ -90,13 +51,18 @@ export default function PlaceCandidatesScreen() {
   const discoverResponse = location.state?.discoverResponse || null;
   const selectedHexId = location.state?.hexId || null;
 
-  const [candidates] = useState(mockCandidates);
+  const [candidates, setCandidates] = useState([]);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const filteredCandidates = useMemo(() => {
-    if (currentStatus === "all") return candidates;
+  const loadMoreRef = useRef(null);
 
-    return candidates.filter((candidate) => candidate.status === currentStatus);
-  }, [candidates, currentStatus]);
+  const isValidStatus = useMemo(() => {
+    return statusFilters.some((filter) => filter.value === currentStatus);
+  }, [currentStatus]);
 
   const counters = useMemo(() => {
     return {
@@ -106,6 +72,100 @@ export default function PlaceCandidatesScreen() {
       rejected: candidates.filter((item) => item.status === "rejected").length,
     };
   }, [candidates]);
+
+  const loadCandidates = async ({ reset = false } = {}) => {
+    if (loading || loadingMore) return;
+    if (!reset && !hasMore) return;
+
+    try {
+      if (reset) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      setErrorMessage("");
+
+      const data = await getGoogleCandidatesService({
+        status: currentStatus,
+        limit: PAGE_LIMIT,
+        cursor: reset ? null : nextCursor,
+      });
+
+      const newItems = data.items || [];
+      const newCursor = data.nextCursor || null;
+
+      setCandidates((prev) => {
+        if (reset) return newItems;
+
+        return [
+          ...prev,
+          ...newItems.filter(
+            (newItem) =>
+              !prev.some((currentItem) => currentItem.id === newItem.id)
+          ),
+        ];
+      });
+
+      setNextCursor(newCursor);
+      setHasMore(Boolean(data.hasMore) && Boolean(newCursor));
+    } catch (error) {
+      console.error("Error cargando candidatos:", error);
+      setErrorMessage(
+        error.message || "No se pudieron cargar los candidatos."
+      );
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isValidStatus) {
+      navigate("/management/place-registration/candidates?status=all", {
+        replace: true,
+        state: {
+          hexId: selectedHexId,
+          discoverResponse,
+        },
+      });
+      return;
+    }
+
+    setCandidates([]);
+    setNextCursor(null);
+    setHasMore(true);
+    setErrorMessage("");
+
+    loadCandidates({ reset: true });
+  }, [currentStatus, isValidStatus]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+
+        if (firstEntry.isIntersecting && hasMore && !loading && !loadingMore) {
+          loadCandidates({ reset: false });
+        }
+      },
+      {
+        root: null,
+        rootMargin: "220px",
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [nextCursor, hasMore, loading, loadingMore, currentStatus]);
 
   const handleStatusChange = (statusValue) => {
     navigate(`/management/place-registration/candidates?status=${statusValue}`, {
@@ -120,7 +180,7 @@ export default function PlaceCandidatesScreen() {
     navigate(`/management/place-registration/candidates/${candidate.id}`, {
       state: {
         candidate,
-        hexId: selectedHexId,
+        hexId: candidate.parentHexId || selectedHexId,
         discoverResponse,
       },
     });
@@ -140,7 +200,7 @@ export default function PlaceCandidatesScreen() {
               </span>
 
               <span style={styles.summaryItem}>
-                <strong>Total:</strong> {counters.total}
+                <strong>Mostrando:</strong> {candidates.length}
               </span>
 
               <span style={styles.summaryItem}>
@@ -187,8 +247,12 @@ export default function PlaceCandidatesScreen() {
           </div>
 
           <div style={styles.rowsWrapper}>
-            {filteredCandidates.length > 0 ? (
-              filteredCandidates.map((candidate) => (
+            {loading ? (
+              <div style={styles.emptyState}>Cargando candidatos...</div>
+            ) : errorMessage ? (
+              <div style={styles.emptyState}>{errorMessage}</div>
+            ) : candidates.length > 0 ? (
+              candidates.map((candidate) => (
                 <PlaceCandidateRow
                   key={candidate.id}
                   item={candidate}
@@ -202,6 +266,20 @@ export default function PlaceCandidatesScreen() {
             )}
           </div>
         </div>
+
+        <div ref={loadMoreRef} style={styles.loadMoreTrap} />
+
+        {loadingMore && (
+          <div style={styles.paginationHint}>
+            Cargando más candidatos...
+          </div>
+        )}
+
+        {!loading && !loadingMore && !hasMore && candidates.length > 0 && (
+          <div style={styles.paginationHint}>
+            No hay más candidatos.
+          </div>
+        )}
       </div>
     </LayoutScreen>
   );

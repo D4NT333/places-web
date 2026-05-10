@@ -1,37 +1,31 @@
 const styles = {
-  rowButton: {
+  row: {
     width: "100%",
     display: "grid",
-    gridTemplateColumns: "1.3fr 1.8fr 1fr 0.8fr",
-    gap: "16px",
+    gridTemplateColumns: "1.4fr 1.8fr 1fr 160px",
     alignItems: "center",
-    padding: "18px 24px",
-    backgroundColor: "#ffffff",
+    gap: "18px",
+    padding: "18px 20px",
     border: "none",
-    borderBottom: "1px solid #f3f4f6",
-    cursor: "pointer",
+    borderBottom: "1px solid #eef2f7",
+    backgroundColor: "#ffffff",
     textAlign: "left",
+    cursor: "pointer",
+    boxSizing: "border-box",
   },
 
   nameCell: {
     minWidth: 0,
     display: "flex",
-    flexDirection: "column",
-    gap: "4px",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
 
-  placeName: {
-    fontSize: "15px",
-    fontWeight: 800,
+  name: {
     color: "#111827",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-
-  placeId: {
-    fontSize: "12px",
-    color: "#9ca3af",
+    fontSize: "15px",
+    fontWeight: 900,
+    lineHeight: 1.25,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -39,8 +33,19 @@ const styles = {
 
   addressCell: {
     minWidth: 0,
-    fontSize: "14px",
-    color: "#4b5563",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+  },
+
+  addressText: {
+    display: "block",
+    maxWidth: "100%",
+    color: "#475569",
+    fontSize: "13px",
+    fontWeight: 600,
+    lineHeight: 1.35,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -48,17 +53,28 @@ const styles = {
 
   typeCell: {
     minWidth: 0,
-    fontSize: "14px",
-    color: "#374151",
-    textTransform: "capitalize",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+  },
+
+  typeText: {
+    display: "block",
+    maxWidth: "100%",
+    color: "#334155",
+    fontSize: "13px",
+    fontWeight: 800,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
 
   statusCell: {
+    minWidth: 0,
     display: "flex",
     justifyContent: "center",
+    alignItems: "center",
   },
 
   statusBadge: {
@@ -66,10 +82,10 @@ const styles = {
     display: "inline-flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: "7px 10px",
+    padding: "7px 12px",
     borderRadius: "999px",
     fontSize: "12px",
-    fontWeight: 800,
+    fontWeight: 900,
   },
 
   statusPending: {

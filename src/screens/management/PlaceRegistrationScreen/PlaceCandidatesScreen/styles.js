@@ -82,34 +82,38 @@ const styles = {
     boxShadow: "0 14px 30px rgba(15, 23, 42, 0.08)",
   },
 
-  tableHeader: {
-    display: "grid",
-    gridTemplateColumns: "1.3fr 1.8fr 1fr 0.8fr",
-    gap: "16px",
-    alignItems: "center",
-    padding: "18px 24px",
-    borderBottom: "1px solid #e5e7eb",
-    backgroundColor: "#f9fafb",
-    color: "#4b5563",
-    fontSize: "14px",
-    fontWeight: 800,
-  },
+tableHeader: {
+  display: "grid",
+  gridTemplateColumns: "1.4fr 1.8fr 1fr 160px",
+  alignItems: "center",
+  gap: "18px",
+  padding: "16px 20px",
+  borderBottom: "1px solid #e5e7eb",
+  backgroundColor: "#f8fafc",
+  color: "#334155",
+  fontSize: "13px",
+  fontWeight: 900,
+},
 
-  headerName: {
-    minWidth: 0,
-  },
+ headerName: {
+  minWidth: 0,
+  textAlign: "left",
+},
 
-  headerAddress: {
-    minWidth: 0,
-  },
+headerAddress: {
+  minWidth: 0,
+  textAlign: "center",
+},
 
-  headerType: {
-    minWidth: 0,
-  },
+headerType: {
+  minWidth: 0,
+  textAlign: "center",
+},
 
-  headerStatus: {
-    textAlign: "center",
-  },
+headerStatus: {
+  minWidth: 0,
+  textAlign: "center",
+},
 
   rowsWrapper: {
     width: "100%",
