@@ -1,52 +1,83 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { auth } from "../../config/firebaseConfig";
+import { getAdminMeService } from "../../services/auth/getAdminMe.service";
+import { logoutService } from "../../services/auth/logout.service";
+
+import MenuButton from "./Components/MenuButton";
+import UserBadge from "./Components/UserBadge";
+
+import styles from "./styles";
+
 export default function Header({ onToggleSidebar }) {
+  const navigate = useNavigate();
+
+  const [adminUser, setAdminUser] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadAdminUser() {
+      try {
+        if (!auth.currentUser) return;
+
+        const admin = await getAdminMeService();
+
+        if (isMounted) {
+          setAdminUser(admin);
+        }
+      } catch (error) {
+        console.log("Error cargando admin en header:", error);
+      }
+    }
+
+    loadAdminUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logoutService();
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.log("Error al cerrar sesión:", error);
+    }
+  };
+
+  const fallbackUser = auth.currentUser;
+
+  const displayName =
+    adminUser?.displayName ||
+    fallbackUser?.displayName ||
+    "Administrador";
+
+  const email = adminUser?.email || fallbackUser?.email || "";
+
+  const photoURL = adminUser?.photoURL || fallbackUser?.photoURL || null;
+
   return (
-    <div
-      style={{
-        height: "72px",
-        background: "#f8f8f8",
-        borderBottom: "1px solid #d9d9d9",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 1rem",
-        boxSizing: "border-box",
-      }}
-    >
-      <button
-        onClick={onToggleSidebar}
-        style={{
-          border: "1px solid #bdbdbd",
-          background: "#fff",
-          borderRadius: "10px",
-          width: "44px",
-          height: "44px",
-          cursor: "pointer",
-          fontSize: "1.2rem",
-        }}
-      >
-        ☰
-      </button>
+    <header style={styles.header}>
+      <div style={styles.leftSection}>
+        <MenuButton onClick={onToggleSidebar} />
 
-      <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
-        <span style={{ fontWeight: 600, color: "#444" }}>Usuario</span>
-
-        <div
-          style={{
-            width: "42px",
-            height: "42px",
-            borderRadius: "50%",
-            border: "1px solid #bdbdbd",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#fff",
-            fontSize: "0.8rem",
-            color: "#666",
-          }}
-        >
-          Foto
+        <div>
+          <h1 style={styles.title}>Panel administrativo</h1>
+          <p style={styles.subtitle}>Gestión y validación de contenido</p>
         </div>
       </div>
-    </div>
+
+      <div style={styles.rightSection}>
+        <UserBadge
+          name={displayName}
+          email={email}
+          photoURL={photoURL}
+          onLogout={handleLogout}
+        />
+      </div>
+    </header>
   );
 }

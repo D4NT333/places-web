@@ -16,5 +16,5 @@ export async function getAdminMeService() {
     },
   });
 
-  return response.data;
+  return response.data?.admin || response.data;
 }

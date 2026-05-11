@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { loginWithGoogleService } from "../../../services/auth/loginWithGoogle.service";
 import { getAdminMeService } from "../../../services/auth/getAdminMe.service";
@@ -12,8 +11,6 @@ import PreviewPanel from "./Components/PreviewPanel";
 import styles from "./styles";
 
 export default function LoginScreen() {
-  const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -28,7 +25,8 @@ export default function LoginScreen() {
 
       console.log("Admin validado:", adminUser);
 
-      navigate("/home", { replace: true });
+      // No navegamos aquí.
+      // AppNavigator detecta la sesión y redirige a /home.
     } catch (error) {
       console.log("Error al iniciar sesión:", error);
 
