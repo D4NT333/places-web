@@ -14,6 +14,8 @@ import { PlaceReturnSubmissionScreen } from "../screens";
 import { PlaceCandidatesScreen } from "../screens";
 import { PlaceDetailCandidatesScreen } from "../screens";
 
+import { DescriptionDetailSubmissionScreen } from "../screens";
+
 import LoginScreen from "../screens/auth/LoginScreen";
 
 function LoadingScreen() {
@@ -56,6 +58,8 @@ function AppRoutesContent({ adminUser }) {
           <Route path="/submissions/places/:submissionId" element={<PlaceDetailSubmissionScreen />} />
 
           <Route path="/submissions/places/:submissionId/return" element={<PlaceReturnSubmissionScreen />} />
+
+          <Route path="/submissions/descriptions/:submissionId" element={<DescriptionDetailSubmissionScreen />} />
 
           <Route path="/management/reports" element={<ReportsScreen />} />
 
