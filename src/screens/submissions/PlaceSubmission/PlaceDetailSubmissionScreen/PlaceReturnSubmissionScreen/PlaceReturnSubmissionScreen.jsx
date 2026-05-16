@@ -13,6 +13,84 @@ import returnPlaceSubmissionService from "../../../../../services/submissions/re
 
 import getReturnedPlaceSubmissionReviewService from "../../../../../services/submissions/getReturnedPlaceSubmissionReview.service";
 
+function getPhotoUrl(photo, preferredSize = "thumbnail") {
+  if (!photo) return null;
+
+  if (typeof photo === "string") return photo;
+
+  if (preferredSize === "thumbnail") {
+    return (
+      photo.thumbnailUrl ||
+      photo.thumbnail?.url ||
+      photo.displayUrl ||
+      photo.mediumUrl ||
+      photo.medium?.url ||
+      photo.originalUrl ||
+      photo.original?.url ||
+      photo.thumbnailURL ||
+      photo.mediumURL ||
+      photo.downloadURL ||
+      photo.url ||
+      photo.photoUrl ||
+      photo.imageUrl ||
+      photo.uri ||
+      photo.src ||
+      null
+    );
+  }
+
+  if (preferredSize === "original") {
+    return (
+      photo.originalUrl ||
+      photo.original?.url ||
+      photo.downloadURL ||
+      photo.displayUrl ||
+      photo.mediumUrl ||
+      photo.medium?.url ||
+      photo.thumbnailUrl ||
+      photo.thumbnail?.url ||
+      photo.mediumURL ||
+      photo.thumbnailURL ||
+      photo.url ||
+      photo.photoUrl ||
+      photo.imageUrl ||
+      photo.uri ||
+      photo.src ||
+      null
+    );
+  }
+
+  return (
+    photo.displayUrl ||
+    photo.mediumUrl ||
+    photo.medium?.url ||
+    photo.originalUrl ||
+    photo.original?.url ||
+    photo.thumbnailUrl ||
+    photo.thumbnail?.url ||
+    photo.mediumURL ||
+    photo.downloadURL ||
+    photo.thumbnailURL ||
+    photo.url ||
+    photo.photoUrl ||
+    photo.imageUrl ||
+    photo.uri ||
+    photo.src ||
+    null
+  );
+}
+
+function normalizePhotoForReturn(photo, index) {
+  const url = getPhotoUrl(photo, "thumbnail");
+
+  if (!url) return null;
+
+  return {
+    index,
+    url,
+  };
+}
+
 const correctionFields = [
   {
     key: "name",
@@ -92,19 +170,7 @@ const correctionFields = [
       }
 
       return photos
-        .map((photo) => {
-          if (typeof photo === "string") return photo;
-
-          return (
-            photo?.thumbnailURL ||
-            photo?.mediumURL ||
-            photo?.downloadURL ||
-            photo?.url ||
-            photo?.uri ||
-            photo?.src ||
-            null
-          );
-        })
+        .map((photo, index) => normalizePhotoForReturn(photo, index))
         .filter(Boolean);
     },
   },
@@ -143,70 +209,70 @@ function PlaceReturnSubmissionScreen() {
   const [returnReview, setReturnReview] = useState(null);
 
   useEffect(() => {
-  async function loadReturnReviewIfReadonly() {
-    if (!isReadonly) return;
+    async function loadReturnReviewIfReadonly() {
+      if (!isReadonly) return;
 
-    if (!submissionId) {
-      setErrorMessage("No se encontró el ID de la propuesta.");
-      return;
+      if (!submissionId) {
+        setErrorMessage("No se encontró el ID de la propuesta.");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setErrorMessage("");
+
+        const data = await getReturnedPlaceSubmissionReviewService(submissionId);
+
+        setReturnReview(data);
+
+        setGeneralComment(data.generalMessage || "");
+
+        const nextSelectedFields = {};
+        const nextFieldComments = {};
+        const nextSelectedPhotos = {};
+        const nextPhotoComments = {};
+
+        const fields = data.returnFields || data.fields || {};
+
+        Object.entries(fields).forEach(([fieldKey, fieldValue]) => {
+          if (!fieldValue?.selected) return;
+
+          nextSelectedFields[fieldKey] = true;
+
+          if (fieldKey !== "photos") {
+            nextFieldComments[fieldKey] = fieldValue.message || "";
+          }
+        });
+
+        const photoItems = Array.isArray(fields.photos?.items)
+          ? fields.photos.items
+          : [];
+
+        photoItems.forEach((photo) => {
+          if (!photo.selected) return;
+
+          const indexKey = String(photo.index);
+
+          nextSelectedPhotos[indexKey] = true;
+          nextPhotoComments[indexKey] = photo.message || "";
+        });
+
+        setSelectedFields(nextSelectedFields);
+        setFieldComments(nextFieldComments);
+        setSelectedPhotos(nextSelectedPhotos);
+        setPhotoComments(nextPhotoComments);
+      } catch (error) {
+        console.error("Error cargando motivo de devolución:", error);
+        setErrorMessage(
+          error.message || "No se pudo cargar el motivo de devolución."
+        );
+      } finally {
+        setLoading(false);
+      }
     }
 
-    try {
-      setLoading(true);
-      setErrorMessage("");
-
-      const data = await getReturnedPlaceSubmissionReviewService(submissionId);
-
-      setReturnReview(data);
-
-      setGeneralComment(data.generalMessage || "");
-
-      const nextSelectedFields = {};
-      const nextFieldComments = {};
-      const nextSelectedPhotos = {};
-      const nextPhotoComments = {};
-
-      const fields = data.returnFields || {};
-
-      Object.entries(fields).forEach(([fieldKey, fieldValue]) => {
-        if (!fieldValue?.selected) return;
-
-        nextSelectedFields[fieldKey] = true;
-
-        if (fieldKey !== "photos") {
-          nextFieldComments[fieldKey] = fieldValue.message || "";
-        }
-      });
-
-      const photoItems = Array.isArray(fields.photos?.items)
-        ? fields.photos.items
-        : [];
-
-      photoItems.forEach((photo) => {
-        if (!photo.selected) return;
-
-        const indexKey = String(photo.index);
-
-        nextSelectedPhotos[indexKey] = true;
-        nextPhotoComments[indexKey] = photo.message || "";
-      });
-
-      setSelectedFields(nextSelectedFields);
-      setFieldComments(nextFieldComments);
-      setSelectedPhotos(nextSelectedPhotos);
-      setPhotoComments(nextPhotoComments);
-    } catch (error) {
-      console.error("Error cargando motivo de devolución:", error);
-      setErrorMessage(
-        error.message || "No se pudo cargar el motivo de devolución."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  loadReturnReviewIfReadonly();
-}, [isReadonly, submissionId]);
+    loadReturnReviewIfReadonly();
+  }, [isReadonly, submissionId]);
 
   useEffect(() => {
     async function loadSubmissionIfNeeded() {
@@ -276,44 +342,47 @@ function PlaceReturnSubmissionScreen() {
   }, []);
 
   const handleTogglePhoto = useCallback((photoIndex) => {
-  setSelectedPhotos((prev) => {
-    const isSelected = Boolean(prev[photoIndex]);
-    let nextSelected = { ...prev };
+    setSelectedPhotos((prev) => {
+      const indexKey = String(photoIndex);
+      const isSelected = Boolean(prev[indexKey]);
+      const nextSelected = { ...prev };
 
-    if (isSelected) {
-      delete nextSelected[photoIndex];
+      if (isSelected) {
+        delete nextSelected[indexKey];
 
-      setPhotoComments((prevComments) => {
-        const nextComments = { ...prevComments };
-        delete nextComments[photoIndex];
-        return nextComments;
-      });
-    } else {
-      nextSelected[photoIndex] = true;
-    }
-
-    setSelectedFields((prevFields) => {
-      const nextFields = { ...prevFields };
-
-      if (Object.keys(nextSelected).length > 0) {
-        nextFields.photos = true;
+        setPhotoComments((prevComments) => {
+          const nextComments = { ...prevComments };
+          delete nextComments[indexKey];
+          return nextComments;
+        });
       } else {
-        delete nextFields.photos;
+        nextSelected[indexKey] = true;
       }
 
-      return nextFields;
+      setSelectedFields((prevFields) => {
+        const nextFields = { ...prevFields };
+
+        if (Object.keys(nextSelected).length > 0) {
+          nextFields.photos = true;
+        } else {
+          delete nextFields.photos;
+        }
+
+        return nextFields;
+      });
+
+      return nextSelected;
     });
+  }, []);
 
-    return nextSelected;
-  });
-}, []);
+  const handleChangePhotoComment = useCallback((photoIndex, value) => {
+    const indexKey = String(photoIndex);
 
-const handleChangePhotoComment = useCallback((photoIndex, value) => {
-  setPhotoComments((prev) => ({
-    ...prev,
-    [photoIndex]: value,
-  }));
-}, []);
+    setPhotoComments((prev) => ({
+      ...prev,
+      [indexKey]: value,
+    }));
+  }, []);
 
   const selectedFieldKeys = Object.keys(selectedFields);
   const selectedPhotoIndexes = Object.keys(selectedPhotos);
@@ -330,82 +399,85 @@ const handleChangePhotoComment = useCallback((photoIndex, value) => {
     return photoComments[photoIndex]?.trim().length >= 5;
   });
 
-const canSubmit =
-  generalComment.trim().length >= 10 &&
-  selectedFieldKeys.length > 0 &&
-  hasValidFieldComments &&
-  hasValidPhotoComments;
+  const canSubmit =
+    generalComment.trim().length >= 10 &&
+    selectedFieldKeys.length > 0 &&
+    hasValidFieldComments &&
+    hasValidPhotoComments;
 
   const buildReturnFieldsPayload = () => {
-  const fields = {};
+    const fields = {};
 
-  correctionFields.forEach((field) => {
-    const isSelected = Boolean(selectedFields[field.key]);
+    correctionFields.forEach((field) => {
+      const isSelected = Boolean(selectedFields[field.key]);
 
-    if (field.key === "photos") {
-      const photosField = visibleCorrectionFields.find(
-        (item) => item.key === "photos"
-      );
+      if (field.key === "photos") {
+        const photosField = visibleCorrectionFields.find(
+          (item) => item.key === "photos"
+        );
 
-      const photos = Array.isArray(photosField?.value)
-        ? photosField.value
-        : [];
+        const photos = Array.isArray(photosField?.value)
+          ? photosField.value
+          : [];
 
-      const photoItems = photos.map((photoUrl, index) => {
-        const indexKey = String(index);
-        const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
+        const photoItems = photos.map((photo, index) => {
+          const photoIndex =
+            typeof photo?.index === "number" ? photo.index : index;
 
-        return {
-          index,
-          url: photoUrl,
-          selected: isPhotoSelected,
-          message: isPhotoSelected
-            ? photoComments[indexKey]?.trim() || ""
-            : "",
+          const indexKey = String(photoIndex);
+          const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
+
+          return {
+            index: photoIndex,
+            url: photo?.url || "",
+            selected: isPhotoSelected,
+            message: isPhotoSelected
+              ? photoComments[indexKey]?.trim() || ""
+              : "",
+          };
+        });
+
+        fields.photos = {
+          selected: photoItems.some((photo) => photo.selected),
+          message: "",
+          items: photoItems,
         };
-      });
 
-      fields.photos = {
-        selected: photoItems.some((photo) => photo.selected),
-        message: "",
-        items: photoItems,
+        return;
+      }
+
+      fields[field.key] = {
+        selected: isSelected,
+        message: isSelected ? fieldComments[field.key]?.trim() || "" : "",
       };
+    });
 
-      return;
-    }
-
-    fields[field.key] = {
-      selected: isSelected,
-      message: isSelected ? fieldComments[field.key]?.trim() || "" : "",
-    };
-  });
-
-  return fields;
-};
-
-  const handleSubmit = async () => {
-  if (!canSubmit) return;
-
-  const payload = {
-    generalMessage: generalComment.trim(),
-    fields: buildReturnFieldsPayload(),
+    return fields;
   };
 
-  try {
-    console.log("RETURN PAYLOAD:", payload);
+  const handleSubmit = async () => {
+    if (!canSubmit) return;
 
-    const response = await returnPlaceSubmissionService(submissionId, payload);
+    const payload = {
+      generalMessage: generalComment.trim(),
+      fields: buildReturnFieldsPayload(),
+    };
 
-    console.log("RETURN RESPONSE:", response);
+    try {
+      console.log("RETURN PAYLOAD:", payload);
 
-    navigate(-1);
-  } catch (error) {
-    console.error("Error devolviendo propuesta:", error);
-    setErrorMessage(
-      error.message || "No se pudo devolver la propuesta para corrección."
-    );
-  }
-};
+      const response = await returnPlaceSubmissionService(submissionId, payload);
+
+      console.log("RETURN RESPONSE:", response);
+
+      navigate(-1);
+    } catch (error) {
+      console.error("Error devolviendo propuesta:", error);
+      setErrorMessage(
+        error.message || "No se pudo devolver la propuesta para corrección."
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -439,34 +511,34 @@ const canSubmit =
             </p>
           </div>
 
-        <ReturnTextArea
-          label="Comentario general"
-          placeholder="Escribe un comentario general para el usuario..."
-          value={generalComment}
-          onChange={setGeneralComment}
-          minLength={10}
-          readOnly={isReadonly}
-        />
+          <ReturnTextArea
+            label="Comentario general"
+            placeholder="Escribe un comentario general para el usuario..."
+            value={generalComment}
+            onChange={setGeneralComment}
+            minLength={10}
+            readOnly={isReadonly}
+          />
 
           <div style={styles.fieldsContainer}>
             {visibleCorrectionFields.map((field) => (
-             <ReturnCorrectionItem
-              key={field.key}
-              fieldKey={field.key}
-              label={field.label}
-              value={field.value}
-              type={field.type}
-              selected={Boolean(selectedFields[field.key])}
-              comment={fieldComments[field.key] || ""}
-              selectedPhotos={selectedPhotos}
-              photoComments={photoComments}
-              onToggle={handleToggleField}
-              onCommentChange={handleChangeFieldComment}
-              onTogglePhoto={handleTogglePhoto}
-              onPhotoCommentChange={handleChangePhotoComment}
-              readOnly={isReadonly}
-            />
-              ))}
+              <ReturnCorrectionItem
+                key={field.key}
+                fieldKey={field.key}
+                label={field.label}
+                value={field.value}
+                type={field.type}
+                selected={Boolean(selectedFields[field.key])}
+                comment={fieldComments[field.key] || ""}
+                selectedPhotos={selectedPhotos}
+                photoComments={photoComments}
+                onToggle={handleToggleField}
+                onCommentChange={handleChangeFieldComment}
+                onTogglePhoto={handleTogglePhoto}
+                onPhotoCommentChange={handleChangePhotoComment}
+                readOnly={isReadonly}
+              />
+            ))}
           </div>
 
           <ReturnActionButtons

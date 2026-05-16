@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "./styles";
 
 function getPhotoUrl(photo) {
@@ -7,11 +7,26 @@ function getPhotoUrl(photo) {
   if (typeof photo === "string") return photo;
 
   return (
+    // Nueva estructura normalizada desde backend
+    photo.displayUrl ||
+    photo.mediumUrl ||
+    photo.thumbnailUrl ||
+    photo.originalUrl ||
+
+    // Nueva estructura agrupada
+    photo.medium?.url ||
+    photo.original?.url ||
+    photo.thumbnail?.url ||
+
+    // Estructura vieja
     photo.mediumURL ||
     photo.downloadURL ||
     photo.thumbnailURL ||
+
+    // Otros posibles nombres legacy
     photo.url ||
     photo.photoUrl ||
+    photo.imageUrl ||
     null
   );
 }
@@ -24,10 +39,21 @@ export default function PhotoCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const photoUrls = useMemo(() => {
-    return photos.map(getPhotoUrl).filter(Boolean);
+    if (!Array.isArray(photos)) return [];
+
+    return photos
+      .map(getPhotoUrl)
+      .filter(Boolean);
   }, [photos]);
 
+  useEffect(() => {
+    if (currentIndex > photoUrls.length - 1) {
+      setCurrentIndex(0);
+    }
+  }, [currentIndex, photoUrls.length]);
+
   const hasPhotos = photoUrls.length > 0;
+
   const safeCurrentIndex = Math.min(
     currentIndex,
     Math.max(photoUrls.length - 1, 0)
@@ -70,6 +96,11 @@ export default function PhotoCarousel({
             alt={`Foto ${safeCurrentIndex + 1}`}
             style={styles.image}
             loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={(event) => {
+              console.log("No se pudo cargar la foto:", currentPhotoUrl);
+              event.currentTarget.style.display = "none";
+            }}
           />
 
           {photoUrls.length > 1 && (

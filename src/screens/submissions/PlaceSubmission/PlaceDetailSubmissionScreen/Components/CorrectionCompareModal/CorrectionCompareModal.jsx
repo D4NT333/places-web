@@ -7,12 +7,30 @@ function getPhotoUrl(photo) {
   if (typeof photo === "string") return photo;
 
   return (
-    photo.thumbnailURL ||
+    // Nueva estructura normalizada
+    photo.displayUrl ||
+    photo.previewURL ||
+    photo.mediumUrl ||
+    photo.thumbnailUrl ||
+    photo.originalUrl ||
+
+    // Nueva estructura agrupada
+    photo.medium?.url ||
+    photo.thumbnail?.url ||
+    photo.original?.url ||
+
+    // Estructura vieja
     photo.mediumURL ||
+    photo.thumbnailURL ||
     photo.downloadURL ||
+
+    // Otros posibles nombres
     photo.url ||
+    photo.imageUrl ||
+    photo.fullUrl ||
     photo.photoUrl ||
     photo.uri ||
+    photo.src ||
     null
   );
 }
@@ -26,7 +44,25 @@ function formatValue(value) {
     return value
       .map((item) => {
         if (typeof item === "string") return item;
-        return item.label || item.name || item.downloadURL || item.url || "";
+
+        return (
+          item.label ||
+          item.name ||
+          item.displayUrl ||
+          item.previewURL ||
+          item.mediumUrl ||
+          item.thumbnailUrl ||
+          item.originalUrl ||
+          item.medium?.url ||
+          item.thumbnail?.url ||
+          item.original?.url ||
+          item.mediumURL ||
+          item.thumbnailURL ||
+          item.downloadURL ||
+          item.url ||
+          item.imageUrl ||
+          ""
+        );
       })
       .filter(Boolean)
       .join(", ");
@@ -82,6 +118,16 @@ function renderPhotos(value) {
                 alt={`Foto ${index + 1}`}
                 style={styles.photo}
                 loading="lazy"
+                referrerPolicy="no-referrer"
+                onError={(event) => {
+                  console.log("No se pudo cargar foto de comparación:", {
+                    index,
+                    photo,
+                    url,
+                  });
+
+                  event.currentTarget.style.display = "none";
+                }}
               />
             ) : (
               <span style={styles.emptyText}>Sin foto</span>
@@ -147,7 +193,11 @@ export default function CorrectionCompareModal({
         </div>
 
         <div style={styles.closeRow}>
-          <button type="button" style={styles.bottomCloseButton} onClick={onClose}>
+          <button
+            type="button"
+            style={styles.bottomCloseButton}
+            onClick={onClose}
+          >
             Cerrar
           </button>
         </div>

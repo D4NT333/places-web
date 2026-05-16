@@ -3,9 +3,10 @@ const styles = {
     background: "#f8f8f8",
     border: "1px solid #cfcfcf",
     borderRadius: "12px",
-    padding: "1.1rem",
+    padding: "1.25rem",
     boxSizing: "border-box",
-    minHeight: "160px",
+    minHeight: "0",
+    height: "100%",
   },
 
   title: {

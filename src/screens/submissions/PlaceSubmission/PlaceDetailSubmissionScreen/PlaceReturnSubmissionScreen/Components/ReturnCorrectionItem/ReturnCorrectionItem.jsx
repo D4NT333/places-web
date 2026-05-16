@@ -25,6 +25,37 @@ function getLocationText(value) {
   return `${latitude}, ${longitude}`;
 }
 
+function getPhotoUrl(photo) {
+  if (!photo) return null;
+
+  if (typeof photo === "string") return photo;
+
+  return (
+    photo.url ||
+    photo.thumbnailUrl ||
+    photo.thumbnail?.url ||
+    photo.displayUrl ||
+    photo.mediumUrl ||
+    photo.medium?.url ||
+    photo.originalUrl ||
+    photo.original?.url ||
+    photo.thumbnailURL ||
+    photo.mediumURL ||
+    photo.downloadURL ||
+    photo.uri ||
+    photo.src ||
+    null
+  );
+}
+
+function getPhotoIndex(photo, fallbackIndex) {
+  if (photo && typeof photo === "object" && typeof photo.index === "number") {
+    return photo.index;
+  }
+
+  return fallbackIndex;
+}
+
 export default function ReturnCorrectionItem({
   fieldKey,
   label,
@@ -51,13 +82,19 @@ export default function ReturnCorrectionItem({
 
     return (
       <div style={styles.photosGrid}>
-        {photos.map((photoUrl, index) => {
-          const indexKey = String(index);
+        {photos.map((photo, fallbackIndex) => {
+          const photoUrl = getPhotoUrl(photo);
+          const photoIndex = getPhotoIndex(photo, fallbackIndex);
+          const indexKey = String(photoIndex);
           const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
+
+          if (!photoUrl) {
+            return null;
+          }
 
           return (
             <button
-              key={`${photoUrl}-${index}`}
+              key={`${photoUrl}-${indexKey}`}
               type="button"
               style={{
                 ...styles.photoButton,
@@ -74,12 +111,16 @@ export default function ReturnCorrectionItem({
             >
               <img
                 src={photoUrl}
-                alt={`Foto ${index + 1}`}
+                alt={`Foto ${photoIndex + 1}`}
                 style={styles.photoThumbnail}
                 loading="lazy"
+                referrerPolicy="no-referrer"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                }}
               />
 
-              <span style={styles.photoBadge}>Foto {index + 1}</span>
+              <span style={styles.photoBadge}>Foto {photoIndex + 1}</span>
             </button>
           );
         })}
@@ -125,11 +166,13 @@ export default function ReturnCorrectionItem({
 
     return (
       <div style={styles.photoCommentsWrapper}>
-        {photos.map((photoUrl, index) => {
-          const indexKey = String(index);
+        {photos.map((photo, fallbackIndex) => {
+          const photoUrl = getPhotoUrl(photo);
+          const photoIndex = getPhotoIndex(photo, fallbackIndex);
+          const indexKey = String(photoIndex);
           const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
 
-          if (!isPhotoSelected) return null;
+          if (!photoUrl || !isPhotoSelected) return null;
 
           const currentComment = photoComments[indexKey] || "";
 
@@ -139,7 +182,7 @@ export default function ReturnCorrectionItem({
               style={styles.photoCommentItem}
             >
               <label style={styles.commentLabel}>
-                Motivo para foto {index + 1}:
+                Motivo para foto {photoIndex + 1}:
               </label>
 
               <textarea
@@ -157,7 +200,7 @@ export default function ReturnCorrectionItem({
                   onPhotoCommentChange?.(indexKey, event.target.value);
                 }}
                 placeholder={`Escribe qué debe corregirse en la foto ${
-                  index + 1
+                  photoIndex + 1
                 }...`}
               />
 
