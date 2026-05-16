@@ -159,6 +159,14 @@ const correctionFields = [
       "",
   },
   {
+    key: "schedule",
+    label: "Horario",
+    getValue: (submission) =>
+      submission?.openingHours?.label ||
+      submission?.schedule ||
+      "Horario no especificado",
+  },
+  {
     key: "photos",
     label: "Fotos",
     type: "photos",
