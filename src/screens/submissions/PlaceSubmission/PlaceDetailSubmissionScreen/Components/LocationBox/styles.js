@@ -1,27 +1,38 @@
 const styles = {
-  container: {
+  locationBox: {
     width: "100%",
-    height: "290px",
-    border: "1.5px solid #07162f",
+    height: "390px", // antes 245px
+    border: "1px solid #0f172a",
     borderRadius: "6px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    alignItems: "center",
-    justifyContent: "center",
+    overflow: "hidden",
     backgroundColor: "#f8fafc",
-    boxSizing: "border-box",
-    color: "#07162f",
-    fontWeight: "800",
   },
 
-  coords: {
+  map: {
+    width: "100%",
+    height: "100%",
+  },
+  emptyState: {
+    width: "100%",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
-    gap: "4px",
-    fontSize: "13px",
-    fontWeight: "700",
-    color: "#334155",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    color: "#0f172a",
+  },
+
+  title: {
+    margin: 0,
+    fontSize: "1rem",
+    fontWeight: 700,
+  },
+
+  text: {
+    marginTop: "0.4rem",
+    fontSize: "0.85rem",
+    fontWeight: 600,
   },
 };
 

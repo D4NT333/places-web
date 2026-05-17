@@ -2,7 +2,7 @@ const styles = {
   container: {
     position: "relative",
     width: "100%",
-    height: 470,
+    height: 540,
     border: "2px solid #111827",
     borderRadius: 6,
     overflow: "hidden",
