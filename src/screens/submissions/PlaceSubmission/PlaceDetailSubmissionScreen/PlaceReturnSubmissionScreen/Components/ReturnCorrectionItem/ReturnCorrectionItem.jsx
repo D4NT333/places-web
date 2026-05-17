@@ -1,4 +1,5 @@
 import React from "react";
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import styles from "./styles";
 
 function getLocationText(value) {
@@ -24,6 +25,38 @@ function getLocationText(value) {
 
   return `${latitude}, ${longitude}`;
 }
+
+function getLocationCoords(value) {
+  if (!value) return null;
+
+  const latitude =
+    value.latitude ??
+    value.lat ??
+    value.coords?.latitude ??
+    value._lat ??
+    null;
+
+  const longitude =
+    value.longitude ??
+    value.lng ??
+    value.coords?.longitude ??
+    value._long ??
+    value._lng ??
+    null;
+
+  const finalLatitude = Number(latitude);
+  const finalLongitude = Number(longitude);
+
+  if (Number.isNaN(finalLatitude) || Number.isNaN(finalLongitude)) {
+    return null;
+  }
+
+  return {
+    latitude: finalLatitude,
+    longitude: finalLongitude,
+  };
+}
+
 
 function getPhotoUrl(photo) {
   if (!photo) return null;
@@ -128,14 +161,65 @@ export default function ReturnCorrectionItem({
     );
   }
 
+function renderLocationValue() {
+  const coords = getLocationCoords(value);
+
+  if (!coords) {
+    return <span style={styles.emptyValue}>Sin ubicación</span>;
+  }
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: 260,
+        borderRadius: 10,
+        overflow: "hidden",
+        pointerEvents: "none",
+      }}
+    >
+      <MapContainer
+        center={[coords.latitude, coords.longitude]}
+        zoom={16}
+        dragging={false}
+        scrollWheelZoom={false}
+        doubleClickZoom={false}
+        touchZoom={false}
+        boxZoom={false}
+        keyboard={false}
+        zoomControl={false}
+        attributionControl={false}
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+        <CircleMarker
+          center={[coords.latitude, coords.longitude]}
+          radius={11}
+          interactive={false}
+          pathOptions={{
+            color: "#ffffff",
+            weight: 3,
+            fillColor: "#2563eb",
+            fillOpacity: 1,
+          }}
+        />
+      </MapContainer>
+    </div>
+  );
+}
+
   function renderValue() {
     if (type === "photos") {
       return renderPhotosValue();
     }
 
     if (type === "location") {
-      return getLocationText(value);
-    }
+  return renderLocationValue();
+}
 
     if (Array.isArray(value)) {
       if (!value.length) return "Sin información";
