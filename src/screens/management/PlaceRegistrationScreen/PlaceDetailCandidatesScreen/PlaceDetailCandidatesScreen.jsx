@@ -8,6 +8,8 @@ import CandidateReviewPanel from "./Components/CandidateReviewPanel";
 import { getCreateFiltersCatalogService } from "../../../../services/api/filtersCatalog.service";
 import { getGoogleCandidateDetailsService } from "../../../../services/api/googleCandidates.service";
 
+import { registerPlaceFromCandidateService } from "../../../../services/api/registerPlaceFromCandidate.service";
+
 const genericDescriptions = [
   {
     id: "generic_food",
@@ -209,36 +211,104 @@ export default function PlaceDetailCandidatesScreen() {
     console.log("Candidato rechazado:", candidateId);
   };
 
-  const handleAccept = () => {
+const handleAccept = async () => {
+  if (!candidateId) {
+    alert("No se encontró el ID del candidato.");
+    return;
+  }
+
+  if (!candidate.googlePlaceId) {
+    alert("No se encontró el Google Place ID.");
+    return;
+  }
+
+  if (!name.trim()) {
+    alert("El nombre del lugar es obligatorio.");
+    return;
+  }
+
+  if (!description.trim()) {
+    alert("La descripción es obligatoria.");
+    return;
+  }
+
+  if (!selectedTag) {
+    alert("Selecciona una etiqueta principal.");
+    return;
+  }
+
+  if (!selectedSubtags.length) {
+    alert("Selecciona al menos una subetiqueta.");
+    return;
+  }
+
+  if (!selectedApproach) {
+    alert("Selecciona un enfoque.");
+    return;
+  }
+
+  if (!selectedPrice) {
+    alert("Selecciona un precio.");
+    return;
+  }
+
+  try {
     setStatus("accepted");
 
     const payload = {
       candidateId,
       googlePlaceId: candidate.googlePlaceId,
-      name,
-      description,
-      tag: selectedTag,
-      subtags: selectedSubtags,
-      approach: selectedApproach,
-      price: selectedPrice,
-      schedule: selectedSchedule,
-      status: "accepted",
 
-      googleDetails: {
-        address: candidate.address,
-        location: candidate.location,
-        googleMainType: candidate.googleMainType,
-        types: candidate.types,
-        rating: candidate.rating,
-        userRatingCount: candidate.userRatingCount,
-        priceLevel: candidate.priceLevel,
-        openingHours: candidate.openingHours,
-        photos: candidate.photos,
+      source: "google",
+      status: "published",
+
+      name: name.trim(),
+      description: description.trim(),
+      address: candidate.address || "",
+
+      location: candidate.location || null,
+
+      parentHexId: candidate.parentHexId || null,
+
+      tagId: selectedTag,
+      subtags: selectedSubtags,
+      approaches: selectedApproach ? [selectedApproach] : [],
+      price: selectedPrice,
+
+      schedule: selectedSchedule || null,
+
+      googleData: {
+        googleMainType: candidate.googleMainType || null,
+        types: candidate.types || [],
+        rating: candidate.rating ?? null,
+        userRatingCount: candidate.userRatingCount ?? null,
+        priceLevel: candidate.priceLevel || null,
+        googleMapsUri: candidate.googleMapsUri || null,
+        openingHours: candidate.openingHours || null,
       },
+
+      photos: candidate.photos || [],
     };
 
-    console.log("Candidato aceptado:", payload);
-  };
+    console.log("Payload enviado al backend:", payload);
+
+    const result = await registerPlaceFromCandidateService(payload);
+
+    console.log("Lugar creado:", result);
+
+    alert("Lugar registrado correctamente.");
+
+    navigate("/management/place-registration/candidates", {
+      state: {
+        hexId,
+      },
+    });
+  } catch (error) {
+    console.error("Error aceptando candidato:", error);
+    setStatus(candidate.status || "in_review");
+    alert(error.message || "No se pudo aceptar el candidato.");
+  }
+};
 
   const handleBack = () => {
     navigate("/management/place-registration/candidates", {

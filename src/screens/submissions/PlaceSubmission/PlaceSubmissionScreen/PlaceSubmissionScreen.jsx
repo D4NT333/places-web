@@ -10,6 +10,32 @@ const CACHE_TTL_MS = 2 * 60 * 1000;
 
 const submissionsCache = new Map();
 
+function patchSubmissionStatusInCache(submissionId, nextStatus) {
+  submissionsCache.forEach((cacheEntry, cacheKey) => {
+    const statusFromKey = cacheKey.replace("place-submissions:", "");
+    const currentItems = cacheEntry.items || [];
+
+    let updatedItems = currentItems.map((item) => {
+      if (item.id !== submissionId) return item;
+
+      return {
+        ...item,
+        status: nextStatus,
+      };
+    });
+
+    if (statusFromKey !== "all" && statusFromKey !== nextStatus) {
+      updatedItems = updatedItems.filter((item) => item.id !== submissionId);
+    }
+
+    submissionsCache.set(cacheKey, {
+      ...cacheEntry,
+      items: updatedItems,
+      savedAt: Date.now(),
+    });
+  });
+}
+
 const statusFilters = [
   {
     label: "Todas",
@@ -94,15 +120,17 @@ export default function PlaceSubmissionScreen() {
     });
   };
 
-  const loadSubmissions = async ({ reset = false } = {}) => {
+  const loadSubmissions = async ({ reset = false, silent = false } = {}) => {
     if (loading || loadingMore) return;
     if (!reset && !hasMore) return;
 
     try {
-      if (reset) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
+      if (!silent) {
+        if (reset) {
+          setLoading(true);
+        } else {
+          setLoadingMore(true);
+        }
       }
 
       setErrorMessage("");
@@ -151,36 +179,40 @@ export default function PlaceSubmissionScreen() {
         error.message || "No se pudieron cargar las submissions."
       );
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      if (!silent) {
+  setLoading(false);
+  setLoadingMore(false);
+}
     }
   };
 
   useEffect(() => {
-    if (!isValidStatus) {
-      navigate("/submissions/places?status=all", { replace: true });
-      return;
-    }
+  if (!isValidStatus) {
+    navigate("/submissions/places?status=all", { replace: true });
+    return;
+  }
 
-    const cacheKey = getCacheKey(currentStatus);
-    const cachedData = submissionsCache.get(cacheKey);
+  const cacheKey = getCacheKey(currentStatus);
+  const cachedData = submissionsCache.get(cacheKey);
 
-    if (isCacheValid(cachedData)) {
-      console.log("Usando cache:", cacheKey);
+  if (isCacheValid(cachedData)) {
+    console.log("Usando cache y refrescando en segundo plano:", cacheKey);
 
-      setSubmissions(cachedData.items || []);
-      setNextCursor(cachedData.nextCursor || null);
-      setHasMore(cachedData.hasMore ?? true);
-      setErrorMessage("");
-      return;
-    }
+    setSubmissions(cachedData.items || []);
+    setNextCursor(cachedData.nextCursor || null);
+    setHasMore(cachedData.hasMore ?? true);
+    setErrorMessage("");
 
-    setSubmissions([]);
-    setNextCursor(null);
-    setHasMore(true);
+    loadSubmissions({ reset: true, silent: true });
+    return;
+  }
 
-    loadSubmissions({ reset: true });
-  }, [currentStatus, isValidStatus, navigate]);
+  setSubmissions([]);
+  setNextCursor(null);
+  setHasMore(true);
+
+  loadSubmissions({ reset: true });
+}, [currentStatus, isValidStatus, navigate]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
