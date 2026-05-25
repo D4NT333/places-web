@@ -113,12 +113,18 @@ const correctionFields = [
   },
   {
     key: "subtags",
-    label: "Subetiqueta",
+    label: "Subetiquetas",
+    type: "items",
     getValue: (submission) => {
       const subtags = submission?.subtags || submission?.subtagLabels || [];
 
       if (Array.isArray(subtags)) {
-        return subtags.map((item) => item?.label || item).filter(Boolean);
+        return subtags
+          .map((item, index) => ({
+            index,
+            label: item?.label || item,
+          }))
+          .filter((item) => Boolean(item.label));
       }
 
       return [];
@@ -211,6 +217,9 @@ function PlaceReturnSubmissionScreen() {
   const [selectedPhotos, setSelectedPhotos] = useState({});
   const [photoComments, setPhotoComments] = useState({});
 
+  const [selectedSubtags, setSelectedSubtags] = useState({});
+  const [subtagComments, setSubtagComments] = useState({});
+
   const mode = location.state?.mode || "edit";
   const isReadonly = mode === "readonly";
 
@@ -239,6 +248,8 @@ function PlaceReturnSubmissionScreen() {
         const nextFieldComments = {};
         const nextSelectedPhotos = {};
         const nextPhotoComments = {};
+        const nextSelectedSubtags = {};
+        const nextSubtagComments = {};
 
         const fields = data.returnFields || data.fields || {};
 
@@ -247,7 +258,7 @@ function PlaceReturnSubmissionScreen() {
 
           nextSelectedFields[fieldKey] = true;
 
-          if (fieldKey !== "photos") {
+          if (fieldKey !== "photos" && fieldKey !== "subtags") {
             nextFieldComments[fieldKey] = fieldValue.message || "";
           }
         });
@@ -265,10 +276,25 @@ function PlaceReturnSubmissionScreen() {
           nextPhotoComments[indexKey] = photo.message || "";
         });
 
+        const subtagItems = Array.isArray(fields.subtags?.items)
+          ? fields.subtags.items
+          : [];
+
+        subtagItems.forEach((subtag) => {
+          if (!subtag.selected) return;
+
+          const indexKey = String(subtag.index);
+
+          nextSelectedSubtags[indexKey] = true;
+          nextSubtagComments[indexKey] = subtag.message || "";
+        });
+
         setSelectedFields(nextSelectedFields);
         setFieldComments(nextFieldComments);
         setSelectedPhotos(nextSelectedPhotos);
         setPhotoComments(nextPhotoComments);
+        setSelectedSubtags(nextSelectedSubtags);
+        setSubtagComments(nextSubtagComments);
       } catch (error) {
         console.error("Error cargando motivo de devolución:", error);
         setErrorMessage(
@@ -392,12 +418,60 @@ function PlaceReturnSubmissionScreen() {
     }));
   }, []);
 
+  const handleToggleSubtag = useCallback((subtagIndex) => {
+    setSelectedSubtags((prev) => {
+      const indexKey = String(subtagIndex);
+      const isSelected = Boolean(prev[indexKey]);
+      const nextSelected = { ...prev };
+
+      if (isSelected) {
+        delete nextSelected[indexKey];
+
+        setSubtagComments((prevComments) => {
+          const nextComments = { ...prevComments };
+          delete nextComments[indexKey];
+          return nextComments;
+        });
+      } else {
+        nextSelected[indexKey] = true;
+      }
+
+      setSelectedFields((prevFields) => {
+        const nextFields = { ...prevFields };
+
+        if (Object.keys(nextSelected).length > 0) {
+          nextFields.subtags = true;
+        } else {
+          delete nextFields.subtags;
+        }
+
+        return nextFields;
+      });
+
+      return nextSelected;
+    });
+  }, []);
+
+  const handleChangeSubtagComment = useCallback((subtagIndex, value) => {
+    const indexKey = String(subtagIndex);
+
+    setSubtagComments((prev) => ({
+      ...prev,
+      [indexKey]: value,
+    }));
+  }, []);
+
   const selectedFieldKeys = Object.keys(selectedFields);
   const selectedPhotoIndexes = Object.keys(selectedPhotos);
+  const selectedSubtagIndexes = Object.keys(selectedSubtags);
 
   const hasValidFieldComments = selectedFieldKeys.every((fieldKey) => {
     if (fieldKey === "photos") {
       return selectedPhotoIndexes.length > 0;
+    }
+
+    if (fieldKey === "subtags") {
+      return selectedSubtagIndexes.length > 0;
     }
 
     return fieldComments[fieldKey]?.trim().length >= 5;
@@ -407,11 +481,16 @@ function PlaceReturnSubmissionScreen() {
     return photoComments[photoIndex]?.trim().length >= 5;
   });
 
+  const hasValidSubtagComments = selectedSubtagIndexes.every((subtagIndex) => {
+    return subtagComments[subtagIndex]?.trim().length >= 5;
+  });
+
   const canSubmit =
     generalComment.trim().length >= 10 &&
     selectedFieldKeys.length > 0 &&
     hasValidFieldComments &&
-    hasValidPhotoComments;
+    hasValidPhotoComments &&
+    hasValidSubtagComments;
 
   const buildReturnFieldsPayload = () => {
     const fields = {};
@@ -449,6 +528,41 @@ function PlaceReturnSubmissionScreen() {
           selected: photoItems.some((photo) => photo.selected),
           message: "",
           items: photoItems,
+        };
+
+        return;
+      }
+
+      if (field.key === "subtags") {
+        const subtagsField = visibleCorrectionFields.find(
+          (item) => item.key === "subtags"
+        );
+
+        const subtags = Array.isArray(subtagsField?.value)
+          ? subtagsField.value
+          : [];
+
+        const subtagItems = subtags.map((subtag, index) => {
+          const subtagIndex =
+            typeof subtag?.index === "number" ? subtag.index : index;
+
+          const indexKey = String(subtagIndex);
+          const isSubtagSelected = Boolean(selectedSubtags[indexKey]);
+
+          return {
+            index: subtagIndex,
+            label: subtag?.label || "",
+            selected: isSubtagSelected,
+            message: isSubtagSelected
+              ? subtagComments[indexKey]?.trim() || ""
+              : "",
+          };
+        });
+
+        fields.subtags = {
+          selected: subtagItems.some((subtag) => subtag.selected),
+          message: "",
+          items: subtagItems,
         };
 
         return;
@@ -540,10 +654,14 @@ function PlaceReturnSubmissionScreen() {
                 comment={fieldComments[field.key] || ""}
                 selectedPhotos={selectedPhotos}
                 photoComments={photoComments}
+                selectedSubtags={selectedSubtags}
+                subtagComments={subtagComments}
                 onToggle={handleToggleField}
                 onCommentChange={handleChangeFieldComment}
                 onTogglePhoto={handleTogglePhoto}
                 onPhotoCommentChange={handleChangePhotoComment}
+                onToggleSubtag={handleToggleSubtag}
+                onSubtagCommentChange={handleChangeSubtagComment}
                 readOnly={isReadonly}
               />
             ))}

@@ -131,15 +131,39 @@ const rejectedAtLabel = formatDate(
 const snapshotBeforeReturn = returnReview?.snapshotBeforeReturn || null;
 const canCompareCorrections = isResubmitted && Boolean(returnReview);
 
-const handleOpenCompareModal = (fieldKey) => {
+const handleOpenCompareModal = (fieldKey, meta = {}) => {
   if (!canCompareCorrections) return;
+
+  if (fieldKey === "subtags") {
+    if (!wasSubtagReturned(returnReview, meta.index, meta.label)) return;
+
+    setActiveCompareField({
+      fieldKey,
+      ...meta,
+    });
+
+    return;
+  }
+
   if (!wasFieldReturned(returnReview, fieldKey)) return;
 
-  setActiveCompareField(fieldKey);
+  setActiveCompareField({
+    fieldKey,
+  });
 };
 
 const handleCloseCompareModal = () => {
   setActiveCompareField(null);
+};
+
+const getSubtagCorrectionClickableStyle = (subtagIndex, subtagLabel) => {
+  if (!canCompareCorrections) return {};
+  if (!wasSubtagReturned(returnReview, subtagIndex, subtagLabel)) return {};
+
+  return {
+    borderColor: "#16A34A",
+    cursor: "pointer",
+  };
 };
 
 const getCorrectionClickableStyle = (fieldKey) => {
@@ -174,6 +198,61 @@ function getReturnFieldMessage(returnReview, fieldKey) {
   const fields = returnReview?.returnFields || returnReview?.fields || {};
 
   return fields?.[fieldKey]?.message || "";
+}
+
+function getReturnedSubtagItems(returnReview) {
+  const fields = returnReview?.returnFields || returnReview?.fields || {};
+  const items = Array.isArray(fields.subtags?.items)
+    ? fields.subtags.items
+    : [];
+
+  return items.filter((item) => item?.selected);
+}
+
+function wasSubtagReturned(returnReview, subtagIndex, subtagLabel) {
+  const fields = returnReview?.returnFields || returnReview?.fields || {};
+
+  if (!fields.subtags?.selected) return false;
+
+  const selectedItems = getReturnedSubtagItems(returnReview);
+
+  if (selectedItems.length === 0) {
+    return true;
+  }
+
+  return selectedItems.some((item) => {
+    const matchesIndex = Number(item.index) === Number(subtagIndex);
+    const matchesLabel = item.label === subtagLabel;
+
+    return matchesIndex || matchesLabel;
+  });
+}
+
+function getSubtagReturnMessage(returnReview, subtagIndex, subtagLabel) {
+  const fields = returnReview?.returnFields || returnReview?.fields || {};
+  const selectedItems = getReturnedSubtagItems(returnReview);
+
+  const foundItem = selectedItems.find((item) => {
+    const matchesIndex = Number(item.index) === Number(subtagIndex);
+    const matchesLabel = item.label === subtagLabel;
+
+    return matchesIndex || matchesLabel;
+  });
+
+  return foundItem?.message || fields.subtags?.message || "";
+}
+
+function getSnapshotSubtagValue(snapshot, subtagIndex) {
+  const subtags = Array.isArray(snapshot?.subtags) ? snapshot.subtags : [];
+  return subtags[subtagIndex] || "";
+}
+
+function getCurrentSubtagValue(submission, subtagIndex) {
+  const subtags = Array.isArray(submission?.subtags)
+    ? submission.subtags
+    : [];
+
+  return subtags[subtagIndex] || "";
 }
 
 function getSnapshotValue(snapshot, fieldKey) {
@@ -247,7 +326,29 @@ function getCurrentValue(submission, fieldKey) {
       return null;
   }
 }
+const activeCompareFieldKey =
+  typeof activeCompareField === "string"
+    ? activeCompareField
+    : activeCompareField?.fieldKey || null;
 
+const activeCompareOldValue =
+  activeCompareFieldKey === "subtags"
+    ? getSnapshotSubtagValue(snapshotBeforeReturn, activeCompareField?.index)
+    : getSnapshotValue(snapshotBeforeReturn, activeCompareFieldKey);
+
+const activeCompareNewValue =
+  activeCompareFieldKey === "subtags"
+    ? getCurrentSubtagValue(submission, activeCompareField?.index)
+    : getCurrentValue(submission, activeCompareFieldKey);
+
+const activeCompareMessage =
+  activeCompareFieldKey === "subtags"
+    ? getSubtagReturnMessage(
+        returnReview,
+        activeCompareField?.index,
+        activeCompareField?.label
+      )
+    : getReturnFieldMessage(returnReview, activeCompareFieldKey);
 
 
   if (loading) {
@@ -395,16 +496,20 @@ function getCurrentValue(submission, fieldKey) {
                 <Pill label={submission?.tagLabel || submission?.tagId || "Sin etiqueta"} />
               </div>
 
-              {(submission?.subtags || []).map((subtag) => (
-                <div
-                  key={subtag}
-                  style={getCorrectionClickableStyle("subtags")}
-                  onClick={() => handleOpenCompareModal("subtags")}
-                >
-                  <Pill label={subtag} />
-                </div>
-              ))}
-
+              {(submission?.subtags || []).map((subtag, index) => (
+  <div
+    key={`${subtag}-${index}`}
+    style={getSubtagCorrectionClickableStyle(index, subtag)}
+    onClick={() =>
+      handleOpenCompareModal("subtags", {
+        index,
+        label: subtag,
+      })
+    }
+  >
+    <Pill label={subtag} />
+  </div>
+))}
               {(submission?.approaches || []).map((approach) => (
                 <div
                   key={approach}
@@ -496,13 +601,13 @@ function getCurrentValue(submission, fieldKey) {
 }}
 />
         <CorrectionCompareModal
-          visible={Boolean(activeCompareField)}
-          fieldKey={activeCompareField}
-          oldValue={getSnapshotValue(snapshotBeforeReturn, activeCompareField)}
-          newValue={getCurrentValue(submission, activeCompareField)}
-          message={getReturnFieldMessage(returnReview, activeCompareField)}
-          onClose={handleCloseCompareModal}
-        />
+  visible={Boolean(activeCompareField)}
+  fieldKey={activeCompareFieldKey}
+  oldValue={activeCompareOldValue}
+  newValue={activeCompareNewValue}
+  message={activeCompareMessage}
+  onClose={handleCloseCompareModal}
+/>
 
         <RejectionReasonModal
         visible={showRejectionReasonModal}

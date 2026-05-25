@@ -1,30 +1,6 @@
 import React from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
 import styles from "./styles";
-
-function getLocationText(value) {
-  if (!value) return "Sin ubicación";
-
-  const latitude =
-    value.latitude ??
-    value.lat ??
-    value.coords?.latitude ??
-    value._lat ??
-    null;
-
-  const longitude =
-    value.longitude ??
-    value.lng ??
-    value.coords?.longitude ??
-    value._long ??
-    null;
-
-  if (latitude == null || longitude == null) {
-    return "Sin ubicación";
-  }
-
-  return `${latitude}, ${longitude}`;
-}
 
 function getLocationCoords(value) {
   if (!value) return null;
@@ -57,7 +33,6 @@ function getLocationCoords(value) {
   };
 }
 
-
 function getPhotoUrl(photo) {
   if (!photo) return null;
 
@@ -89,6 +64,22 @@ function getPhotoIndex(photo, fallbackIndex) {
   return fallbackIndex;
 }
 
+function getItemIndex(item, fallbackIndex) {
+  if (item && typeof item === "object" && typeof item.index === "number") {
+    return item.index;
+  }
+
+  return fallbackIndex;
+}
+
+function getItemLabel(item) {
+  if (!item) return "";
+
+  if (typeof item === "string") return item;
+
+  return item.label || item.name || item.value || "";
+}
+
 export default function ReturnCorrectionItem({
   fieldKey,
   label,
@@ -98,13 +89,17 @@ export default function ReturnCorrectionItem({
   comment,
   selectedPhotos = {},
   photoComments = {},
+  selectedSubtags = {},
+  subtagComments = {},
   onToggle,
   onCommentChange,
   onTogglePhoto,
   onPhotoCommentChange,
+  onToggleSubtag,
+  onSubtagCommentChange,
   readOnly = false,
 }) {
-  const isWide = type === "photos" || type === "location";
+  const isWide = type === "photos" || type === "location" || type === "items";
 
   function renderPhotosValue() {
     const photos = Array.isArray(value) ? value : [];
@@ -121,9 +116,7 @@ export default function ReturnCorrectionItem({
           const indexKey = String(photoIndex);
           const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
 
-          if (!photoUrl) {
-            return null;
-          }
+          if (!photoUrl) return null;
 
           return (
             <button
@@ -161,65 +154,111 @@ export default function ReturnCorrectionItem({
     );
   }
 
-function renderLocationValue() {
-  const coords = getLocationCoords(value);
+  function renderItemsValue() {
+    const items = Array.isArray(value) ? value : [];
 
-  if (!coords) {
-    return <span style={styles.emptyValue}>Sin ubicación</span>;
+    if (items.length === 0) {
+      return <span style={styles.emptyValue}>Sin información</span>;
+    }
+
+    return (
+      <div style={styles.tagsWrap}>
+        {items.map((item, fallbackIndex) => {
+          const itemIndex = getItemIndex(item, fallbackIndex);
+          const indexKey = String(itemIndex);
+          const itemLabel = getItemLabel(item);
+          const isItemSelected = Boolean(selectedSubtags[indexKey]);
+
+          if (!itemLabel) return null;
+
+          return (
+            <button
+              key={`${itemLabel}-${indexKey}`}
+              type="button"
+              style={{
+                ...styles.miniPill,
+                ...(isItemSelected ? styles.valueBoxSelected : {}),
+                cursor: readOnly ? "default" : "pointer",
+              }}
+              onClick={(event) => {
+                event.stopPropagation();
+
+                if (readOnly) return;
+
+                onToggleSubtag?.(indexKey);
+              }}
+            >
+              {itemLabel}
+            </button>
+          );
+        })}
+      </div>
+    );
   }
 
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: 260,
-        borderRadius: 10,
-        overflow: "hidden",
-        pointerEvents: "none",
-      }}
-    >
-      <MapContainer
-        center={[coords.latitude, coords.longitude]}
-        zoom={16}
-        dragging={false}
-        scrollWheelZoom={false}
-        doubleClickZoom={false}
-        touchZoom={false}
-        boxZoom={false}
-        keyboard={false}
-        zoomControl={false}
-        attributionControl={false}
+  function renderLocationValue() {
+    const coords = getLocationCoords(value);
+
+    if (!coords) {
+      return <span style={styles.emptyValue}>Sin ubicación</span>;
+    }
+
+    return (
+      <div
         style={{
           width: "100%",
-          height: "100%",
+          height: 260,
+          borderRadius: 10,
+          overflow: "hidden",
+          pointerEvents: "none",
         }}
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-        <CircleMarker
+        <MapContainer
           center={[coords.latitude, coords.longitude]}
-          radius={11}
-          interactive={false}
-          pathOptions={{
-            color: "#ffffff",
-            weight: 3,
-            fillColor: "#2563eb",
-            fillOpacity: 1,
+          zoom={16}
+          dragging={false}
+          scrollWheelZoom={false}
+          doubleClickZoom={false}
+          touchZoom={false}
+          boxZoom={false}
+          keyboard={false}
+          zoomControl={false}
+          attributionControl={false}
+          style={{
+            width: "100%",
+            height: "100%",
           }}
-        />
-      </MapContainer>
-    </div>
-  );
-}
+        >
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+          <CircleMarker
+            center={[coords.latitude, coords.longitude]}
+            radius={11}
+            interactive={false}
+            pathOptions={{
+              color: "#ffffff",
+              weight: 3,
+              fillColor: "#2563eb",
+              fillOpacity: 1,
+            }}
+          />
+        </MapContainer>
+      </div>
+    );
+  }
 
   function renderValue() {
     if (type === "photos") {
       return renderPhotosValue();
     }
 
+    if (type === "items" && fieldKey === "subtags") {
+      return renderItemsValue();
+    }
+
     if (type === "location") {
-  return renderLocationValue();
-}
+      return renderLocationValue();
+    }
 
     if (Array.isArray(value)) {
       if (!value.length) return "Sin información";
@@ -298,6 +337,64 @@ function renderLocationValue() {
     );
   }
 
+  function renderSubtagComments() {
+    if (type !== "items" || fieldKey !== "subtags") return null;
+
+    const items = Array.isArray(value) ? value : [];
+    const selectedSubtagIndexes = Object.keys(selectedSubtags);
+
+    if (selectedSubtagIndexes.length === 0) {
+      return null;
+    }
+
+    return (
+      <div style={styles.photoCommentsWrapper}>
+        {items.map((item, fallbackIndex) => {
+          const itemIndex = getItemIndex(item, fallbackIndex);
+          const indexKey = String(itemIndex);
+          const itemLabel = getItemLabel(item);
+          const isItemSelected = Boolean(selectedSubtags[indexKey]);
+
+          if (!itemLabel || !isItemSelected) return null;
+
+          const currentComment = subtagComments[indexKey] || "";
+
+          return (
+            <div
+              key={`subtag-comment-${indexKey}`}
+              style={styles.photoCommentItem}
+            >
+              <label style={styles.commentLabel}>
+                Motivo para subetiqueta "{itemLabel}":
+              </label>
+
+              <textarea
+                style={{
+                  ...styles.commentInput,
+                  opacity: readOnly ? 0.85 : 1,
+                  cursor: readOnly ? "default" : "text",
+                }}
+                value={currentComment}
+                rows={2}
+                readOnly={readOnly}
+                onChange={(event) => {
+                  if (readOnly) return;
+
+                  onSubtagCommentChange?.(indexKey, event.target.value);
+                }}
+                placeholder={`Escribe qué debe corregirse en "${itemLabel}"...`}
+              />
+
+              <div style={styles.commentFooter}>
+                {currentComment.trim().length}/5 mínimo
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -312,20 +409,23 @@ function renderLocationValue() {
           ...styles.valueBox,
           ...(selected ? styles.valueBoxSelected : {}),
           ...(isWide ? styles.valueBoxWide : styles.valueBoxCompact),
-          cursor: readOnly || type === "photos" ? "default" : "pointer",
+          cursor:
+            readOnly || type === "photos" || type === "items"
+              ? "default"
+              : "pointer",
         }}
         role="button"
         tabIndex={readOnly ? -1 : 0}
         onClick={() => {
           if (readOnly) return;
 
-          if (type !== "photos") {
+          if (type !== "photos" && type !== "items") {
             onToggle?.(fieldKey);
           }
         }}
         onKeyDown={(event) => {
           if (readOnly) return;
-          if (type === "photos") return;
+          if (type === "photos" || type === "items") return;
 
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
@@ -338,7 +438,9 @@ function renderLocationValue() {
 
       {type === "photos" && renderPhotoComments()}
 
-      {selected && type !== "photos" && (
+      {type === "items" && fieldKey === "subtags" && renderSubtagComments()}
+
+      {selected && type !== "photos" && type !== "items" && (
         <div style={styles.commentWrapper}>
           <label style={styles.commentLabel}>Motivo:</label>
 
