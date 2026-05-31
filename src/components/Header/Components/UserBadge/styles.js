@@ -8,8 +8,8 @@ const styles = {
 
   name: {
     color: "#151515",
-    fontSize: 14,
-    fontWeight: 800,
+    fontSize: 24,
+    fontWeight: 500,
     maxWidth: 160,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -25,8 +25,8 @@ const styles = {
   },
 
   avatar: {
-    width: 42,
-    height: 42,
+    width: 62,
+    height: 62,
     borderRadius: "50%",
     border: "1px solid #DDD5C8",
     backgroundColor: "#F4EFE6",
@@ -46,7 +46,7 @@ const styles = {
 
   avatarText: {
     color: "#171717",
-    fontSize: 15,
+    fontSize: 45,
     fontWeight: 900,
   },
 

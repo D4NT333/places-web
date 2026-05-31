@@ -1,5 +1,9 @@
 export {default as HomeScreen} from "./home/HomeScreen";
 
+export {default as DemandScreen} from "./metrics/DemandScreen";
+export {default as InteractionsScreen} from "./metrics/InteractionsScreen";
+export {default as OperationsScreen} from "./metrics/OperationsScreen";
+
 
 export {default as PlaceSubmissionScreen} from "./submissions/PlaceSubmission/PlaceSubmissionScreen";
 export {default as PhotoSubmissionScreen} from "./submissions/PhotoSubmissionScreen/PhotoSubmissionScreen";

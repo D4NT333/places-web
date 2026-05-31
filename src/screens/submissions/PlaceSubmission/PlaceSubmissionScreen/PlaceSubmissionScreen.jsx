@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 import PlaceSubmissionRow from "./Components/PlaceSubmissionRow";
@@ -180,39 +181,39 @@ export default function PlaceSubmissionScreen() {
       );
     } finally {
       if (!silent) {
-  setLoading(false);
-  setLoadingMore(false);
-}
+        setLoading(false);
+        setLoadingMore(false);
+      }
     }
   };
 
   useEffect(() => {
-  if (!isValidStatus) {
-    navigate("/submissions/places?status=all", { replace: true });
-    return;
-  }
+    if (!isValidStatus) {
+      navigate("/submissions/places?status=all", { replace: true });
+      return;
+    }
 
-  const cacheKey = getCacheKey(currentStatus);
-  const cachedData = submissionsCache.get(cacheKey);
+    const cacheKey = getCacheKey(currentStatus);
+    const cachedData = submissionsCache.get(cacheKey);
 
-  if (isCacheValid(cachedData)) {
-    console.log("Usando cache y refrescando en segundo plano:", cacheKey);
+    if (isCacheValid(cachedData)) {
+      console.log("Usando cache y refrescando en segundo plano:", cacheKey);
 
-    setSubmissions(cachedData.items || []);
-    setNextCursor(cachedData.nextCursor || null);
-    setHasMore(cachedData.hasMore ?? true);
-    setErrorMessage("");
+      setSubmissions(cachedData.items || []);
+      setNextCursor(cachedData.nextCursor || null);
+      setHasMore(cachedData.hasMore ?? true);
+      setErrorMessage("");
 
-    loadSubmissions({ reset: true, silent: true });
-    return;
-  }
+      loadSubmissions({ reset: true, silent: true });
+      return;
+    }
 
-  setSubmissions([]);
-  setNextCursor(null);
-  setHasMore(true);
+    setSubmissions([]);
+    setNextCursor(null);
+    setHasMore(true);
 
-  loadSubmissions({ reset: true });
-}, [currentStatus, isValidStatus, navigate]);
+    loadSubmissions({ reset: true });
+  }, [currentStatus, isValidStatus, navigate]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -250,7 +251,12 @@ export default function PlaceSubmissionScreen() {
   };
 
   return (
-    <LayoutScreen>
+   <LayoutScreen
+  breadcrumbs={[
+    { label: "Inicio", to: "/" },
+    { label: "Propuesta de lugares" },
+  ]}
+>
       <div style={styles.container}>
         <div style={styles.topBar}>
           <div style={styles.headerBlock}>
@@ -318,9 +324,7 @@ export default function PlaceSubmissionScreen() {
         )}
 
         {!loading && !loadingMore && !hasMore && submissions.length > 0 && (
-          <div style={styles.paginationHint}>
-            No hay más submissions.
-          </div>
+          <div style={styles.paginationHint}>No hay más submissions.</div>
         )}
       </div>
     </LayoutScreen>

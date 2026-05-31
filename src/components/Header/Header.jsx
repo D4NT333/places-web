@@ -5,12 +5,16 @@ import { auth } from "../../config/firebaseConfig";
 import { getAdminMeService } from "../../services/auth/getAdminMe.service";
 import { logoutService } from "../../services/auth/logout.service";
 
+import { icons } from "../../../assets/icons";
+
+import AdminBreadcrumb from "../AdminBreadcrumb";
+
 import MenuButton from "./Components/MenuButton";
 import UserBadge from "./Components/UserBadge";
 
 import styles from "./styles";
 
-export default function Header({ onToggleSidebar }) {
+export default function Header({ onToggleSidebar, breadcrumbs = [] }) {
   const navigate = useNavigate();
 
   const [adminUser, setAdminUser] = useState(null);
@@ -48,6 +52,10 @@ export default function Header({ onToggleSidebar }) {
     }
   };
 
+  const handleNotificationsClick = () => {
+    console.log("Abrir notificaciones");
+  };
+
   const fallbackUser = auth.currentUser;
 
   const displayName =
@@ -60,24 +68,47 @@ export default function Header({ onToggleSidebar }) {
   const photoURL = adminUser?.photoURL || fallbackUser?.photoURL || null;
 
   return (
-    <header style={styles.header}>
-      <div style={styles.leftSection}>
-        <MenuButton onClick={onToggleSidebar} />
+    <header style={styles.headerWrapper}>
+      <div style={styles.header}>
+        <div style={styles.leftSection}>
+          <MenuButton onClick={onToggleSidebar} />
 
-        <div>
-          <h1 style={styles.title}>Panel administrativo</h1>
-          <p style={styles.subtitle}>Gestión y validación de contenido</p>
+          <div>
+            <h1 style={styles.title}>Panel administrativo</h1>
+            <p style={styles.subtitle}>Gestión y validación de contenido</p>
+          </div>
+        </div>
+
+        <div style={styles.rightSection}>
+          <button
+            type="button"
+            style={styles.notificationButton}
+            onClick={handleNotificationsClick}
+            title="Notificaciones"
+          >
+            <img
+              src={icons.bell}
+              alt="Notificaciones"
+              style={styles.notificationIcon}
+            />
+
+            <span style={styles.notificationBadge}>3</span>
+          </button>
+
+          <UserBadge
+            name={displayName}
+            email={email}
+            photoURL={photoURL}
+            onLogout={handleLogout}
+          />
         </div>
       </div>
 
-      <div style={styles.rightSection}>
-        <UserBadge
-          name={displayName}
-          email={email}
-          photoURL={photoURL}
-          onLogout={handleLogout}
-        />
-      </div>
+      {breadcrumbs.length > 0 && (
+        <div style={styles.breadcrumbBar}>
+          <AdminBreadcrumb items={breadcrumbs} />
+        </div>
+      )}
     </header>
   );
 }

@@ -22,28 +22,36 @@ export default function HomeScreen() {
   ];
 
   return (
-    <LayoutScreen padding="1.25rem" bg="#efefef" scroll stickyHeader>
-      <div style={styles.container}>
-        <StatsOverview stats={stats} />
+  <LayoutScreen
+    padding="1.25rem"
+    bg="#efefef"
+    scroll
+    stickyHeader
+    breadcrumbs={[
+      { label: "Inicio" },
+    ]}
+  >
+    <div style={styles.container}>
+      <StatsOverview stats={stats} />
 
-        <section style={styles.mainGrid}>
-          <ActivityPanel
-            title="Historial de Actividad Reciente"
-            items={activities}
+      <section style={styles.mainGrid}>
+        <ActivityPanel
+          title="Historial de Actividad Reciente"
+          items={activities}
+        />
+
+        <div style={styles.rightColumn}>
+          <InfoPanel
+            title="Estado del sistema"
+            content="Aquí puedes mostrar alertas, estado de servicios o tareas internas."
           />
-
-          <div style={styles.rightColumn}>
-            <InfoPanel
-              title="Estado del sistema"
-              content="Aquí puedes mostrar alertas, estado de servicios o tareas internas."
-            />
-            <InfoPanel
-              title="Resumen general"
-              content="Este espacio puede servir para indicadores rápidos del panel."
-            />
-          </div>
-        </section>
-      </div>
-    </LayoutScreen>
-  );
+          <InfoPanel
+            title="Resumen general"
+            content="Este espacio puede servir para indicadores rápidos del panel."
+          />
+        </div>
+      </section>
+    </div>
+  </LayoutScreen>
+);
 }

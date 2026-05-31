@@ -6,7 +6,7 @@ import { auth } from "../config/firebaseConfig";
 import { getAdminMeService } from "../services/auth/getAdminMe.service";
 import { logoutService } from "../services/auth/logout.service";
 
-import { HomeScreen } from "../screens";
+import {HomeScreen,OperationsScreen,DemandScreen,InteractionsScreen,} from "../screens";
 import { PlaceSubmissionScreen, DescriptionSubmissionScreen, PhotoSubmissionScreen } from "../screens";
 import { ReportsScreen, SelectZoneScreen, SuggestionsScreen } from "../screens";
 import { PlaceDetailSubmissionScreen } from "../screens";
@@ -50,6 +50,10 @@ function AppRoutesContent({ adminUser }) {
         <>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<HomeScreen />} />
+
+          <Route path="/metrics/operations" element={<OperationsScreen />} />
+          <Route path="/metrics/demand" element={<DemandScreen />} />
+          <Route path="/metrics/interactions" element={<InteractionsScreen />} />
 
           <Route path="/submissions/places" element={<PlaceSubmissionScreen />} />
           <Route path="/submissions/descriptions" element={<DescriptionSubmissionScreen />} />

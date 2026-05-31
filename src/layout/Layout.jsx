@@ -17,6 +17,7 @@ export default function LayoutScreen({
   showHeader = true,
   showSidebar = true,
   showFooter = true,
+  breadcrumbs = [],
 }) {
   const mainRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -40,19 +41,22 @@ export default function LayoutScreen({
       }}
     >
       {showHeader && (
-        <div
-          className="layout-header"
-          style={{
-            position: stickyHeader ? "sticky" : "relative",
-            top: 0,
-            zIndex: 100,
-            width: "100%",
-            flexShrink: 0,
-          }}
-        >
-          <Header onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
-        </div>
-      )}
+  <div
+    className="layout-header"
+    style={{
+      position: stickyHeader ? "sticky" : "relative",
+      top: 0,
+      zIndex: 100,
+      width: "100%",
+      flexShrink: 0,
+    }}
+  >
+    <Header
+      onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+      breadcrumbs={breadcrumbs}
+    />
+  </div>
+)}
 
       <div
         style={{

@@ -60,29 +60,29 @@ export default function Panel() {
                 : styles.sectionContentClosed),
             }}
           >
-            <button
-              type="button"
-              style={styles.optionButton}
-              onClick={() => handleNavigation("/metrics/summary")}
-            >
-              Resumen general
-            </button>
+                  <button
+            type="button"
+            style={styles.optionButton}
+            onClick={() => handleNavigation("/metrics/operations")}
+          >
+            Operaciones
+          </button>
 
-            <button
-              type="button"
-              style={styles.optionButton}
-              onClick={() => handleNavigation("/metrics/trends")}
-            >
-              Tendencias
-            </button>
+          <button
+            type="button"
+            style={styles.optionButton}
+            onClick={() => handleNavigation("/metrics/demand")}
+          >
+            Demanda
+          </button>
 
-            <button
-              type="button"
-              style={styles.optionButton}
-              onClick={() => handleNavigation("/metrics/popularity")}
-            >
-              Popularidad
-            </button>
+          <button
+            type="button"
+            style={styles.optionButton}
+            onClick={() => handleNavigation("/metrics/interactions")}
+          >
+            Interacciones
+          </button>
           </div>
         </div>
 
