@@ -46,6 +46,65 @@ function getStatusLabel(status) {
   return map[status] || "Sin estado";
 }
 
+function getSnapshotSubtags(snapshot) {
+  return Array.isArray(snapshot?.subtags) ? snapshot.subtags : [];
+}
+
+function getCurrentSubtags(submission) {
+  return Array.isArray(submission?.subtags) ? submission.subtags : [];
+}
+
+function shouldCompareFullSubtagsList(snapshot, submission) {
+  const oldSubtags = getSnapshotSubtags(snapshot);
+  const newSubtags = getCurrentSubtags(submission);
+
+  return oldSubtags.length !== newSubtags.length;
+}
+
+function getSubtagsCompareMode(snapshot, submission) {
+  return shouldCompareFullSubtagsList(snapshot, submission)
+    ? "full_list"
+    : "by_index";
+}
+
+function getReturnedSubtagItemsFromReview(returnReview) {
+  const fields = returnReview?.returnFields || returnReview?.fields || {};
+  const items = Array.isArray(fields.subtags?.items)
+    ? fields.subtags.items
+    : [];
+
+  return items.filter((item) => item?.selected);
+}
+
+function getSubtagsReturnMessage(returnReview, subtagIndex, subtagLabel) {
+  const fields = returnReview?.returnFields || returnReview?.fields || {};
+  const selectedItems = getReturnedSubtagItemsFromReview(returnReview);
+
+  const foundItem = selectedItems.find((item) => {
+    const matchesIndex = Number(item.index) === Number(subtagIndex);
+    const matchesLabel = item.label === subtagLabel;
+
+    return matchesIndex || matchesLabel;
+  });
+
+  return foundItem?.message || fields.subtags?.message || "";
+}
+
+function getFullSubtagsReturnMessage(returnReview) {
+  const fields = returnReview?.returnFields || returnReview?.fields || {};
+  const selectedItems = getReturnedSubtagItemsFromReview(returnReview);
+
+  const messages = selectedItems
+    .map((item) => item.message)
+    .filter(Boolean);
+
+  if (messages.length > 0) {
+    return messages.join(" / ");
+  }
+
+  return fields.subtags?.message || "";
+}
+
 export default function PlaceDetailSubmissionScreen() {
   const navigate = useNavigate();
   const { submissionId } = useParams();
@@ -135,11 +194,25 @@ const handleOpenCompareModal = (fieldKey, meta = {}) => {
   if (!canCompareCorrections) return;
 
   if (fieldKey === "subtags") {
-    if (!wasSubtagReturned(returnReview, meta.index, meta.label)) return;
+    if (!wasFieldReturned(returnReview, "subtags")) return;
+
+    const compareMode = getSubtagsCompareMode(snapshotBeforeReturn, submission);
+
+    if (compareMode === "by_index") {
+      if (!wasSubtagReturned(returnReview, meta.index, meta.label)) return;
+
+      setActiveCompareField({
+        fieldKey,
+        compareMode,
+        ...meta,
+      });
+
+      return;
+    }
 
     setActiveCompareField({
       fieldKey,
-      ...meta,
+      compareMode,
     });
 
     return;
@@ -200,21 +273,12 @@ function getReturnFieldMessage(returnReview, fieldKey) {
   return fields?.[fieldKey]?.message || "";
 }
 
-function getReturnedSubtagItems(returnReview) {
-  const fields = returnReview?.returnFields || returnReview?.fields || {};
-  const items = Array.isArray(fields.subtags?.items)
-    ? fields.subtags.items
-    : [];
-
-  return items.filter((item) => item?.selected);
-}
-
 function wasSubtagReturned(returnReview, subtagIndex, subtagLabel) {
   const fields = returnReview?.returnFields || returnReview?.fields || {};
 
   if (!fields.subtags?.selected) return false;
 
-  const selectedItems = getReturnedSubtagItems(returnReview);
+  const selectedItems = getReturnedSubtagItemsFromReview(returnReview);
 
   if (selectedItems.length === 0) {
     return true;
@@ -331,23 +395,31 @@ const activeCompareFieldKey =
     ? activeCompareField
     : activeCompareField?.fieldKey || null;
 
+const activeCompareSubtagMode = activeCompareField?.compareMode || "by_index";
+
 const activeCompareOldValue =
   activeCompareFieldKey === "subtags"
-    ? getSnapshotSubtagValue(snapshotBeforeReturn, activeCompareField?.index)
+    ? activeCompareSubtagMode === "full_list"
+      ? getSnapshotValue(snapshotBeforeReturn, "subtags")
+      : getSnapshotSubtagValue(snapshotBeforeReturn, activeCompareField?.index)
     : getSnapshotValue(snapshotBeforeReturn, activeCompareFieldKey);
 
 const activeCompareNewValue =
   activeCompareFieldKey === "subtags"
-    ? getCurrentSubtagValue(submission, activeCompareField?.index)
+    ? activeCompareSubtagMode === "full_list"
+      ? getCurrentValue(submission, "subtags")
+      : getCurrentSubtagValue(submission, activeCompareField?.index)
     : getCurrentValue(submission, activeCompareFieldKey);
 
 const activeCompareMessage =
   activeCompareFieldKey === "subtags"
-    ? getSubtagReturnMessage(
-        returnReview,
-        activeCompareField?.index,
-        activeCompareField?.label
-      )
+    ? activeCompareSubtagMode === "full_list"
+      ? getFullSubtagsReturnMessage(returnReview)
+      : getSubtagsReturnMessage(
+          returnReview,
+          activeCompareField?.index,
+          activeCompareField?.label
+        )
     : getReturnFieldMessage(returnReview, activeCompareFieldKey);
 
 
@@ -496,20 +568,28 @@ const activeCompareMessage =
                 <Pill label={submission?.tagLabel || submission?.tagId || "Sin etiqueta"} />
               </div>
 
-              {(submission?.subtags || []).map((subtag, index) => (
-  <div
-    key={`${subtag}-${index}`}
-    style={getSubtagCorrectionClickableStyle(index, subtag)}
-    onClick={() =>
-      handleOpenCompareModal("subtags", {
-        index,
-        label: subtag,
-      })
-    }
-  >
-    <Pill label={subtag} />
-  </div>
-))}
+   {(submission?.subtags || []).map((subtag, index) => {
+  const compareMode = getSubtagsCompareMode(snapshotBeforeReturn, submission);
+
+  return (
+    <div
+      key={`${subtag}-${index}`}
+      style={
+        compareMode === "full_list"
+          ? getCorrectionClickableStyle("subtags")
+          : getSubtagCorrectionClickableStyle(index, subtag)
+      }
+      onClick={() =>
+        handleOpenCompareModal("subtags", {
+          index,
+          label: subtag,
+        })
+      }
+    >
+      <Pill label={subtag} />
+    </div>
+  );
+})}
               {(submission?.approaches || []).map((approach) => (
                 <div
                   key={approach}
