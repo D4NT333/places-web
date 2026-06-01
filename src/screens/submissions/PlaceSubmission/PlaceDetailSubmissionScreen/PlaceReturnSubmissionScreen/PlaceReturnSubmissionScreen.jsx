@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+
 import LayoutScreen from "../../../../../layout";
 import styles from "./styles";
 
@@ -8,9 +9,7 @@ import ReturnCorrectionItem from "./Components/ReturnCorrectionItem";
 import ReturnActionButtons from "./Components/ReturnActionButtons";
 
 import getPlaceSubmissionDetailService from "../../../../../services/submissions/getPlaceSubmissionDetail.service";
-
 import returnPlaceSubmissionService from "../../../../../services/submissions/returnPlaceSubmission.service";
-
 import getReturnedPlaceSubmissionReviewService from "../../../../../services/submissions/getReturnedPlaceSubmissionReview.service";
 
 function getPhotoUrl(photo, preferredSize = "thumbnail") {
@@ -225,6 +224,12 @@ function PlaceReturnSubmissionScreen() {
 
   const [returnReview, setReturnReview] = useState(null);
 
+  const breadcrumbs = [
+    { label: "Inicio", to: "/" },
+    { label: "Propuesta de lugares", to: "/submissions/places" },
+    { label: isReadonly ? "Motivo de devolución" : "Devolver propuesta" },
+  ];
+
   useEffect(() => {
     async function loadReturnReviewIfReadonly() {
       if (!isReadonly) return;
@@ -241,7 +246,6 @@ function PlaceReturnSubmissionScreen() {
         const data = await getReturnedPlaceSubmissionReviewService(submissionId);
 
         setReturnReview(data);
-
         setGeneralComment(data.generalMessage || "");
 
         const nextSelectedFields = {};
@@ -603,7 +607,7 @@ function PlaceReturnSubmissionScreen() {
 
   if (loading) {
     return (
-      <LayoutScreen>
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <div style={styles.loadingContainer}>Cargando propuesta...</div>
       </LayoutScreen>
     );
@@ -611,68 +615,102 @@ function PlaceReturnSubmissionScreen() {
 
   if (errorMessage) {
     return (
-      <LayoutScreen>
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <div style={styles.loadingContainer}>{errorMessage}</div>
       </LayoutScreen>
     );
   }
 
   return (
-    <LayoutScreen>
+    <LayoutScreen breadcrumbs={breadcrumbs}>
       <div style={styles.screen}>
-        <section style={styles.card}>
-          <div style={styles.header}>
-            <h1 style={styles.title}>
-              {isReadonly ? "Motivo de devolución" : "Devolver para corrección"}
-            </h1>
+        <section style={styles.pagePanel}>
+          <header style={styles.header}>
+            <div>
+              <h1 style={styles.title}>
+                {isReadonly ? "Motivo de devolución" : "Devolver para corrección"}
+              </h1>
 
-            <p style={styles.subtitle}>
-              {isReadonly
-                ? "Consulta los campos que fueron solicitados para corrección."
-                : "Selecciona los campos que el usuario debe corregir y escribe el motivo."}
-            </p>
-          </div>
+              <p style={styles.subtitle}>
+                {isReadonly
+                  ? "Consulta los campos que fueron solicitados para corrección."
+                  : "Selecciona los campos que el usuario debe corregir y escribe el motivo de forma clara."}
+              </p>
+            </div>
+          </header>
 
-          <ReturnTextArea
-            label="Comentario general"
-            placeholder="Escribe un comentario general para el usuario..."
-            value={generalComment}
-            onChange={setGeneralComment}
-            minLength={10}
-            readOnly={isReadonly}
-          />
-
-          <div style={styles.fieldsContainer}>
-            {visibleCorrectionFields.map((field) => (
-              <ReturnCorrectionItem
-                key={field.key}
-                fieldKey={field.key}
-                label={field.label}
-                value={field.value}
-                type={field.type}
-                selected={Boolean(selectedFields[field.key])}
-                comment={fieldComments[field.key] || ""}
-                selectedPhotos={selectedPhotos}
-                photoComments={photoComments}
-                selectedSubtags={selectedSubtags}
-                subtagComments={subtagComments}
-                onToggle={handleToggleField}
-                onCommentChange={handleChangeFieldComment}
-                onTogglePhoto={handleTogglePhoto}
-                onPhotoCommentChange={handleChangePhotoComment}
-                onToggleSubtag={handleToggleSubtag}
-                onSubtagCommentChange={handleChangeSubtagComment}
+          <section style={styles.contentGrid}>
+            <div style={styles.generalCommentPanel}>
+              <ReturnTextArea
+                label="Comentario general"
+                placeholder="Escribe un comentario general para el usuario..."
+                value={generalComment}
+                onChange={setGeneralComment}
+                minLength={10}
                 readOnly={isReadonly}
               />
-            ))}
-          </div>
+            </div>
 
-          <ReturnActionButtons
-            canSubmit={canSubmit}
-            onCancel={() => navigate(-1)}
-            onSubmit={handleSubmit}
-            readOnly={isReadonly}
-          />
+            <aside style={styles.helperPanel}>
+              <h2 style={styles.helperTitle}>Guía rápida</h2>
+
+              <p style={styles.helperText}>
+                Marca únicamente los campos que necesitan corrección. Cada campo
+                marcado debe tener un motivo específico para que el usuario sepa
+                qué cambiar.
+              </p>
+
+              <div style={styles.helperList}>
+                <span>Comentario general: mínimo 10 caracteres.</span>
+                <span>Motivo por campo: mínimo 5 caracteres.</span>
+                <span>Fotos y subetiquetas se revisan individualmente.</span>
+              </div>
+            </aside>
+          </section>
+
+          <section style={styles.fieldsSection}>
+            <div style={styles.sectionHeader}>
+              <h2 style={styles.sectionTitle}>Campos de la propuesta</h2>
+
+              <p style={styles.sectionSubtitle}>
+                Selecciona uno o varios campos para solicitar corrección.
+              </p>
+            </div>
+
+            <div style={styles.fieldsContainer}>
+              {visibleCorrectionFields.map((field) => (
+                <div key={field.key} style={styles.fieldCard}>
+                  <ReturnCorrectionItem
+                    fieldKey={field.key}
+                    label={field.label}
+                    value={field.value}
+                    type={field.type}
+                    selected={Boolean(selectedFields[field.key])}
+                    comment={fieldComments[field.key] || ""}
+                    selectedPhotos={selectedPhotos}
+                    photoComments={photoComments}
+                    selectedSubtags={selectedSubtags}
+                    subtagComments={subtagComments}
+                    onToggle={handleToggleField}
+                    onCommentChange={handleChangeFieldComment}
+                    onTogglePhoto={handleTogglePhoto}
+                    onPhotoCommentChange={handleChangePhotoComment}
+                    onToggleSubtag={handleToggleSubtag}
+                    onSubtagCommentChange={handleChangeSubtagComment}
+                    readOnly={isReadonly}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+            <ReturnActionButtons
+              canSubmit={canSubmit}
+              onCancel={() => navigate(-1)}
+              onSubmit={handleSubmit}
+              readOnly={isReadonly}
+            />
+          
         </section>
       </div>
     </LayoutScreen>

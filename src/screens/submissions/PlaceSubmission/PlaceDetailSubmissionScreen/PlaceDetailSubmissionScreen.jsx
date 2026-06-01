@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
@@ -6,16 +6,13 @@ import styles from "./styles";
 import PhotoCarousel from "./Components/PhotoCarousel";
 import LocationBox from "./Components/LocationBox";
 import InfoField from "./Components/InfoField";
-import Pill from "./Components/Pill";
 import ActionButtons from "./Components/ActionButtons";
 import RejectionModal from "./Components/RejectionModal";
 import CorrectionCompareModal from "./Components/CorrectionCompareModal";
 import RejectionReasonModal from "./Components/RejectionReasonModal";
 
 import getPlaceSubmissionDetailService from "../../../../services/submissions/getPlaceSubmissionDetail.service";
-
 import getReturnedPlaceSubmissionReviewService from "../../../../services/submissions/getReturnedPlaceSubmissionReview.service";
-
 import rejectPlaceSubmissionService from "../../../../services/submissions/rejectPlaceSubmission.service";
 
 function formatDate(dateString) {
@@ -105,6 +102,37 @@ function getFullSubtagsReturnMessage(returnReview) {
   return fields.subtags?.message || "";
 }
 
+function DetailSection({ title, helper, children, style }) {
+  return (
+    <section style={{ ...styles.detailSection, ...style }}>
+      <div style={styles.detailSectionHeader}>
+        <h3 style={styles.detailSectionTitle}>{title}</h3>
+
+        {helper ? (
+          <span style={styles.detailSectionHelper}>{helper}</span>
+        ) : null}
+      </div>
+
+      <div style={styles.detailSectionBody}>{children}</div>
+    </section>
+  );
+}
+
+function SimpleValue({ value, emptyText = "Sin información" }) {
+  const finalValue =
+    typeof value === "string" ? value.trim() : value;
+
+  return (
+    <div style={styles.simpleValue}>
+      {finalValue ? finalValue : emptyText}
+    </div>
+  );
+}
+
+function SimpleMutedValue({ value }) {
+  return <div style={styles.simpleValueMuted}>{value}</div>;
+}
+
 export default function PlaceDetailSubmissionScreen() {
   const navigate = useNavigate();
   const { submissionId } = useParams();
@@ -119,7 +147,8 @@ export default function PlaceDetailSubmissionScreen() {
   const [loadingReturnReview, setLoadingReturnReview] = useState(false);
   const [activeCompareField, setActiveCompareField] = useState(null);
 
-  const [showRejectionReasonModal, setShowRejectionReasonModal] = useState(false);
+  const [showRejectionReasonModal, setShowRejectionReasonModal] =
+    useState(false);
 
   useEffect(() => {
     async function loadSubmissionDetail() {
@@ -148,280 +177,280 @@ export default function PlaceDetailSubmissionScreen() {
   }, [submissionId]);
 
   useEffect(() => {
-  async function loadReturnReviewForResubmitted() {
-    if (!submissionId) return;
-    if (submission?.status !== "resubmitted") return;
+    async function loadReturnReviewForResubmitted() {
+      if (!submissionId) return;
+      if (submission?.status !== "resubmitted") return;
 
-    try {
-      setLoadingReturnReview(true);
+      try {
+        setLoadingReturnReview(true);
 
-      const data = await getReturnedPlaceSubmissionReviewService(submissionId);
+        const data = await getReturnedPlaceSubmissionReviewService(
+          submissionId
+        );
 
-      console.log("RETURN REVIEW PARA COMPARACIÓN:", data);
+        console.log("RETURN REVIEW PARA COMPARACIÓN:", data);
 
-      setReturnReview(data);
-    } catch (error) {
-      console.log("No se pudo cargar returnReview para comparación:", error);
-    } finally {
-      setLoadingReturnReview(false);
+        setReturnReview(data);
+      } catch (error) {
+        console.log("No se pudo cargar returnReview para comparación:", error);
+      } finally {
+        setLoadingReturnReview(false);
+      }
     }
+
+    loadReturnReviewForResubmitted();
+  }, [submissionId, submission?.status]);
+
+  const isReturned = submission?.status === "returned";
+  const isResubmitted = submission?.status === "resubmitted";
+  const isRejected = submission?.status === "rejected";
+
+  const returnedAtLabel = formatDate(
+    submission?.returnedAt || submission?.updatedAt
+  );
+
+  const correctedAtLabel = formatDate(
+    submission?.resubmittedAt || submission?.updatedAt
+  );
+
+  const rejectedAtLabel = formatDate(
+    submission?.rejectedAt || submission?.updatedAt
+  );
+
+  const snapshotBeforeReturn = returnReview?.snapshotBeforeReturn || null;
+  const canCompareCorrections = isResubmitted && Boolean(returnReview);
+
+  function wasFieldReturned(returnReview, fieldKey) {
+    const fields = returnReview?.returnFields || returnReview?.fields || {};
+
+    return Boolean(fields?.[fieldKey]?.selected);
   }
 
-  loadReturnReviewForResubmitted();
-}, [submissionId, submission?.status]);
+  function getReturnFieldMessage(returnReview, fieldKey) {
+    const fields = returnReview?.returnFields || returnReview?.fields || {};
 
- const isReturned = submission?.status === "returned";
-const isResubmitted = submission?.status === "resubmitted";
+    return fields?.[fieldKey]?.message || "";
+  }
 
-const isRejected = submission?.status === "rejected";
+  function wasSubtagReturned(returnReview, subtagIndex, subtagLabel) {
+    const fields = returnReview?.returnFields || returnReview?.fields || {};
 
-const returnedAtLabel = formatDate(
-  submission?.returnedAt || submission?.updatedAt
-);
+    if (!fields.subtags?.selected) return false;
 
-const correctedAtLabel = formatDate(
-  submission?.resubmittedAt || submission?.updatedAt
-);
+    const selectedItems = getReturnedSubtagItemsFromReview(returnReview);
 
-const rejectedAtLabel = formatDate(
-  submission?.rejectedAt || submission?.updatedAt
-);
+    if (selectedItems.length === 0) {
+      return true;
+    }
 
-const snapshotBeforeReturn = returnReview?.snapshotBeforeReturn || null;
-const canCompareCorrections = isResubmitted && Boolean(returnReview);
+    return selectedItems.some((item) => {
+      const matchesIndex = Number(item.index) === Number(subtagIndex);
+      const matchesLabel = item.label === subtagLabel;
 
-const handleOpenCompareModal = (fieldKey, meta = {}) => {
-  if (!canCompareCorrections) return;
+      return matchesIndex || matchesLabel;
+    });
+  }
 
-  if (fieldKey === "subtags") {
-    if (!wasFieldReturned(returnReview, "subtags")) return;
+  const handleOpenCompareModal = (fieldKey, meta = {}) => {
+    if (!canCompareCorrections) return;
 
-    const compareMode = getSubtagsCompareMode(snapshotBeforeReturn, submission);
+    if (fieldKey === "subtags") {
+      if (!wasFieldReturned(returnReview, "subtags")) return;
 
-    if (compareMode === "by_index") {
-      if (!wasSubtagReturned(returnReview, meta.index, meta.label)) return;
+      const compareMode = getSubtagsCompareMode(
+        snapshotBeforeReturn,
+        submission
+      );
+
+      if (compareMode === "by_index") {
+        if (!wasSubtagReturned(returnReview, meta.index, meta.label)) return;
+
+        setActiveCompareField({
+          fieldKey,
+          compareMode,
+          ...meta,
+        });
+
+        return;
+      }
 
       setActiveCompareField({
         fieldKey,
         compareMode,
-        ...meta,
       });
 
       return;
     }
 
+    if (!wasFieldReturned(returnReview, fieldKey)) return;
+
     setActiveCompareField({
       fieldKey,
-      compareMode,
     });
-
-    return;
-  }
-
-  if (!wasFieldReturned(returnReview, fieldKey)) return;
-
-  setActiveCompareField({
-    fieldKey,
-  });
-};
-
-const handleCloseCompareModal = () => {
-  setActiveCompareField(null);
-};
-
-const getSubtagCorrectionClickableStyle = (subtagIndex, subtagLabel) => {
-  if (!canCompareCorrections) return {};
-  if (!wasSubtagReturned(returnReview, subtagIndex, subtagLabel)) return {};
-
-  return {
-    borderColor: "#16A34A",
-    cursor: "pointer",
   };
-};
 
-const getCorrectionClickableStyle = (fieldKey) => {
-  if (!canCompareCorrections) return {};
-  if (!wasFieldReturned(returnReview, fieldKey)) return {};
-
-  return {
-    borderColor: "#16A34A",
-    cursor: "pointer",
+  const handleCloseCompareModal = () => {
+    setActiveCompareField(null);
   };
-};
 
-const getCorrectionBoxStyle = (fieldKey) => {
-  if (!canCompareCorrections) return {};
-  if (!wasFieldReturned(returnReview, fieldKey)) return {};
+  const getSubtagCorrectionClickableStyle = (subtagIndex, subtagLabel) => {
+    if (!canCompareCorrections) return {};
+    if (!wasSubtagReturned(returnReview, subtagIndex, subtagLabel)) return {};
 
-  return {
-    outline: "2px solid #16A34A",
-    outlineOffset: 2,
-    borderRadius: 8,
-    cursor: "pointer",
+    return {
+      color: "#16A34A",
+      cursor: "pointer",
+      textDecoration: "underline",
+      textUnderlineOffset: 3,
+    };
   };
-};
 
-function wasFieldReturned(returnReview, fieldKey) {
-  const fields = returnReview?.returnFields || returnReview?.fields || {};
+  const getCorrectionClickableStyle = (fieldKey) => {
+    if (!canCompareCorrections) return {};
+    if (!wasFieldReturned(returnReview, fieldKey)) return {};
 
-  return Boolean(fields?.[fieldKey]?.selected);
-}
+    return {
+      color: "#16A34A",
+      cursor: "pointer",
+      textDecoration: "underline",
+      textUnderlineOffset: 3,
+    };
+  };
 
-function getReturnFieldMessage(returnReview, fieldKey) {
-  const fields = returnReview?.returnFields || returnReview?.fields || {};
+  const getCorrectionBoxStyle = (fieldKey) => {
+    if (!canCompareCorrections) return {};
+    if (!wasFieldReturned(returnReview, fieldKey)) return {};
 
-  return fields?.[fieldKey]?.message || "";
-}
+    return {
+      outline: "2px solid #16A34A",
+      outlineOffset: 2,
+      borderRadius: 8,
+      cursor: "pointer",
+    };
+  };
 
-function wasSubtagReturned(returnReview, subtagIndex, subtagLabel) {
-  const fields = returnReview?.returnFields || returnReview?.fields || {};
-
-  if (!fields.subtags?.selected) return false;
-
-  const selectedItems = getReturnedSubtagItemsFromReview(returnReview);
-
-  if (selectedItems.length === 0) {
-    return true;
+  function getSnapshotSubtagValue(snapshot, subtagIndex) {
+    const subtags = Array.isArray(snapshot?.subtags) ? snapshot.subtags : [];
+    return subtags[subtagIndex] || "";
   }
 
-  return selectedItems.some((item) => {
-    const matchesIndex = Number(item.index) === Number(subtagIndex);
-    const matchesLabel = item.label === subtagLabel;
+  function getCurrentSubtagValue(submission, subtagIndex) {
+    const subtags = Array.isArray(submission?.subtags)
+      ? submission.subtags
+      : [];
 
-    return matchesIndex || matchesLabel;
-  });
-}
-
-function getSubtagReturnMessage(returnReview, subtagIndex, subtagLabel) {
-  const fields = returnReview?.returnFields || returnReview?.fields || {};
-  const selectedItems = getReturnedSubtagItems(returnReview);
-
-  const foundItem = selectedItems.find((item) => {
-    const matchesIndex = Number(item.index) === Number(subtagIndex);
-    const matchesLabel = item.label === subtagLabel;
-
-    return matchesIndex || matchesLabel;
-  });
-
-  return foundItem?.message || fields.subtags?.message || "";
-}
-
-function getSnapshotSubtagValue(snapshot, subtagIndex) {
-  const subtags = Array.isArray(snapshot?.subtags) ? snapshot.subtags : [];
-  return subtags[subtagIndex] || "";
-}
-
-function getCurrentSubtagValue(submission, subtagIndex) {
-  const subtags = Array.isArray(submission?.subtags)
-    ? submission.subtags
-    : [];
-
-  return subtags[subtagIndex] || "";
-}
-
-function getSnapshotValue(snapshot, fieldKey) {
-  if (!snapshot) return null;
-
-  switch (fieldKey) {
-    case "name":
-      return snapshot.name || "";
-
-    case "description":
-      return snapshot.description || "";
-
-    case "tag":
-      return snapshot.tagLabel || snapshot.tag || snapshot.tagId || "";
-
-    case "subtags":
-      return Array.isArray(snapshot.subtags) ? snapshot.subtags : [];
-
-    case "approaches":
-      return Array.isArray(snapshot.approaches) ? snapshot.approaches : [];
-
-    case "price":
-      return snapshot.price || snapshot.priceLabel || "";
-
-    case "schedule":
-     return snapshot.schedule || "";
-
-    case "location":
-      return snapshot.location || null;
-
-    case "photos":
-      return Array.isArray(snapshot.photos) ? snapshot.photos : [];
-
-    default:
-      return null;
+    return subtags[subtagIndex] || "";
   }
-}
 
-function getCurrentValue(submission, fieldKey) {
-  if (!submission) return null;
+  function getSnapshotValue(snapshot, fieldKey) {
+    if (!snapshot) return null;
 
-  switch (fieldKey) {
-    case "name":
-      return submission.name || "";
+    switch (fieldKey) {
+      case "name":
+        return snapshot.name || "";
 
-    case "description":
-      return submission.description || "";
+      case "description":
+        return snapshot.description || "";
 
-    case "tag":
-      return submission.tagLabel || submission.tag || submission.tagId || "";
+      case "tag":
+        return snapshot.tagLabel || snapshot.tag || snapshot.tagId || "";
 
-    case "subtags":
-      return Array.isArray(submission.subtags) ? submission.subtags : [];
+      case "subtags":
+        return Array.isArray(snapshot.subtags) ? snapshot.subtags : [];
 
-    case "approaches":
-      return Array.isArray(submission.approaches) ? submission.approaches : [];
+      case "approaches":
+        return Array.isArray(snapshot.approaches) ? snapshot.approaches : [];
 
-    case "price":
-      return submission.price || submission.priceLabel || "";
+      case "price":
+        return snapshot.price || snapshot.priceLabel || "";
 
-    case "schedule":
-      return submission.schedule || "";
+      case "schedule":
+        return snapshot.schedule || "";
 
-    case "location":
-      return submission.location || submission.coordinates || null;
+      case "location":
+        return snapshot.location || null;
 
-    case "photos":
-      return Array.isArray(submission.photos) ? submission.photos : [];
+      case "photos":
+        return Array.isArray(snapshot.photos) ? snapshot.photos : [];
 
-    default:
-      return null;
+      default:
+        return null;
+    }
   }
-}
-const activeCompareFieldKey =
-  typeof activeCompareField === "string"
-    ? activeCompareField
-    : activeCompareField?.fieldKey || null;
 
-const activeCompareSubtagMode = activeCompareField?.compareMode || "by_index";
+  function getCurrentValue(submission, fieldKey) {
+    if (!submission) return null;
 
-const activeCompareOldValue =
-  activeCompareFieldKey === "subtags"
-    ? activeCompareSubtagMode === "full_list"
-      ? getSnapshotValue(snapshotBeforeReturn, "subtags")
-      : getSnapshotSubtagValue(snapshotBeforeReturn, activeCompareField?.index)
-    : getSnapshotValue(snapshotBeforeReturn, activeCompareFieldKey);
+    switch (fieldKey) {
+      case "name":
+        return submission.name || "";
 
-const activeCompareNewValue =
-  activeCompareFieldKey === "subtags"
-    ? activeCompareSubtagMode === "full_list"
-      ? getCurrentValue(submission, "subtags")
-      : getCurrentSubtagValue(submission, activeCompareField?.index)
-    : getCurrentValue(submission, activeCompareFieldKey);
+      case "description":
+        return submission.description || "";
 
-const activeCompareMessage =
-  activeCompareFieldKey === "subtags"
-    ? activeCompareSubtagMode === "full_list"
-      ? getFullSubtagsReturnMessage(returnReview)
-      : getSubtagsReturnMessage(
-          returnReview,
-          activeCompareField?.index,
-          activeCompareField?.label
-        )
-    : getReturnFieldMessage(returnReview, activeCompareFieldKey);
+      case "tag":
+        return submission.tagLabel || submission.tag || submission.tagId || "";
 
+      case "subtags":
+        return Array.isArray(submission.subtags) ? submission.subtags : [];
+
+      case "approaches":
+        return Array.isArray(submission.approaches)
+          ? submission.approaches
+          : [];
+
+      case "price":
+        return submission.price || submission.priceLabel || "";
+
+      case "schedule":
+        return submission.schedule || "";
+
+      case "location":
+        return submission.location || submission.coordinates || null;
+
+      case "photos":
+        return Array.isArray(submission.photos) ? submission.photos : [];
+
+      default:
+        return null;
+    }
+  }
+
+  const activeCompareFieldKey =
+    typeof activeCompareField === "string"
+      ? activeCompareField
+      : activeCompareField?.fieldKey || null;
+
+  const activeCompareSubtagMode =
+    activeCompareField?.compareMode || "by_index";
+
+  const activeCompareOldValue =
+    activeCompareFieldKey === "subtags"
+      ? activeCompareSubtagMode === "full_list"
+        ? getSnapshotValue(snapshotBeforeReturn, "subtags")
+        : getSnapshotSubtagValue(
+            snapshotBeforeReturn,
+            activeCompareField?.index
+          )
+      : getSnapshotValue(snapshotBeforeReturn, activeCompareFieldKey);
+
+  const activeCompareNewValue =
+    activeCompareFieldKey === "subtags"
+      ? activeCompareSubtagMode === "full_list"
+        ? getCurrentValue(submission, "subtags")
+        : getCurrentSubtagValue(submission, activeCompareField?.index)
+      : getCurrentValue(submission, activeCompareFieldKey);
+
+  const activeCompareMessage =
+    activeCompareFieldKey === "subtags"
+      ? activeCompareSubtagMode === "full_list"
+        ? getFullSubtagsReturnMessage(returnReview)
+        : getSubtagsReturnMessage(
+            returnReview,
+            activeCompareField?.index,
+            activeCompareField?.label
+          )
+      : getReturnFieldMessage(returnReview, activeCompareFieldKey);
 
   if (loading) {
     return (
@@ -453,62 +482,83 @@ const activeCompareMessage =
 
   return (
     <>
-      <LayoutScreen>
+      <LayoutScreen
+        breadcrumbs={[
+          { label: "Inicio", to: "/" },
+          { label: "Propuesta de lugares", to: "/submissions/places" },
+          { label: "Detalle de propuesta" },
+        ]}
+      >
         <main style={styles.screen}>
           <section style={styles.contentArea}>
-          <aside style={styles.leftWrapper}>
-            <div style={styles.leftSection}>
-              <PhotoCarousel
-                photos={submission?.photos || []}
-                containerStyle={getCorrectionBoxStyle("photos")}
-                onCompareClick={() => handleOpenCompareModal("photos")}
-              />
+            <aside style={styles.leftWrapper}>
+              <div style={styles.leftSection}>
+                <DetailSection
+                  title="Fotografías"
+                   
+                  helper={
+                    canCompareCorrections &&
+                    wasFieldReturned(returnReview, "photos")
+                      ? "Campo corregido, da clic para comparar"
+                      : "Imágenes enviadas por el usuario"
+                  }
+                >
+                  <div style={getCorrectionBoxStyle("photos")}>
+                    <PhotoCarousel
+                      photos={submission?.photos || []}
+                      onCompareClick={() => handleOpenCompareModal("photos")}
+                    />
+                  </div>
+                </DetailSection>
 
-              <div
-                style={getCorrectionBoxStyle("location")}
-                onClick={() => handleOpenCompareModal("location")}
-              >
-                <LocationBox location={submission?.location} />
+                <DetailSection
+                  title="Ubicación"
+                  
+                  helper={
+                    canCompareCorrections &&
+                    wasFieldReturned(returnReview, "location")
+                      ? "Campo corregido, da clic para comparar"
+                      : "Punto marcado en el mapa"
+                  }
+                >
+                  <div
+                    style={getCorrectionBoxStyle("location")}
+                    onClick={() => handleOpenCompareModal("location")}
+                  >
+                    <LocationBox location={submission?.location} />
+                  </div>
+                </DetailSection>
               </div>
-            </div>
-          </aside>
+            </aside>
 
             <div style={styles.verticalDivider} />
 
             <section style={styles.rightSection}>
               <div style={styles.topRow}>
-               <div style={styles.infoGroup}>
+                <div style={styles.infoGroup}>
                   <InfoField
-                    label="Creado el:"
+                    label="Creado el:  "
                     value={formatDate(submission?.createdAt)}
                   />
 
                   <InfoField
-                    label="Enviado por:"
+                    label="Enviado por:  "
                     value={submission?.userName || "Usuario desconocido"}
                   />
 
                   {isReturned ? (
-                    <InfoField
-                      label="Devuelto el:"
-                      value={returnedAtLabel}
-                    />
+                    <InfoField label="Devuelto el:" value={returnedAtLabel} />
                   ) : null}
 
                   {isResubmitted ? (
-                    <InfoField
-                      label="Corregido el:"
-                      value={correctedAtLabel}
-                    />
+                    <InfoField label="Corregido el:" value={correctedAtLabel} />
                   ) : null}
 
                   {isRejected ? (
-                  <InfoField
-                    label="Rechazado el:"
-                    value={rejectedAtLabel}
-                  />
-                ) : null}
+                    <InfoField label="Rechazado el:" value={rejectedAtLabel} />
+                  ) : null}
                 </div>
+
                 <ActionButtons
                   status={submission?.status}
                   onAccept={() => {
@@ -524,101 +574,169 @@ const activeCompareMessage =
                   }
                   onReject={() => setShowRejectionModal(true)}
                   onViewReason={() => {
-                  if (submission?.status === "rejected") {
-                    setShowRejectionReasonModal(true);
-                    return;
-                  }
+                    if (submission?.status === "rejected") {
+                      setShowRejectionReasonModal(true);
+                      return;
+                    }
 
-                  navigate(`/submissions/places/${submissionId}/return`, {
-                    state: {
-                      submission,
-                      mode: "readonly",
-                    },
-                  });
-                }}
+                    navigate(`/submissions/places/${submissionId}/return`, {
+                      state: {
+                        submission,
+                        mode: "readonly",
+                      },
+                    });
+                  }}
                 />
               </div>
 
-              <div style={styles.nameStatusRow}>
-              <div
-                style={getCorrectionClickableStyle("name")}
-                onClick={() => handleOpenCompareModal("name")}
-              >
-                <Pill label={submission?.name || "Lugar sin nombre"} size="large" />
+              <div style={styles.nameStatusGrid}>
+                <DetailSection title="Nombre del lugar">
+                  <div
+                    style={{
+                      ...styles.simpleFieldBox,
+                      ...getCorrectionClickableStyle("name"),
+                    }}
+                    onClick={() => handleOpenCompareModal("name")}
+                  >
+                    <SimpleValue
+                      value={submission?.name || "Lugar sin nombre"}
+                    />
+                  </div>
+                </DetailSection>
+
+                <DetailSection title="Estado de revisión">
+                  <div style={styles.simpleFieldBox}>
+                    <SimpleValue value={getStatusLabel(submission?.status)} />
+                  </div>
+                </DetailSection>
               </div>
 
-              <Pill label={getStatusLabel(submission?.status)} size="large" />
-            </div>
-
-             <div
-              style={{
-                ...styles.descriptionBox,
-                ...getCorrectionClickableStyle("description"),
-              }}
-              onClick={() => handleOpenCompareModal("description")}
-            >
-              {submission?.description || "Sin descripción"}
-            </div>
-
-              <div style={styles.chipsRow}>
-              <div
-                style={getCorrectionClickableStyle("tag")}
-                onClick={() => handleOpenCompareModal("tag")}
+              <DetailSection
+                title="Descripción"
+                helper={
+                  canCompareCorrections &&
+                  wasFieldReturned(returnReview, "description")
+                    ? "Campo corregido, da clic para comparar"
+                    : "Texto descriptivo del lugar"
+                }
               >
-                <Pill label={submission?.tagLabel || submission?.tagId || "Sin etiqueta"} />
-              </div>
-
-   {(submission?.subtags || []).map((subtag, index) => {
-  const compareMode = getSubtagsCompareMode(snapshotBeforeReturn, submission);
-
-  return (
-    <div
-      key={`${subtag}-${index}`}
-      style={
-        compareMode === "full_list"
-          ? getCorrectionClickableStyle("subtags")
-          : getSubtagCorrectionClickableStyle(index, subtag)
-      }
-      onClick={() =>
-        handleOpenCompareModal("subtags", {
-          index,
-          label: subtag,
-        })
-      }
-    >
-      <Pill label={subtag} />
-    </div>
-  );
-})}
-              {(submission?.approaches || []).map((approach) => (
                 <div
-                  key={approach}
-                  style={getCorrectionClickableStyle("approaches")}
-                  onClick={() => handleOpenCompareModal("approaches")}
+                  style={{
+                    ...styles.descriptionBox,
+                    ...getCorrectionBoxStyle("description"),
+                  }}
+                  onClick={() => handleOpenCompareModal("description")}
                 >
-                  <Pill label={approach} />
+                  {submission?.description || "Sin descripción"}
                 </div>
-              ))}
-            </div>
+              </DetailSection>
 
-              <div style={styles.chipsRow}>
-              <div
-                style={getCorrectionClickableStyle("price")}
-                onClick={() => handleOpenCompareModal("price")}
-              >
-                <Pill label={submission?.price || "Sin precio"} size="medium" />
+              <div style={styles.fieldsGrid}>
+                <DetailSection title="Etiqueta principal">
+                  <div
+                    style={{
+                      ...styles.simpleFieldBox,
+                      ...getCorrectionClickableStyle("tag"),
+                    }}
+                    onClick={() => handleOpenCompareModal("tag")}
+                  >
+                    <SimpleValue
+                      value={
+                        submission?.tagLabel ||
+                        submission?.tagId ||
+                        "Sin etiqueta"
+                      }
+                    />
+                  </div>
+                </DetailSection>
+
+                <DetailSection title="Subetiquetas">
+                  <div style={styles.simpleFieldBox}>
+                    {(submission?.subtags || []).length > 0 ? (
+                      (submission?.subtags || []).map((subtag, index) => {
+                        const compareMode = getSubtagsCompareMode(
+                          snapshotBeforeReturn,
+                          submission
+                        );
+
+                        return (
+                          <div
+                            key={`${subtag}-${index}`}
+                            style={{
+                              ...styles.simpleListItem,
+                              ...(compareMode === "full_list"
+                                ? getCorrectionClickableStyle("subtags")
+                                : getSubtagCorrectionClickableStyle(
+                                    index,
+                                    subtag
+                                  )),
+                            }}
+                            onClick={() =>
+                              handleOpenCompareModal("subtags", {
+                                index,
+                                label: subtag,
+                              })
+                            }
+                          >
+                            {subtag}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <SimpleMutedValue value="Sin subetiquetas" />
+                    )}
+                  </div>
+                </DetailSection>
+
+                <DetailSection title="Enfoque">
+                  <div style={styles.simpleFieldBox}>
+                    {(submission?.approaches || []).length > 0 ? (
+                      (submission?.approaches || []).map((approach) => (
+                        <div
+                          key={approach}
+                          style={{
+                            ...styles.simpleListItem,
+                            ...getCorrectionClickableStyle("approaches"),
+                          }}
+                          onClick={() => handleOpenCompareModal("approaches")}
+                        >
+                          {approach}
+                        </div>
+                      ))
+                    ) : (
+                      <SimpleMutedValue value="Sin enfoque" />
+                    )}
+                  </div>
+                </DetailSection>
               </div>
 
-              <div
-                style={getCorrectionClickableStyle("schedule")}
-                onClick={() => handleOpenCompareModal("schedule")}
-              >
-                <Pill
-                  label={submission?.schedule || "Horario no disponible"}
-                  size="medium"
-                />
+              <div style={styles.fieldsGridTwo || styles.fieldsGrid}>
+                <DetailSection title="Rango de precio">
+                  <div
+                    style={{
+                      ...styles.simpleFieldBox,
+                      ...getCorrectionClickableStyle("price"),
+                    }}
+                    onClick={() => handleOpenCompareModal("price")}
+                  >
+                    <SimpleValue value={submission?.price || "Sin precio"} />
+                  </div>
+                </DetailSection>
+
+                <DetailSection title="Horario">
+                  <div
+                    style={{
+                      ...styles.simpleFieldBox,
+                      ...getCorrectionClickableStyle("schedule"),
+                    }}
+                    onClick={() => handleOpenCompareModal("schedule")}
+                  >
+                    <SimpleValue
+                      value={submission?.schedule || "Horario no disponible"}
+                    />
+                  </div>
+                </DetailSection>
               </div>
-            </div>
 
               <div style={styles.bottomActions}>
                 <button
@@ -634,62 +752,61 @@ const activeCompareMessage =
         </main>
       </LayoutScreen>
 
-
-
       <RejectionModal
-  visible={showRejectionModal}
-  onClose={() => {
-    if (rejecting) return;
-    setShowRejectionModal(false);
-  }}
- onSubmit={async (payload) => {
-  try {
-    setRejecting(true);
+        visible={showRejectionModal}
+        onClose={() => {
+          if (rejecting) return;
+          setShowRejectionModal(false);
+        }}
+        onSubmit={async (payload) => {
+          try {
+            setRejecting(true);
 
-    const finalPayload = {
-      reason: payload.rejectionReason,
-      message: payload.rejectionComment,
-    };
+            const finalPayload = {
+              reason: payload.rejectionReason,
+              message: payload.rejectionComment,
+            };
 
-    console.log("RECHAZO PAYLOAD:", finalPayload);
+            console.log("RECHAZO PAYLOAD:", finalPayload);
 
-    const response = await rejectPlaceSubmissionService(
-      submissionId,
-      finalPayload
-    );
+            const response = await rejectPlaceSubmissionService(
+              submissionId,
+              finalPayload
+            );
 
-    console.log("RECHAZO RESPONSE:", response);
+            console.log("RECHAZO RESPONSE:", response);
 
-    setSubmission((prev) => ({
-      ...prev,
-      status: "rejected",
-      rejectedAt: new Date().toISOString(),
-      rejectionReason: finalPayload,
-    }));
+            setSubmission((prev) => ({
+              ...prev,
+              status: "rejected",
+              rejectedAt: new Date().toISOString(),
+              rejectionReason: finalPayload,
+            }));
 
-    setShowRejectionModal(false);
-  } catch (error) {
-    console.error("Error rechazando propuesta:", error);
-    alert(
-      error.response?.data?.message ||
-        error.message ||
-        "No se pudo rechazar."
-    );
-  } finally {
-    setRejecting(false);
-  }
-}}
-/>
-        <CorrectionCompareModal
-  visible={Boolean(activeCompareField)}
-  fieldKey={activeCompareFieldKey}
-  oldValue={activeCompareOldValue}
-  newValue={activeCompareNewValue}
-  message={activeCompareMessage}
-  onClose={handleCloseCompareModal}
-/>
+            setShowRejectionModal(false);
+          } catch (error) {
+            console.error("Error rechazando propuesta:", error);
+            alert(
+              error.response?.data?.message ||
+                error.message ||
+                "No se pudo rechazar."
+            );
+          } finally {
+            setRejecting(false);
+          }
+        }}
+      />
 
-        <RejectionReasonModal
+      <CorrectionCompareModal
+        visible={Boolean(activeCompareField)}
+        fieldKey={activeCompareFieldKey}
+        oldValue={activeCompareOldValue}
+        newValue={activeCompareNewValue}
+        message={activeCompareMessage}
+        onClose={handleCloseCompareModal}
+      />
+
+      <RejectionReasonModal
         visible={showRejectionReasonModal}
         rejectionReason={submission?.rejectionReason}
         onClose={() => setShowRejectionReasonModal(false)}

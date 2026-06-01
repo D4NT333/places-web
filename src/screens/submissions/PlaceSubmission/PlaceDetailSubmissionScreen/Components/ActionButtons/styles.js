@@ -18,18 +18,19 @@ const styles = {
     cursor: "pointer",
   },
 
-  acceptButton: {
-    minWidth: 120,
-    height: 36,
-    padding: "0 22px",
-    borderRadius: 999,
-    backgroundColor: "#FFFFFF",
-    border: "2px solid #0F172A",
-    color: "#0F172A",
-    fontWeight: 700,
-    fontSize: 14,
-    cursor: "pointer",
-  },
+acceptButton: {
+  minWidth: 120,
+  height: 36,
+  padding: "0 22px",
+  borderRadius: 999,
+  backgroundColor: "#FFFFFF",
+  border: "2px solid #0F172A",
+  color: "#0F172A",
+  fontWeight: 800,
+  fontSize: 14,
+  cursor: "pointer",
+  transition: "all 0.18s ease",
+},
 
   returnButton: {
     minWidth: 120,
@@ -45,19 +46,20 @@ const styles = {
   },
 
   rejectButton: {
-    minWidth: 120,
-    height: 36,
-    padding: "0 22px",
-    borderRadius: 999,
-    backgroundColor: "#FFFFFF",
-    border: "2px solid #DC2626",
-    color: "#DC2626",
-    fontWeight: 700,
-    fontSize: 14,
-    cursor: "pointer",
-  },
+  minWidth: 120,
+  height: 36,
+  padding: "0 22px",
+  borderRadius: 999,
+  backgroundColor: "#FFFFFF",
+  border: "2px solid #DC2626",
+  color: "#DC2626",
+  fontWeight: 800,
+  fontSize: 14,
+  cursor: "pointer",
+  transition: "all 0.18s ease",
+},
 
-  secondaryButton: {
+ secondaryButton: {
   minWidth: 120,
   height: 36,
   padding: "0 22px",
@@ -65,9 +67,24 @@ const styles = {
   backgroundColor: "#FFFFFF",
   border: "2px solid #0F172A",
   color: "#0F172A",
-  fontWeight: 700,
+  fontWeight: 800,
   fontSize: 14,
   cursor: "pointer",
+  transition: "all 0.18s ease",
+},
+
+darkButtonHover: {
+  backgroundColor: "#0F172A",
+  color: "#FFFFFF",
+  border: "2px solid #0F172A",
+  fontWeight: 900,
+},
+
+rejectButtonHover: {
+  backgroundColor: "#DC2626",
+  border: "2px solid #0F172A",
+  color: "#FFFFFF",
+  fontWeight: 900,
 },
 };
 

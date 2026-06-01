@@ -25,13 +25,17 @@ const styles = {
     width: 28,
     height: 28,
     borderRadius: "50%",
-    border: "1px solid #E6DED2",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: 14,
     fontWeight: 900,
     color: "#222222",
+  },
+  googleIconImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
   },
 };
 

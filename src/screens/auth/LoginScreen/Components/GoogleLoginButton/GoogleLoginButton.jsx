@@ -1,6 +1,8 @@
 import React from "react";
 import styles from "./styles";
 
+import { icons } from "../../../../../../assets/icons";
+
 export default function GoogleLoginButton({ loading, onClick }) {
   return (
     <button
@@ -12,7 +14,9 @@ export default function GoogleLoginButton({ loading, onClick }) {
       onClick={onClick}
       disabled={loading}
     >
-      <span style={styles.googleIcon}>G</span>
+      <span style={styles.googleIcon}>
+        <img src={icons.google} alt="Google" style={styles.googleIconImage} />
+      </span>
       {loading ? "Validando acceso..." : "Continuar con Google"}
     </button>
   );

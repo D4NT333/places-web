@@ -30,22 +30,55 @@ const styles = {
     maxWidth: 430,
   },
 
-  errorMessage: {
-    margin: "16px 0 0",
-    padding: "12px 14px",
-    borderRadius: 13,
-    backgroundColor: "#FFF1F1",
-    color: "#B42318",
-    fontSize: 14,
-    fontWeight: 650,
-    lineHeight: 1.45,
+  warningBox: {
+    margin: "18px 0 0",
+    width: "100%",
+    boxSizing: "border-box",
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 12,
+    padding: "14px 15px",
+    borderRadius: 16,
+    backgroundColor: "#FFF7ED",
+    border: "1px solid #FED7AA",
+    boxShadow: "0 12px 28px rgba(180, 83, 9, 0.08)",
   },
 
-  helperText: {
-    margin: "18px 0 0",
+  warningIcon: {
+    width: 26,
+    height: 26,
+    minWidth: 26,
+    borderRadius: 999,
+    backgroundColor: "#F97316",
+    color: "#FFFFFF",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 15,
+    fontWeight: 900,
+    lineHeight: "26px",
+    marginTop: 1,
+  },
+
+  warningContent: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  warningTitle: {
+    margin: 0,
+    color: "#9A3412",
+    fontSize: 14,
+    lineHeight: 1.35,
+    fontWeight: 850,
+  },
+
+  warningText: {
+    margin: "4px 0 0",
+    color: "#9A3412",
     fontSize: 13,
-    color: "#8B8377",
-    lineHeight: 1.5,
+    lineHeight: 1.55,
+    fontWeight: 600,
   },
 };
 

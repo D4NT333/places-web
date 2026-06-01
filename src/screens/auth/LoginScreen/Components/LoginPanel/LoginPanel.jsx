@@ -22,12 +22,16 @@ export default function LoginPanel({
       <GoogleLoginButton loading={loading} onClick={onLoginWithGoogle} />
 
       {errorMessage ? (
-        <p style={styles.errorMessage}>{errorMessage}</p>
-      ) : null}
+        <div style={styles.warningBox}>
+          <div style={styles.warningIcon}>!</div>
 
-      <p style={styles.helperText}>
-        Solo las cuentas registradas como administradores pueden acceder.
-      </p>
+          <div style={styles.warningContent}>
+            <p style={styles.warningTitle}>Solo cuentas autorizadas</p>
+
+            <p style={styles.warningText}>{errorMessage}</p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

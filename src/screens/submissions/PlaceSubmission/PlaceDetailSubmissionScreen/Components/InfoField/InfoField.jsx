@@ -4,8 +4,8 @@ import styles from "./styles";
 export default function InfoField({ label, value }) {
   return (
     <div style={styles.container}>
-      <span>{label}</span>
-      <strong>{value}</strong>
+      <span style={styles.label}>{label}</span>
+      <strong style={styles.value}>{value}</strong>
     </div>
   );
 }
