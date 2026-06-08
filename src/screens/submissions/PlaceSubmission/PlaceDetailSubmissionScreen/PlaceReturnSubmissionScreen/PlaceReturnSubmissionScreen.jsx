@@ -90,6 +90,9 @@ function normalizePhotoForReturn(photo, index) {
   };
 }
 
+const TAG_SUBTAGS_DEFAULT_COMMENT =
+  "Debe corregirse porque depende de la etiqueta principal seleccionada.";
+
 const correctionFields = [
   {
     key: "name",
@@ -348,29 +351,86 @@ function PlaceReturnSubmissionScreen() {
     }));
   }, [submission]);
 
+  const getVisibleSubtags = useCallback(() => {
+  const subtagsField = visibleCorrectionFields.find(
+    (item) => item.key === "subtags"
+  );
+
+  return Array.isArray(subtagsField?.value) ? subtagsField.value : [];
+}, [visibleCorrectionFields]);
+
+
   const handleToggleField = useCallback((fieldKey) => {
-    setSelectedFields((prev) => {
-      const isSelected = Boolean(prev[fieldKey]);
+  setSelectedFields((prev) => {
+    const isSelected = Boolean(prev[fieldKey]);
 
-      if (isSelected) {
-        const nextSelected = { ...prev };
-        delete nextSelected[fieldKey];
+    if (isSelected) {
+      const nextSelected = { ...prev };
+      delete nextSelected[fieldKey];
 
-        setFieldComments((prevComments) => {
-          const nextComments = { ...prevComments };
-          delete nextComments[fieldKey];
-          return nextComments;
-        });
+      setFieldComments((prevComments) => {
+        const nextComments = { ...prevComments };
+        delete nextComments[fieldKey];
+        return nextComments;
+      });
 
-        return nextSelected;
+      if (fieldKey === "tag") {
+        delete nextSelected.subtags;
+
+        setSelectedSubtags({});
+        setSubtagComments({});
       }
 
-      return {
-        ...prev,
-        [fieldKey]: true,
-      };
-    });
-  }, []);
+      return nextSelected;
+    }
+
+    const nextSelected = {
+      ...prev,
+      [fieldKey]: true,
+    };
+
+    if (fieldKey === "tag") {
+      nextSelected.subtags = true;
+
+      const subtags = getVisibleSubtags();
+
+      setSelectedSubtags((prevSelectedSubtags) => {
+        const nextSelectedSubtags = { ...prevSelectedSubtags };
+
+        subtags.forEach((subtag, index) => {
+          const subtagIndex =
+            typeof subtag?.index === "number" ? subtag.index : index;
+
+          const indexKey = String(subtagIndex);
+
+          nextSelectedSubtags[indexKey] = true;
+        });
+
+        return nextSelectedSubtags;
+      });
+
+      setSubtagComments((prevSubtagComments) => {
+        const nextSubtagComments = { ...prevSubtagComments };
+
+        subtags.forEach((subtag, index) => {
+          const subtagIndex =
+            typeof subtag?.index === "number" ? subtag.index : index;
+
+          const indexKey = String(subtagIndex);
+
+          if (!nextSubtagComments[indexKey]?.trim()) {
+            nextSubtagComments[indexKey] = TAG_SUBTAGS_DEFAULT_COMMENT;
+          }
+        });
+
+        return nextSubtagComments;
+      });
+    }
+
+    return nextSelected;
+  });
+}, [getVisibleSubtags]);
+
 
   const handleChangeFieldComment = useCallback((fieldKey, value) => {
     setFieldComments((prev) => ({
@@ -422,39 +482,49 @@ function PlaceReturnSubmissionScreen() {
     }));
   }, []);
 
-  const handleToggleSubtag = useCallback((subtagIndex) => {
-    setSelectedSubtags((prev) => {
-      const indexKey = String(subtagIndex);
-      const isSelected = Boolean(prev[indexKey]);
-      const nextSelected = { ...prev };
+ const handleToggleSubtag = useCallback((subtagIndex) => {
+  setSelectedSubtags((prev) => {
+    const indexKey = String(subtagIndex);
+    const isSelected = Boolean(prev[indexKey]);
+    const nextSelected = { ...prev };
 
-      if (isSelected) {
-        delete nextSelected[indexKey];
+    if (isSelected) {
+      delete nextSelected[indexKey];
 
-        setSubtagComments((prevComments) => {
-          const nextComments = { ...prevComments };
-          delete nextComments[indexKey];
-          return nextComments;
-        });
-      } else {
-        nextSelected[indexKey] = true;
-      }
+      setSubtagComments((prevComments) => {
+        const nextComments = { ...prevComments };
+        delete nextComments[indexKey];
+        return nextComments;
+      });
+    } else {
+      nextSelected[indexKey] = true;
 
-      setSelectedFields((prevFields) => {
-        const nextFields = { ...prevFields };
+      setSubtagComments((prevComments) => {
+        const nextComments = { ...prevComments };
 
-        if (Object.keys(nextSelected).length > 0) {
-          nextFields.subtags = true;
-        } else {
-          delete nextFields.subtags;
+        if (!nextComments[indexKey]?.trim() && selectedFields.tag) {
+          nextComments[indexKey] = TAG_SUBTAGS_DEFAULT_COMMENT;
         }
 
-        return nextFields;
+        return nextComments;
       });
+    }
 
-      return nextSelected;
+    setSelectedFields((prevFields) => {
+      const nextFields = { ...prevFields };
+
+      if (Object.keys(nextSelected).length > 0 || nextFields.tag) {
+        nextFields.subtags = true;
+      } else {
+        delete nextFields.subtags;
+      }
+
+      return nextFields;
     });
-  }, []);
+
+    return nextSelected;
+  });
+}, [selectedFields.tag]);
 
   const handleChangeSubtagComment = useCallback((subtagIndex, value) => {
     const indexKey = String(subtagIndex);
