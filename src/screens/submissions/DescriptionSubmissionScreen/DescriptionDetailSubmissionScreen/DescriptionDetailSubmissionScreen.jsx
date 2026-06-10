@@ -8,9 +8,11 @@ import BackButton from "./Components/BackButton";
 import MetaInfo from "./Components/MetaInfo";
 import InfoChips from "./Components/InfoChips";
 import DescriptionCompare from "./Components/DescriptionCompare";
+import DescriptionRejectionModal from "./Components/DescriptionRejectionModal";
 
 import getDescriptionSubmissionDetailService from "../../../../services/api/submissions/descriptions/read/getDescriptionSubmissionDetail.service";
 import approveDescriptionSubmissionService from "../../../../services/api/submissions/descriptions/update/approveDescriptionSubmission.service";
+import rejectDescriptionSubmissionService from "../../../../services/api/submissions/descriptions/update/rejectDescriptionSubmission.service";
 
 import styles from "./styles";
 
@@ -116,6 +118,7 @@ export default function DescriptionDetailSubmissionScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
 
   const normalizedDetail = useMemo(() => {
     if (!descriptionDetail) return null;
@@ -189,11 +192,47 @@ const handleAccept = async () => {
   }
 };
 
-  const handleReject = () => {
-    if (!normalizedDetail) return;
+const handleSubmitReject = async (payload) => {
+  if (!normalizedDetail || isUpdating) return;
 
-    console.log("Rechazar descripción:", normalizedDetail.id);
-  };
+  try {
+    setIsUpdating(true);
+
+    const response = await rejectDescriptionSubmissionService(
+      normalizedDetail.id,
+      payload
+    );
+
+    console.log("Propuesta rechazada:", response);
+
+    setDescriptionDetail((current) => {
+      if (!current) return current;
+
+      return {
+        ...current,
+        status: "rejected",
+        reviewedAt: new Date().toISOString(),
+        rejectionReason: payload.rejectionReason,
+        rejectionComment: payload.rejectionComment,
+        reviewMessage: payload.rejectionComment,
+      };
+    });
+
+    setShowRejectModal(false);
+  } catch (error) {
+    console.error("Error al rechazar descripción:", error);
+
+    alert(error.message || "No se pudo rechazar la propuesta.");
+  } finally {
+    setIsUpdating(false);
+  }
+};
+
+  const handleReject = () => {
+  if (!normalizedDetail || isUpdating) return;
+
+  setShowRejectModal(true);
+};
 
   const handleBack = () => {
     navigate("/submissions/descriptions");
@@ -295,6 +334,12 @@ const handleAccept = async () => {
 
         <BackButton onClick={handleBack} />
       </div>
+            <DescriptionRejectionModal
+        visible={showRejectModal}
+        loading={isUpdating}
+        onClose={() => setShowRejectModal(false)}
+        onSubmit={handleSubmitReject}
+      />
     </LayoutScreen>
   );
 }
