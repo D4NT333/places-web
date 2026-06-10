@@ -15,11 +15,11 @@ const statusFilters = [
   },
   {
     label: "Pendientes",
-    value: "pending",
+    value: "in_review",
   },
   {
-    label: "Aceptadas",
-    value: "accepted",
+    label: "Aprobadas",
+    value: "approved",
   },
   {
     label: "Rechazadas",

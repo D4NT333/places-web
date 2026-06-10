@@ -10,6 +10,7 @@ import InfoChips from "./Components/InfoChips";
 import DescriptionCompare from "./Components/DescriptionCompare";
 
 import getDescriptionSubmissionDetailService from "../../../../services/api/submissions/descriptions/read/getDescriptionSubmissionDetail.service";
+import approveDescriptionSubmissionService from "../../../../services/api/submissions/descriptions/update/approveDescriptionSubmission.service";
 
 import styles from "./styles";
 
@@ -36,14 +37,15 @@ function formatDate(value) {
 }
 
 function normalizeDescriptionDetail(submission) {
+  const status = normalizeStatus(submission.status);
+
   return {
     id: submission.id || submission.submissionId,
 
     placeName: submission.placeName || "Lugar sin nombre",
 
-    status: submission.status || "in_review",
-    statusLabel:
-      STATUS_LABELS[submission.status] || submission.status || "Pendiente",
+    status,
+    statusLabel: STATUS_LABELS[status] || "Pendiente",
 
     userName: submission.createdBy?.name || "Usuario desconocido",
     createdAt: formatDate(submission.createdAt),
@@ -63,6 +65,49 @@ function normalizeDescriptionDetail(submission) {
   };
 }
 
+function normalizeStatus(status) {
+  if (
+    status === "in_review" ||
+    status === "inReview" ||
+    status === "pending"
+  ) {
+    return "in_review";
+  }
+
+  if (status === "approved" || status === "accepted") {
+    return "approved";
+  }
+
+  if (status === "rejected") {
+    return "rejected";
+  }
+
+  return "in_review";
+}
+
+function getStatusChipStyle(status) {
+  const normalizedStatus = normalizeStatus(status);
+
+  if (normalizedStatus === "approved") {
+    return {
+      ...styles.statusChip,
+      ...styles.statusChipApproved,
+    };
+  }
+
+  if (normalizedStatus === "rejected") {
+    return {
+      ...styles.statusChip,
+      ...styles.statusChipRejected,
+    };
+  }
+
+  return {
+    ...styles.statusChip,
+    ...styles.statusChipPending,
+  };
+}
+
 export default function DescriptionDetailSubmissionScreen() {
   const navigate = useNavigate();
   const { submissionId } = useParams();
@@ -70,6 +115,7 @@ export default function DescriptionDetailSubmissionScreen() {
   const [descriptionDetail, setDescriptionDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const normalizedDetail = useMemo(() => {
     if (!descriptionDetail) return null;
@@ -112,11 +158,36 @@ export default function DescriptionDetailSubmissionScreen() {
     };
   }, [submissionId]);
 
-  const handleAccept = () => {
-    if (!normalizedDetail) return;
+const handleAccept = async () => {
+  if (!normalizedDetail || isUpdating) return;
 
-    console.log("Aceptar descripción:", normalizedDetail.id);
-  };
+  try {
+    setIsUpdating(true);
+
+    const response = await approveDescriptionSubmissionService(
+      normalizedDetail.id
+    );
+
+    console.log("Propuesta aprobada:", response);
+
+    setDescriptionDetail((current) => {
+      if (!current) return current;
+
+      return {
+        ...current,
+        status: "approved",
+        reviewedAt: new Date().toISOString(),
+        reviewMessage: null,
+      };
+    });
+  } catch (error) {
+    console.error("Error al aprobar descripción:", error);
+
+    alert(error.message || "No se pudo aprobar la propuesta.");
+  } finally {
+    setIsUpdating(false);
+  }
+};
 
   const handleReject = () => {
     if (!normalizedDetail) return;
@@ -184,9 +255,9 @@ export default function DescriptionDetailSubmissionScreen() {
             <div style={styles.titleRow}>
               <h1 style={styles.title}>{normalizedDetail.placeName}</h1>
 
-              <span style={styles.statusChip}>
-                {normalizedDetail.statusLabel}
-              </span>
+             <span style={getStatusChipStyle(normalizedDetail.status)}>
+  {normalizedDetail.statusLabel}
+</span>
             </div>
 
             <p style={styles.subtitle}>
@@ -195,10 +266,14 @@ export default function DescriptionDetailSubmissionScreen() {
             </p>
           </div>
 
-          {normalizedDetail.status === "in_review" && (
-            <ActionButtons onAccept={handleAccept} onReject={handleReject} />
-          )}
-        </section>
+         {normalizedDetail.status === "in_review" && (
+        <ActionButtons
+          onAccept={handleAccept}
+          onReject={handleReject}
+          disabled={isUpdating}
+        />
+      )}
+      </section>
 
         <section style={styles.contentCard}>
           <MetaInfo

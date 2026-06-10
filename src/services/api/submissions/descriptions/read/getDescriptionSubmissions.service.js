@@ -3,14 +3,22 @@ import client from "../../../client";
 
 const STATUS_TO_BACKEND = {
   all: "",
-  pending: "in_review",
-  accepted: "accepted",
+  in_review: "in_review",
+  approved: "approved",
   rejected: "rejected",
+
+  // compatibilidad vieja por si algo todavía manda estos
+  pending: "in_review",
+  accepted: "approved",
 };
 
 export default async function getDescriptionSubmissionsService(status = "all") {
   const auth = getAuth();
   const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("No hay un usuario autenticado.");
+  }
 
   const token = await user.getIdToken();
 

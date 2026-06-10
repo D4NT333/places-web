@@ -29,6 +29,10 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 8px 18px rgba(220, 38, 38, 0.18)",
   },
+  disabledButton: {
+  opacity: 0.6,
+  cursor: "not-allowed",
+},
 };
 
 export default styles;

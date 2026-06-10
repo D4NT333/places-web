@@ -16,24 +16,49 @@ function formatDate(value) {
   });
 }
 
-function getStatusLabel(status) {
+function normalizeStatus(status) {
   if (
     status === "in_review" ||
     status === "inReview" ||
     status === "pending"
   ) {
-    return "Pendiente";
+    return "in_review";
   }
 
-  if (status === "accepted") return "Aceptada";
-  if (status === "rejected") return "Rechazada";
+  if (status === "approved" || status === "accepted") {
+    return "approved";
+  }
 
-  return "Pendiente";
+  if (status === "rejected") {
+    return "rejected";
+  }
+
+  return "in_review";
+}
+
+function getStatusLabel(status) {
+  const normalizedStatus = normalizeStatus(status);
+
+  const labels = {
+    in_review: "Pendiente",
+    approved: "Aprobada",
+    rejected: "Rechazada",
+  };
+
+  return labels[normalizedStatus] || "Pendiente";
 }
 
 function getStatusStyle(status) {
-  if (status === "accepted") return styles.statusAccepted;
-  if (status === "rejected") return styles.statusRejected;
+  const normalizedStatus = normalizeStatus(status);
+
+  if (normalizedStatus === "approved") {
+    return styles.statusApproved;
+  }
+
+  if (normalizedStatus === "rejected") {
+    return styles.statusRejected;
+  }
+
   return styles.statusPending;
 }
 
@@ -91,7 +116,7 @@ export default function DescriptionSubmissionRow({ description, onClick }) {
             ...getStatusStyle(description.status),
           }}
         >
-          {getStatusLabel(description.statusLabel || description.status)}
+          {getStatusLabel(description.status)}
         </span>
       </div>
     </button>
