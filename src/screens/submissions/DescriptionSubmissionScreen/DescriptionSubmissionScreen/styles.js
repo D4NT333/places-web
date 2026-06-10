@@ -67,7 +67,7 @@ const styles = {
     display: "grid",
     gridTemplateColumns: "1.3fr 1fr 2.2fr 0.8fr",
     alignItems: "center",
-    padding: "16px 22px",
+    padding: "14px 22px",
     backgroundColor: "#F9FAFB",
     borderBottom: "1px solid #E5E7EB",
     fontSize: 13,
@@ -84,9 +84,9 @@ const styles = {
   },
 
   previewColumn: {
-  minWidth: 0,
-  textAlign: "center",
-},
+    minWidth: 0,
+    textAlign: "center",
+  },
 
   statusColumn: {
     minWidth: 0,

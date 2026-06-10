@@ -1,4 +1,4 @@
-import client from "../api/client.js";
+import client from "../../../client.js";
 
 export default async function returnPlaceSubmissionService(
   submissionId,

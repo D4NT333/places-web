@@ -11,9 +11,9 @@ import RejectionModal from "./Components/RejectionModal";
 import CorrectionCompareModal from "./Components/CorrectionCompareModal";
 import RejectionReasonModal from "./Components/RejectionReasonModal";
 
-import getPlaceSubmissionDetailService from "../../../../services/submissions/getPlaceSubmissionDetail.service";
-import getReturnedPlaceSubmissionReviewService from "../../../../services/submissions/getReturnedPlaceSubmissionReview.service";
-import rejectPlaceSubmissionService from "../../../../services/submissions/rejectPlaceSubmission.service";
+import getPlaceSubmissionDetailService from "../../../../services/api/submissions/places/read/getPlaceSubmissionDetail.service";
+import getReturnedPlaceSubmissionReviewService from "../../../../services/api/submissions/places/read/getReturnedPlaceSubmissionReview.service";
+import rejectPlaceSubmissionService from "../../../../services/api/submissions/places/update/rejectPlaceSubmission.service";
 
 function formatDate(dateString) {
   if (!dateString) return "Sin fecha";

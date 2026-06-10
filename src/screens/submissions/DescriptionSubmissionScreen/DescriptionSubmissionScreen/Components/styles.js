@@ -1,25 +1,32 @@
 const styles = {
- row: {
-  display: "grid",
-  gridTemplateColumns: "1.3fr 1fr 2.2fr 0.8fr",
-  alignItems: "center",
-  padding: "18px 22px",
-  borderBottom: "1px solid #F1F5F9",
-  backgroundColor: "#FFFFFF",
-  cursor: "pointer",
-  transition: "background-color 0.18s ease, transform 0.18s ease",
-},
+  row: {
+    display: "grid",
+    gridTemplateColumns: "1.3fr 1fr 2.2fr 0.8fr",
+    alignItems: "center",
+    width: "100%",
+    minHeight: 82,
+    padding: "14px 22px",
+    border: "none",
+    borderBottom: "1px solid #F1F5F9",
+    backgroundColor: "#FFFFFF",
+    cursor: "pointer",
+    textAlign: "left",
+  },
 
-  placeCell: {
+  placeColumn: {
+    minWidth: 0,
+  },
+
+  placeInfo: {
     display: "flex",
     alignItems: "center",
     gap: 14,
     minWidth: 0,
   },
 
-  photoPlaceholder: {
-    width: 48,
-    height: 48,
+  photo: {
+    width: 86,
+    height: 86,
     borderRadius: "50%",
     border: "1px solid #CBD5E1",
     backgroundColor: "#F8FAFC",
@@ -27,6 +34,14 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    overflow: "hidden",
+  },
+
+  photoImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
   },
 
   photoText: {
@@ -35,8 +50,11 @@ const styles = {
     color: "#94A3B8",
   },
 
-  placeInfo: {
+  placeTextBox: {
     minWidth: 0,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
   },
 
   placeName: {
@@ -49,8 +67,8 @@ const styles = {
     textOverflow: "ellipsis",
   },
 
-  placeType: {
-    margin: "4px 0 0",
+  placeSubtitle: {
+    marginTop: 4,
     fontSize: 12,
     fontWeight: 600,
     color: "#9CA3AF",
@@ -59,62 +77,70 @@ const styles = {
     textOverflow: "ellipsis",
   },
 
-  dateCell: {
+  dateColumn: {
     minWidth: 0,
+    display: "flex",
+    alignItems: "center",
   },
 
   dateText: {
-    margin: 0,
     fontSize: 13,
     fontWeight: 700,
     color: "#4B5563",
+    whiteSpace: "nowrap",
   },
 
-  previewCell: {
-  minWidth: 0,
-  display: "flex",
-  justifyContent: "center",
-  paddingRight: 18,
-},
-
-previewText: {
-  margin: 0,
-  maxWidth: 620,
-  fontSize: 13,
-  lineHeight: 1.45,
-  color: "#374151",
-  textAlign: "center",
-  display: "-webkit-box",
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: "vertical",
-  overflow: "hidden",
-},
-
-  statusCell: {
+  previewColumn: {
+    minWidth: 0,
     display: "flex",
     justifyContent: "center",
+    alignItems: "center",
+    paddingRight: 16,
   },
 
-  statusChip: {
+  previewText: {
+    margin: 0,
+    maxWidth: 520,
+    fontSize: 13,
+    lineHeight: 1.45,
+    color: "#374151",
+    textAlign: "center",
+    overflow: "hidden",
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+  },
+
+  statusColumn: {
+    minWidth: 0,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  statusBadge: {
     minWidth: 92,
-    padding: "7px 10px",
+    padding: "7px 12px",
     borderRadius: 999,
     fontSize: 12,
     fontWeight: 800,
     textAlign: "center",
+    display: "inline-flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
-  pendingStatus: {
+  statusPending: {
     backgroundColor: "#FEF3C7",
     color: "#92400E",
   },
 
-  acceptedStatus: {
+  statusAccepted: {
     backgroundColor: "#DCFCE7",
     color: "#166534",
   },
 
-  rejectedStatus: {
+  statusRejected: {
     backgroundColor: "#FEE2E2",
     color: "#991B1B",
   },

@@ -8,9 +8,9 @@ import ReturnTextArea from "./Components/ReturnTextArea";
 import ReturnCorrectionItem from "./Components/ReturnCorrectionItem";
 import ReturnActionButtons from "./Components/ReturnActionButtons";
 
-import getPlaceSubmissionDetailService from "../../../../../services/submissions/getPlaceSubmissionDetail.service";
-import returnPlaceSubmissionService from "../../../../../services/submissions/returnPlaceSubmission.service";
-import getReturnedPlaceSubmissionReviewService from "../../../../../services/submissions/getReturnedPlaceSubmissionReview.service";
+import getPlaceSubmissionDetailService from "../../../../../services/api/submissions/places/read/getPlaceSubmissionDetail.service";
+import returnPlaceSubmissionService from "../../../../../services/api/submissions/places/update/returnPlaceSubmission.service";
+import getReturnedPlaceSubmissionReviewService from "../../../../../services/api/submissions/places/read/getReturnedPlaceSubmissionReview.service";
 
 function getPhotoUrl(photo, preferredSize = "thumbnail") {
   if (!photo) return null;

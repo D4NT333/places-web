@@ -1,4 +1,4 @@
-import client from "../api/client";
+import client from "../../../client";
 
 export default async function rejectPlaceSubmissionService(submissionId, payload) {
   if (!submissionId) {

@@ -1,30 +1,69 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 
 import DescriptionSubmissionRow from "./Components/DescriptionSubmissionRow";
 
-import { mockDescriptionSubmissions, statusFilters } from "./data";
 import styles from "./styles";
+
+import getDescriptionSubmissionsService from "../../../../services/api/submissions/descriptions/read/getDescriptionSubmissions.service";
+
+const statusFilters = [
+  {
+    label: "Todas",
+    value: "all",
+  },
+  {
+    label: "Pendientes",
+    value: "pending",
+  },
+  {
+    label: "Aceptadas",
+    value: "accepted",
+  },
+  {
+    label: "Rechazadas",
+    value: "rejected",
+  },
+];
 
 export default function DescriptionSubmissionScreen() {
   const navigate = useNavigate();
+
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [descriptions, setDescriptions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredDescriptions = useMemo(() => {
-    if (selectedStatus === "all") return mockDescriptionSubmissions;
+  const loadDescriptions = useCallback(async () => {
+    try {
+      setLoading(true);
 
-    return mockDescriptionSubmissions.filter(
-      (description) => description.status === selectedStatus
-    );
+      const data = await getDescriptionSubmissionsService(selectedStatus);
+
+      setDescriptions(data);
+    } catch (error) {
+      console.error("Error al cargar descripciones propuestas:", error);
+      setDescriptions([]);
+    } finally {
+      setLoading(false);
+    }
   }, [selectedStatus]);
+
+  useEffect(() => {
+    loadDescriptions();
+  }, [loadDescriptions]);
 
   const handleGoToDetail = (descriptionId) => {
     navigate(`/submissions/descriptions/${descriptionId}`);
   };
 
   return (
-    <LayoutScreen>
+  <LayoutScreen
+    breadcrumbs={[
+      { label: "Inicio", to: "/" },
+      { label: "Propuestas de descripciones" },
+    ]}
+  >
       <div style={styles.container}>
         <div style={styles.header}>
           <div>
@@ -64,8 +103,10 @@ export default function DescriptionSubmissionScreen() {
           </div>
 
           <div style={styles.tableBody}>
-            {filteredDescriptions.length > 0 ? (
-              filteredDescriptions.map((description) => (
+            {loading ? (
+              <div style={styles.emptyState}>Cargando descripciones...</div>
+            ) : descriptions.length > 0 ? (
+              descriptions.map((description) => (
                 <DescriptionSubmissionRow
                   key={description.id}
                   description={description}
