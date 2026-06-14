@@ -126,55 +126,66 @@ const styles = {
     marginBottom: 22,
   },
 
-  filtersWrapper: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 10,
-    flexWrap: "wrap",
-    paddingTop: 4,
-  },
+ filtersWrapper: {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  padding: 4,
+  marginTop: 2,
+  border: "1px solid #e5e7eb",
+  borderRadius: 999,
+  backgroundColor: "#f3f4f6",
+  flexWrap: "wrap",
+},
+
 
   filterChip: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "6px",
-    border: "1px solid #d1d5db",
-    backgroundColor: "#ffffff",
-    color: "#334155",
-    borderRadius: 999,
-    padding: "8px 10px 8px 14px",
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: "pointer",
-    transition: "all 0.18s ease",
-  },
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 6,
 
-  filterChipActive: {
-    backgroundColor: "#0f172a",
-    color: "#ffffff",
-    borderColor: "#0f172a",
-  },
+  border: "none",
+  backgroundColor: "transparent",
+  color: "#6b7280",
 
-  filterChipCount: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: "21px",
-    height: "21px",
-    padding: "0 6px",
-    borderRadius: 999,
-    backgroundColor: "#f1f5f9",
-    color: "#475569",
-    fontSize: 11,
-    fontWeight: 800,
-  },
+  borderRadius: 999,
+  padding: "8px 14px",
 
-  filterChipCountActive: {
-    backgroundColor: "rgba(255,255,255,0.2)",
-    color: "#ffffff",
-  },
+  fontSize: 13,
+  fontWeight: 700,
+
+  cursor: "pointer",
+  transition: "all 0.18s ease",
+},
+
+ filterChipActive: {
+  backgroundColor: "#ffffff",
+  color: "#111827",
+  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.08)",
+},
+
+filterChipCount: {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+
+  minWidth: 18,
+  height: 18,
+  padding: "0 5px",
+
+  borderRadius: 999,
+  backgroundColor: "#e5e7eb",
+  color: "#475569",
+
+  fontSize: 10,
+  fontWeight: 800,
+},
+
+filterChipCountActive: {
+  backgroundColor: "#f1f5f9",
+  color: "#111827",
+},
 
   loadMoreTrap: {
     width: "100%",
