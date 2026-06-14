@@ -26,7 +26,9 @@ function patchSubmissionStatusInCache(submissionId, nextStatus) {
     });
 
     if (statusFromKey !== "all" && statusFromKey !== nextStatus) {
-      updatedItems = updatedItems.filter((item) => item.id !== submissionId);
+      updatedItems = updatedItems.filter(
+        (item) => item.id !== submissionId
+      );
     }
 
     submissionsCache.set(cacheKey, {
@@ -91,6 +93,10 @@ function isCacheValid(cacheEntry) {
   return Date.now() - cacheEntry.savedAt < CACHE_TTL_MS;
 }
 
+function hasValidCount(value) {
+  return Number.isFinite(Number(value));
+}
+
 export default function PlaceSubmissionScreen() {
   const navigate = useNavigate();
   const query = useQuery();
@@ -98,6 +104,8 @@ export default function PlaceSubmissionScreen() {
   const currentStatus = query.get("status") || "all";
 
   const [submissions, setSubmissions] = useState([]);
+  const [statusCounts, setStatusCounts] = useState(null);
+
   const [nextCursor, setNextCursor] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -107,21 +115,43 @@ export default function PlaceSubmissionScreen() {
   const loadMoreRef = useRef(null);
 
   const isValidStatus = useMemo(() => {
-    return statusFilters.some((filter) => filter.value === currentStatus);
+    return statusFilters.some(
+      (filter) => filter.value === currentStatus
+    );
   }, [currentStatus]);
 
-  const saveCache = ({ items, cursor, more }) => {
+  const loadedBatches =
+    submissions.length > 0
+      ? Math.ceil(submissions.length / PAGE_LIMIT)
+      : 0;
+
+  const saveCache = ({
+    items,
+    cursor,
+    more,
+    counts = null,
+  }) => {
     const cacheKey = getCacheKey(currentStatus);
+    const previousCache = submissionsCache.get(cacheKey);
 
     submissionsCache.set(cacheKey, {
+      ...previousCache,
       items,
       nextCursor: cursor,
       hasMore: more,
+
+      // Conserva los contadores anteriores cuando
+      // la siguiente página no los vuelve a enviar.
+      counts: counts || previousCache?.counts || null,
+
       savedAt: Date.now(),
     });
   };
 
-  const loadSubmissions = async ({ reset = false, silent = false } = {}) => {
+  const loadSubmissions = async ({
+    reset = false,
+    silent = false,
+  } = {}) => {
     if (loading || loadingMore) return;
     if (!reset && !hasMore) return;
 
@@ -142,26 +172,39 @@ export default function PlaceSubmissionScreen() {
         cursor: reset ? null : nextCursor,
       });
 
-      const newItems = data.items || [];
-      const newCursor = data.nextCursor || null;
+      const newItems = Array.isArray(data.items)
+        ? data.items
+        : [];
 
-      setSubmissions((prev) => {
+      const newCursor = data.nextCursor || null;
+      const newCounts = data.counts || null;
+
+      if (newCounts) {
+        setStatusCounts(newCounts);
+      }
+
+      setSubmissions((previousItems) => {
         const mergedItems = reset
           ? newItems
           : [
-              ...prev,
+              ...previousItems,
               ...newItems.filter(
                 (newItem) =>
-                  !prev.some((currentItem) => currentItem.id === newItem.id)
+                  !previousItems.some(
+                    (currentItem) =>
+                      currentItem.id === newItem.id
+                  )
               ),
             ];
 
-        const newHasMore = Boolean(newCursor) && newItems.length > 0;
+        const newHasMore =
+          Boolean(newCursor) && newItems.length > 0;
 
         saveCache({
           items: mergedItems,
           cursor: newCursor,
           more: newHasMore,
+          counts: newCounts,
         });
 
         return mergedItems;
@@ -169,15 +212,16 @@ export default function PlaceSubmissionScreen() {
 
       setNextCursor(newCursor);
 
-      if (!newCursor || newItems.length === 0) {
-        setHasMore(false);
-      } else {
-        setHasMore(true);
-      }
+      const canLoadMore =
+        Boolean(newCursor) && newItems.length > 0;
+
+      setHasMore(canLoadMore);
     } catch (error) {
       console.error("Error cargando submissions:", error);
+
       setErrorMessage(
-        error.message || "No se pudieron cargar las submissions."
+        error?.message ||
+          "No se pudieron cargar las submissions."
       );
     } finally {
       if (!silent) {
@@ -189,7 +233,10 @@ export default function PlaceSubmissionScreen() {
 
   useEffect(() => {
     if (!isValidStatus) {
-      navigate("/submissions/places?status=all", { replace: true });
+      navigate("/submissions/places?status=all", {
+        replace: true,
+      });
+
       return;
     }
 
@@ -197,14 +244,25 @@ export default function PlaceSubmissionScreen() {
     const cachedData = submissionsCache.get(cacheKey);
 
     if (isCacheValid(cachedData)) {
-      console.log("Usando cache y refrescando en segundo plano:", cacheKey);
+      console.log(
+        "Usando caché y refrescando en segundo plano:",
+        cacheKey
+      );
 
       setSubmissions(cachedData.items || []);
       setNextCursor(cachedData.nextCursor || null);
       setHasMore(cachedData.hasMore ?? true);
       setErrorMessage("");
 
-      loadSubmissions({ reset: true, silent: true });
+      if (cachedData.counts) {
+        setStatusCounts(cachedData.counts);
+      }
+
+      loadSubmissions({
+        reset: true,
+        silent: true,
+      });
+
       return;
     }
 
@@ -212,20 +270,30 @@ export default function PlaceSubmissionScreen() {
     setNextCursor(null);
     setHasMore(true);
 
-    loadSubmissions({ reset: true });
+    loadSubmissions({
+      reset: true,
+    });
   }, [currentStatus, isValidStatus, navigate]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
 
-    if (!target) return;
+    if (!target) return undefined;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
 
-        if (firstEntry.isIntersecting && hasMore && !loading && !loadingMore) {
-          loadSubmissions({ reset: false });
+        if (
+          firstEntry.isIntersecting &&
+          hasMore &&
+          nextCursor &&
+          !loading &&
+          !loadingMore
+        ) {
+          loadSubmissions({
+            reset: false,
+          });
         }
       },
       {
@@ -240,10 +308,20 @@ export default function PlaceSubmissionScreen() {
     return () => {
       observer.disconnect();
     };
-  }, [nextCursor, hasMore, loading, loadingMore, currentStatus]);
+  }, [
+    nextCursor,
+    hasMore,
+    loading,
+    loadingMore,
+    currentStatus,
+  ]);
 
   const handleStatusChange = (statusValue) => {
-    navigate(`/submissions/places?status=${statusValue}`);
+    if (statusValue === currentStatus) return;
+
+    navigate(
+      `/submissions/places?status=${statusValue}`
+    );
   };
 
   const handleOpenDetail = (submissionId) => {
@@ -251,22 +329,50 @@ export default function PlaceSubmissionScreen() {
   };
 
   return (
-   <LayoutScreen
-  breadcrumbs={[
-    { label: "Inicio", to: "/" },
-    { label: "Propuesta de lugares" },
-  ]}
->
+    <LayoutScreen
+      breadcrumbs={[
+        { label: "Inicio", to: "/" },
+        { label: "Propuesta de lugares" },
+      ]}
+    >
       <div style={styles.container}>
         <div style={styles.topBar}>
           <div style={styles.headerBlock}>
-            <h1 style={styles.title}>Submissions de lugares</h1>
-            <p style={styles.subtitle}>{getStatusTitle(currentStatus)}</p>
+            <h1 style={styles.title}>
+              Propuestas de lugares
+            </h1>
+
+            <p style={styles.subtitle}>
+              {getStatusTitle(currentStatus)}
+            </p>
+
+            <div style={styles.loadedInfoWrapper}>
+              <div style={styles.loadedInfoChip}>
+                Lugares cargados
+                <strong style={styles.loadedInfoValue}>
+                  {submissions.length}
+                </strong>
+              </div>
+
+              <div style={styles.loadedInfoChip}>
+                Lotes cargados
+                <strong style={styles.loadedInfoValue}>
+                  {loadedBatches}
+                </strong>
+              </div>
+            </div>
           </div>
 
           <div style={styles.filtersWrapper}>
             {statusFilters.map((filter) => {
-              const isActive = currentStatus === filter.value;
+              const isActive =
+                currentStatus === filter.value;
+
+              const count =
+                statusCounts?.[filter.value];
+
+              const showCount =
+                hasValidCount(count);
 
               return (
                 <button
@@ -274,11 +380,28 @@ export default function PlaceSubmissionScreen() {
                   type="button"
                   style={{
                     ...styles.filterChip,
-                    ...(isActive ? styles.filterChipActive : {}),
+                    ...(isActive
+                      ? styles.filterChipActive
+                      : {}),
                   }}
-                  onClick={() => handleStatusChange(filter.value)}
+                  onClick={() =>
+                    handleStatusChange(filter.value)
+                  }
                 >
-                  {filter.label}
+                  <span>{filter.label}</span>
+
+                  {showCount && (
+                    <span
+                      style={{
+                        ...styles.filterChipCount,
+                        ...(isActive
+                          ? styles.filterChipCountActive
+                          : {}),
+                      }}
+                    >
+                      {Number(count)}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -287,24 +410,44 @@ export default function PlaceSubmissionScreen() {
 
         <div style={styles.tableCard}>
           <div style={styles.tableHeader}>
-            <div style={styles.headerPlace}>Lugar</div>
-            <div style={styles.headerDate}>Creado el</div>
-            <div style={styles.headerUser}>Usuario</div>
-            <div style={styles.headerUserPhoto}>Foto usuario</div>
-            <div style={styles.headerStatus}>Estado</div>
+            <div style={styles.headerPlace}>
+              Lugar
+            </div>
+
+            <div style={styles.headerDate}>
+              Creado el
+            </div>
+
+            <div style={styles.headerUser}>
+              Usuario
+            </div>
+
+            <div style={styles.headerUserPhoto}>
+              Foto usuario
+            </div>
+
+            <div style={styles.headerStatus}>
+              Estado
+            </div>
           </div>
 
           <div style={styles.rowsWrapper}>
             {loading ? (
-              <div style={styles.emptyState}>Cargando submissions...</div>
+              <div style={styles.emptyState}>
+                Cargando submissions...
+              </div>
             ) : errorMessage ? (
-              <div style={styles.emptyState}>{errorMessage}</div>
+              <div style={styles.emptyState}>
+                {errorMessage}
+              </div>
             ) : submissions.length > 0 ? (
               submissions.map((item) => (
                 <PlaceSubmissionRow
                   key={item.id}
                   item={item}
-                  onClick={() => handleOpenDetail(item.id)}
+                  onClick={() =>
+                    handleOpenDetail(item.id)
+                  }
                 />
               ))
             ) : (
@@ -315,17 +458,25 @@ export default function PlaceSubmissionScreen() {
           </div>
         </div>
 
-        <div ref={loadMoreRef} style={styles.loadMoreTrap} />
+        <div
+          ref={loadMoreRef}
+          style={styles.loadMoreTrap}
+        />
 
         {loadingMore && (
           <div style={styles.paginationHint}>
-            Cargando más submissions...
+            Cargando más propuestas...
           </div>
         )}
 
-        {!loading && !loadingMore && !hasMore && submissions.length > 0 && (
-          <div style={styles.paginationHint}>No hay más submissions.</div>
-        )}
+        {!loading &&
+          !loadingMore &&
+          !hasMore &&
+          submissions.length > 0 && (
+            <div style={styles.paginationCompleted}>
+              Se cargaron todas las propuestas.
+            </div>
+          )}
       </div>
     </LayoutScreen>
   );
