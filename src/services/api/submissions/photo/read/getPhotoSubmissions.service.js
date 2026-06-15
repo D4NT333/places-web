@@ -4,26 +4,41 @@ import client from "../../../client";
 
 function formatCreatedAt(value) {
   if (!value) {
-    return "Sin fecha";
+    return "Fecha no disponible";
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Sin fecha";
+    return "Fecha no disponible";
   }
 
-  return date.toLocaleDateString(
-    "es-MX",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }
+  return date.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function normalizePhotoCount(value) {
+  const parsedValue = Number(value);
+
+  if (!Number.isFinite(parsedValue)) {
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    Math.trunc(parsedValue)
   );
 }
 
 function normalizeSubmission(item) {
+  const photoCount = normalizePhotoCount(
+    item.photoCount ??
+      item.extraPhotosCount
+  );
+
   return {
     id:
       item.id ||
@@ -47,23 +62,18 @@ function normalizeSubmission(item) {
       item.createdByName ||
       "Usuario",
 
-    createdAt:
-      formatCreatedAt(
-        item.createdAt
-      ),
+    status:
+      item.status ||
+      "in_review",
 
-    createdAtRaw:
-      item.createdAt || null,
-
-    extraPhotosCount:
-      Number(
-        item.photoCount ?? 0
-      ),
+    photoCount,
 
     /*
-     * imageUrl ya contiene medium desde el backend.
-     * Los demás campos son respaldos.
+     * Se conserva por compatibilidad con la tarjeta,
+     * aunque ya debería utilizar photoCount.
      */
+    extraPhotosCount: photoCount,
+
     imageUrl:
       item.imageUrl ||
       item.mediumUrl ||
@@ -88,23 +98,30 @@ function normalizeSubmission(item) {
     thumbnailPath:
       item.thumbnailPath || "",
 
-    status:
-      item.status ||
-      "in_review",
+    createdAt:
+      formatCreatedAt(
+        item.createdAt
+      ),
+
+    createdAtRaw:
+      item.createdAt || null,
+
+    updatedAt:
+      item.updatedAt || null,
   };
 }
 
 export default async function getPhotoSubmissionsService({
   status = "all",
   limit = 15,
-  cursor = null,
+  cursor = "",
 } = {}) {
   const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
     throw new Error(
-      "No existe una sesión activa."
+      "No hay una sesión activa."
     );
   }
 
@@ -115,7 +132,11 @@ export default async function getPhotoSubmissionsService({
     limit,
   };
 
-  if (status !== "all") {
+  /*
+   * El backend acepta "all", pero omitirlo
+   * deja la llamada un poco más limpia.
+   */
+  if (status && status !== "all") {
     params.status = status;
   }
 
@@ -129,8 +150,7 @@ export default async function getPhotoSubmissionsService({
       params,
 
       headers: {
-        Authorization:
-          `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
@@ -142,26 +162,27 @@ export default async function getPhotoSubmissionsService({
       ? response.data.submissions
       : [];
 
-  const submissions =
-    rawSubmissions.map(
-      normalizeSubmission
-    );
+  const rawPagination =
+    response.data?.pagination || {};
 
   return {
-    submissions,
+    submissions:
+      rawSubmissions.map(
+        normalizeSubmission
+      ),
 
     pagination: {
+      limit:
+        Number(
+          rawPagination.limit
+        ) || limit,
+
       hasMore:
-        response.data?.pagination
-          ?.hasMore === true,
+        rawPagination.hasMore === true,
 
       nextCursor:
-        response.data?.pagination
-          ?.nextCursor || null,
-
-      limit:
-        response.data?.pagination
-          ?.limit || limit,
+        rawPagination.nextCursor ||
+        null,
     },
   };
 }

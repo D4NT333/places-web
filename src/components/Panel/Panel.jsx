@@ -167,9 +167,9 @@ export default function Panel() {
             <button
               type="button"
               style={styles.optionButton}
-              onClick={() => handleNavigation("/management/suggestions")}
+              onClick={() => handleNavigation("/management/deleted-submissions")}
             >
-              Sugerencias
+              Envíos Eliminados
             </button>
 
             <button

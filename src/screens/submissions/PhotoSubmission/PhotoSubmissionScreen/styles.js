@@ -129,50 +129,14 @@ const styles = {
     fontSize: 13,
     fontWeight: 700,
   },
-  loadingState: {
-  minHeight: "240px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "#667085",
-  fontSize: "0.95rem",
-},
-
-errorState: {
-  padding: "12px 16px",
-  border: "1px solid #FECACA",
-  borderRadius: "10px",
-  backgroundColor: "#FEF2F2",
-  color: "#B42318",
-  fontSize: "0.9rem",
-},
-
-loadMoreWrapper: {
-  display: "flex",
-  justifyContent: "center",
-  paddingTop: "4px",
-},
-
-loadMoreButton: {
-  minWidth: "190px",
-  padding: "10px 18px",
-  border: "1px solid #CBD5E1",
-  borderRadius: "10px",
-  backgroundColor: "#FFFFFF",
-  color: "#344054",
-  fontSize: "0.9rem",
-  fontWeight: 600,
+  cardNavigation: {
+  width: "100%",
+  minWidth: 0,
+  height: "100%",
+  display: "block",
+  borderRadius: "14px",
+  outline: "none",
   cursor: "pointer",
-},
-
-loadMoreButtonDisabled: {
-  opacity: 0.6,
-  cursor: "not-allowed",
-},
-
-filterButtonDisabled: {
-  opacity: 0.7,
-  cursor: "not-allowed",
 },
 };
 

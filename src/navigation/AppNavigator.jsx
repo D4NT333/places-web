@@ -8,7 +8,8 @@ import { logoutService } from "../services/auth/logout.service";
 
 import {HomeScreen,OperationsScreen,DemandScreen,InteractionsScreen,} from "../screens";
 import { PlaceSubmissionScreen, DescriptionSubmissionScreen, PhotoSubmissionScreen } from "../screens";
-import { ReportsScreen, SelectZoneScreen, SuggestionsScreen } from "../screens";
+import { ReportsScreen, SelectZoneScreen, DeletedSubmissionsScreen } from "../screens";
+import { PhotoDetailSubmissionScreen } from "../screens";
 import { PlaceDetailSubmissionScreen } from "../screens";
 import { PlaceReturnSubmissionScreen } from "../screens";
 import { PlaceCandidatesScreen } from "../screens";
@@ -59,6 +60,9 @@ function AppRoutesContent({ adminUser }) {
           <Route path="/submissions/descriptions" element={<DescriptionSubmissionScreen />} />
           <Route path="/submissions/photos" element={<PhotoSubmissionScreen />} />
 
+
+          <Route path="/submissions/photos/:submissionId"element={<PhotoDetailSubmissionScreen />}/>
+
           <Route path="/submissions/places/:submissionId" element={<PlaceDetailSubmissionScreen />} />
 
           <Route path="/submissions/places/:submissionId/return" element={<PlaceReturnSubmissionScreen />} />
@@ -72,7 +76,7 @@ function AppRoutesContent({ adminUser }) {
 
           <Route path="/management/place-registration/candidates/:candidateId" element={<PlaceDetailCandidatesScreen />} />
 
-          <Route path="/management/suggestions" element={<SuggestionsScreen />} />
+          <Route path="/management/deleted-submissions" element={<DeletedSubmissionsScreen />} />
 
           <Route path="*" element={<div>404 - Página no encontrada</div>} />
         </>
