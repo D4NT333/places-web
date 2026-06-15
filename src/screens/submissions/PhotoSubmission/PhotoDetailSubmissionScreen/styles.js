@@ -21,7 +21,7 @@ const styles = {
      * - Carrusel
      * - Información + acciones
      */
-    height: "clamp(920px, 61dvh, 540px)",
+    height: "clamp(960px, 61dvh, 540px)",
 
     minWidth: 0,
     minHeight: 0,

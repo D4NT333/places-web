@@ -42,7 +42,7 @@ const styles = {
 
     color: "#111827",
 
-    fontSize: "15px",
+    fontSize: "20px",
     fontWeight: "800",
   },
 
@@ -51,7 +51,7 @@ const styles = {
 
     color: "#64748b",
 
-    fontSize: "11px",
+    fontSize: "14px",
     lineHeight: 1.3,
   },
 
@@ -66,7 +66,7 @@ const styles = {
     backgroundColor: "#f8fafc",
     color: "#475569",
 
-    fontSize: "10px",
+    fontSize: "14px",
     fontWeight: "800",
   },
 
@@ -193,7 +193,7 @@ const styles = {
     backgroundColor: "rgba(30, 41, 59, 0.78)",
     color: "#ffffff",
 
-    fontSize: "10px",
+    fontSize: "16px",
     fontWeight: "700",
   },
 
@@ -216,7 +216,7 @@ thumbnailLabel: {
 
   color: "#475569",
 
-  fontSize: "11px",
+  fontSize: "18px",
   fontWeight: "800",
 },
 

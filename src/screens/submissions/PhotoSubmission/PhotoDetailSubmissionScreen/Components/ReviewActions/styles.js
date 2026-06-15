@@ -28,7 +28,7 @@ const styles = {
 
     color: "#111827",
 
-    fontSize: "15px",
+    fontSize: "20px",
     fontWeight: "800",
   },
 
@@ -37,7 +37,7 @@ const styles = {
 
     color: "#64748b",
 
-    fontSize: "11px",
+    fontSize: "15px",
     lineHeight: 1.4,
   },
 
@@ -57,7 +57,7 @@ const styles = {
     borderRadius: "8px",
 
     fontFamily: "inherit",
-    fontSize: "11px",
+    fontSize: "18px",
     fontWeight: "800",
 
     cursor: "pointer",

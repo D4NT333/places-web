@@ -97,7 +97,6 @@ export default function SubmissionInfoCard({
               ...statusConfig.style,
             }}
           >
-            <span style={styles.statusDot} />
 
             {statusConfig.label}
           </span>

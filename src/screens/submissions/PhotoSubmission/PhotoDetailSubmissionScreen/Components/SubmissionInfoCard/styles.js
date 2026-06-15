@@ -45,7 +45,7 @@ const styles = {
 
     color: "#111827",
 
-    fontSize: "16px",
+    fontSize: "20px",
     fontWeight: "800",
   },
 
@@ -54,7 +54,7 @@ const styles = {
 
     color: "#64748b",
 
-    fontSize: "11px",
+    fontSize: "15px",
     lineHeight: 1.35,
   },
 
@@ -92,7 +92,7 @@ const styles = {
   infoLabel: {
     color: "#64748b",
 
-    fontSize: "12px",
+    fontSize: "20px",
     fontWeight: "600",
   },
 
@@ -101,7 +101,7 @@ const styles = {
 
     color: "#111827",
 
-    fontSize: "13px",
+    fontSize: "18px",
     fontWeight: "800",
 
     lineHeight: 1.35,
@@ -121,7 +121,7 @@ const styles = {
     border: "1px solid",
     borderRadius: "999px",
 
-    fontSize: "10px",
+    fontSize: "20px",
     fontWeight: "800",
   },
 
