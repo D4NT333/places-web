@@ -33,7 +33,7 @@ const styles = {
 
     color: "#111827",
 
-    fontSize: "23px",
+    fontSize: "20px",
     fontWeight: "800",
     lineHeight: 1.2,
   },

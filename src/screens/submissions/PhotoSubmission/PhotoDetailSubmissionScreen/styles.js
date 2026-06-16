@@ -200,6 +200,38 @@ const styles = {
 
     cursor: "pointer",
   },
+
+backButtonWrapper: {
+  width: "100%",
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+
+  paddingTop: "2px",
+  boxSizing: "border-box",
+},
+
+backButton: {
+  minWidth: "112px",
+  height: "36px",
+
+  padding: "0 18px",
+
+  border: "1px solid #111827",
+  borderRadius: "999px",
+
+  backgroundColor: "#ffffff",
+  color: "#111827",
+
+  fontFamily: "inherit",
+  fontSize: "12px",
+  fontWeight: "800",
+
+  cursor: "pointer",
+
+  boxShadow:
+    "0 2px 6px rgba(15, 23, 42, 0.06)",
+},
 };
 
 export default styles;

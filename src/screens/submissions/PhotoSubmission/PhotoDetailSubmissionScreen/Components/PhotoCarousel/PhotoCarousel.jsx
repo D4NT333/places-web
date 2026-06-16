@@ -10,82 +10,206 @@ export default function PhotoCarousel({
   photos = [],
   placeName,
 }) {
-  const [activeIndex, setActiveIndex] =
-    useState(0);
+  const [
+    activeIndex,
+    setActiveIndex,
+  ] = useState(0);
 
-  const [lightboxOpen, setLightboxOpen] =
-    useState(false);
+  const [
+    lightboxOpen,
+    setLightboxOpen,
+  ] = useState(false);
 
-  const availablePhotos = useMemo(() => {
-    return Array.isArray(photos)
-      ? photos.filter(
+  const availablePhotos =
+    useMemo(() => {
+      if (!Array.isArray(photos)) {
+        return [];
+      }
+
+      return photos
+        .filter(
           (photo) =>
             photo?.mediumUrl ||
             photo?.originalUrl
         )
-      : [];
-  }, [photos]);
+        .map((photo, index) => ({
+          ...photo,
 
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [availablePhotos.length]);
+          id:
+            photo.id ||
+            photo.photoId ||
+            `photo-${index + 1}`,
+
+          /*
+           * La versión medium se utiliza
+           * dentro del carrusel.
+           */
+          mediumUrl:
+            photo.mediumUrl ||
+            photo.originalUrl ||
+            "",
+
+          /*
+           * La original solamente se utiliza
+           * cuando se amplía la fotografía.
+           */
+          originalUrl:
+            photo.originalUrl ||
+            photo.mediumUrl ||
+            "",
+        }));
+    }, [photos]);
 
   const activePhoto =
-    availablePhotos[activeIndex];
+    availablePhotos[
+      activeIndex
+    ] || null;
 
   const hasMultiplePhotos =
     availablePhotos.length > 1;
 
-  function showPreviousPhoto() {
-    setActiveIndex((currentIndex) => {
-      if (currentIndex === 0) {
-        return availablePhotos.length - 1;
-      }
+  /*
+   * Reinicia el carrusel cuando cambia
+   * la propuesta o el número de fotos.
+   */
+  useEffect(() => {
+    setActiveIndex(0);
+    setLightboxOpen(false);
+  }, [availablePhotos.length]);
 
-      return currentIndex - 1;
-    });
+  /*
+   * Cierra la vista ampliada con Escape
+   * y evita que el fondo pueda desplazarse.
+   */
+  useEffect(() => {
+    if (!lightboxOpen) {
+      return undefined;
+    }
+
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setLightboxOpen(false);
+      }
+    }
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow;
+
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
+    };
+  }, [lightboxOpen]);
+
+  function showPreviousPhoto() {
+    if (
+      availablePhotos.length === 0
+    ) {
+      return;
+    }
+
+    setActiveIndex(
+      (currentIndex) => {
+        if (currentIndex === 0) {
+          return (
+            availablePhotos.length -
+            1
+          );
+        }
+
+        return currentIndex - 1;
+      }
+    );
   }
 
   function showNextPhoto() {
-    setActiveIndex((currentIndex) => {
-      if (
-        currentIndex ===
-        availablePhotos.length - 1
-      ) {
-        return 0;
-      }
+    if (
+      availablePhotos.length === 0
+    ) {
+      return;
+    }
 
-      return currentIndex + 1;
-    });
+    setActiveIndex(
+      (currentIndex) => {
+        if (
+          currentIndex ===
+          availablePhotos.length -
+            1
+        ) {
+          return 0;
+        }
+
+        return currentIndex + 1;
+      }
+    );
   }
 
-  if (!availablePhotos.length) {
+  function handleOpenLightbox() {
+    if (!activePhoto) {
+      return;
+    }
+
+    setLightboxOpen(true);
+  }
+
+  function handleCloseLightbox() {
+    setLightboxOpen(false);
+  }
+
+  if (
+    availablePhotos.length === 0 ||
+    !activePhoto
+  ) {
     return (
       <section style={styles.card}>
-        <div style={styles.cardHeader}>
+        <div
+          style={styles.cardHeader}
+        >
           <div>
             <h2 style={styles.title}>
               Fotografías propuestas
             </h2>
 
-            <p style={styles.subtitle}>
+            <p
+              style={styles.subtitle}
+            >
               Archivos enviados por el usuario.
             </p>
           </div>
         </div>
 
-        <div style={styles.emptyState}>
-          <div style={styles.emptyIcon}>
+        <div
+          style={styles.emptyState}
+        >
+          <div
+            style={styles.emptyIcon}
+          >
             ▧
           </div>
 
-          <p style={styles.emptyTitle}>
+          <p
+            style={styles.emptyTitle}
+          >
             No hay fotografías disponibles
           </p>
 
-          <p style={styles.emptyText}>
-            La propuesta no contiene imágenes
-            que puedan mostrarse.
+          <p
+            style={styles.emptyText}
+          >
+            La propuesta no contiene imágenes que puedan mostrarse.
           </p>
         </div>
       </section>
@@ -95,21 +219,27 @@ export default function PhotoCarousel({
   return (
     <>
       <section style={styles.card}>
-        <div style={styles.cardHeader}>
+        <div
+          style={styles.cardHeader}
+        >
           <div>
             <h2 style={styles.title}>
               Fotografías propuestas
             </h2>
 
-            <p style={styles.subtitle}>
-              Revisa cada imagen antes de tomar
-              una decisión.
+            <p
+              style={styles.subtitle}
+            >
+              Revisa cada imagen antes de tomar una decisión.
             </p>
           </div>
 
-          <span style={styles.photoCount}>
+          <span
+            style={styles.photoCount}
+          >
             {availablePhotos.length}{" "}
-            {availablePhotos.length === 1
+            {availablePhotos.length ===
+            1
               ? "fotografía"
               : "fotografías"}
           </span>
@@ -118,19 +248,29 @@ export default function PhotoCarousel({
         <div style={styles.viewer}>
           <button
             type="button"
-            style={styles.mainImageButton}
-            onClick={() => setLightboxOpen(true)}
-            aria-label="Ampliar fotografía"
+            style={
+              styles.mainImageButton
+            }
+            onClick={
+              handleOpenLightbox
+            }
+            aria-label={`Ampliar fotografía ${
+              activeIndex + 1
+            }`}
           >
             <img
+              /*
+               * La vista normal usa medium.
+               */
               src={
-                activePhoto.mediumUrl ||
-                activePhoto.originalUrl
+                activePhoto.mediumUrl
               }
               alt={`${placeName}, fotografía ${
                 activeIndex + 1
               }`}
-              style={styles.mainImage}
+              style={
+                styles.mainImage
+              }
             />
           </button>
 
@@ -142,7 +282,9 @@ export default function PhotoCarousel({
                   ...styles.navigationButton,
                   ...styles.previousButton,
                 }}
-                onClick={showPreviousPhoto}
+                onClick={
+                  showPreviousPhoto
+                }
                 aria-label="Fotografía anterior"
               >
                 ‹
@@ -154,7 +296,9 @@ export default function PhotoCarousel({
                   ...styles.navigationButton,
                   ...styles.nextButton,
                 }}
-                onClick={showNextPhoto}
+                onClick={
+                  showNextPhoto
+                }
                 aria-label="Fotografía siguiente"
               >
                 ›
@@ -162,32 +306,51 @@ export default function PhotoCarousel({
             </>
           ) : null}
 
-          <span style={styles.counter}>
+          <span
+            style={styles.counter}
+          >
             {activeIndex + 1} de{" "}
             {availablePhotos.length}
           </span>
 
-          <span style={styles.expandHint}>
+          <span
+            style={
+              styles.expandHint
+            }
+          >
             Presiona para ampliar
           </span>
         </div>
 
-        <div style={styles.thumbnailSection}>
-          <p style={styles.thumbnailLabel}>
+        <div
+          style={
+            styles.thumbnailSection
+          }
+        >
+          <p
+            style={
+              styles.thumbnailLabel
+            }
+          >
             Todas las fotografías
           </p>
 
-          <div style={styles.thumbnailList}>
+          <div
+            style={
+              styles.thumbnailList
+            }
+          >
             {availablePhotos.map(
               (photo, index) => {
                 const isActive =
-                  index === activeIndex;
+                  index ===
+                  activeIndex;
 
                 return (
                   <button
                     key={
                       photo.id ||
-                      `thumbnail-${index}`
+                      `photo-${index + 1}`
                     }
                     type="button"
                     style={{
@@ -198,20 +361,31 @@ export default function PhotoCarousel({
                         : {}),
                     }}
                     onClick={() =>
-                      setActiveIndex(index)
+                      setActiveIndex(
+                        index
+                      )
                     }
                     aria-label={`Mostrar fotografía ${
                       index + 1
                     }`}
+                    aria-current={
+                      isActive
+                        ? "true"
+                        : undefined
+                    }
                   >
                     <img
+                      /*
+                       * Las imágenes pequeñas
+                       * también usan medium.
+                       */
                       src={
-                        photo.thumbnailUrl ||
-                        photo.mediumUrl ||
-                        photo.originalUrl
+                        photo.mediumUrl
                       }
                       alt=""
-                      style={styles.thumbnailImage}
+                      style={
+                        styles.thumbnailImage
+                      }
                     />
 
                     <span
@@ -233,27 +407,41 @@ export default function PhotoCarousel({
         </div>
       </section>
 
-      {lightboxOpen ? (
+      {lightboxOpen &&
+      activePhoto ? (
         <div
           style={styles.lightbox}
           role="dialog"
           aria-modal="true"
+          aria-label={`Fotografía ampliada ${
+            activeIndex + 1
+          } de ${
+            availablePhotos.length
+          }`}
         >
           <button
             type="button"
-            style={styles.lightboxBackdrop}
-            onClick={() =>
-              setLightboxOpen(false)
+            style={
+              styles.lightboxBackdrop
+            }
+            onClick={
+              handleCloseLightbox
             }
             aria-label="Cerrar fotografía ampliada"
           />
 
-          <div style={styles.lightboxContent}>
+          <div
+            style={
+              styles.lightboxContent
+            }
+          >
             <button
               type="button"
-              style={styles.closeButton}
-              onClick={() =>
-                setLightboxOpen(false)
+              style={
+                styles.closeButton
+              }
+              onClick={
+                handleCloseLightbox
               }
               aria-label="Cerrar"
             >
@@ -261,14 +449,19 @@ export default function PhotoCarousel({
             </button>
 
             <img
+              /*
+               * Solamente la vista ampliada
+               * carga la fotografía original.
+               */
               src={
-                activePhoto.originalUrl ||
-                activePhoto.mediumUrl
+                activePhoto.originalUrl
               }
               alt={`${placeName}, fotografía ampliada ${
                 activeIndex + 1
               }`}
-              style={styles.lightboxImage}
+              style={
+                styles.lightboxImage
+              }
             />
 
             {hasMultiplePhotos ? (
@@ -279,7 +472,10 @@ export default function PhotoCarousel({
                     ...styles.lightboxNavigation,
                     ...styles.lightboxPrevious,
                   }}
-                  onClick={showPreviousPhoto}
+                  onClick={
+                    showPreviousPhoto
+                  }
+                  aria-label="Fotografía anterior"
                 >
                   ‹
                 </button>
@@ -290,14 +486,21 @@ export default function PhotoCarousel({
                     ...styles.lightboxNavigation,
                     ...styles.lightboxNext,
                   }}
-                  onClick={showNextPhoto}
+                  onClick={
+                    showNextPhoto
+                  }
+                  aria-label="Fotografía siguiente"
                 >
                   ›
                 </button>
               </>
             ) : null}
 
-            <span style={styles.lightboxCounter}>
+            <span
+              style={
+                styles.lightboxCounter
+              }
+            >
               {activeIndex + 1} de{" "}
               {availablePhotos.length}
             </span>

@@ -1,9 +1,9 @@
 import React, {
-  useMemo,
+  useEffect,
+  useState,
 } from "react";
 
 import {
-  useLocation,
   useNavigate,
   useParams,
 } from "react-router-dom";
@@ -14,10 +14,31 @@ import PhotoCarousel from "./Components/PhotoCarousel";
 import PhotoDetailHeader from "./Components/PhotoDetailHeader";
 import SubmissionInfoCard from "./Components/SubmissionInfoCard";
 import ReviewActions from "./Components/ReviewActions";
+import PhotoRejectionModal from "./Components/PhotoRejectionModal";
 
-import photoDetailSubmissionMock from "./data";
+import getPhotoSubmissionDetailService from "../../../../services/api/submissions/photo/read/getPhotoSubmissionDetail.service";
+
+import rejectPhotoSubmissionService from "../../../../services/api/submissions/photo/update/rejectPhotoSubmission.service";
+
+import approvePhotoSubmissionService from "../../../../services/api/submissions/photo/update/approvePhotoSubmission.service";
 
 import styles from "./styles";
+
+const BREADCRUMBS = [
+  {
+    label: "Inicio",
+    to: "/",
+  },
+  {
+    label:
+      "Propuestas de fotografías",
+    to: "/submissions/photos",
+  },
+  {
+    label:
+      "Detalle de propuesta",
+  },
+];
 
 function getDateFromValue(value) {
   if (!value) {
@@ -54,24 +75,6 @@ function getDateFromValue(value) {
   return date;
 }
 
-function formatLongDate(value) {
-  const date =
-    getDateFromValue(value);
-
-  if (!date) {
-    return "Sin fecha";
-  }
-
-  return date.toLocaleDateString(
-    "es-MX",
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }
-  );
-}
-
 function formatShortDate(value) {
   const date =
     getDateFromValue(value);
@@ -90,310 +93,150 @@ function formatShortDate(value) {
   );
 }
 
-function getStringUrl(value) {
-  if (
-    typeof value === "string"
-  ) {
-    return value.trim();
-  }
-
-  if (
-    !value ||
-    typeof value !== "object"
-  ) {
-    return "";
-  }
-
-  const url =
-    value.url ||
-    value.downloadURL ||
-    value.uri ||
-    "";
-
-  return typeof url === "string"
-    ? url.trim()
-    : "";
+function getErrorMessage(
+  error,
+  fallbackMessage
+) {
+  return (
+    error?.response?.data
+      ?.message ||
+    error?.message ||
+    fallbackMessage
+  );
 }
 
-function getPhotoVariant(
-  photo,
-  variant
+function getUpdatedSubmission(
+  value
 ) {
   if (
-    typeof photo === "string"
+    value?.submission &&
+    typeof value.submission ===
+      "object"
   ) {
-    return photo;
+    return value.submission;
   }
 
   if (
-    !photo ||
-    typeof photo !== "object"
+    value &&
+    typeof value === "object"
   ) {
-    return "";
+    return value;
   }
 
-  const variantCandidates = {
-    original: [
-      photo.originalUrl,
-      photo.originalURL,
-      photo.original,
-    ],
-
-    medium: [
-      photo.mediumUrl,
-      photo.mediumURL,
-      photo.medium,
-    ],
-
-    thumbnail: [
-      photo.thumbnailUrl,
-      photo.thumbnailURL,
-      photo.thumbnail,
-    ],
-  };
-
-  const fallbackCandidates = [
-    photo.url,
-    photo.downloadURL,
-    photo.uri,
-    photo.imageUrl,
-  ];
-
-  const candidates = [
-    ...(variantCandidates[
-      variant
-    ] || []),
-
-    ...fallbackCandidates,
-  ];
-
-  for (
-    const candidate of candidates
-  ) {
-    const url =
-      getStringUrl(candidate);
-
-    if (url) {
-      return url;
-    }
-  }
-
-  return "";
-}
-
-function normalizePhotos(value) {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value
-    .map((photo, index) => {
-      const originalUrl =
-        getPhotoVariant(
-          photo,
-          "original"
-        ) ||
-        getPhotoVariant(
-          photo,
-          "medium"
-        );
-
-      const mediumUrl =
-        getPhotoVariant(
-          photo,
-          "medium"
-        ) ||
-        originalUrl;
-
-      const thumbnailUrl =
-        getPhotoVariant(
-          photo,
-          "thumbnail"
-        ) ||
-        mediumUrl;
-
-      return {
-        id:
-          photo?.id ||
-          photo?.photoId ||
-          `photo-${index + 1}`,
-
-        originalUrl,
-        mediumUrl,
-        thumbnailUrl,
-      };
-    })
-    .filter(
-      (photo) =>
-        photo.mediumUrl ||
-        photo.originalUrl
-    );
-}
-
-function normalizeSubmission(value) {
-  if (
-    !value ||
-    typeof value !== "object"
-  ) {
-    return null;
-  }
-
-  const photos =
-    normalizePhotos(
-      value.photos ||
-      value.images ||
-      []
-    );
-
-  return {
-    ...value,
-
-    id:
-      value.id ||
-      value.submissionId ||
-      "",
-
-    submissionId:
-      value.submissionId ||
-      value.id ||
-      "",
-
-    placeId:
-      value.placeId ||
-      "",
-
-    placeName:
-      value.placeName ||
-      value.place?.name ||
-      "Lugar sin nombre",
-
-    createdBy:
-      value.createdBy ||
-      "",
-
-    createdByName:
-      value.createdByName ||
-      value.userName ||
-      value.createdByUser
-        ?.name ||
-      "Usuario",
-
-    createdAt:
-      value.createdAt ||
-      value.submittedAt ||
-      null,
-
-    status:
-      value.status ||
-      "in_review",
-
-    photoCount:
-      Number(
-        value.photoCount ??
-        photos.length
-      ),
-
-    photos,
-  };
+  return {};
 }
 
 export default function PhotoDetailSubmissionScreen() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate =
+    useNavigate();
 
   const {
     submissionId,
   } = useParams();
 
-  /*
-   * Propuesta enviada desde el listado.
-   * Puede venir incompleta porque el listado
-   * normalmente solo contiene una preview.
-   */
-  const navigationSubmission =
-    location.state?.submission ||
-    null;
+  const [
+    submission,
+    setSubmission,
+  ] = useState(null);
 
-  /*
-   * Si la propuesta recibida desde el listado
-   * tiene fotografías, usamos esas.
-   *
-   * Si no tiene fotografías, usamos las fotos
-   * simuladas del data.js.
-   */
-  const photos = useMemo(() => {
-    const navigationPhotos =
-      normalizePhotos(
-        navigationSubmission
-          ?.photos ||
-        navigationSubmission
-          ?.images ||
-        []
-      );
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-    if (
-      navigationPhotos.length > 0
-    ) {
-      return navigationPhotos;
+  const [
+    loadingError,
+    setLoadingError,
+  ] = useState("");
+
+  const [
+    reloadCounter,
+    setReloadCounter,
+  ] = useState(0);
+
+  const [
+    rejectionModalVisible,
+    setRejectionModalVisible,
+  ] = useState(false);
+
+  const [
+    rejectionLoading,
+    setRejectionLoading,
+  ] = useState(false);
+
+  const [
+    approvalLoading,
+    setApprovalLoading,
+  ] = useState(false);
+
+  const actionLoading =
+    rejectionLoading ||
+    approvalLoading;
+
+  useEffect(() => {
+    let requestCancelled =
+      false;
+
+    async function loadSubmission() {
+      if (!submissionId) {
+        setSubmission(null);
+
+        setLoadingError(
+          "La URL no contiene un identificador de propuesta válido."
+        );
+
+        setLoading(false);
+
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setLoadingError("");
+
+        const result =
+          await getPhotoSubmissionDetailService(
+            submissionId
+          );
+
+        if (requestCancelled) {
+          return;
+        }
+
+        setSubmission(result);
+      } catch (error) {
+        if (requestCancelled) {
+          return;
+        }
+
+        console.error(
+          "Error cargando detalle de propuesta de fotografías:",
+          error
+        );
+
+        setSubmission(null);
+
+        setLoadingError(
+          getErrorMessage(
+            error,
+            "No fue posible cargar el detalle de la propuesta."
+          )
+        );
+      } finally {
+        if (!requestCancelled) {
+          setLoading(false);
+        }
+      }
     }
 
-    return normalizePhotos(
-      photoDetailSubmissionMock
-        .photos
-    );
-  }, [navigationSubmission]);
+    loadSubmission();
 
-  /*
-   * Mezclamos el mock con la información
-   * recibida desde la tarjeta.
-   *
-   * La tarjeta sobrescribe datos como:
-   * lugar, usuario, estado y fecha.
-   *
-   * El mock completa lo que todavía no
-   * viene en el listado, principalmente
-   * todas las fotografías.
-   */
-  const submission = useMemo(() => {
-    const mergedSubmission = {
-      ...photoDetailSubmissionMock,
-      ...(navigationSubmission ||
-        {}),
-
-      id:
-        navigationSubmission
-          ?.id ||
-        navigationSubmission
-          ?.submissionId ||
-        submissionId ||
-        photoDetailSubmissionMock.id,
-
-      submissionId:
-        navigationSubmission
-          ?.submissionId ||
-        navigationSubmission
-          ?.id ||
-        submissionId ||
-        photoDetailSubmissionMock
-          .submissionId,
-
-      photos,
-
-      photoCount:
-        Number(
-          navigationSubmission
-            ?.photoCount ??
-          photos.length
-        ),
+    return () => {
+      requestCancelled = true;
     };
-
-    return normalizeSubmission(
-      mergedSubmission
-    );
   }, [
-    navigationSubmission,
     submissionId,
-    photos,
+    reloadCounter,
   ]);
 
   function handleGoBack() {
@@ -402,28 +245,280 @@ export default function PhotoDetailSubmissionScreen() {
     );
   }
 
-  function handleGoHome() {
-    navigate("/home");
-  }
-
-  function handleApprove() {
-    window.alert(
-      `Mock: aprobar propuesta ${submission.submissionId}`
+  function handleRetry() {
+    setReloadCounter(
+      (currentValue) =>
+        currentValue + 1
     );
   }
 
-  function handleReject() {
-    window.alert(
-      `Mock: rechazar propuesta ${submission.submissionId}`
+  async function handleApprove() {
+    if (
+      actionLoading ||
+      !submission?.submissionId ||
+      submission.status !==
+        "in_review"
+    ) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "¿Quieres aprobar esta propuesta? Las fotografías se agregarán al lugar."
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setApprovalLoading(true);
+
+      /*
+       * El frontend solamente manda el ID.
+       *
+       * El backend obtiene las fotografías
+       * directamente desde photoSubmissions.
+       */
+      const response =
+        await approvePhotoSubmissionService(
+          submission.submissionId
+        );
+
+      const updatedSubmission =
+        getUpdatedSubmission(
+          response
+        );
+
+      setSubmission(
+        (
+          currentSubmission
+        ) => {
+          if (
+            !currentSubmission
+          ) {
+            return currentSubmission;
+          }
+
+          return {
+            ...currentSubmission,
+            ...updatedSubmission,
+
+            status:
+              updatedSubmission
+                .status ||
+              "approved",
+
+            /*
+             * La respuesta de aprobación no
+             * necesita regresar todas las fotos.
+             * Conservamos las que ya cargó
+             * el endpoint de detalle.
+             */
+            photos:
+              currentSubmission
+                .photos,
+
+            photoCount:
+              currentSubmission
+                .photoCount ??
+              currentSubmission
+                .photos?.length ??
+              0,
+          };
+        }
+      );
+
+      window.alert(
+        "La propuesta fue aprobada correctamente."
+      );
+    } catch (error) {
+      console.error(
+        "Error aprobando propuesta de fotografías:",
+        error
+      );
+
+      window.alert(
+        getErrorMessage(
+          error,
+          "No fue posible aprobar la propuesta."
+        )
+      );
+    } finally {
+      setApprovalLoading(false);
+    }
+  }
+
+  function handleOpenRejectModal() {
+    if (
+      actionLoading ||
+      submission?.status !==
+        "in_review"
+    ) {
+      return;
+    }
+
+    setRejectionModalVisible(
+      true
     );
   }
 
-  if (!submission) {
+  function handleCloseRejectModal() {
+    if (rejectionLoading) {
+      return;
+    }
+
+    setRejectionModalVisible(
+      false
+    );
+  }
+
+  async function handleSubmitRejection({
+    reason,
+    message,
+  }) {
+    if (
+      actionLoading ||
+      !submission?.submissionId ||
+      submission.status !==
+        "in_review"
+    ) {
+      return;
+    }
+
+    try {
+      setRejectionLoading(
+        true
+      );
+
+      const response =
+        await rejectPhotoSubmissionService(
+          {
+            submissionId:
+              submission
+                .submissionId,
+
+            reason,
+            message,
+          }
+        );
+
+      const updatedSubmission =
+        getUpdatedSubmission(
+          response
+        );
+
+      setSubmission(
+        (
+          currentSubmission
+        ) => {
+          if (
+            !currentSubmission
+          ) {
+            return currentSubmission;
+          }
+
+          return {
+            ...currentSubmission,
+            ...updatedSubmission,
+
+            status:
+              updatedSubmission
+                .status ||
+              "rejected",
+
+            photos:
+              currentSubmission
+                .photos,
+
+            photoCount:
+              currentSubmission
+                .photoCount ??
+              currentSubmission
+                .photos?.length ??
+              0,
+
+            rejectionReason:
+              updatedSubmission
+                .rejectionReason || {
+                reason,
+                message,
+              },
+          };
+        }
+      );
+
+      setRejectionModalVisible(
+        false
+      );
+
+      window.alert(
+        "La propuesta fue rechazada correctamente."
+      );
+    } catch (error) {
+      console.error(
+        "Error rechazando propuesta de fotografías:",
+        error
+      );
+
+      window.alert(
+        getErrorMessage(
+          error,
+          "No fue posible rechazar la propuesta."
+        )
+      );
+    } finally {
+      setRejectionLoading(
+        false
+      );
+    }
+  }
+
+  if (loading) {
     return (
-      <LayoutScreen>
-        <main
-          style={styles.container}
-        >
+      <LayoutScreen
+        breadcrumbs={
+          BREADCRUMBS
+        }
+      >
+        <main style={styles.screen}>
+          <div
+            style={
+              styles.centerState
+            }
+          >
+            <p
+              style={
+                styles.stateTitle
+              }
+            >
+              Cargando propuesta...
+            </p>
+
+            <p
+              style={
+                styles.stateText
+              }
+            >
+              Obteniendo las fotografías y los datos de la propuesta.
+            </p>
+          </div>
+        </main>
+      </LayoutScreen>
+    );
+  }
+
+  if (
+    loadingError ||
+    !submission
+  ) {
+    return (
+      <LayoutScreen
+        breadcrumbs={
+          BREADCRUMBS
+        }
+      >
+        <main style={styles.screen}>
           <div
             style={
               styles.centerState
@@ -450,8 +545,21 @@ export default function PhotoDetailSubmissionScreen() {
                 styles.stateText
               }
             >
-              No se encontraron datos para construir la vista.
+              {loadingError ||
+                "No se encontraron datos para construir la vista."}
             </p>
+
+            <button
+              type="button"
+              style={
+                styles.secondaryButton
+              }
+              onClick={
+                handleRetry
+              }
+            >
+              Reintentar
+            </button>
 
             <button
               type="button"
@@ -470,105 +578,134 @@ export default function PhotoDetailSubmissionScreen() {
     );
   }
 
-  const longDate =
-    formatLongDate(
-      submission.createdAt
-    );
+  const photos =
+    Array.isArray(
+      submission.photos
+    )
+      ? submission.photos
+      : [];
 
   const shortDate =
     formatShortDate(
       submission.createdAt
     );
 
-    return (
-  <LayoutScreen
-    breadcrumbs={[
-      {
-        label: "Inicio",
-        to: "/",
-      },
-      {
-        label:
-          "Propuestas de fotografías",
-        to: "/submissions/photos",
-      },
-      {
-        label:
-          "Detalle de propuesta",
-      },
-    ]}
-  >
-    <main style={styles.screen}>
-      <PhotoDetailHeader
-        placeName={
-          submission.placeName
-        }
-        createdByName={
-          submission.createdByName
-        }
-        createdAt={longDate}
-        status={
-          submission.status
-        }
-      />
+  const photoCount =
+    Number.isFinite(
+      Number(
+        submission.photoCount
+      )
+    )
+      ? Number(
+          submission.photoCount
+        )
+      : photos.length;
 
-      <section
-        style={styles.contentArea}
-      >
-        <div
+  return (
+    <LayoutScreen
+      breadcrumbs={
+        BREADCRUMBS
+      }
+    >
+      <main style={styles.screen}>
+        <PhotoDetailHeader
+          placeName={
+            submission.placeName
+          }
+        />
+
+        <section
           style={
-            styles.carouselColumn
+            styles.contentArea
           }
         >
-          <PhotoCarousel
-            photos={
-              submission.photos
+          <div
+            style={
+              styles.carouselColumn
             }
-            placeName={
-              submission.placeName
-            }
-          />
-        </div>
+          >
+            <PhotoCarousel
+              photos={photos}
+              placeName={
+                submission.placeName
+              }
+            />
+          </div>
 
-        <aside
-          style={styles.sideColumn}
+          <aside
+            style={
+              styles.sideColumn
+            }
+          >
+            <SubmissionInfoCard
+              placeName={
+                submission.placeName
+              }
+              createdByName={
+                submission
+                  .createdByName
+              }
+              createdAt={
+                shortDate
+              }
+              photoCount={
+                photoCount
+              }
+              status={
+                submission.status
+              }
+            />
+
+            <ReviewActions
+              status={
+                submission.status
+              }
+              loading={
+                actionLoading
+              }
+              onReject={
+                handleOpenRejectModal
+              }
+              onApprove={
+                handleApprove
+              }
+            />
+          </aside>
+        </section>
+
+        <div
+          style={
+            styles.backButtonWrapper
+          }
         >
-          <SubmissionInfoCard
-            submissionId={
-              submission.submissionId
+          <button
+            type="button"
+            style={
+              styles.backButton
             }
-            placeName={
-              submission.placeName
+            onClick={
+              handleGoBack
             }
-            createdByName={
-              submission.createdByName
-            }
-            createdAt={shortDate}
-            photoCount={
-              submission.photoCount ||
-              submission.photos.length
-            }
-            status={
-              submission.status
-            }
-          />
+          >
+            Volver
+          </button>
+        </div>
+      </main>
 
-          <ReviewActions
-            status={
-              submission.status
-            }
-            loading={false}
-            onReject={
-              handleReject
-            }
-            onApprove={
-              handleApprove
-            }
-          />
-        </aside>
-      </section>
-    </main>
-  </LayoutScreen>
-);
-
+      <PhotoRejectionModal
+        visible={
+          rejectionModalVisible
+        }
+        loading={
+          rejectionLoading
+        }
+        onClose={
+          handleCloseRejectModal
+        }
+        onSubmit={
+          handleSubmitRejection
+        }
+      />
+    </LayoutScreen>
+  );
 }
