@@ -14,6 +14,7 @@ import RejectionReasonModal from "./Components/RejectionReasonModal";
 import getPlaceSubmissionDetailService from "../../../../services/api/submissions/places/read/getPlaceSubmissionDetail.service";
 import getReturnedPlaceSubmissionReviewService from "../../../../services/api/submissions/places/read/getReturnedPlaceSubmissionReview.service";
 import rejectPlaceSubmissionService from "../../../../services/api/submissions/places/update/rejectPlaceSubmission.service";
+import approvePlaceSubmissionService from "../../../../services/api/submissions/places/update/approvePlaceSubmission.service";
 
 function formatDate(dateString) {
   if (!dateString) return "Sin fecha";
@@ -142,6 +143,7 @@ export default function PlaceDetailSubmissionScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [rejecting, setRejecting] = useState(false);
+  const [accepting, setAccepting] = useState(false);
 
   const [returnReview, setReturnReview] = useState(null);
   const [loadingReturnReview, setLoadingReturnReview] = useState(false);
@@ -250,6 +252,43 @@ export default function PlaceDetailSubmissionScreen() {
       return matchesIndex || matchesLabel;
     });
   }
+
+  const handleAcceptSubmission = async () => {
+  if (accepting) return;
+
+  const confirmed = window.confirm(
+    "¿Seguro que quieres aprobar esta propuesta y publicarla como lugar?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    setAccepting(true);
+
+    const response = await approvePlaceSubmissionService(submissionId);
+
+    console.log("APROBACIÓN RESPONSE:", response);
+
+    setSubmission((prev) => ({
+      ...prev,
+      status: "approved",
+      approvedAt: new Date().toISOString(),
+      createdPlaceId: response.placeId || response.createdPlaceId || null,
+    }));
+
+    alert("Propuesta aprobada y lugar publicado correctamente.");
+  } catch (error) {
+    console.error("Error aprobando propuesta:", error);
+
+    alert(
+      error.response?.data?.message ||
+        error.message ||
+        "No se pudo aprobar la propuesta."
+    );
+  } finally {
+    setAccepting(false);
+  }
+};
 
   const handleOpenCompareModal = (fieldKey, meta = {}) => {
     if (!canCompareCorrections) return;
@@ -561,9 +600,7 @@ export default function PlaceDetailSubmissionScreen() {
 
                 <ActionButtons
                   status={submission?.status}
-                  onAccept={() => {
-                    console.log("ACEPTAR submission");
-                  }}
+                  onAccept={handleAcceptSubmission}
                   onReturn={() =>
                     navigate(`/submissions/places/${submissionId}/return`, {
                       state: {
