@@ -328,7 +328,7 @@ export default function ReturnCorrectionItem({
               />
 
               <div style={styles.commentFooter}>
-                {currentComment.trim().length}/5 mínimo
+                {currentComment.trim().length}/10 mínimo
               </div>
             </div>
           );
@@ -386,7 +386,7 @@ export default function ReturnCorrectionItem({
               />
 
               <div style={styles.commentFooter}>
-                {currentComment.trim().length}/5 mínimo
+                {currentComment.trim().length}/10 mínimo
               </div>
             </div>
           );
@@ -462,7 +462,7 @@ export default function ReturnCorrectionItem({
           />
 
           <div style={styles.commentFooter}>
-            {(comment || "").trim().length}/5 mínimo
+            {(comment || "").trim().length}/10 mínimo
           </div>
         </div>
       )}

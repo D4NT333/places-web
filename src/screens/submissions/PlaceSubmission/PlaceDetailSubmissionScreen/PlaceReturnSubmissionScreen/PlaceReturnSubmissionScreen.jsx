@@ -548,19 +548,19 @@ function PlaceReturnSubmissionScreen() {
       return selectedSubtagIndexes.length > 0;
     }
 
-    return fieldComments[fieldKey]?.trim().length >= 5;
+    return fieldComments[fieldKey]?.trim().length >= 10;
   });
 
   const hasValidPhotoComments = selectedPhotoIndexes.every((photoIndex) => {
-    return photoComments[photoIndex]?.trim().length >= 5;
+    return photoComments[photoIndex]?.trim().length >= 10;
   });
 
   const hasValidSubtagComments = selectedSubtagIndexes.every((subtagIndex) => {
-    return subtagComments[subtagIndex]?.trim().length >= 5;
+    return subtagComments[subtagIndex]?.trim().length >= 10;
   });
 
   const canSubmit =
-    generalComment.trim().length >= 10 &&
+    generalComment.trim().length >= 30 &&
     selectedFieldKeys.length > 0 &&
     hasValidFieldComments &&
     hasValidPhotoComments &&
@@ -716,7 +716,7 @@ function PlaceReturnSubmissionScreen() {
                 placeholder="Escribe un comentario general para el usuario..."
                 value={generalComment}
                 onChange={setGeneralComment}
-                minLength={10}
+                minLength={30}
                 readOnly={isReadonly}
               />
             </div>
@@ -731,8 +731,8 @@ function PlaceReturnSubmissionScreen() {
               </p>
 
               <div style={styles.helperList}>
-                <span>Comentario general: mínimo 10 caracteres.</span>
-                <span>Motivo por campo: mínimo 5 caracteres.</span>
+                <span>Comentario general: mínimo 30 caracteres.</span>
+                <span>Motivo por campo: mínimo 10 caracteres.</span>
                 <span>Fotos y subetiquetas se revisan individualmente.</span>
               </div>
             </aside>

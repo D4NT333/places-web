@@ -48,6 +48,11 @@ export default function PhotoRejectionModal({
     setMessage,
   ] = useState("");
 
+  const [
+    showCancelConfirm,
+    setShowCancelConfirm,
+  ] = useState(false);
+
   useEffect(() => {
     if (!visible) {
       return;
@@ -55,21 +60,60 @@ export default function PhotoRejectionModal({
 
     setSelectedReason("");
     setMessage("");
+    setShowCancelConfirm(false);
   }, [visible]);
+
+  const trimmedMessage =
+    message.trim();
+
+  const canSubmit = useMemo(() => {
+    return Boolean(
+      !loading &&
+        selectedReason &&
+        trimmedMessage.length >=
+          MIN_MESSAGE_LENGTH
+    );
+  }, [
+    loading,
+    selectedReason,
+    trimmedMessage,
+  ]);
+
+  const resetForm = () => {
+    setSelectedReason("");
+    setMessage("");
+    setShowCancelConfirm(false);
+  };
+
+  const handleRequestCancel = () => {
+    if (loading) {
+      return;
+    }
+
+    if (
+      selectedReason ||
+      trimmedMessage
+    ) {
+      setShowCancelConfirm(true);
+      return;
+    }
+
+    onClose?.();
+  };
 
   useEffect(() => {
     if (!visible) {
       return undefined;
     }
 
-    function handleKeyDown(event) {
+    const handleKeyDown = (event) => {
       if (
         event.key === "Escape" &&
         !loading
       ) {
-        onClose?.();
+        handleRequestCancel();
       }
-    }
+    };
 
     window.addEventListener(
       "keydown",
@@ -85,30 +129,17 @@ export default function PhotoRejectionModal({
   }, [
     visible,
     loading,
-    onClose,
-  ]);
-
-  const trimmedMessage =
-    message.trim();
-
-  const canSubmit = useMemo(() => {
-    return Boolean(
-      selectedReason &&
-        trimmedMessage.length >=
-          MIN_MESSAGE_LENGTH &&
-        !loading
-    );
-  }, [
     selectedReason,
     trimmedMessage,
-    loading,
   ]);
 
   if (!visible) {
     return null;
   }
 
-  function handleSubmit(event) {
+  const handleSubmit = (
+    event
+  ) => {
     event.preventDefault();
 
     if (!canSubmit) {
@@ -119,98 +150,74 @@ export default function PhotoRejectionModal({
       reason: selectedReason,
       message: trimmedMessage,
     });
-  }
+  };
 
-  function handleOverlayClick() {
-    if (!loading) {
-      onClose?.();
+  const handleConfirmCancel = () => {
+    resetForm();
+    onClose?.();
+  };
+
+  const handleKeepEditing = () => {
+    setShowCancelConfirm(false);
+  };
+
+  const handleOverlayMouseDown = (
+    event
+  ) => {
+    if (
+      event.target === event.currentTarget
+    ) {
+      handleRequestCancel();
     }
-  }
-
-  function handleModalClick(event) {
-    event.stopPropagation();
-  }
+  };
 
   return (
     <div
       style={styles.overlay}
       onMouseDown={
-        handleOverlayClick
+        handleOverlayMouseDown
       }
     >
       <form
         style={styles.modal}
-        onMouseDown={
-          handleModalClick
-        }
         onSubmit={handleSubmit}
       >
-        <header style={styles.header}>
-          <h2 style={styles.title}>
-            Rechazar propuesta
-          </h2>
+        <div style={styles.header}>
+          <div>
+            <h2 style={styles.title}>
+              Rechazar fotografías
+            </h2>
+
+            <p style={styles.subtitle}>
+              Selecciona un motivo y explica
+              por qué la propuesta será
+              rechazada.
+            </p>
+          </div>
 
           <button
             type="button"
             style={styles.closeButton}
+            onClick={
+              handleRequestCancel
+            }
             disabled={loading}
-            onClick={onClose}
             aria-label="Cerrar modal"
           >
             ×
           </button>
-        </header>
-
-        <div style={styles.divider} />
+        </div>
 
         <div style={styles.content}>
-          <label
-            htmlFor="photo-rejection-message"
-            style={styles.label}
-          >
-            Explica el motivo de rechazo
-          </label>
-
-          <textarea
-            id="photo-rejection-message"
-            value={message}
-            disabled={loading}
-            maxLength={
-              MAX_MESSAGE_LENGTH
-            }
-            placeholder="Escribe aquí el motivo de rechazo..."
-            style={styles.textarea}
-            onChange={(event) =>
-              setMessage(
-                event.target.value
-              )
-            }
-          />
-
-          <div style={styles.counterRow}>
-            <span
-              style={{
-                ...styles.counter,
-
-                color:
-                  trimmedMessage.length >
-                    0 &&
-                  trimmedMessage.length <
-                    MIN_MESSAGE_LENGTH
-                    ? "#B91C1C"
-                    : "#64748B",
-              }}
-            >
-              {trimmedMessage.length}/
-              {MIN_MESSAGE_LENGTH} mínimo
-            </span>
-          </div>
-
-          <p style={styles.reasonLabel}>
-            Selecciona un motivo
+          <p style={styles.label}>
+            Motivo del rechazo
           </p>
 
-          <div style={styles.chips}>
+          <div
+            style={
+              styles.chipsContainer
+            }
+          >
             {REJECTION_REASONS.map(
               (reason) => {
                 const isSelected =
@@ -221,19 +228,18 @@ export default function PhotoRejectionModal({
                   <button
                     key={reason.id}
                     type="button"
-                    disabled={loading}
+                    style={{
+                      ...styles.chip,
+                      ...(isSelected
+                        ? styles.chipSelected
+                        : {}),
+                    }}
                     onClick={() =>
                       setSelectedReason(
                         reason.id
                       )
                     }
-                    style={{
-                      ...styles.chip,
-
-                      ...(isSelected
-                        ? styles.chipSelected
-                        : {}),
-                    }}
+                    disabled={loading}
                   >
                     {reason.label}
                   </button>
@@ -241,34 +247,120 @@ export default function PhotoRejectionModal({
               }
             )}
           </div>
+
+          <p style={styles.label}>
+            Comentario para el usuario
+          </p>
+
+          <textarea
+            id="photo-rejection-message"
+            style={styles.textarea}
+            placeholder="Ejemplo: Las fotografías no corresponden claramente al lugar o no cumplen con los lineamientos."
+            value={message}
+            onChange={(event) =>
+              setMessage(
+                event.target.value
+              )
+            }
+            maxLength={
+              MAX_MESSAGE_LENGTH
+            }
+            disabled={loading}
+          />
+
+          <div style={styles.counter}>
+            {trimmedMessage.length}/
+            {MIN_MESSAGE_LENGTH} mínimo
+          </div>
+
+          <div style={styles.actions}>
+            <button
+              type="button"
+              style={
+                styles.cancelButton
+              }
+              onClick={
+                handleRequestCancel
+              }
+              disabled={loading}
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              style={{
+                ...styles.submitButton,
+                ...(!canSubmit
+                  ? styles.submitButtonDisabled
+                  : {}),
+              }}
+              disabled={!canSubmit}
+            >
+              {loading
+                ? "Rechazando..."
+                : "Enviar rechazo"}
+            </button>
+          </div>
         </div>
 
-        <footer style={styles.footer}>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={onClose}
-            style={styles.cancelButton}
+        {showCancelConfirm && (
+          <div
+            style={
+              styles.confirmOverlay
+            }
           >
-            Cancelar
-          </button>
+            <div
+              style={styles.confirmBox}
+            >
+              <h3
+                style={
+                  styles.confirmTitle
+                }
+              >
+                ¿Cancelar rechazo?
+              </h3>
 
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            style={{
-              ...styles.submitButton,
+              <p
+                style={
+                  styles.confirmText
+                }
+              >
+                Se perderá el motivo
+                seleccionado y el
+                comentario escrito.
+              </p>
 
-              ...(!canSubmit
-                ? styles.submitButtonDisabled
-                : {}),
-            }}
-          >
-            {loading
-              ? "Enviando..."
-              : "Enviar rechazo"}
-          </button>
-        </footer>
+              <div
+                style={
+                  styles.confirmActions
+                }
+              >
+                <button
+                  type="button"
+                  style={styles.keepButton}
+                  onClick={
+                    handleKeepEditing
+                  }
+                >
+                  Seguir editando
+                </button>
+
+                <button
+                  type="button"
+                  style={
+                    styles.confirmCancelButton
+                  }
+                  onClick={
+                    handleConfirmCancel
+                  }
+                >
+                  Sí, cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

@@ -206,6 +206,7 @@ export default function PlaceDetailSubmissionScreen() {
   const isReturned = submission?.status === "returned";
   const isResubmitted = submission?.status === "resubmitted";
   const isRejected = submission?.status === "rejected";
+  const isApproved = submission?.status === "approved";
 
   const returnedAtLabel = formatDate(
     submission?.returnedAt || submission?.updatedAt
@@ -598,6 +599,7 @@ export default function PlaceDetailSubmissionScreen() {
                   ) : null}
                 </div>
 
+              {!isApproved && (
                 <ActionButtons
                   status={submission?.status}
                   onAccept={handleAcceptSubmission}
@@ -624,6 +626,7 @@ export default function PlaceDetailSubmissionScreen() {
                     });
                   }}
                 />
+              )}
               </div>
 
               <div style={styles.nameStatusGrid}>

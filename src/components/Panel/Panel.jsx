@@ -96,7 +96,7 @@ export default function Panel() {
             <span style={styles.arrow}>
               {openSections.listas ? "⌄" : "›"}
             </span>
-            <span style={styles.sectionText}>Listas</span>
+            <span style={styles.sectionText}>Propuestas</span>
           </button>
 
           <div
@@ -169,7 +169,7 @@ export default function Panel() {
               style={styles.optionButton}
               onClick={() => handleNavigation("/management/deleted-submissions")}
             >
-              Envíos Eliminados
+              Propuestas eliminadas
             </button>
 
             <button

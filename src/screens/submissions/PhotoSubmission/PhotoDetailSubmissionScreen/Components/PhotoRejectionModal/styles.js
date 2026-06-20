@@ -2,217 +2,219 @@ const styles = {
   overlay: {
     position: "fixed",
     inset: 0,
-    zIndex: 9999,
-
+    backgroundColor: "rgba(2, 8, 23, 0.45)",
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
-
-    padding: "24px",
-
-    backgroundColor:
-      "rgba(15, 23, 42, 0.58)",
+    justifyContent: "center",
+    zIndex: 1000,
+    padding: 24,
   },
 
   modal: {
-    width: "min(680px, 100%)",
-
-    overflow: "hidden",
-
+    width: "100%",
+    maxWidth: 620,
     backgroundColor: "#FFFFFF",
-
+    borderRadius: 24,
+    boxShadow: "0 24px 60px rgba(15, 23, 42, 0.25)",
     border: "1px solid #E2E8F0",
-    borderRadius: "16px",
-
-    boxShadow:
-      "0 24px 70px rgba(15, 23, 42, 0.28)",
+    position: "relative",
+    overflow: "hidden",
   },
 
   header: {
+    padding: "24px 28px 18px",
+    borderBottom: "1px solid #E2E8F0",
     display: "flex",
+    alignItems: "flex-start",
     justifyContent: "space-between",
-    alignItems: "center",
-
-    padding: "18px 22px",
+    gap: 16,
   },
 
   title: {
     margin: 0,
+    fontSize: 24,
+    fontWeight: 900,
+    color: "#071330",
+  },
 
-    fontSize: "1.15rem",
-    fontWeight: 700,
-    color: "#172033",
+  subtitle: {
+    margin: "8px 0 0",
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#64748B",
+    lineHeight: 1.5,
   },
 
   closeButton: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-
-    width: "34px",
-    height: "34px",
-
-    padding: 0,
-
+    width: 36,
+    height: 36,
+    borderRadius: 999,
+    border: "1px solid #CBD5E1",
     backgroundColor: "#FFFFFF",
-
-    border: "1px solid #D7DDE7",
-    borderRadius: "50%",
-
-    fontSize: "1.4rem",
-    lineHeight: 1,
-    color: "#52606D",
-
+    color: "#0F172A",
+    fontSize: 24,
+    fontWeight: 800,
     cursor: "pointer",
-  },
-
-  divider: {
-    height: "1px",
-    backgroundColor: "#E5E7EB",
+    lineHeight: "30px",
   },
 
   content: {
-    padding: "20px 22px 24px",
+    padding: 28,
   },
 
   label: {
-    display: "block",
-
-    marginBottom: "10px",
-
-    textAlign: "center",
-
-    fontSize: "0.88rem",
-    fontWeight: 600,
-    color: "#475569",
+    margin: "0 0 10px",
+    fontSize: 14,
+    fontWeight: 900,
+    color: "#0F172A",
   },
 
-  textarea: {
-    width: "100%",
-    minHeight: "118px",
-
-    padding: "13px 14px",
-
-    resize: "vertical",
-
-    boxSizing: "border-box",
-
-    backgroundColor: "#FFFFFF",
-
-    border: "1px solid #CBD5E1",
-    borderRadius: "10px",
-    outline: "none",
-
-    fontFamily: "inherit",
-    fontSize: "0.9rem",
-    lineHeight: 1.5,
-    color: "#1F2937",
-  },
-
-  counterRow: {
-    display: "flex",
-    justifyContent: "flex-end",
-
-    marginTop: "6px",
-  },
-
-  counter: {
-    fontSize: "0.72rem",
-  },
-
-  reasonLabel: {
-    margin: "16px 0 10px",
-
-    fontSize: "0.82rem",
-    fontWeight: 600,
-    color: "#475569",
-  },
-
-  chips: {
+  chipsContainer: {
     display: "flex",
     flexWrap: "wrap",
-
-    gap: "10px",
+    gap: 10,
+    marginBottom: 22,
   },
 
   chip: {
-    padding: "8px 15px",
-
-    backgroundColor: "#FFFFFF",
-
     border: "1px solid #CBD5E1",
-    borderRadius: "20px",
-
-    fontSize: "0.78rem",
-    fontWeight: 600,
-    color: "#475569",
-
+    backgroundColor: "#F8FAFC",
+    color: "#334155",
+    borderRadius: 999,
+    padding: "10px 14px",
+    fontSize: 13,
+    fontWeight: 900,
     cursor: "pointer",
   },
 
   chipSelected: {
-    backgroundColor: "#FEF2F2",
-
     borderColor: "#DC2626",
-
-    color: "#B91C1C",
+    backgroundColor: "#FEE2E2",
+    color: "#991B1B",
   },
 
-  footer: {
+  textarea: {
+    width: "100%",
+    minHeight: 130,
+    resize: "vertical",
+    borderRadius: 18,
+    border: "1px solid #CBD5E1",
+    backgroundColor: "#F8FAFC",
+    padding: 16,
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#0F172A",
+    outline: "none",
+    boxSizing: "border-box",
+    lineHeight: 1.5,
+  },
+
+  counter: {
+    marginTop: 8,
+    textAlign: "right",
+    fontSize: 12,
+    fontWeight: 800,
+    color: "#64748B",
+  },
+
+  actions: {
+    marginTop: 24,
     display: "flex",
     justifyContent: "flex-end",
-
-    gap: "12px",
-
-    padding: "16px 22px 20px",
-
-    backgroundColor: "#F8FAFC",
-
-    borderTop: "1px solid #E5E7EB",
+    gap: 12,
   },
 
   cancelButton: {
-    minWidth: "110px",
-
-    padding: "10px 20px",
-
-    backgroundColor: "#FFFFFF",
-
     border: "1px solid #CBD5E1",
-    borderRadius: "22px",
-
-    fontSize: "0.8rem",
-    fontWeight: 700,
-    color: "#334155",
-
+    backgroundColor: "#FFFFFF",
+    color: "#0F172A",
+    borderRadius: 14,
+    padding: "12px 18px",
+    fontSize: 14,
+    fontWeight: 900,
     cursor: "pointer",
   },
 
   submitButton: {
-    minWidth: "140px",
-
-    padding: "10px 20px",
-
-    backgroundColor: "#B91C1C",
-
-    border: "1px solid #B91C1C",
-    borderRadius: "22px",
-
-    fontSize: "0.8rem",
-    fontWeight: 700,
+    border: "none",
+    backgroundColor: "#DC2626",
     color: "#FFFFFF",
-
+    borderRadius: 14,
+    padding: "12px 18px",
+    fontSize: 14,
+    fontWeight: 900,
     cursor: "pointer",
+    boxShadow: "0 10px 20px rgba(220, 38, 38, 0.22)",
   },
 
   submitButtonDisabled: {
-    backgroundColor: "#E2E8F0",
-
-    borderColor: "#E2E8F0",
-
-    color: "#94A3B8",
-
+    opacity: 0.5,
     cursor: "not-allowed",
+    boxShadow: "none",
+  },
+
+  confirmOverlay: {
+    position: "absolute",
+    inset: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.88)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+
+  confirmBox: {
+    width: "100%",
+    maxWidth: 420,
+    backgroundColor: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    borderRadius: 20,
+    padding: 24,
+    boxShadow: "0 18px 45px rgba(15, 23, 42, 0.18)",
+  },
+
+  confirmTitle: {
+    margin: 0,
+    fontSize: 20,
+    fontWeight: 900,
+    color: "#071330",
+  },
+
+  confirmText: {
+    margin: "10px 0 0",
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#64748B",
+    lineHeight: 1.5,
+  },
+
+  confirmActions: {
+    marginTop: 22,
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 12,
+  },
+
+  keepButton: {
+    border: "1px solid #CBD5E1",
+    backgroundColor: "#FFFFFF",
+    color: "#0F172A",
+    borderRadius: 14,
+    padding: "11px 14px",
+    fontSize: 13,
+    fontWeight: 900,
+    cursor: "pointer",
+  },
+
+  confirmCancelButton: {
+    border: "none",
+    backgroundColor: "#DC2626",
+    color: "#FFFFFF",
+    borderRadius: 14,
+    padding: "11px 14px",
+    fontSize: 13,
+    fontWeight: 900,
+    cursor: "pointer",
   },
 };
 

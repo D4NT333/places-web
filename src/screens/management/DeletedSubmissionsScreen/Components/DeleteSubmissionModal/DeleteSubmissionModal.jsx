@@ -2,10 +2,10 @@ import React from "react";
 
 import styles from "./styles";
 
-export default function DeleteSubmissionModal({
+export default function SubmissionSummaryModal({
   submission,
-  onCancel,
-  onConfirm,
+  onClose,
+  onDelete,
 }) {
   if (!submission) {
     return null;
@@ -15,51 +15,190 @@ export default function DeleteSubmissionModal({
     <div
       style={styles.backdrop}
       role="presentation"
-      onMouseDown={onCancel}
+      onMouseDown={onClose}
     >
       <div
         style={styles.modal}
-        role="alertdialog"
+        role="dialog"
         aria-modal="true"
-        aria-labelledby="delete-submission-title"
+        aria-labelledby="submission-summary-title"
         onMouseDown={(event) =>
           event.stopPropagation()
         }
       >
-        <div style={styles.icon}>!</div>
+        <div style={styles.header}>
+          <div>
+            <h2
+              id="submission-summary-title"
+              style={styles.title}
+            >
+              Resumen de la propuesta
+            </h2>
 
-        <h2
-          id="delete-submission-title"
-          style={styles.title}
-        >
-          Eliminar definitivamente
-        </h2>
+            <p style={styles.subtitle}>
+              Información conservada antes de su
+              eliminación definitiva.
+            </p>
+          </div>
 
-        <p style={styles.description}>
-          La propuesta{" "}
-          <strong>
-            “{submission.proposal}”
-          </strong>{" "}
-          será eliminada permanentemente.
-        </p>
+          <button
+            type="button"
+            style={styles.closeButton}
+            onClick={onClose}
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </div>
 
-        <p style={styles.warning}>
-          Esta acción no se puede deshacer.
-        </p>
+        <div style={styles.content}>
+          <div
+            style={
+              styles.proposalHeader
+            }
+          >
+            {submission.previewImageUrl ? (
+              <img
+                src={
+                  submission.previewImageUrl
+                }
+                alt=""
+                style={
+                  styles.previewImage
+                }
+              />
+            ) : (
+              <div
+                style={
+                  styles.previewFallback
+                }
+              >
+                {submission.type ===
+                "photo"
+                  ? "F"
+                  : submission.type ===
+                      "description"
+                    ? "D"
+                    : "L"}
+              </div>
+            )}
 
-        <div style={styles.actions}>
+            <div>
+              <span
+                style={
+                  styles.proposalType
+                }
+              >
+                {submission.typeLabel}
+              </span>
+
+              <h3
+                style={
+                  styles.proposalTitle
+                }
+              >
+                {submission.proposal}
+              </h3>
+            </div>
+          </div>
+
+          <div style={styles.dataGrid}>
+            <div style={styles.dataRow}>
+              <span style={styles.label}>
+                Usuario
+              </span>
+
+              <span style={styles.value}>
+                {submission.userName}
+              </span>
+            </div>
+
+            <div style={styles.dataRow}>
+              <span style={styles.label}>
+                Eliminada el
+              </span>
+
+              <span style={styles.value}>
+                {submission.deletedAt}
+              </span>
+            </div>
+
+            <div style={styles.dataRow}>
+              <span style={styles.label}>
+                Estado anterior
+              </span>
+
+              <span style={styles.value}>
+                {
+                  submission.previousStatusLabel
+                }
+              </span>
+            </div>
+
+            <div style={styles.dataRow}>
+              <span style={styles.label}>
+                Estado actual
+              </span>
+
+              <span style={styles.value}>
+                {submission.statusLabel}
+              </span>
+            </div>
+
+            <div style={styles.dataRow}>
+              <span style={styles.label}>
+                Colección de origen
+              </span>
+
+              <span style={styles.value}>
+                {submission.sourceCollection ||
+                  "No disponible"}
+              </span>
+            </div>
+
+            <div style={styles.dataRow}>
+              <span style={styles.label}>
+                ID de la propuesta
+              </span>
+
+              <span
+                style={styles.codeValue}
+              >
+                {submission.submissionId ||
+                  "No disponible"}
+              </span>
+            </div>
+
+            <div style={styles.dataRow}>
+              <span style={styles.label}>
+                ID del usuario
+              </span>
+
+              <span
+                style={styles.codeValue}
+              >
+                {submission.userId ||
+                  "No disponible"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.footer}>
           <button
             type="button"
             style={styles.cancelButton}
-            onClick={onCancel}
+            onClick={onClose}
           >
-            Cancelar
+            Cerrar
           </button>
 
           <button
             type="button"
             style={styles.deleteButton}
-            onClick={onConfirm}
+            onClick={() =>
+              onDelete(submission)
+            }
           >
             Eliminar definitivamente
           </button>

@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import LayoutScreen from "../../../layout";
 
@@ -6,8 +10,17 @@ import DeletedSubmissionsTable from "./Components/DeletedSubmissionsTable";
 import SubmissionSummaryModal from "./Components/SubmissionSummaryModal";
 import DeleteSubmissionModal from "./Components/DeleteSubmissionModal";
 
-import deletedSubmissionsMock from "./data";
+import getDeletedSubmissionsService from "../../../services/api/submissions/getDeletedSubmissions.service";
+
 import styles from "./styles";
+
+const PAGE_LIMIT = 15;
+
+const EMPTY_PAGINATION = {
+  limit: PAGE_LIMIT,
+  hasMore: false,
+  nextCursor: null,
+};
 
 const breadcrumbs = [
   {
@@ -20,8 +33,16 @@ const breadcrumbs = [
 ];
 
 export default function DeletedSubmissionsScreen() {
-  const [submissions, setSubmissions] = useState(
-    deletedSubmissionsMock
+  const [
+    submissions,
+    setSubmissions,
+  ] = useState([]);
+
+  const [
+    pagination,
+    setPagination,
+  ] = useState(
+    EMPTY_PAGINATION
   );
 
   const [
@@ -34,16 +55,95 @@ export default function DeletedSubmissionsScreen() {
     setSubmissionToDelete,
   ] = useState(null);
 
-  function handleOpenSummary(submission) {
-    setSelectedSubmission(submission);
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(true);
+
+  const [
+    isLoadingMore,
+    setIsLoadingMore,
+  ] = useState(false);
+
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState("");
+
+  const loadSubmissions =
+    useCallback(
+      async ({
+        cursor = null,
+        append = false,
+      } = {}) => {
+        if (append) {
+          setIsLoadingMore(true);
+        } else {
+          setIsLoading(true);
+        }
+
+        setErrorMessage("");
+
+        try {
+          const result =
+            await getDeletedSubmissionsService({
+              limit: PAGE_LIMIT,
+              cursor,
+            });
+
+          setSubmissions(
+            (currentSubmissions) =>
+              append
+                ? [
+                    ...currentSubmissions,
+                    ...result.items,
+                  ]
+                : result.items
+          );
+
+          setPagination(
+            result.pagination
+          );
+        } catch (error) {
+          console.error(
+            "Error al cargar propuestas eliminadas:",
+            error
+          );
+
+          setErrorMessage(
+            error?.message ||
+              "No fue posible cargar las propuestas eliminadas."
+          );
+        } finally {
+          setIsLoading(false);
+          setIsLoadingMore(false);
+        }
+      },
+      []
+    );
+
+  useEffect(() => {
+    loadSubmissions();
+  }, [loadSubmissions]);
+
+  function handleOpenSummary(
+    submission
+  ) {
+    setSelectedSubmission(
+      submission
+    );
   }
 
   function handleCloseSummary() {
     setSelectedSubmission(null);
   }
 
-  function handleRequestDelete(submission) {
-    setSubmissionToDelete(submission);
+  function handleRequestDelete(
+    submission
+  ) {
+    setSubmissionToDelete(
+      submission
+    );
   }
 
   function handleCancelDelete() {
@@ -55,19 +155,28 @@ export default function DeletedSubmissionsScreen() {
       return;
     }
 
-    const submissionId =
+    const deletedSubmissionId =
       submissionToDelete.id;
 
-    setSubmissions((currentSubmissions) =>
-      currentSubmissions.filter(
-        (submission) =>
-          submission.id !== submissionId
-      )
+    /*
+     * Temporal:
+     * quitamos el registro de la interfaz.
+     *
+     * Después reemplazaremos esto por el servicio
+     * que elimine definitivamente en el backend.
+     */
+    setSubmissions(
+      (currentSubmissions) =>
+        currentSubmissions.filter(
+          (submission) =>
+            submission.id !==
+            deletedSubmissionId
+        )
     );
 
     if (
       selectedSubmission?.id ===
-      submissionId
+      deletedSubmissionId
     ) {
       setSelectedSubmission(null);
     }
@@ -75,9 +184,39 @@ export default function DeletedSubmissionsScreen() {
     setSubmissionToDelete(null);
   }
 
-  function handleDeleteFromSummary(submission) {
+  function handleDeleteFromSummary(
+    submission
+  ) {
     setSelectedSubmission(null);
-    setSubmissionToDelete(submission);
+
+    setSubmissionToDelete(
+      submission
+    );
+  }
+
+  function handleLoadMore() {
+    if (
+      isLoadingMore ||
+      !pagination.hasMore ||
+      !pagination.nextCursor
+    ) {
+      return;
+    }
+
+    loadSubmissions({
+      cursor:
+        pagination.nextCursor,
+
+      append: true,
+    });
+  }
+
+  function handleRetry() {
+    setPagination(
+      EMPTY_PAGINATION
+    );
+
+    loadSubmissions();
   }
 
   return (
@@ -96,21 +235,67 @@ export default function DeletedSubmissionsScreen() {
 
         <DeletedSubmissionsTable
           submissions={submissions}
-          onViewSummary={handleOpenSummary}
-          onDelete={handleRequestDelete}
+          isLoading={isLoading}
+          errorMessage={errorMessage}
+          onRetry={handleRetry}
+          onViewSummary={
+            handleOpenSummary
+          }
+          onDelete={
+            handleRequestDelete
+          }
         />
+
+        {!isLoading &&
+          !errorMessage &&
+          pagination.hasMore && (
+            <div
+              style={
+                styles.loadMoreWrapper
+              }
+            >
+              <button
+                type="button"
+                style={
+                  styles.loadMoreButton
+                }
+                disabled={
+                  isLoadingMore
+                }
+                onClick={
+                  handleLoadMore
+                }
+              >
+                {isLoadingMore
+                  ? "Cargando..."
+                  : "Cargar más propuestas"}
+              </button>
+            </div>
+          )}
       </main>
 
       <SubmissionSummaryModal
-        submission={selectedSubmission}
-        onClose={handleCloseSummary}
-        onDelete={handleDeleteFromSummary}
+        submission={
+          selectedSubmission
+        }
+        onClose={
+          handleCloseSummary
+        }
+        onDelete={
+          handleDeleteFromSummary
+        }
       />
 
       <DeleteSubmissionModal
-        submission={submissionToDelete}
-        onCancel={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
+        submission={
+          submissionToDelete
+        }
+        onCancel={
+          handleCancelDelete
+        }
+        onConfirm={
+          handleConfirmDelete
+        }
       />
     </LayoutScreen>
   );
