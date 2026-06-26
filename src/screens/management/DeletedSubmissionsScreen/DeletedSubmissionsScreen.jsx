@@ -11,6 +11,7 @@ import SubmissionSummaryModal from "./Components/SubmissionSummaryModal";
 import DeleteSubmissionModal from "./Components/DeleteSubmissionModal";
 
 import getDeletedSubmissionsService from "../../../services/api/submissions/getDeletedSubmissions.service";
+import deleteDeletedSubmissionService from "../../../services/api/submissions/deleteDeletedSubmission.service";
 
 import styles from "./styles";
 
@@ -66,6 +67,11 @@ export default function DeletedSubmissionsScreen() {
   ] = useState(false);
 
   const [
+    isDeleting,
+    setIsDeleting,
+  ] = useState(false);
+
+  const [
     errorMessage,
     setErrorMessage,
   ] = useState("");
@@ -111,7 +117,8 @@ export default function DeletedSubmissionsScreen() {
           );
 
           setErrorMessage(
-            error?.message ||
+            error?.response?.data?.message ||
+              error?.message ||
               "No fue posible cargar las propuestas eliminadas."
           );
         } finally {
@@ -147,41 +154,63 @@ export default function DeletedSubmissionsScreen() {
   }
 
   function handleCancelDelete() {
+    if (isDeleting) {
+      return;
+    }
+
     setSubmissionToDelete(null);
   }
 
-  function handleConfirmDelete() {
-    if (!submissionToDelete) {
+  async function handleConfirmDelete() {
+    if (
+      !submissionToDelete ||
+      isDeleting
+    ) {
       return;
     }
 
     const deletedSubmissionId =
       submissionToDelete.id;
 
-    /*
-     * Temporal:
-     * quitamos el registro de la interfaz.
-     *
-     * Después reemplazaremos esto por el servicio
-     * que elimine definitivamente en el backend.
-     */
-    setSubmissions(
-      (currentSubmissions) =>
-        currentSubmissions.filter(
-          (submission) =>
-            submission.id !==
-            deletedSubmissionId
-        )
-    );
+    setIsDeleting(true);
+    setErrorMessage("");
 
-    if (
-      selectedSubmission?.id ===
-      deletedSubmissionId
-    ) {
-      setSelectedSubmission(null);
+    try {
+      await deleteDeletedSubmissionService(
+        deletedSubmissionId
+      );
+
+      setSubmissions(
+        (currentSubmissions) =>
+          currentSubmissions.filter(
+            (submission) =>
+              submission.id !==
+              deletedSubmissionId
+          )
+      );
+
+      if (
+        selectedSubmission?.id ===
+        deletedSubmissionId
+      ) {
+        setSelectedSubmission(null);
+      }
+
+      setSubmissionToDelete(null);
+    } catch (error) {
+      console.error(
+        "Error al eliminar definitivamente la propuesta:",
+        error
+      );
+
+      setErrorMessage(
+        error?.response?.data?.message ||
+          error?.message ||
+          "No fue posible eliminar definitivamente la propuesta."
+      );
+    } finally {
+      setIsDeleting(false);
     }
-
-    setSubmissionToDelete(null);
   }
 
   function handleDeleteFromSummary(
@@ -296,6 +325,7 @@ export default function DeletedSubmissionsScreen() {
         onConfirm={
           handleConfirmDelete
         }
+        isDeleting={isDeleting}
       />
     </LayoutScreen>
   );

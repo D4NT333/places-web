@@ -10,6 +10,7 @@ export default function Panel() {
   const [openSections, setOpenSections] = useState({
     metricas: false,
     listas: false,
+    administracion: false,
     mantenimiento: false,
     errores: false,
   });
@@ -60,33 +61,33 @@ export default function Panel() {
                 : styles.sectionContentClosed),
             }}
           >
-                  <button
-            type="button"
-            style={styles.optionButton}
-            onClick={() => handleNavigation("/metrics/operations")}
-          >
-            Operaciones
-          </button>
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/metrics/operations")}
+            >
+              Operaciones
+            </button>
 
-          <button
-            type="button"
-            style={styles.optionButton}
-            onClick={() => handleNavigation("/metrics/demand")}
-          >
-            Demanda
-          </button>
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/metrics/demand")}
+            >
+              Demanda
+            </button>
 
-          <button
-            type="button"
-            style={styles.optionButton}
-            onClick={() => handleNavigation("/metrics/interactions")}
-          >
-            Interacciones
-          </button>
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/metrics/interactions")}
+            >
+              Interacciones
+            </button>
           </div>
         </div>
 
-        {/* LISTAS */}
+        {/* PROPUESTAS */}
         <div style={styles.sectionBlock}>
           <button
             type="button"
@@ -129,6 +130,45 @@ export default function Panel() {
               onClick={() => handleNavigation("/submissions/photos")}
             >
               Propuesta de fotos
+            </button>
+          </div>
+        </div>
+
+        {/* ADMINISTRACIÓN */}
+        <div style={styles.sectionBlock}>
+          <button
+            type="button"
+            style={styles.sectionButton}
+            onClick={() => toggleSection("administracion")}
+          >
+            <span style={styles.arrow}>
+              {openSections.administracion ? "⌄" : "›"}
+            </span>
+            <span style={styles.sectionText}>Administración</span>
+          </button>
+
+          <div
+            style={{
+              ...styles.sectionContent,
+              ...(openSections.administracion
+                ? styles.sectionContentOpen
+                : styles.sectionContentClosed),
+            }}
+          >
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/administration/users")}
+            >
+              Usuarios
+            </button>
+
+            <button
+              type="button"
+              style={styles.optionButton}
+              onClick={() => handleNavigation("/administration/places")}
+            >
+              Lugares
             </button>
           </div>
         </div>

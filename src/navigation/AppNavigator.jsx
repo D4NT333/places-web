@@ -13,7 +13,11 @@ import { PhotoDetailSubmissionScreen } from "../screens";
 import { PlaceDetailSubmissionScreen } from "../screens";
 import { PlaceReturnSubmissionScreen } from "../screens";
 import { PlaceCandidatesScreen } from "../screens";
-import { PlaceDetailCandidatesScreen } from "../screens";
+import { PlaceDetailCandidatesScreen } from "../screens"; 
+import {AdministrationUsersScreen} from "../screens";
+import {AdministrationDetailUserScreen} from "../screens";
+
+import {AdministrationPlaceScreen} from "../screens";
 
 import { DescriptionDetailSubmissionScreen } from "../screens";
 
@@ -77,6 +81,11 @@ function AppRoutesContent({ adminUser }) {
           <Route path="/management/place-registration/candidates/:candidateId" element={<PlaceDetailCandidatesScreen />} />
 
           <Route path="/management/deleted-submissions" element={<DeletedSubmissionsScreen />} />
+
+          <Route path="/administration/users"element={<AdministrationUsersScreen />}/>
+          <Route path="/administration/users/:userId"element={<AdministrationDetailUserScreen />}/>
+
+          <Route path="/administration/places"element={<AdministrationPlaceScreen />}/>
 
           <Route path="*" element={<div>404 - Página no encontrada</div>} />
         </>

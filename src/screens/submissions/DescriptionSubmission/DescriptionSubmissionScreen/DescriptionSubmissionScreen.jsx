@@ -1,4 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 
 import LayoutScreen from "../../../../layout";
@@ -32,6 +37,62 @@ const statusFilters = [
   },
 ];
 
+const groupStyles = {
+  groupWrapper: {
+    borderBottom: "1px solid #e5e7eb",
+  },
+
+  groupHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: "16px 18px",
+    backgroundColor: "#f9fafb",
+    borderBottom: "1px solid #e5e7eb",
+  },
+
+  groupImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    objectFit: "cover",
+    backgroundColor: "#e5e7eb",
+    flexShrink: 0,
+  },
+
+  groupImageFallback: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#e5e7eb",
+    color: "#374151",
+    fontSize: 18,
+    fontWeight: 800,
+    flexShrink: 0,
+  },
+
+  groupTitle: {
+    margin: 0,
+    fontSize: 15,
+    fontWeight: 800,
+    color: "#111827",
+  },
+
+  groupSubtitle: {
+    margin: "4px 0 0",
+    fontSize: 13,
+    color: "#6b7280",
+  },
+
+  groupRows: {
+    display: "flex",
+    flexDirection: "column",
+  },
+};
+
 function getCacheKey(status) {
   return `description-submissions:${status}`;
 }
@@ -40,6 +101,70 @@ function isCacheValid(cacheEntry) {
   if (!cacheEntry) return false;
 
   return Date.now() - cacheEntry.savedAt < CACHE_TTL_MS;
+}
+
+function getTimeValue(value) {
+  if (!value) return 0;
+
+  const time = new Date(value).getTime();
+
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function getPlaceGroupKey(description) {
+  return (
+    description.placeId ||
+    description.placeDocId ||
+    description.placeName ||
+    "unknown-place"
+  );
+}
+
+function getPlacePhotoUrl(description) {
+  return (
+    description.placeSnapshot?.mainPhotoUrl ||
+    null
+  );
+}
+
+function groupDescriptionsByPlace(descriptions = []) {
+  const groupsMap = new Map();
+
+  descriptions.forEach((description) => {
+    const placeKey =
+      getPlaceGroupKey(description);
+
+    const currentGroup =
+      groupsMap.get(placeKey);
+
+    if (currentGroup) {
+      currentGroup.items.push(description);
+      return;
+    }
+
+    groupsMap.set(placeKey, {
+      placeKey,
+
+      placeName:
+        description.placeName ||
+        description.placeSnapshot?.name ||
+        "Lugar sin nombre",
+
+      placePhotoUrl:
+        getPlacePhotoUrl(description),
+
+      items: [description],
+    });
+  });
+
+  return [...groupsMap.values()].map((group) => ({
+    ...group,
+    items: [...group.items].sort(
+      (firstDescription, secondDescription) =>
+        getTimeValue(firstDescription.createdAt) -
+        getTimeValue(secondDescription.createdAt)
+    ),
+  }));
 }
 
 export default function DescriptionSubmissionScreen() {
@@ -63,6 +188,10 @@ export default function DescriptionSubmissionScreen() {
     descriptions.length > 0
       ? Math.ceil(descriptions.length / PAGE_LIMIT)
       : 0;
+
+  const groupedDescriptions = useMemo(() => {
+    return groupDescriptionsByPlace(descriptions);
+  }, [descriptions]);
 
   const saveCache = ({
     status,
@@ -306,6 +435,11 @@ export default function DescriptionSubmissionScreen() {
               </div>
 
               <div style={styles.summaryChip}>
+                Lugares agrupados{" "}
+                <strong>{groupedDescriptions.length}</strong>
+              </div>
+
+              <div style={styles.summaryChip}>
                 <strong>{loadedBatches}</strong>{" "}
                 {loadedBatches === 1
                   ? "lote cargado"
@@ -368,15 +502,64 @@ export default function DescriptionSubmissionScreen() {
               <div style={styles.errorState}>
                 {errorMessage}
               </div>
-            ) : descriptions.length > 0 ? (
-              descriptions.map((description) => (
-                <DescriptionSubmissionRow
-                  key={description.id}
-                  description={description}
-                  onClick={() =>
-                    handleGoToDetail(description.id)
-                  }
-                />
+            ) : groupedDescriptions.length > 0 ? (
+              groupedDescriptions.map((group) => (
+                <div
+                  key={group.placeKey}
+                  style={groupStyles.groupWrapper}
+                >
+                  <div style={groupStyles.groupHeader}>
+                    {group.placePhotoUrl ? (
+                      <img
+                        src={group.placePhotoUrl}
+                        alt={group.placeName}
+                        style={groupStyles.groupImage}
+                      />
+                    ) : (
+                      <div
+                        style={
+                          groupStyles.groupImageFallback
+                        }
+                      >
+                        {group.placeName
+                          .charAt(0)
+                          .toUpperCase()}
+                      </div>
+                    )}
+
+                    <div>
+                      <h3 style={groupStyles.groupTitle}>
+                        {group.placeName}
+                      </h3>
+
+                      <p
+                        style={
+                          groupStyles.groupSubtitle
+                        }
+                      >
+                        {group.items.length}{" "}
+                        {group.items.length === 1
+                          ? "propuesta"
+                          : "propuestas"}{" "}
+                        para este lugar
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={groupStyles.groupRows}>
+                    {group.items.map((description) => (
+                      <DescriptionSubmissionRow
+                        key={description.id}
+                        description={description}
+                        onClick={() =>
+                          handleGoToDetail(
+                            description.id
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
               ))
             ) : (
               <div style={styles.emptyState}>

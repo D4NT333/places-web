@@ -168,6 +168,21 @@ const styles = {
     fontWeight: 600,
     cursor: "pointer",
   },
+  warningBox: {
+  padding: "14px 16px",
+  borderRadius: 12,
+  backgroundColor: "#fff7ed",
+  border: "1px solid #fed7aa",
+  color: "#7c2d12",
+  fontSize: 14,
+  lineHeight: 1.5,
+  marginBottom: 18,
+},
+
+deleteButtonDisabled: {
+  opacity: 0.6,
+  cursor: "not-allowed",
+},
 };
 
 export default styles;

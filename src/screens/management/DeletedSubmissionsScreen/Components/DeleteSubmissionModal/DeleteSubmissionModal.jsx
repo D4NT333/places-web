@@ -2,10 +2,11 @@ import React from "react";
 
 import styles from "./styles";
 
-export default function SubmissionSummaryModal({
+export default function DeleteSubmissionModal({
   submission,
-  onClose,
-  onDelete,
+  onCancel,
+  onConfirm,
+  isDeleting = false,
 }) {
   if (!submission) {
     return null;
@@ -15,13 +16,13 @@ export default function SubmissionSummaryModal({
     <div
       style={styles.backdrop}
       role="presentation"
-      onMouseDown={onClose}
+      onMouseDown={isDeleting ? undefined : onCancel}
     >
       <div
         style={styles.modal}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="submission-summary-title"
+        aria-labelledby="delete-submission-title"
         onMouseDown={(event) =>
           event.stopPropagation()
         }
@@ -29,77 +30,70 @@ export default function SubmissionSummaryModal({
         <div style={styles.header}>
           <div>
             <h2
-              id="submission-summary-title"
+              id="delete-submission-title"
               style={styles.title}
             >
-              Resumen de la propuesta
+              Eliminar propuesta definitivamente
             </h2>
 
             <p style={styles.subtitle}>
-              Información conservada antes de su
-              eliminación definitiva.
+              Esta acción eliminará la propuesta del sistema de forma permanente.
             </p>
           </div>
 
           <button
             type="button"
             style={styles.closeButton}
-            onClick={onClose}
+            onClick={onCancel}
             aria-label="Cerrar"
+            disabled={isDeleting}
           >
             ×
           </button>
         </div>
 
         <div style={styles.content}>
-          <div
-            style={
-              styles.proposalHeader
-            }
-          >
+          <div style={styles.proposalHeader}>
             {submission.previewImageUrl ? (
               <img
-                src={
-                  submission.previewImageUrl
-                }
+                src={submission.previewImageUrl}
                 alt=""
-                style={
-                  styles.previewImage
-                }
+                style={styles.previewImage}
               />
             ) : (
-              <div
-                style={
-                  styles.previewFallback
-                }
-              >
-                {submission.type ===
-                "photo"
+              <div style={styles.previewFallback}>
+                {submission.type === "photo"
                   ? "F"
-                  : submission.type ===
-                      "description"
+                  : submission.type === "description"
                     ? "D"
                     : "L"}
               </div>
             )}
 
             <div>
-              <span
-                style={
-                  styles.proposalType
-                }
-              >
-                {submission.typeLabel}
+              <span style={styles.proposalType}>
+                {submission.typeLabel ||
+                  submission.type ||
+                  "Propuesta"}
               </span>
 
-              <h3
-                style={
-                  styles.proposalTitle
-                }
-              >
-                {submission.proposal}
+              <h3 style={styles.proposalTitle}>
+                {submission.proposal ||
+                  submission.title ||
+                  "Propuesta eliminada"}
               </h3>
             </div>
+          </div>
+
+          <div style={styles.warningBox}>
+            <strong>
+              ¿Seguro que quieres eliminarla?
+            </strong>
+
+            <p>
+              Una vez eliminada, esta propuesta ya no aparecerá en el panel
+              administrativo ni podrá recuperarse desde esta sección.
+            </p>
           </div>
 
           <div style={styles.dataGrid}>
@@ -109,7 +103,8 @@ export default function SubmissionSummaryModal({
               </span>
 
               <span style={styles.value}>
-                {submission.userName}
+                {submission.userName ||
+                  "Usuario"}
               </span>
             </div>
 
@@ -119,7 +114,9 @@ export default function SubmissionSummaryModal({
               </span>
 
               <span style={styles.value}>
-                {submission.deletedAt}
+                {submission.deletedAt ||
+                  submission.requestedAt ||
+                  "No disponible"}
               </span>
             </div>
 
@@ -129,55 +126,20 @@ export default function SubmissionSummaryModal({
               </span>
 
               <span style={styles.value}>
-                {
-                  submission.previousStatusLabel
-                }
-              </span>
-            </div>
-
-            <div style={styles.dataRow}>
-              <span style={styles.label}>
-                Estado actual
-              </span>
-
-              <span style={styles.value}>
-                {submission.statusLabel}
-              </span>
-            </div>
-
-            <div style={styles.dataRow}>
-              <span style={styles.label}>
-                Colección de origen
-              </span>
-
-              <span style={styles.value}>
-                {submission.sourceCollection ||
+                {submission.previousStatusLabel ||
+                  submission.previousStatus ||
                   "No disponible"}
               </span>
             </div>
 
             <div style={styles.dataRow}>
               <span style={styles.label}>
-                ID de la propuesta
+                Tipo
               </span>
 
-              <span
-                style={styles.codeValue}
-              >
-                {submission.submissionId ||
-                  "No disponible"}
-              </span>
-            </div>
-
-            <div style={styles.dataRow}>
-              <span style={styles.label}>
-                ID del usuario
-              </span>
-
-              <span
-                style={styles.codeValue}
-              >
-                {submission.userId ||
+              <span style={styles.value}>
+                {submission.typeLabel ||
+                  submission.type ||
                   "No disponible"}
               </span>
             </div>
@@ -188,19 +150,26 @@ export default function SubmissionSummaryModal({
           <button
             type="button"
             style={styles.cancelButton}
-            onClick={onClose}
+            onClick={onCancel}
+            disabled={isDeleting}
           >
-            Cerrar
+            Cancelar
           </button>
 
           <button
             type="button"
-            style={styles.deleteButton}
-            onClick={() =>
-              onDelete(submission)
-            }
+            style={{
+              ...styles.deleteButton,
+              ...(isDeleting
+                ? styles.deleteButtonDisabled
+                : {}),
+            }}
+            onClick={onConfirm}
+            disabled={isDeleting}
           >
-            Eliminar definitivamente
+            {isDeleting
+              ? "Eliminando..."
+              : "Eliminar definitivamente"}
           </button>
         </div>
       </div>
