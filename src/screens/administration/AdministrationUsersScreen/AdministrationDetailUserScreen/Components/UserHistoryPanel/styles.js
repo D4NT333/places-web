@@ -1,69 +1,105 @@
+const tableColumns = "1.5fr 1.2fr 1fr";
+
 const styles = {
   card: {
     height: "100%",
     minHeight: 0,
     border: "1.5px solid #111827",
-    borderRadius: 14,
+    borderRadius: 12,
     backgroundColor: "#ffffff",
-    padding: "24px 26px 26px",
+    padding: "22px 24px",
     boxSizing: "border-box",
-    boxShadow: "0 16px 34px rgba(15, 23, 42, 0.08)",
+    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.08)",
+    overflow: "hidden",
   },
 
   title: {
-    margin: "0 0 24px",
-    fontSize: 26,
+    margin: "0 0 22px",
+    fontSize: 27,
     fontWeight: 900,
     color: "#111827",
-    letterSpacing: "-0.02em",
   },
 
   table: {
     width: "100%",
+    border: "1px solid #e5e7eb",
+    borderRadius: 14,
+    overflow: "hidden",
+    backgroundColor: "#ffffff",
   },
 
   headerRow: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr 1fr",
-    gap: 16,
-    padding: "0 8px 14px",
-    borderBottom: "1.5px solid #111827",
+    gridTemplateColumns: tableColumns,
+    alignItems: "center",
+    gap: 14,
+    padding: "14px 18px",
+    borderBottom: "1px solid #d1d5db",
+    backgroundColor: "#f9fafb",
     fontSize: 14,
     fontWeight: 900,
     color: "#374151",
+    boxSizing: "border-box",
+  },
+
+  headerCell: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
 
   body: {
     display: "flex",
     flexDirection: "column",
-    gap: 14,
-    paddingTop: 18,
   },
 
   row: {
     width: "100%",
-    minHeight: 48,
+    minHeight: 58,
     display: "grid",
-    gridTemplateColumns: "1fr 1fr 1fr",
-    gap: 16,
-    padding: "0 8px",
+    gridTemplateColumns: tableColumns,
+    alignItems: "center",
+    gap: 14,
+    padding: "0 18px",
     border: "none",
-    borderRadius: 8,
-    backgroundColor: "transparent",
+    borderBottom: "1px solid #eef2f7",
+    backgroundColor: "#ffffff",
+    color: "#0f172a",
     textAlign: "left",
     cursor: "pointer",
+    boxSizing: "border-box",
+    transition:
+      "background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease",
+  },
+
+  rowHovered: {
+    backgroundColor: "#f1f5f9",
+    boxShadow: "inset 4px 0 0 #111827",
+    transform: "translateY(-1px)",
   },
 
   cell: {
     display: "flex",
     alignItems: "center",
-    fontSize: 15,
-    fontWeight: 800,
-    color: "#374151",
+    justifyContent: "flex-start",
+    fontSize: 14,
+    fontWeight: 850,
+    color: "#1f2937",
+    whiteSpace: "nowrap",
+  },
+
+  statusCell: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    fontSize: 14,
+    fontWeight: 900,
+    color: "#0f172a",
+    whiteSpace: "nowrap",
   },
 
   emptyState: {
-    minHeight: 260,
+    minHeight: 160,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

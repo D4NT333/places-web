@@ -1,24 +1,22 @@
 const styles = {
   container: {
     width: "100%",
-    height: "calc(100dvh - 150px)",
-    maxHeight: "calc(100dvh - 150px)",
+    height: "calc(88vh - 190px)",
+    maxHeight: "calc(88vh - 190px)",
+    minHeight: 620,
     overflow: "hidden",
-    padding: "36px 52px 16px",
+    padding: "24px 42px 54px",
     boxSizing: "border-box",
-    background:
-      "linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%)",
-    display: "flex",
-    flexDirection: "column",
+    position: "relative",
   },
 
   contentGrid: {
-    flex: "1 1 auto",
+    width: "100%",
+    height: "100%",
     minHeight: 0,
     display: "grid",
-    gridTemplateColumns:
-      "minmax(760px, 1.45fr) minmax(420px, 0.78fr)",
-    gap: 30,
+    gridTemplateColumns: "minmax(780px, 1.42fr) minmax(440px, 0.78fr)",
+    gap: 28,
     alignItems: "stretch",
   },
 
@@ -26,17 +24,19 @@ const styles = {
     height: "100%",
     minHeight: 0,
     display: "grid",
-    gridTemplateRows: "1.18fr 0.82fr",
-    gap: 26,
+    gridTemplateRows: "1.12fr 0.88fr",
+    gap: 24,
     minWidth: 0,
   },
 
   actionsRow: {
-    flex: "0 0 44px",
+    position: "absolute",
+    right: 42,
+    bottom: 0,
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    minHeight: 0,
+    pointerEvents: "none",
   },
 
   backButton: {
@@ -46,10 +46,11 @@ const styles = {
     border: "1.5px solid #111827",
     backgroundColor: "#ffffff",
     color: "#111827",
-    fontSize: 14,
-    fontWeight: 800,
+    fontSize: 15,
+    fontWeight: 900,
     cursor: "pointer",
-    boxShadow: "0 8px 18px rgba(15, 23, 42, 0.08)",
+    pointerEvents: "auto",
+    boxShadow: "0 8px 18px rgba(15, 23, 42, 0.1)",
   },
 };
 

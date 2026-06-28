@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 import LayoutScreen from "../../../layout";
 
@@ -20,6 +21,8 @@ const breadcrumbs = [
 ];
 
 export default function AdministrationPlaceScreen() {
+  const navigate = useNavigate();
+
   const places = placesData;
 
   const loadedPlacesCount = places.length;
@@ -29,7 +32,14 @@ export default function AdministrationPlaceScreen() {
   }, [loadedPlacesCount]);
 
   const handleSelectPlace = (place) => {
-    console.log("Lugar seleccionado:", place);
+    const selectedPlaceId = place.id || place.placeId;
+
+    if (!selectedPlaceId) {
+      console.warn("El lugar no tiene id:", place);
+      return;
+    }
+
+    navigate(`/administration/places/${selectedPlaceId}`);
   };
 
   return (
@@ -67,7 +77,7 @@ export default function AdministrationPlaceScreen() {
           <div style={styles.tableBody}>
             {places.map((place) => (
               <PlaceRow
-                key={place.id}
+                key={place.id || place.placeId}
                 place={place}
                 onSelect={handleSelectPlace}
               />

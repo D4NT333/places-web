@@ -20,10 +20,11 @@ export { default as SelectZoneScreen } from "./management/PlaceRegistrationScree
 export { default as PlaceCandidatesScreen } from "./management/PlaceRegistrationScreen/PlaceCandidatesScreen";
 export { default as PlaceDetailCandidatesScreen } from "./management/PlaceRegistrationScreen/PlaceDetailCandidatesScreen";
 
-export {default as AdministrationUsersScreen } from "./administration/AdministrationUsersScreen"
-export {default as AdministrationDetailUserScreen } from "./administration/AdministrationUsersScreen/AdministrationDetailUserScreen"
+export {default as AdministrationUsersScreen } from "./administration/AdministrationUsersScreen";
+export {default as AdministrationDetailUserScreen } from "./administration/AdministrationUsersScreen/AdministrationDetailUserScreen";
 
-export {default as AdministrationPlaceScreen } from "./administration/AdministrationPlacesScreen"
+export {default as AdministrationPlaceScreen } from "./administration/AdministrationPlacesScreen";
+export {default as AdministrationDetailPlaceScreen} from "./administration/AdministrationPlacesScreen/AdministrationDetailPlaceScreen";
 
 
 export { default as DeletedSubmissionsScreen } from "./management/DeletedSubmissionsScreen";

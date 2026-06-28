@@ -1,54 +1,71 @@
 const styles = {
   panel: {
     width: "100%",
-    height: "100%",
+    height: "340px",
     minHeight: 0,
     border: "1.5px solid #111827",
-    borderRadius: 10,
-    padding: "14px 16px",
+    borderRadius: 6,
+    padding: "8px 10px",
     boxSizing: "border-box",
-    backgroundColor: "#f9fafb",
+    backgroundColor: "#ffffff",
     overflow: "hidden",
   },
 
   totalText: {
-    margin: "0 0 4px",
-    fontSize: 13,
-    fontWeight: 900,
-    color: "#111827",
+    margin: "0 0 2px",
+    fontSize: 17,
+    fontWeight: 800,
+    color: "#374151",
+    lineHeight: 1.05,
   },
 
   list: {
     display: "flex",
     flexDirection: "column",
-    gap: 22,
-    marginTop: 20,
+    gap: 8,
+    marginTop: 12,
   },
 
   reportItem: {
+    width: "100%",
     display: "flex",
     flexDirection: "column",
-    gap: 7,
+    gap: 6,
+    padding: "8px 8px",
+    border: "none",
+    borderRadius: 8,
+    backgroundColor: "transparent",
+    textAlign: "left",
+    cursor: "pointer",
+    boxSizing: "border-box",
+    transition:
+      "background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease",
+  },
+
+  reportItemHovered: {
+    backgroundColor: "#f1f5f9",
+    boxShadow: "inset 4px 0 0 #111827",
+    transform: "translateY(-1px)",
   },
 
   reasonRow: {
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     minWidth: 0,
   },
 
   dot: {
-    width: 13,
-    height: 13,
+    width: 16,
+    height: 16,
     borderRadius: "50%",
     backgroundColor: "#000000",
     flexShrink: 0,
   },
 
   reason: {
-    fontSize: 13,
-    fontWeight: 900,
+    fontSize: 17,
+    fontWeight: 800,
     color: "#374151",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -57,23 +74,22 @@ const styles = {
 
   reportMeta: {
     display: "grid",
-    gridTemplateColumns: "1fr auto",
-    gap: 12,
-    paddingLeft: 21,
-    fontSize: 12,
+    gridTemplateColumns: "max-content max-content",
+    columnGap: 18,
+    paddingLeft: 22,
+    fontSize: 16,
     fontWeight: 800,
-    color: "#4b5563",
+    color: "#374151",
   },
 
   emptyState: {
     height: "100%",
-    minHeight: 120,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
     color: "#6b7280",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 800,
   },
 };

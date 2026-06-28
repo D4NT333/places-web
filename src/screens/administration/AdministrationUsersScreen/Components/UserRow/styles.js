@@ -1,24 +1,24 @@
-const tableColumns = "40% 18% 13% 14% 15%";
+const tableColumns = "2.3fr 1.2fr 1fr 1fr 1fr";
 
 const styles = {
-  row: {
-    width: "100%",
-    display: "grid",
-    gridTemplateColumns: tableColumns,
-    alignItems: "center",
-    columnGap: 20,
-    minHeight: 104,
-    padding: "0 28px",
-    border: "none",
-    borderBottom: "1px solid #edf1f5",
-    backgroundColor: "#ffffff",
-    color: "#0f172a",
-    textAlign: "left",
-    cursor: "pointer",
-    boxSizing: "border-box",
-    transition:
-      "background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease",
-  },
+ row: {
+  width: "100%",
+  display: "grid",
+  gridTemplateColumns: tableColumns,
+  gap: "1rem",
+  alignItems: "center",
+  minHeight: 104,
+  padding: "0 1.25rem",
+  border: "none",
+  borderBottom: "1px solid #edf1f5",
+  backgroundColor: "#ffffff",
+  color: "#0f172a",
+  textAlign: "left",
+  cursor: "pointer",
+  boxSizing: "border-box",
+  transition:
+    "background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease",
+},
 
   rowHovered: {
     backgroundColor: "#f8fafc",
@@ -29,6 +29,7 @@ const styles = {
   userCell: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "flex-start",
     gap: 16,
     minWidth: 0,
   },
@@ -99,24 +100,35 @@ const styles = {
   },
 
   dateCell: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     fontSize: 14,
     fontWeight: 750,
     color: "#0f172a",
     minWidth: 0,
+    textAlign: "center",
   },
 
   profileCell: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     fontSize: 14,
     fontWeight: 850,
     color: "#0f172a",
     minWidth: 0,
+    textAlign: "center",
   },
 
   activityCell: {
     display: "flex",
     flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 5,
     minWidth: 0,
+    textAlign: "center",
   },
 
   activityMain: {
@@ -132,7 +144,11 @@ const styles = {
   },
 
   statusCell: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     minWidth: 0,
+    textAlign: "center",
   },
 
   statusText: {

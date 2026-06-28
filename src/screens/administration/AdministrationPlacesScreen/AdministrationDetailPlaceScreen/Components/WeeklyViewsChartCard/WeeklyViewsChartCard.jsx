@@ -23,18 +23,17 @@ ChartJS.register(
   Filler
 );
 
-export default function ActivitySummaryCard({ activity }) {
+export default function WeeklyViewsChartCard() {
   const chartData = {
     labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
     datasets: [
       {
-        label: "Actividad",
-        data: activity.weeklyActivity || [0, 1, 1, 0, 2, 0, 1],
+        label: "Vistas",
+        data: [12, 18, 15, 28, 36, 44, 39],
         fill: true,
         tension: 0.35,
         borderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 5,
+        pointRadius: 3,
       },
     ],
   };
@@ -43,11 +42,8 @@ export default function ActivitySummaryCard({ activity }) {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: false,
-      },
       tooltip: {
-        displayColors: false,
+        enabled: true,
       },
     },
     scales: {
@@ -58,7 +54,7 @@ export default function ActivitySummaryCard({ activity }) {
         ticks: {
           font: {
             size: 11,
-            weight: 700,
+            weight: "700",
           },
         },
       },
@@ -68,7 +64,7 @@ export default function ActivitySummaryCard({ activity }) {
           precision: 0,
           font: {
             size: 11,
-            weight: 700,
+            weight: "700",
           },
         },
       },
@@ -77,21 +73,11 @@ export default function ActivitySummaryCard({ activity }) {
 
   return (
     <section style={styles.card}>
-      <h2 style={styles.title}>Actividad</h2>
-
-      <p style={styles.total}>
-        Aportes totales: {activity.total}
-      </p>
+      <h2 style={styles.title}>Vistas en la semana</h2>
 
       <div style={styles.chartBox}>
-        <div style={styles.chartWrapper}>
-          <Line
-            data={chartData}
-            options={chartOptions}
-          />
-        </div>
+        <Line data={chartData} options={chartOptions} />
       </div>
-
     </section>
   );
 }

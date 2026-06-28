@@ -18,6 +18,7 @@ import {AdministrationUsersScreen} from "../screens";
 import {AdministrationDetailUserScreen} from "../screens";
 
 import {AdministrationPlaceScreen} from "../screens";
+import {AdministrationDetailPlaceScreen} from "../screens";
 
 import { DescriptionDetailSubmissionScreen } from "../screens";
 
@@ -86,6 +87,7 @@ function AppRoutesContent({ adminUser }) {
           <Route path="/administration/users/:userId"element={<AdministrationDetailUserScreen />}/>
 
           <Route path="/administration/places"element={<AdministrationPlaceScreen />}/>
+          <Route path="/administration/places/:placeId" element={<AdministrationDetailPlaceScreen />}/>
 
           <Route path="*" element={<div>404 - Página no encontrada</div>} />
         </>

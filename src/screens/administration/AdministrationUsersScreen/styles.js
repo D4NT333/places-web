@@ -1,76 +1,105 @@
-const tableColumns = "40% 18% 13% 14% 15%";
+const tableColumns = "2.3fr 1.2fr 1fr 1fr 1fr";
 
 const styles = {
   container: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.25rem",
     width: "100%",
-    padding: "28px 18px 34px",
-    boxSizing: "border-box",
   },
 
-  header: {
-    marginBottom: 34,
+  headerBlock: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.35rem",
   },
 
   title: {
     margin: 0,
-    marginBottom: 8,
-    fontSize: 26,
-    fontWeight: 900,
-    color: "#111827",
-    letterSpacing: "-0.04em",
+    fontSize: "1.8rem",
+    fontWeight: 700,
+    color: "#1f1f1f",
   },
 
   subtitle: {
     margin: 0,
-    marginBottom: 12,
-    fontSize: 14,
-    fontWeight: 600,
-    color: "#64748b",
+    fontSize: "0.98rem",
+    color: "#6b7280",
   },
 
   chipsRow: {
     display: "flex",
     alignItems: "center",
-    gap: 10,
+    gap: "8px",
     flexWrap: "wrap",
+    marginTop: "8px",
   },
 
   chip: {
     display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center",
-    minHeight: 30,
-    padding: "0 14px",
+    gap: "7px",
+    padding: "6px 10px",
+    border: "1px solid #e2e8f0",
     borderRadius: 999,
-    border: "1px solid #d8e1ec",
     backgroundColor: "#ffffff",
-    color: "#0f172a",
-    fontSize: 13,
-    fontWeight: 850,
-    boxShadow: "0 2px 8px rgba(15, 23, 42, 0.04)",
+    color: "#64748b",
+    fontSize: 12,
+    fontWeight: 600,
   },
 
   table: {
     width: "100%",
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    border: "1px solid #dce3ec",
-    boxShadow: "0 14px 34px rgba(15, 23, 42, 0.06)",
+    background: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "18px",
     overflow: "hidden",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
   },
 
   tableHeader: {
     display: "grid",
     gridTemplateColumns: tableColumns,
+    gap: "1rem",
     alignItems: "center",
-    minHeight: 56,
-    padding: "0 28px",
-    columnGap: 20,
+    padding: "1rem 1.25rem",
+    borderBottom: "1px solid #e5e7eb",
+    background: "#f9fafb",
+    fontSize: "0.92rem",
+    fontWeight: 700,
+    color: "#374151",
     boxSizing: "border-box",
-    color: "#0f172a",
-    fontSize: 13,
-    fontWeight: 900,
-    borderBottom: "1px solid #dce3ec",
+  },
+
+  headerName: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingLeft: "4px",
+  },
+
+  headerDate: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerProfile: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerActivity: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerStatus: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   tableBody: {

@@ -60,12 +60,26 @@ export default function UserAdministrationScreen() {
 
         <section style={styles.table}>
           <div style={styles.tableHeader}>
-            <div>Nombre</div>
-            <div>Fecha de registro</div>
-            <div>Perfil</div>
-            <div>Actividad</div>
-            <div>Estado</div>
-          </div>
+  <div style={styles.headerName}>
+    Nombre
+  </div>
+
+  <div style={styles.headerDate}>
+    Fecha de registro
+  </div>
+
+  <div style={styles.headerProfile}>
+    Perfil
+  </div>
+
+  <div style={styles.headerActivity}>
+    Actividad
+  </div>
+
+  <div style={styles.headerStatus}>
+    Estado
+  </div>
+</div>
 
           <div style={styles.tableBody}>
             {users.map((user) => (

@@ -34,20 +34,24 @@ export default function UserOverviewCard({
         </div>
 
         <div style={styles.metaGrid}>
-          <p style={styles.metaText}>
-            <strong>Birthday:</strong> {user.birthdate || "Sin fecha"}
-          </p>
+  <p style={styles.metaText}>
+    <strong>Birthday:</strong> {user.birthdate || "Sin fecha"}
+  </p>
 
-          <p style={styles.metaText}>
-            <strong>Fecha de registro:</strong>{" "}
-            {user.registeredAt || "Sin fecha"}
-          </p>
+  <p style={styles.metaText}>
+    <strong>Fecha de registro:</strong>{" "}
+    {user.registeredAt || "Sin fecha"}
+  </p>
 
-          <p style={styles.metaText}>
-            <strong>Última actividad:</strong>{" "}
-            {user.lastActivityAt || "Sin actividad"}
-          </p>
-        </div>
+  <p style={styles.metaText}>
+    <strong>Provider:</strong> {user.provider || "Google"}
+  </p>
+
+  <p style={styles.metaText}>
+    <strong>Última actividad:</strong>{" "}
+    {user.lastActivityAt || "Sin actividad"}
+  </p>
+</div>
       </div>
 
       <aside style={styles.moderationBlock}>
