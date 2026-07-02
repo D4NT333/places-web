@@ -24,12 +24,24 @@ ChartJS.register(
 );
 
 export default function ActivitySummaryCard({ activity }) {
+  const weeklyActivity = activity?.weeklyActivity || [];
+
+  const chartLabels =
+    weeklyActivity.length > 0
+      ? weeklyActivity.map((item) => item.label)
+      : ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+  const chartValues =
+    weeklyActivity.length > 0
+      ? weeklyActivity.map((item) => item.value)
+      : [0, 0, 0, 0, 0, 0, 0];
+
   const chartData = {
-    labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+    labels: chartLabels,
     datasets: [
       {
         label: "Actividad",
-        data: activity.weeklyActivity || [0, 1, 1, 0, 2, 0, 1],
+        data: chartValues,
         fill: true,
         tension: 0.35,
         borderWidth: 2,
@@ -77,11 +89,35 @@ export default function ActivitySummaryCard({ activity }) {
 
   return (
     <section style={styles.card}>
-      <h2 style={styles.title}>Actividad</h2>
+      <div style={styles.header}>
+        <div>
+          <h2 style={styles.title}>
+            Actividad
+          </h2>
 
-      <p style={styles.total}>
-        Aportes totales: {activity.total}
-      </p>
+          <p style={styles.total}>
+            Aportes totales: {activity?.total || 0}
+          </p>
+        </div>
+      </div>
+
+      <div style={styles.metricsRow}>
+        <span style={styles.metricChip}>
+          Lugares: <strong>{activity?.placesSent || 0}</strong>
+        </span>
+
+        <span style={styles.metricChip}>
+          Descripciones: <strong>{activity?.descriptionsSent || 0}</strong>
+        </span>
+
+        <span style={styles.metricChip}>
+          Fotografías: <strong>{activity?.photosSent || 0}</strong>
+        </span>
+
+        <span style={styles.metricChip}>
+          Reportes: <strong>{activity?.reportsSent || 0}</strong>
+        </span>
+      </div>
 
       <div style={styles.chartBox}>
         <div style={styles.chartWrapper}>
@@ -91,7 +127,6 @@ export default function ActivitySummaryCard({ activity }) {
           />
         </div>
       </div>
-
     </section>
   );
 }

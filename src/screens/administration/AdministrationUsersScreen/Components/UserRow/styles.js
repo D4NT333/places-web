@@ -157,6 +157,76 @@ const styles = {
     color: "#0f172a",
     whiteSpace: "nowrap",
   },
+  headerTopRow: {
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: 16,
+},
+
+filtersRow: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
+  gap: 10,
+  flexWrap: "wrap",
+},
+
+filterChip: {
+  height: 28,
+  padding: "0 16px",
+  borderRadius: 999,
+  border: "1px solid #cbd5e1",
+  backgroundColor: "#ffffff",
+  color: "#475569",
+  fontSize: 12,
+  fontWeight: 700,
+  cursor: "pointer",
+},
+
+filterChipActive: {
+  backgroundColor: "#0f172a",
+  borderColor: "#0f172a",
+  color: "#ffffff",
+},
+
+errorBox: {
+  marginTop: 12,
+  marginBottom: 12,
+  padding: "12px 14px",
+  borderRadius: 12,
+  backgroundColor: "#fff1f2",
+  border: "1px solid #fecdd3",
+  color: "#991b1b",
+  fontSize: 13,
+  fontWeight: 600,
+},
+
+emptyState: {
+  padding: "28px 16px",
+  textAlign: "center",
+  color: "#64748b",
+  fontSize: 13,
+  fontWeight: 600,
+},
+
+loadingMore: {
+  padding: "16px",
+  textAlign: "center",
+  color: "#475569",
+  fontSize: 13,
+  fontWeight: 600,
+  borderTop: "1px solid #e5e7eb",
+},
+
+endMessage: {
+  padding: "16px",
+  textAlign: "center",
+  color: "#94a3b8",
+  fontSize: 12,
+  fontWeight: 600,
+  borderTop: "1px solid #e5e7eb",
+},
 };
 
 export default styles;

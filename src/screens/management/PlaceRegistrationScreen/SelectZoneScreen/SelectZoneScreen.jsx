@@ -81,7 +81,12 @@ export default function SelectZoneScreen() {
 
   if (checkingPending) {
     return (
-      <LayoutScreen>
+      <LayoutScreen
+        breadcrumbs={[
+          { label: "Inicio", path: "/" },
+          { label: "Agregar lugares por zona" },
+        ]}
+      >
         <div style={styles.container}>
           <h1 style={styles.title}>Revisando candidatos pendientes...</h1>
 
@@ -94,50 +99,41 @@ export default function SelectZoneScreen() {
   }
 
   return (
-    <LayoutScreen>
+    <LayoutScreen
+      breadcrumbs={[
+        { label: "Inicio", path: "/" },
+        { label: "Agregar lugares por zona" },
+      ]}
+    >
       <div style={styles.container}>
-        <h1 style={styles.title}>Select Zone Screen</h1>
-
-        <div style={styles.infoBox}>
-          <strong>Hex seleccionado:</strong>{" "}
-          {selectedHexId ? selectedHexId : "Ninguno"}
-        </div>
-
-        <div style={styles.infoBox}>
-          <strong>Estado:</strong>{" "}
-          {loading ? "Importando candidatos..." : "Listo"}
-        </div>
+        <h1 style={styles.title}>Agregar lugares por zona</h1>
 
         {errorMessage && (
-          <div
-            style={{
-              ...styles.infoBox,
-              borderColor: "#fecaca",
-              backgroundColor: "#fee2e2",
-              color: "#991b1b",
-            }}
-          >
+          <div style={styles.errorBox}>
             {errorMessage}
           </div>
         )}
 
-        <H3PlaceSelectionMap
-          selectedHexId={selectedHexId}
-          onHexClick={handleHexClick}
-        />
+        <div style={styles.mapContainer}>
+          <div style={styles.hexPill}>
+            <span style={styles.hexPillLabel}>HexId:</span>
+            <span style={styles.hexPillValue}>
+              {selectedHexId ? selectedHexId : "Ninguno"}
+            </span>
+          </div>
+
+          <H3PlaceSelectionMap
+            selectedHexId={selectedHexId}
+            onHexClick={handleHexClick}
+          />
+        </div>
 
         <button
           onClick={handleConfirmZone}
           disabled={!selectedHexId || loading}
           style={{
-            marginTop: "20px",
-            padding: "12px 20px",
-            backgroundColor:
-              !selectedHexId || loading ? "#9ca3af" : "#2563eb",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            cursor: !selectedHexId || loading ? "not-allowed" : "pointer",
+            ...styles.confirmButton,
+            ...((!selectedHexId || loading) && styles.confirmButtonDisabled),
           }}
         >
           {loading ? "Importando candidatos..." : "Confirmar zona"}

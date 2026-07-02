@@ -17,7 +17,9 @@ export default function UserOverviewCard({
             style={styles.photo}
           />
         ) : (
-          <span style={styles.photoText}>Foto usuario</span>
+          <span style={styles.photoText}>
+            Foto usuario
+          </span>
         )}
       </div>
 
@@ -29,29 +31,36 @@ export default function UserOverviewCard({
         </div>
 
         <div style={styles.userTexts}>
-          <p style={styles.userName}>{user.name}</p>
-          <p style={styles.profile}>{user.profile}</p>
+          <p style={styles.userName}>
+            {user.name}
+          </p>
+
+          <p style={styles.profile}>
+            {user.profile}
+          </p>
         </div>
 
         <div style={styles.metaGrid}>
-  <p style={styles.metaText}>
-    <strong>Birthday:</strong> {user.birthdate || "Sin fecha"}
-  </p>
+          <p style={styles.metaText}>
+            <strong>Birthday:</strong>{" "}
+            {user.birthdate || "Sin fecha"}
+          </p>
 
-  <p style={styles.metaText}>
-    <strong>Fecha de registro:</strong>{" "}
-    {user.registeredAt || "Sin fecha"}
-  </p>
+          <p style={styles.metaText}>
+            <strong>Fecha de registro:</strong>{" "}
+            {user.registeredAt || "Sin fecha"}
+          </p>
 
-  <p style={styles.metaText}>
-    <strong>Provider:</strong> {user.provider || "Google"}
-  </p>
+          <p style={styles.metaText}>
+            <strong>Provider:</strong>{" "}
+            {user.providerLabel || "Sin proveedor"}
+          </p>
 
-  <p style={styles.metaText}>
-    <strong>Última actividad:</strong>{" "}
-    {user.lastActivityAt || "Sin actividad"}
-  </p>
-</div>
+          <p style={styles.metaText}>
+            <strong>Última actividad:</strong>{" "}
+            {user.lastActivityAt || "Sin actividad"}
+          </p>
+        </div>
       </div>
 
       <aside style={styles.moderationBlock}>

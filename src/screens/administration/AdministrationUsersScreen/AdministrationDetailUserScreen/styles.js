@@ -1,8 +1,8 @@
 const styles = {
   container: {
     width: "100%",
-    height: "calc(88vh - 190px)",
-    maxHeight: "calc(88vh - 190px)",
+    height: "calc(98vh - 190px)",
+    maxHeight: "calc(98vh - 190px)",
     minHeight: 620,
     overflow: "hidden",
     padding: "24px 42px 54px",

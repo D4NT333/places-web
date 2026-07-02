@@ -61,8 +61,8 @@ export default function H3PlaceSelectionMap({
     <div
       style={{
         width: "100%",
-        height: "620px",
-        borderRadius: "16px",
+        height: "840px",
+        borderRadius: "1px",
         overflow: "hidden",
         border: "1px solid #d1d5db",
       }}

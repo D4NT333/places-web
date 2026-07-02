@@ -4,6 +4,8 @@ const styles = {
   card: {
     height: "100%",
     minHeight: 0,
+    display: "flex",
+    flexDirection: "column",
     border: "1.5px solid #111827",
     borderRadius: 12,
     backgroundColor: "#ffffff",
@@ -18,10 +20,15 @@ const styles = {
     fontSize: 27,
     fontWeight: 900,
     color: "#111827",
+    flexShrink: 0,
   },
 
   table: {
     width: "100%",
+    flex: 1,
+    minHeight: 0,
+    display: "flex",
+    flexDirection: "column",
     border: "1px solid #e5e7eb",
     borderRadius: 14,
     overflow: "hidden",
@@ -40,6 +47,7 @@ const styles = {
     fontWeight: 900,
     color: "#374151",
     boxSizing: "border-box",
+    flexShrink: 0,
   },
 
   headerCell: {
@@ -49,13 +57,18 @@ const styles = {
   },
 
   body: {
+    flex: 1,
+    minHeight: 0,
     display: "flex",
     flexDirection: "column",
+    overflowY: "auto",
+    overflowX: "hidden",
   },
 
   row: {
     width: "100%",
     minHeight: 58,
+    flexShrink: 0,
     display: "grid",
     gridTemplateColumns: tableColumns,
     alignItems: "center",
@@ -99,6 +112,7 @@ const styles = {
   },
 
   emptyState: {
+    flex: 1,
     minHeight: 160,
     display: "flex",
     alignItems: "center",

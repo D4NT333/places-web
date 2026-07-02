@@ -4,11 +4,9 @@ import styles from "./styles";
 
 const USER_STATUS_LABELS = {
   active: "Activo",
+  under_observation: "En revisión",
   warned: "Advertido",
-  under_observation: "En observación",
-  limited: "Limitado",
-  suspended: "Suspendido",
-  deleted: "Eliminado",
+  blocked: "Bloqueado",
 };
 
 function formatDate(value) {
@@ -27,30 +25,49 @@ function formatDate(value) {
   }).format(date);
 }
 
-function getInitials(name) {
-  if (!name) return "US";
+function getInitials(name, email) {
+  const cleanName = name?.trim();
 
-  const parts = name
-    .trim()
-    .split(" ")
-    .filter(Boolean);
+  if (cleanName) {
+    const parts = cleanName
+      .split(" ")
+      .filter(Boolean);
 
-  if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
+    if (parts.length === 1) {
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
   }
 
-  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  const cleanEmail = email?.trim();
+
+  if (cleanEmail) {
+    return cleanEmail
+      .replace(/@.*/, "")
+      .slice(0, 2)
+      .toUpperCase();
+  }
+
+  return "US";
 }
 
 export default function UserRow({ user, onSelect }) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const statusLabel = USER_STATUS_LABELS[user.status] || "Activo";
+  const statusLabel =
+    USER_STATUS_LABELS[user.status] || "Activo";
+
+  const contributionsCount =
+    user.activity?.contributionsCount || 0;
+
+  const reportsCount =
+    user.activity?.reportsCount || 0;
 
   const reportsText =
-    user.reportsCount === 1
+    reportsCount === 1
       ? "1 reporte"
-      : `${user.reportsCount || 0} reportes`;
+      : `${reportsCount} reportes`;
 
   const handleClick = () => {
     onSelect?.(user);
@@ -77,12 +94,13 @@ export default function UserRow({ user, onSelect }) {
           {user.photoURL ? (
             <img
               src={user.photoURL}
-              alt={user.name}
+              alt={user.name || "Usuario"}
               style={styles.avatarImage}
             />
           ) : (
             <span style={styles.avatarText}>
-              {getInitials(user.name)}
+              {user.initials ||
+                getInitials(user.name, user.email)}
             </span>
           )}
         </div>
@@ -104,7 +122,7 @@ export default function UserRow({ user, onSelect }) {
       </div>
 
       <div style={styles.dateCell}>
-        {formatDate(user.registeredAt)}
+        {formatDate(user.createdAt)}
       </div>
 
       <div style={styles.profileCell}>
@@ -113,7 +131,7 @@ export default function UserRow({ user, onSelect }) {
 
       <div style={styles.activityCell}>
         <span style={styles.activityMain}>
-          {user.contributionsCount || 0} aportes
+          {contributionsCount} aportes
         </span>
 
         <span style={styles.activitySecondary}>

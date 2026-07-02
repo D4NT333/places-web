@@ -11,7 +11,15 @@ const styles = {
   headerBlock: {
     display: "flex",
     flexDirection: "column",
-    gap: "0.35rem",
+    gap: "0.65rem",
+  },
+
+  headerTopRow: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "1rem",
+    width: "100%",
   },
 
   title: {
@@ -27,12 +35,47 @@ const styles = {
     color: "#6b7280",
   },
 
+  filtersRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: "0.6rem",
+    flexWrap: "wrap",
+    paddingTop: "0.1rem",
+  },
+
+  filterChip: {
+    appearance: "none",
+    WebkitAppearance: "none",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "30px",
+    padding: "0 15px",
+    borderRadius: 999,
+    border: "1px solid #cbd5e1",
+    backgroundColor: "#ffffff",
+    color: "#475569",
+    fontSize: "0.78rem",
+    fontWeight: 700,
+    lineHeight: 1,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+  },
+
+  filterChipActive: {
+    backgroundColor: "#111827",
+    borderColor: "#111827",
+    color: "#ffffff",
+  },
+
   chipsRow: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
     flexWrap: "wrap",
-    marginTop: "8px",
+    marginTop: "2px",
   },
 
   chip: {
@@ -105,9 +148,63 @@ const styles = {
   tableBody: {
     display: "flex",
     flexDirection: "column",
+    maxHeight: "calc(100vh - 315px)",
+    overflowY: "auto",
   },
 
   tableColumns,
+
+  errorBox: {
+    marginTop: 12,
+    marginBottom: 12,
+    padding: "12px 14px",
+    borderRadius: 12,
+    backgroundColor: "#fff1f2",
+    border: "1px solid #fecdd3",
+    color: "#991b1b",
+    fontSize: 13,
+    fontWeight: 600,
+  },
+
+  emptyState: {
+    padding: "28px 16px",
+    textAlign: "center",
+    color: "#64748b",
+    fontSize: 13,
+    fontWeight: 600,
+  },
+
+  loadingMore: {
+    padding: "16px",
+    textAlign: "center",
+    color: "#475569",
+    fontSize: 13,
+    fontWeight: 600,
+    borderTop: "1px solid #e5e7eb",
+  },
+
+  endMessage: {
+    padding: "16px",
+    textAlign: "center",
+    color: "#94a3b8",
+    fontSize: 12,
+    fontWeight: 600,
+    borderTop: "1px solid #e5e7eb",
+  },
+  contentGrid: {
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1.8fr) minmax(420px, 0.95fr)",
+  gap: "1.5rem",
+  alignItems: "stretch",
+  minHeight: 0,
+},
+
+leftColumn: {
+  display: "flex",
+  flexDirection: "column",
+  gap: "1.25rem",
+  minHeight: 0,
+},
 };
 
 export default styles;

@@ -2,8 +2,31 @@ import React, { useState } from "react";
 
 import styles from "./styles";
 
-export default function UserHistoryPanel({ history = [] }) {
+export default function UserHistoryPanel({
+  history = [],
+  loading = false,
+  loadingMore = false,
+  hasMore = false,
+  onLoadMore,
+}) {
   const [hoveredId, setHoveredId] = useState(null);
+
+  const handleBodyScroll = (event) => {
+    const target = event.currentTarget;
+
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
+
+    if (scrollHeight <= clientHeight) return;
+
+    const scrollPercentage =
+      (scrollTop + clientHeight) / scrollHeight;
+
+    if (scrollPercentage >= 0.8) {
+      onLoadMore?.();
+    }
+  };
 
   return (
     <section style={styles.card}>
@@ -16,39 +39,64 @@ export default function UserHistoryPanel({ history = [] }) {
           <span style={styles.headerCell}>Estado</span>
         </div>
 
-        {history.length > 0 ? (
-          <div style={styles.body}>
-            {history.map((item) => {
-              const isHovered = hoveredId === item.id;
+        <div
+          style={styles.body}
+          onScroll={handleBodyScroll}
+        >
+          {loading ? (
+            <div style={styles.emptyState}>
+              Cargando historial...
+            </div>
+          ) : null}
 
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  style={{
-                    ...styles.row,
-                    ...(isHovered ? styles.rowHovered : {}),
-                  }}
-                  onMouseEnter={() => setHoveredId(item.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  onClick={() =>
-                    console.log("Abrir historial:", item.id)
-                  }
-                >
-                  <span style={styles.cell}>{item.type}</span>
-                  <span style={styles.cell}>{item.date}</span>
-                  <span style={styles.statusCell}>
-                    {item.statusLabel}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div style={styles.emptyState}>
-            Sin actividad registrada
-          </div>
-        )}
+          {!loading && history.length > 0 ? (
+            <>
+              {history.map((item) => {
+                const isHovered = hoveredId === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    style={{
+                      ...styles.row,
+                      ...(isHovered ? styles.rowHovered : {}),
+                    }}
+                    onMouseEnter={() => setHoveredId(item.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                    onClick={() =>
+                      console.log("Abrir historial:", item.id)
+                    }
+                  >
+                    <span style={styles.cell}>{item.type}</span>
+                    <span style={styles.cell}>{item.date}</span>
+                    <span style={styles.statusCell}>
+                      {item.statusLabel}
+                    </span>
+                  </button>
+                );
+              })}
+
+              {loadingMore ? (
+                <div style={styles.loadingMore}>
+                  Cargando más historial...
+                </div>
+              ) : null}
+
+              {!loadingMore && !hasMore ? (
+                <div style={styles.endMessage}>
+                  No hay más movimientos.
+                </div>
+              ) : null}
+            </>
+          ) : null}
+
+          {!loading && history.length === 0 ? (
+            <div style={styles.emptyState}>
+              Sin actividad registrada
+            </div>
+          ) : null}
+        </div>
       </div>
     </section>
   );

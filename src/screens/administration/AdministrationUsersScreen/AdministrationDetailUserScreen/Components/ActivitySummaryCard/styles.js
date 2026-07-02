@@ -76,6 +76,41 @@ const styles = {
   marginTop: 12,
   marginBottom: 12,
 },
+metricsRow: {
+  display: "flex",
+  alignItems: "center",
+  gap: "0.6rem",
+  flexWrap: "wrap",
+  marginTop: "0.85rem",
+},
+
+metricChip: {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.35rem",
+  padding: "0.45rem 0.7rem",
+  borderRadius: 999,
+  border: "1px solid #e5e7eb",
+  backgroundColor: "#f9fafb",
+  color: "#374151",
+  fontSize: "0.82rem",
+  fontWeight: 700,
+},
+
+statusRow: {
+  display: "flex",
+  alignItems: "center",
+  gap: "0.75rem",
+  flexWrap: "wrap",
+  marginTop: "0.75rem",
+  marginBottom: "1rem",
+},
+
+statusItem: {
+  color: "#475569",
+  fontSize: "0.82rem",
+  fontWeight: 700,
+},
 };
 
 export default styles;
