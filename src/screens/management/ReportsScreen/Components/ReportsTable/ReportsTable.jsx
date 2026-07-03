@@ -1,17 +1,66 @@
 import styles from "./styles";
 
 import {
-  REPORT_REASON_LABELS,
-} from "../../data";
-
-import {
   ReportStatusPill,
   ReportTypePill,
   ReportUserCell,
 } from "../index";
 
+function formatDate(value) {
+  if (!value) return "Sin fecha";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Sin fecha";
+  }
+
+  return date.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function getReasonLabel(report) {
+  return (
+    report?.reasonLabel ||
+    report?.reason?.label ||
+    report?.reason ||
+    "Motivo no especificado"
+  );
+}
+
+function getRelatedLabel(report) {
+  return (
+    report?.relatedTo?.label ||
+    report?.relatedLabel ||
+    report?.place?.placeName ||
+    report?.reportedUser?.name ||
+    "Sin relación"
+  );
+}
+
+function getCreatedAtLabel(report) {
+  return (
+    report?.createdAtLabel ||
+    formatDate(report?.createdAt)
+  );
+}
+
+function getReporter(report) {
+  return (
+    report?.reporter ||
+    report?.user ||
+    {
+      name: "Usuario",
+      photoURL: "",
+    }
+  );
+}
+
 export default function ReportsTable({
-  reports,
+  reports = [],
   onOpenReport,
 }) {
   if (!reports.length) {
@@ -93,25 +142,19 @@ export default function ReportsTable({
         <tbody>
           {reports.map((report) => (
             <tr
-              key={report.id}
+              key={report.id || report.reportId}
               style={styles.bodyRow}
-              onClick={() => onOpenReport(report)}
+              onClick={() => onOpenReport?.(report)}
               title="Abrir detalle del reporte"
               onMouseEnter={(event) => {
-                event.currentTarget.style.background =
-                  "#f8fafc";
-                event.currentTarget.style.transform =
-                  "translateY(-1px)";
-                event.currentTarget.style.boxShadow =
-                  "inset 4px 0 0 #111827";
+                event.currentTarget.style.background = "#f8fafc";
+                event.currentTarget.style.transform = "translateY(-1px)";
+                event.currentTarget.style.boxShadow = "inset 4px 0 0 #111827";
               }}
               onMouseLeave={(event) => {
-                event.currentTarget.style.background =
-                  "#ffffff";
-                event.currentTarget.style.transform =
-                  "translateY(0)";
-                event.currentTarget.style.boxShadow =
-                  "none";
+                event.currentTarget.style.background = "#ffffff";
+                event.currentTarget.style.transform = "translateY(0)";
+                event.currentTarget.style.boxShadow = "none";
               }}
             >
               <td
@@ -130,8 +173,7 @@ export default function ReportsTable({
                 }}
               >
                 <span style={styles.strongText}>
-                  {REPORT_REASON_LABELS[report.reason] ||
-                    "Motivo"}
+                  {getReasonLabel(report)}
                 </span>
               </td>
 
@@ -142,7 +184,7 @@ export default function ReportsTable({
                 }}
               >
                 <span style={styles.relatedText}>
-                  {report.relatedLabel}
+                  {getRelatedLabel(report)}
                 </span>
               </td>
 
@@ -152,7 +194,7 @@ export default function ReportsTable({
                   ...styles.dateCell,
                 }}
               >
-                {report.createdAtLabel}
+                {getCreatedAtLabel(report)}
               </td>
 
               <td
@@ -161,7 +203,7 @@ export default function ReportsTable({
                   ...styles.userCell,
                 }}
               >
-                <ReportUserCell user={report.user} />
+                <ReportUserCell user={getReporter(report)} />
               </td>
 
               <td
