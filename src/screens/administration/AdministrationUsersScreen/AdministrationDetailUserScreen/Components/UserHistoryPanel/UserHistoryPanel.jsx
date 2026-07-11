@@ -8,6 +8,7 @@ export default function UserHistoryPanel({
   loadingMore = false,
   hasMore = false,
   onLoadMore,
+  onOpenItem,
 }) {
   const [hoveredId, setHoveredId] = useState(null);
 
@@ -33,11 +34,12 @@ export default function UserHistoryPanel({
       <h2 style={styles.title}>Historial</h2>
 
       <div style={styles.table}>
-        <div style={styles.headerRow}>
-          <span style={styles.headerCell}>Tipo</span>
-          <span style={styles.headerCell}>Fecha</span>
-          <span style={styles.headerCell}>Estado</span>
-        </div>
+       <div style={styles.headerRow}>
+  <span style={styles.headerCell}>Tipo</span>
+  <span style={styles.headerCell}>Relacionado con</span>
+  <span style={styles.headerCell}>Fecha</span>
+  <span style={styles.headerCell}>Estado</span>
+</div>
 
         <div
           style={styles.body}
@@ -55,25 +57,29 @@ export default function UserHistoryPanel({
                 const isHovered = hoveredId === item.id;
 
                 return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    style={{
-                      ...styles.row,
-                      ...(isHovered ? styles.rowHovered : {}),
-                    }}
-                    onMouseEnter={() => setHoveredId(item.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    onClick={() =>
-                      console.log("Abrir historial:", item.id)
-                    }
-                  >
-                    <span style={styles.cell}>{item.type}</span>
-                    <span style={styles.cell}>{item.date}</span>
-                    <span style={styles.statusCell}>
-                      {item.statusLabel}
-                    </span>
-                  </button>
+  <button
+  key={item.id}
+  type="button"
+  style={{
+    ...styles.row,
+    ...(isHovered ? styles.rowHovered : {}),
+  }}
+  onMouseEnter={() => setHoveredId(item.id)}
+  onMouseLeave={() => setHoveredId(null)}
+  onClick={() => onOpenItem?.(item)}
+>
+  <span style={styles.cell}>{item.type}</span>
+
+  <span style={styles.relatedCell}>
+    {item.relatedLabel}
+  </span>
+
+  <span style={styles.cell}>{item.date}</span>
+
+  <span style={styles.statusCell}>
+    {item.statusLabel}
+  </span>
+</button>
                 );
               })}
 

@@ -7,10 +7,13 @@ import UserOverviewCard from "./Components/UserOverviewCard";
 import ReceivedReportsPanel from "./Components/ReceivedReportsPanel";
 import ActivitySummaryCard from "./Components/ActivitySummaryCard";
 import UserHistoryPanel from "./Components/UserHistoryPanel";
+import ModerationPanel from "./Components/ModerationPanel";
+import ReportDetailModal from "./Components/ReportDetailModal";
 
 import getAdminUserDetailService from "../../../../services/api/administration/users/adminUserDetail.service.js";
 import getAdminUserHistoryService from "../../../../services/api/administration/users/adminUserHistory.service.js";
 import getAdminUserReportsService from "../../../../services/api/administration/users/adminUserReports.service.js";
+import getAdminUserReportDetailService from "../../../../services/api/administration/users/adminUserReportDetail.service.js";
 
 import styles from "./styles";
 
@@ -67,9 +70,29 @@ function normalizeUserForView(user) {
 function normalizeReportsForView(reports) {
   return (reports || []).map((report) => ({
     id: report.id,
-    reason: report.reason || "Reporte recibido",
+
+    reason:
+      report.reasonLabel ||
+      report.reason ||
+      "Reporte recibido",
+
+    message:
+      report.message ||
+      "Sin descripción",
+
     date: formatDate(report.createdAt),
-    statusLabel: report.statusLabel || "Pendiente",
+
+    status:
+      report.status ||
+      "pending",
+
+    statusLabel:
+      report.statusLabel ||
+      "Pendiente",
+
+    createdBy:
+      report.createdBy ||
+      null,
   }));
 }
 
@@ -95,10 +118,21 @@ function normalizeActivityForView(activity) {
 function normalizeHistoryForView(history) {
   return (history || []).map((item) => ({
     id: item.id || item.submissionId,
+    submissionId: item.submissionId || item.id,
+
     type: item.typeLabel || "Propuesta",
+    submissionType: item.type,
+
+    relatedLabel:
+      item.relatedLabel ||
+      item.placeName ||
+      "Sin elemento relacionado",
+
     date: formatDate(item.createdAt),
+
     status: item.status,
     statusLabel: item.statusLabel || "Pendiente",
+
     placeName: item.placeName || "Sin lugar",
     rawCollection: item.rawCollection,
   }));
@@ -128,6 +162,22 @@ export default function AdministrationDetailUserScreen() {
   const [loadingMoreReports, setLoadingMoreReports] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [isModerationPanelOpen, setIsModerationPanelOpen] =
+  useState(false);
+
+const [isModerating, setIsModerating] = useState(false);
+
+const [selectedReport, setSelectedReport] = useState(null);
+
+const [loadingReportDetail, setLoadingReportDetail] =
+  useState(false);
+
+const [reportDetailError, setReportDetailError] =
+  useState("");
+
+const [isResolvingReport, setIsResolvingReport] =
+  useState(false);
 
   const user = useMemo(() => {
     return normalizeUserForView(userDetail?.user);
@@ -319,8 +369,171 @@ export default function AdministrationDetailUserScreen() {
   };
 
   const handleModerateUser = () => {
-    console.log("Abrir panel de moderación para:", userId);
-  };
+  setIsModerationPanelOpen(true);
+};
+
+const handleCloseModerationPanel = () => {
+  if (isModerating) {
+    return;
+  }
+
+  setIsModerationPanelOpen(false);
+};
+
+const handleSubmitModeration = async (moderationData) => {
+  try {
+    setIsModerating(true);
+
+    console.log("Moderación del usuario:", moderationData);
+
+    /*
+      Aquí irá tu servicio cuando hagamos el backend:
+
+      await moderateAdminUserService(userId, moderationData);
+    */
+
+    setIsModerationPanelOpen(false);
+
+    /*
+      Cuando el servicio exista puedes recargar el usuario:
+
+      await loadUserDetail();
+    */
+  } catch (error) {
+    console.error("Error moderating user:", error);
+  } finally {
+    setIsModerating(false);
+  }
+};
+
+const handleOpenHistoryItem = (item) => {
+  switch (item.submissionType) {
+    case "place":
+      navigate(
+        `/submissions/places/${item.submissionId}`
+      );
+      break;
+
+    case "description":
+      navigate(
+        `/submissions/descriptions/${item.submissionId}`
+      );
+      break;
+
+    case "photo":
+      navigate(
+        `/submissions/photos/${item.submissionId}`
+      );
+      break;
+
+    default:
+      console.warn(
+        "Tipo de propuesta desconocido:",
+        item
+      );
+  }
+};
+
+const handleOpenReport = async (reportId) => {
+  try {
+    setLoadingReportDetail(true);
+    setReportDetailError("");
+
+    const result =
+      await getAdminUserReportDetailService(
+        userId,
+        reportId
+      );
+
+    setSelectedReport({
+      ...result.report,
+      date: formatDate(result.report.createdAt),
+    });
+  } catch (error) {
+    console.error(
+      "Error loading report detail:",
+      error
+    );
+
+    setReportDetailError(
+      error.response?.data?.message ||
+        "No se pudo cargar el detalle del reporte."
+    );
+  } finally {
+    setLoadingReportDetail(false);
+  }
+};
+
+const handleCloseReportModal = () => {
+  if (isResolvingReport) {
+    return;
+  }
+
+  setSelectedReport(null);
+  setReportDetailError("");
+};
+
+const handleValidateReport = async ({
+  reportId,
+  resolutionNote,
+}) => {
+  try {
+    setIsResolvingReport(true);
+
+    console.log("Validar reporte:", {
+      reportId,
+      resolutionNote,
+    });
+
+    /*
+      Aquí después irá el servicio PATCH:
+
+      await resolveAdminReportService(reportId, {
+        status: "resolved",
+        resolutionNote,
+      });
+    */
+
+    setSelectedReport(null);
+
+    await loadUserReports();
+  } catch (error) {
+    console.error("Error validating report:", error);
+  } finally {
+    setIsResolvingReport(false);
+  }
+};
+
+const handleDiscardReport = async ({
+  reportId,
+  resolutionNote,
+}) => {
+  try {
+    setIsResolvingReport(true);
+
+    console.log("Descartar reporte:", {
+      reportId,
+      resolutionNote,
+    });
+
+    /*
+      Aquí después irá el servicio PATCH:
+
+      await resolveAdminReportService(reportId, {
+        status: "discarded",
+        resolutionNote,
+      });
+    */
+
+    setSelectedReport(null);
+
+    await loadUserReports();
+  } catch (error) {
+    console.error("Error discarding report:", error);
+  } finally {
+    setIsResolvingReport(false);
+  }
+};
 
   return (
     <LayoutScreen breadcrumbs={breadcrumbs}>
@@ -345,26 +558,28 @@ export default function AdministrationDetailUserScreen() {
                   user={user}
                   onModerate={handleModerateUser}
                 >
-                  <ReceivedReportsPanel
-                    reports={receivedReports}
-                    emptyMessage={reportsEmptyMessage}
-                    loading={loadingReports}
-                    loadingMore={loadingMoreReports}
-                    hasMore={reportsHasMore}
-                    onLoadMore={handleLoadMoreReports}
-                  />
+                 <ReceivedReportsPanel
+  reports={receivedReports}
+  emptyMessage={reportsEmptyMessage}
+  loading={loadingReports}
+  loadingMore={loadingMoreReports}
+  hasMore={reportsHasMore}
+  onLoadMore={handleLoadMoreReports}
+  onOpenReport={handleOpenReport}
+/>
                 </UserOverviewCard>
 
                 <ActivitySummaryCard activity={activity} />
               </div>
 
-              <UserHistoryPanel
-                history={history}
-                loading={loadingHistory}
-                loadingMore={loadingMoreHistory}
-                hasMore={historyHasMore}
-                onLoadMore={handleLoadMoreHistory}
-              />
+             <UserHistoryPanel
+  history={history}
+  loading={loadingHistory}
+  loadingMore={loadingMoreHistory}
+  hasMore={historyHasMore}
+  onLoadMore={handleLoadMoreHistory}
+  onOpenItem={handleOpenHistoryItem}
+/>
             </section>
 
             <div style={styles.actionsRow}>
@@ -379,6 +594,23 @@ export default function AdministrationDetailUserScreen() {
           </>
         ) : null}
       </main>
+
+      <ModerationPanel
+  isOpen={isModerationPanelOpen}
+  user={user}
+  isSubmitting={isModerating}
+  onClose={handleCloseModerationPanel}
+  onSubmit={handleSubmitModeration}
+/>
+
+<ReportDetailModal
+  isOpen={Boolean(selectedReport)}
+  report={selectedReport}
+  isSubmitting={isResolvingReport}
+  onClose={handleCloseReportModal}
+  onValidate={handleValidateReport}
+  onDiscard={handleDiscardReport}
+/>
     </LayoutScreen>
   );
 }

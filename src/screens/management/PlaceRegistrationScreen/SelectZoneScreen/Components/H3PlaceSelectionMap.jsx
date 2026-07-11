@@ -45,7 +45,7 @@ export default function H3PlaceSelectionMap({
     }
 
     try {
-      const cells = polygonToCells(coordinates, 7, true);
+      const cells = polygonToCells(coordinates, 7 , true);
 
       return cells.map((cell) => ({
         id: cell,

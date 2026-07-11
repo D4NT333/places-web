@@ -9,6 +9,7 @@ export default function ReceivedReportsPanel({
   loadingMore = false,
   hasMore = false,
   onLoadMore,
+  onOpenReport,
 }) {
   const [hoveredId, setHoveredId] = useState(null);
 
@@ -62,9 +63,7 @@ export default function ReceivedReportsPanel({
                   }}
                   onMouseEnter={() => setHoveredId(report.id)}
                   onMouseLeave={() => setHoveredId(null)}
-                  onClick={() =>
-                    console.log("Abrir reporte:", report.id)
-                  }
+                  onClick={() => onOpenReport?.(report.id)}
                 >
                   <div style={styles.reasonRow}>
                     <span style={styles.dot} />

@@ -1,84 +1,83 @@
-const tableColumns = "38% 18% 16% 15% 13%";
-
 const styles = {
   container: {
-    width: "100%",
-    padding: "28px 18px 34px",
-    boxSizing: "border-box",
+    padding: "54px 52px",
   },
 
+  toolbar: {
+  display: "grid",
+  gridTemplateColumns: "minmax(320px, 1fr) minmax(900px, 980px)",
+  alignItems: "start",
+  columnGap: 60,
+  marginBottom: 34,
+},
+
   headerBlock: {
-    marginBottom: 34,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
   },
 
   title: {
     margin: 0,
-    marginBottom: 8,
-    fontSize: 26,
+    fontSize: 30,
     fontWeight: 900,
-    color: "#111827",
-    letterSpacing: "-0.04em",
+    color: "#0f172a",
   },
 
   subtitle: {
-    margin: 0,
-    marginBottom: 12,
+    margin: "8px 0 0",
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: 500,
     color: "#64748b",
   },
 
-  chipsRow: {
+  summaryChipsRow: {
     display: "flex",
     alignItems: "center",
-    gap: 10,
     flexWrap: "wrap",
+    gap: 10,
+    marginTop: 18,
   },
 
-  chip: {
+  summaryChip: {
     display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center",
-    minHeight: 30,
+    minHeight: 28,
     padding: "0 14px",
     borderRadius: 999,
-    border: "1px solid #d8e1ec",
+    border: "1px solid #cbd5e1",
     backgroundColor: "#ffffff",
     color: "#0f172a",
-    fontSize: 13,
-    fontWeight: 850,
-    boxShadow: "0 2px 8px rgba(15, 23, 42, 0.04)",
+    fontSize: 12,
+    fontWeight: 800,
+    boxShadow: "0 1px 2px rgba(15, 23, 42, 0.06)",
   },
 
   table: {
     width: "100%",
+    borderRadius: 14,
+    border: "1px solid #dbe3ec",
     backgroundColor: "#ffffff",
-    borderRadius: 16,
-    border: "1px solid #dce3ec",
-    boxShadow: "0 14px 34px rgba(15, 23, 42, 0.06)",
     overflow: "hidden",
+    boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
   },
 
   tableHeader: {
     display: "grid",
-    gridTemplateColumns: tableColumns,
+    gridTemplateColumns: "2fr 1.1fr 1.1fr 1.1fr 1.1fr 1.2fr",
     alignItems: "center",
     minHeight: 56,
-    padding: "0 28px",
-    columnGap: 20,
-    boxSizing: "border-box",
+    padding: "0 24px",
+    borderBottom: "1px solid #dbe3ec",
     color: "#0f172a",
     fontSize: 13,
     fontWeight: 900,
-    borderBottom: "1px solid #dce3ec",
   },
 
   tableBody: {
     display: "flex",
     flexDirection: "column",
   },
-
-  tableColumns,
 };
 
 export default styles;

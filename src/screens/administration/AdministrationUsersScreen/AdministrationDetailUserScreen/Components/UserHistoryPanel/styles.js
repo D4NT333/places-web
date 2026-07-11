@@ -1,5 +1,4 @@
-const tableColumns = "1.5fr 1.2fr 1fr";
-
+const tableColumns = "1fr 2fr 1fr 1fr";
 const styles = {
   card: {
     height: "100%",
@@ -121,6 +120,19 @@ const styles = {
     fontSize: 15,
     fontWeight: 800,
   },
+  relatedCell: {
+  minWidth: 0,
+
+  display: "block",
+
+  fontSize: 14,
+  fontWeight: 850,
+  color: "#1f2937",
+
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+},
 };
 
 export default styles;

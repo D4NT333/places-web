@@ -125,7 +125,7 @@ export default function ReportsTable({
                 ...styles.userCell,
               }}
             >
-              Usuario
+              Realizado por
             </th>
 
             <th

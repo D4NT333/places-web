@@ -2,12 +2,18 @@ import React, { useState } from "react";
 
 import styles from "./styles";
 
-const PLACE_STATUS_LABELS = {
-  approved: "Publicado",
-  pending: "Pendiente",
-  disabled: "Desactivado",
+const MODERATION_STATUS_LABELS = {
+  published: "Publicado",
+  in_review: "En revisión",
+  warned: "Advertido",
   hidden: "Oculto",
-  deleted: "Eliminado",
+};
+
+const ACTIVITY_STATUS_LABELS = {
+  active: "Activo",
+  low_activity: "Baja actividad",
+  needs_confirmation: "Por confirmar",
+  inactive: "Inactivo",
 };
 
 function formatDate(value) {
@@ -44,8 +50,11 @@ function getInitials(name) {
 export default function PlaceRow({ place, onSelect }) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const statusLabel =
-    PLACE_STATUS_LABELS[place.status] || "Publicado";
+  const activityLabel =
+    ACTIVITY_STATUS_LABELS[place.activityStatus] || "Sin estado";
+
+  const moderationLabel =
+    MODERATION_STATUS_LABELS[place.moderationStatus] || "Sin estado";
 
   const handleClick = () => {
     onSelect?.(place);
@@ -108,7 +117,13 @@ export default function PlaceRow({ place, onSelect }) {
 
       <div style={styles.statusCell}>
         <span style={styles.statusText}>
-          {statusLabel}
+          {activityLabel}
+        </span>
+      </div>
+
+      <div style={styles.statusCell}>
+        <span style={styles.statusText}>
+          {moderationLabel}
         </span>
       </div>
     </button>
