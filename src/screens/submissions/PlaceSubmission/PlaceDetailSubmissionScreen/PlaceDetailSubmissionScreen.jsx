@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 
@@ -136,7 +140,14 @@ function SimpleMutedValue({ value }) {
 
 export default function PlaceDetailSubmissionScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { submissionId } = useParams();
+
+  const navigationState = location.state || {};
+
+  const cameFromUserHistory =
+    navigationState.from === "user-history" &&
+    Boolean(navigationState.returnTo);
 
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -492,9 +503,58 @@ export default function PlaceDetailSubmissionScreen() {
           )
       : getReturnFieldMessage(returnReview, activeCompareFieldKey);
 
+      const breadcrumbs = cameFromUserHistory
+  ? [
+      {
+        label: "Inicio",
+        to: "/",
+      },
+      {
+        label: "Administrar usuarios",
+        to: "/administration/users",
+      },
+      {
+        label:
+          navigationState.userName ||
+          "Detalle del usuario",
+        to: navigationState.returnTo,
+      },
+      {
+        label: "Detalle de propuesta",
+      },
+    ]
+  : [
+      {
+        label: "Inicio",
+        to: "/",
+      },
+      {
+        label: "Propuestas de lugares",
+        to: "/submissions/places",
+      },
+      {
+        label: "Detalle de propuesta",
+      },
+    ];
+
+    const handleGoBack = () => {
+  if (cameFromUserHistory) {
+    navigate(navigationState.returnTo, {
+      state: {
+        selectedWeekStart:
+          navigationState.selectedWeekStart || null,
+      },
+    });
+
+    return;
+  }
+
+  navigate("/submissions/places");
+};
+
   if (loading) {
     return (
-      <LayoutScreen>
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <main style={styles.screen}>
           <p>Cargando detalle...</p>
         </main>
@@ -504,12 +564,12 @@ export default function PlaceDetailSubmissionScreen() {
 
   if (errorMessage) {
     return (
-      <LayoutScreen>
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <main style={styles.screen}>
           <button
             type="button"
             style={styles.backButton}
-            onClick={() => navigate(-1)}
+            onClick={handleGoBack}
           >
             ← Volver
           </button>
@@ -522,13 +582,7 @@ export default function PlaceDetailSubmissionScreen() {
 
   return (
     <>
-      <LayoutScreen
-        breadcrumbs={[
-          { label: "Inicio", to: "/" },
-          { label: "Propuesta de lugares", to: "/submissions/places" },
-          { label: "Detalle de propuesta" },
-        ]}
-      >
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <main style={styles.screen}>
           <section style={styles.contentArea}>
             <aside style={styles.leftWrapper}>
@@ -603,14 +657,15 @@ export default function PlaceDetailSubmissionScreen() {
                 <ActionButtons
                   status={submission?.status}
                   onAccept={handleAcceptSubmission}
-                  onReturn={() =>
-                    navigate(`/submissions/places/${submissionId}/return`, {
-                      state: {
-                        submission,
-                        mode: "edit",
-                      },
-                    })
-                  }
+                 onReturn={() =>
+  navigate(`/submissions/places/${submissionId}/return`, {
+    state: {
+      ...navigationState,
+      submission,
+      mode: "edit",
+    },
+  })
+}
                   onReject={() => setShowRejectionModal(true)}
                   onViewReason={() => {
                     if (submission?.status === "rejected") {
@@ -618,12 +673,13 @@ export default function PlaceDetailSubmissionScreen() {
                       return;
                     }
 
-                    navigate(`/submissions/places/${submissionId}/return`, {
-                      state: {
-                        submission,
-                        mode: "readonly",
-                      },
-                    });
+                   navigate(`/submissions/places/${submissionId}/return`, {
+  state: {
+    ...navigationState,
+    submission,
+    mode: "readonly",
+  },
+});
                   }}
                 />
               )}
@@ -782,7 +838,7 @@ export default function PlaceDetailSubmissionScreen() {
                 <button
                   type="button"
                   style={styles.backButton}
-                  onClick={() => navigate(-1)}
+                  onClick={handleGoBack}
                 >
                   Volver
                 </button>

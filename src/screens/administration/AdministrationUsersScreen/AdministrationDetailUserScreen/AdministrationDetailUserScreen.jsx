@@ -444,27 +444,54 @@ const handleSubmitModeration = async (moderationData) => {
 };
 
 const handleOpenHistoryItem = (item) => {
+  const navigationState = {
+    from: "user-history",
+
+    returnTo: `/administration/users/${userId}`,
+
+    returnLabel:
+      user?.name ||
+      "Detalle del usuario",
+
+    userId,
+
+    userName:
+      user?.name ||
+      "Usuario",
+
+    selectedWeekStart,
+  };
+
   switch (item.submissionType) {
     case "place":
       navigate(
-        `/submissions/places/${item.submissionId}`
+        `/submissions/places/${item.submissionId}`,
+        {
+          state: navigationState,
+        }
       );
       break;
 
     case "description":
       navigate(
-        `/submissions/descriptions/${item.submissionId}`
+        `/submissions/descriptions/${item.submissionId}`,
+        {
+          state: navigationState,
+        }
       );
       break;
 
     case "photo":
       navigate(
-        `/submissions/photos/${item.submissionId}`
+        `/submissions/photos/${item.submissionId}`,
+        {
+          state: navigationState,
+        }
       );
       break;
 
     case "report":
-      // Por ahora solamente se muestra en el historial.
+      // Lo resolvemos después.
       break;
 
     default:

@@ -4,6 +4,7 @@ import React, {
 } from "react";
 
 import {
+  useLocation,
   useNavigate,
   useParams,
 } from "react-router-dom";
@@ -23,22 +24,6 @@ import rejectPhotoSubmissionService from "../../../../services/api/submissions/p
 import approvePhotoSubmissionService from "../../../../services/api/submissions/photo/update/approvePhotoSubmission.service";
 
 import styles from "./styles";
-
-const BREADCRUMBS = [
-  {
-    label: "Inicio",
-    to: "/",
-  },
-  {
-    label:
-      "Propuestas de fotografías",
-    to: "/submissions/photos",
-  },
-  {
-    label:
-      "Detalle de propuesta",
-  },
-];
 
 function getDateFromValue(value) {
   if (!value) {
@@ -130,6 +115,8 @@ export default function PhotoDetailSubmissionScreen() {
   const navigate =
     useNavigate();
 
+    const location = useLocation();
+
   const {
     submissionId,
   } = useParams();
@@ -172,6 +159,12 @@ export default function PhotoDetailSubmissionScreen() {
   const actionLoading =
     rejectionLoading ||
     approvalLoading;
+
+    const navigationState = location.state || {};
+
+const cameFromUserHistory =
+  navigationState.from === "user-history" &&
+  Boolean(navigationState.returnTo);
 
   useEffect(() => {
     let requestCancelled =
@@ -239,11 +232,54 @@ export default function PhotoDetailSubmissionScreen() {
     reloadCounter,
   ]);
 
-  function handleGoBack() {
-    navigate(
-      "/submissions/photos"
-    );
+  const breadcrumbs = cameFromUserHistory
+  ? [
+      {
+        label: "Inicio",
+        to: "/",
+      },
+      {
+        label: "Administrar usuarios",
+        to: "/administration/users",
+      },
+      {
+        label:
+          navigationState.userName ||
+          "Detalle del usuario",
+        to: navigationState.returnTo,
+      },
+      {
+        label: "Detalle de propuesta",
+      },
+    ]
+  : [
+      {
+        label: "Inicio",
+        to: "/",
+      },
+      {
+        label: "Propuestas de fotografías",
+        to: "/submissions/photos",
+      },
+      {
+        label: "Detalle de propuesta",
+      },
+    ];
+
+ function handleGoBack() {
+  if (cameFromUserHistory) {
+    navigate(navigationState.returnTo, {
+      state: {
+        selectedWeekStart:
+          navigationState.selectedWeekStart || null,
+      },
+    });
+
+    return;
   }
+
+  navigate("/submissions/photos");
+}
 
   function handleRetry() {
     setReloadCounter(
@@ -476,11 +512,7 @@ export default function PhotoDetailSubmissionScreen() {
 
   if (loading) {
     return (
-      <LayoutScreen
-        breadcrumbs={
-          BREADCRUMBS
-        }
-      >
+     <LayoutScreen breadcrumbs={breadcrumbs}>
         <main style={styles.screen}>
           <div
             style={
@@ -513,11 +545,7 @@ export default function PhotoDetailSubmissionScreen() {
     !submission
   ) {
     return (
-      <LayoutScreen
-        breadcrumbs={
-          BREADCRUMBS
-        }
-      >
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <main style={styles.screen}>
           <div
             style={
@@ -602,11 +630,7 @@ export default function PhotoDetailSubmissionScreen() {
       : photos.length;
 
   return (
-    <LayoutScreen
-      breadcrumbs={
-        BREADCRUMBS
-      }
-    >
+   <LayoutScreen breadcrumbs={breadcrumbs}>
       <main style={styles.screen}>
         <PhotoDetailHeader
           placeName={

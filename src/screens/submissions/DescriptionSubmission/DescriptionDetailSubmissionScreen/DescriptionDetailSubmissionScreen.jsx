@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import LayoutScreen from "../../../../layout";
 
@@ -112,6 +116,7 @@ function getStatusChipStyle(status) {
 
 export default function DescriptionDetailSubmissionScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { submissionId } = useParams();
 
   const [descriptionDetail, setDescriptionDetail] = useState(null);
@@ -119,6 +124,12 @@ export default function DescriptionDetailSubmissionScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
+
+  const navigationState = location.state || {};
+
+const cameFromUserHistory =
+  navigationState.from === "user-history" &&
+  Boolean(navigationState.returnTo);
 
   const normalizedDetail = useMemo(() => {
     if (!descriptionDetail) return null;
@@ -234,13 +245,58 @@ const handleSubmitReject = async (payload) => {
   setShowRejectModal(true);
 };
 
-  const handleBack = () => {
-    navigate("/submissions/descriptions");
-  };
+const breadcrumbs = cameFromUserHistory
+  ? [
+      {
+        label: "Inicio",
+        to: "/",
+      },
+      {
+        label: "Administrar usuarios",
+        to: "/administration/users",
+      },
+      {
+        label:
+          navigationState.userName ||
+          "Detalle del usuario",
+        to: navigationState.returnTo,
+      },
+      {
+        label: "Detalle de propuesta",
+      },
+    ]
+  : [
+      {
+        label: "Inicio",
+        to: "/",
+      },
+      {
+        label: "Propuestas de descripciones",
+        to: "/submissions/descriptions",
+      },
+      {
+        label: "Detalle de propuesta",
+      },
+    ];
+
+ const handleBack = () => {
+  if (cameFromUserHistory) {
+    navigate(navigationState.returnTo, {
+      state: {
+        selectedWeekStart:
+          navigationState.selectedWeekStart || null,
+      },
+    });
+
+    return;
+  }
+
+  navigate("/submissions/descriptions");
+};
 
   if (isLoading) {
     return (
-      <LayoutScreen>
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <div style={styles.container}>
           <p style={styles.subtitle}>Cargando propuesta...</p>
         </div>
@@ -250,7 +306,7 @@ const handleSubmitReject = async (payload) => {
 
   if (errorMessage) {
     return (
-      <LayoutScreen>
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <div style={styles.container}>
           <section style={styles.topSection}>
             <div style={styles.titleGroup}>
@@ -268,7 +324,7 @@ const handleSubmitReject = async (payload) => {
 
   if (!normalizedDetail) {
     return (
-      <LayoutScreen>
+      <LayoutScreen breadcrumbs={breadcrumbs}>
         <div style={styles.container}>
           <section style={styles.topSection}>
             <div style={styles.titleGroup}>
@@ -287,7 +343,7 @@ const handleSubmitReject = async (payload) => {
   }
 
   return (
-    <LayoutScreen>
+    <LayoutScreen breadcrumbs={breadcrumbs}>
       <div style={styles.container}>
         <section style={styles.topSection}>
           <div style={styles.titleGroup}>
