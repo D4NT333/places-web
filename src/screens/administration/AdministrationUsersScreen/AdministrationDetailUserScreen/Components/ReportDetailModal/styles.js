@@ -168,14 +168,16 @@ const styles = {
   },
 
   personCard: {
-    padding: 14,
+  width: "100%",
 
-    backgroundColor: "#ffffff",
+  padding: 14,
 
-    border: "1px solid #dbe2ea",
-    borderRadius: 10,
-  },
+  backgroundColor: "#ffffff",
+  border: "1px solid #dbe2ea",
+  borderRadius: 10,
 
+  boxSizing: "border-box",
+},
   personLabel: {
     display: "block",
     marginBottom: 11,
@@ -343,6 +345,18 @@ const styles = {
     opacity: 0.55,
     cursor: "not-allowed",
   },
+  clickablePersonCard: {
+  width: "100%",
+
+  fontFamily: "inherit",
+  textAlign: "left",
+
+  cursor: "pointer",
+  boxSizing: "border-box",
+
+  transition:
+    "background-color 160ms ease, border-color 160ms ease, transform 160ms ease",
+},
 };
 
 export default styles;

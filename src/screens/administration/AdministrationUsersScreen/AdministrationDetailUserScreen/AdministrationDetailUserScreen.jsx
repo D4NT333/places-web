@@ -97,8 +97,6 @@ function normalizeReportsForView(reports) {
 }
 
 function normalizeActivityForView(activity) {
-  const weeklyActivity = activity?.weeklyActivity || [];
-
   return {
     total: activity?.totalContributions || 0,
 
@@ -111,7 +109,14 @@ function normalizeActivityForView(activity) {
     photosSent: activity?.photosCount || 0,
     reportsSent: activity?.reportsSentCount || 0,
 
-    weeklyActivity,
+    weeklyActivity:
+      activity?.weeklyActivity || [],
+
+    selectedWeek:
+      activity?.selectedWeek || null,
+
+    availableWeeks:
+      activity?.availableWeeks || [],
   };
 }
 
@@ -143,6 +148,12 @@ export default function AdministrationDetailUserScreen() {
   const { userId } = useParams();
 
   const [userDetail, setUserDetail] = useState(null);
+
+  const [selectedWeekStart, setSelectedWeekStart] =
+  useState(null);
+
+const [loadingActivity, setLoadingActivity] =
+  useState(false);
 
   const [historyItems, setHistoryItems] = useState([]);
   const [historyCursor, setHistoryCursor] = useState(null);
@@ -209,24 +220,50 @@ const [isResolvingReport, setIsResolvingReport] =
     },
   ];
 
-  const loadUserDetail = async () => {
-    try {
+ const loadUserDetail = async ({
+  weekStart = null,
+  activityOnly = false,
+} = {}) => {
+  try {
+    if (activityOnly) {
+      setLoadingActivity(true);
+    } else {
       setLoadingDetail(true);
       setErrorMessage("");
+    }
 
-      const result = await getAdminUserDetailService(userId);
+    const result =
+      await getAdminUserDetailService(
+        userId,
+        {
+          weekStart,
+        }
+      );
 
-      setUserDetail(result);
-    } catch (error) {
-      console.error("Error loading admin user detail:", error);
+    setUserDetail(result);
 
+    if (!selectedWeekStart) {
+      setSelectedWeekStart(
+        result.activity?.selectedWeek?.start ||
+          null
+      );
+    }
+  } catch (error) {
+    console.error(
+      "Error loading admin user detail:",
+      error
+    );
+
+    if (!activityOnly) {
       setErrorMessage(
         "No se pudo cargar el detalle del usuario. Intenta nuevamente."
       );
-    } finally {
-      setLoadingDetail(false);
     }
-  };
+  } finally {
+    setLoadingDetail(false);
+    setLoadingActivity(false);
+  }
+};
 
   const loadUserHistory = async ({
     cursor = null,
@@ -426,9 +463,13 @@ const handleOpenHistoryItem = (item) => {
       );
       break;
 
+    case "report":
+      // Por ahora solamente se muestra en el historial.
+      break;
+
     default:
       console.warn(
-        "Tipo de propuesta desconocido:",
+        "Tipo de movimiento desconocido:",
         item
       );
   }
@@ -534,6 +575,32 @@ const handleDiscardReport = async ({
     setIsResolvingReport(false);
   }
 };
+const handleOpenReporter = (reporterId) => {
+  if (!reporterId) {
+    return;
+  }
+
+  setSelectedReport(null);
+
+  navigate(`/administration/users/${reporterId}`);
+};
+
+const handleWeekChange = async (weekStart) => {
+  if (
+    !weekStart ||
+    weekStart === selectedWeekStart ||
+    loadingActivity
+  ) {
+    return;
+  }
+
+  setSelectedWeekStart(weekStart);
+
+  await loadUserDetail({
+    weekStart,
+    activityOnly: true,
+  });
+};
 
   return (
     <LayoutScreen breadcrumbs={breadcrumbs}>
@@ -569,7 +636,12 @@ const handleDiscardReport = async ({
 />
                 </UserOverviewCard>
 
-                <ActivitySummaryCard activity={activity} />
+                <ActivitySummaryCard
+  activity={activity}
+  selectedWeekStart={selectedWeekStart}
+  loading={loadingActivity}
+  onWeekChange={handleWeekChange}
+/>
               </div>
 
              <UserHistoryPanel
@@ -610,6 +682,7 @@ const handleDiscardReport = async ({
   onClose={handleCloseReportModal}
   onValidate={handleValidateReport}
   onDiscard={handleDiscardReport}
+  onOpenReporter={handleOpenReporter}
 />
     </LayoutScreen>
   );

@@ -114,10 +114,6 @@ export default function UserRow({ user, onSelect }) {
           >
             {user.name || "Usuario sin nombre"}
           </span>
-
-          <span style={styles.userEmail}>
-            {user.email || "Sin correo"}
-          </span>
         </div>
       </div>
 

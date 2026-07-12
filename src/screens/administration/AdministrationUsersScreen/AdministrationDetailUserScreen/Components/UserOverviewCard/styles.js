@@ -73,22 +73,28 @@ statusPill: {
   boxSizing: "border-box",
 },
 
- userTexts: {
+userTexts: {
   position: "absolute",
-  left: -180,
+  left: -220,
   top: 205,
+  width: 190,
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   gap: 24,
 },
 
-  userName: {
-    margin: 0,
-    fontSize: 18,
-    fontWeight: 800,
-    color: "#374151",
-  },
+userName: {
+  width: "100%",
+  margin: 0,
+  fontSize: 18,
+  fontWeight: 800,
+  color: "#374151",
+  textAlign: "center",
+  lineHeight: "22px",
+  whiteSpace: "normal",
+  overflowWrap: "break-word",
+},
 
   profile: {
     margin: 0,

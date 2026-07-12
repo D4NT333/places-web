@@ -9,6 +9,7 @@ function ReportDetailModal({
   onClose,
   onValidate,
   onDiscard,
+  onOpenReporter,
 }) {
   const [resolutionNote, setResolutionNote] = useState("");
   const [selectedAction, setSelectedAction] = useState(null);
@@ -158,61 +159,75 @@ function ReportDetailModal({
             </h3>
 
             <div style={styles.peopleGrid}>
-              <article style={styles.personCard}>
-                <span style={styles.personLabel}>
-                  Reportado por
-                </span>
+             <button
+  type="button"
+  style={{
+    ...styles.personCard,
+    ...styles.clickablePersonCard,
+  }}
+  onClick={() => onOpenReporter?.(report.reporter?.uid)}
+  disabled={!report.reporter?.uid || isSubmitting}
+  title="Ver detalles del usuario que realizó el reporte"
+>
+  <span style={styles.personLabel}>
+    Reportado por
+  </span>
 
-                <div style={styles.personInformation}>
-                  {report.reporter?.photoURL ? (
-                    <img
-                      src={report.reporter.photoURL}
-                      alt=""
-                      style={styles.avatar}
-                    />
-                  ) : (
-                    <div style={styles.avatarFallback}>
-                      {report.reporter?.name
-                        ?.charAt(0)
-                        ?.toUpperCase() || "U"}
-                    </div>
-                  )}
+  <div style={styles.personInformation}>
+    {report.reporter?.photoURL ? (
+      <img
+        src={report.reporter.photoURL}
+        alt={report.reporter?.name || "Usuario"}
+        style={styles.avatar}
+      />
+    ) : (
+      <div style={styles.avatarFallback}>
+        {report.reporter?.name
+          ?.charAt(0)
+          ?.toUpperCase() || "U"}
+      </div>
+    )}
 
-                  <div style={styles.personText}>
-                    <strong>
-                      {report.reporter?.name || "Usuario"}
-                    </strong>
+    <div style={styles.personText}>
+      <strong>
+        {report.reporter?.name || "Usuario"}
+      </strong>
 
-                    <span>
-                      {report.reporter?.email || "Sin correo"}
-                    </span>
-                  </div>
-                </div>
-              </article>
+      <span>
+        {report.reporter?.email || "Sin correo"}
+      </span>
+    </div>
+  </div>
+</button>
+<article style={styles.personCard}>
+  <span style={styles.personLabel}>
+    Usuario reportado
+  </span>
 
-              <article style={styles.personCard}>
-                <span style={styles.personLabel}>
-                  Usuario reportado
-                </span>
+  <div style={styles.personInformation}>
+    {report.reportedUser?.photoURL ? (
+      <img
+        src={report.reportedUser.photoURL}
+        alt={report.reportedUser?.name || "Usuario reportado"}
+        style={styles.avatar}
+      />
+    ) : (
+      <div style={styles.avatarFallback}>
+        {report.reportedUser?.name
+          ?.charAt(0)
+          ?.toUpperCase() || "U"}
+      </div>
+    )}
 
-                <div style={styles.personInformation}>
-                  <div style={styles.avatarFallback}>
-                    {report.reportedUser?.name
-                      ?.charAt(0)
-                      ?.toUpperCase() || "U"}
-                  </div>
+    <div style={styles.personText}>
+      <strong>
+        {report.reportedUser?.name || "Usuario"}
+      </strong>
 
-                  <div style={styles.personText}>
-                    <strong>
-                      {report.reportedUser?.name || "Usuario"}
-                    </strong>
-
-                    <span>
-                      Perfil reportado
-                    </span>
-                  </div>
-                </div>
-              </article>
+      <span>Perfil reportado</span>
+    </div>
+  </div>
+</article>
             </div>
           </section>
 
@@ -269,7 +284,7 @@ function ReportDetailModal({
                 ...(errorMessage ? styles.textareaError : {}),
               }}
               value={resolutionNote}
-              maxLength={500}
+              maxLength={200}
               placeholder="Explica por qué el reporte será validado o descartado..."
               onChange={(event) => {
                 setResolutionNote(event.target.value);
@@ -288,7 +303,7 @@ function ReportDetailModal({
               )}
 
               <span style={styles.characterCount}>
-                {resolutionNote.length}/500
+                {resolutionNote.length}/200
               </span>
             </div>
           </section>

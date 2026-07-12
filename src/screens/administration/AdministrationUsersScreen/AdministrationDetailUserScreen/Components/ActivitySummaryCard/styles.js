@@ -111,6 +111,37 @@ statusItem: {
   fontSize: "0.82rem",
   fontWeight: 700,
 },
+header: {
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  gap: 20,
+},
+
+weekSelect: {
+  minWidth: 230,
+  height: 38,
+  padding: "0 14px",
+  borderRadius: 10,
+  border: "1.5px solid #111827",
+  backgroundColor: "#ffffff",
+  color: "#111827",
+  fontSize: 14,
+  fontWeight: 800,
+  cursor: "pointer",
+  outline: "none",
+},
+
+loadingState: {
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "#64748b",
+  fontSize: 15,
+  fontWeight: 800,
+},
 };
 
 export default styles;
