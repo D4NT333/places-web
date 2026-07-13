@@ -1,7 +1,10 @@
 import React from "react";
 import styles from "./styles";
 
-export default function PlaceInfoCard({ place, onModerate }) {
+export default function PlaceInfoCard({
+  place,
+  onModerate,
+}) {
   return (
     <section style={styles.card}>
       <div style={styles.headerRow}>
@@ -9,13 +12,23 @@ export default function PlaceInfoCard({ place, onModerate }) {
 
         <div style={styles.statusGroup}>
           <div style={styles.statusBlock}>
-            <span style={styles.statusLabel}>Estado de moderación</span>
-            <span style={styles.statusPill}>{place.moderationStatus}</span>
+            <span style={styles.statusLabel}>
+              Estado de moderación
+            </span>
+
+            <span style={styles.statusPill}>
+              {place.moderationStatus}
+            </span>
           </div>
 
           <div style={styles.statusBlock}>
-            <span style={styles.statusLabel}>Estado de actividad</span>
-            <span style={styles.statusPill}>{place.activityStatus}</span>
+            <span style={styles.statusLabel}>
+              Estado de actividad
+            </span>
+
+            <span style={styles.statusPill}>
+              {place.activityStatus}
+            </span>
           </div>
 
           <button
@@ -46,12 +59,38 @@ export default function PlaceInfoCard({ place, onModerate }) {
 
         <div style={styles.fieldGroup}>
           <span style={styles.label}>Valoración de Google</span>
-          <div style={styles.scoreBox}>{place.googleRating}</div>
+
+          <div style={styles.scoreBox}>
+            {place.googleRating.toFixed(1)}
+          </div>
+
+          <span
+            style={{
+              marginTop: 5,
+              fontSize: 12,
+              color: "#64748B",
+            }}
+          >
+            {place.googleRatingCount} valoraciones
+          </span>
         </div>
 
         <div style={styles.fieldGroup}>
           <span style={styles.label}>Valoración Lsearch</span>
-          <div style={styles.scoreBox}>{place.lsearchRating}</div>
+
+          <div style={styles.scoreBox}>
+            {place.lsearchRating.toFixed(1)}
+          </div>
+
+          <span
+            style={{
+              marginTop: 5,
+              fontSize: 12,
+              color: "#64748B",
+            }}
+          >
+            {place.lsearchRatingCount} valoraciones
+          </span>
         </div>
       </div>
 
@@ -59,11 +98,15 @@ export default function PlaceInfoCard({ place, onModerate }) {
         <span style={styles.label}>Subetiquetas</span>
 
         <div style={styles.chipsRow}>
-          {place.subtags?.map((subtag) => (
-            <span key={subtag} style={styles.chip}>
-              {subtag}
-            </span>
-          ))}
+          {place.subtags?.length > 0 ? (
+            place.subtags.map((subtag) => (
+              <span key={subtag} style={styles.chip}>
+                {subtag}
+              </span>
+            ))
+          ) : (
+            <span style={styles.chip}>Sin subetiquetas</span>
+          )}
         </div>
       </div>
 
@@ -72,11 +115,15 @@ export default function PlaceInfoCard({ place, onModerate }) {
           <span style={styles.label}>Enfoque</span>
 
           <div style={styles.chipsRow}>
-            {place.approaches?.map((approach) => (
-              <span key={approach} style={styles.chip}>
-                {approach}
-              </span>
-            ))}
+            {place.approaches?.length > 0 ? (
+              place.approaches.map((approach) => (
+                <span key={approach} style={styles.chip}>
+                  {approach}
+                </span>
+              ))
+            ) : (
+              <span style={styles.chip}>Sin enfoques</span>
+            )}
           </div>
         </div>
 
