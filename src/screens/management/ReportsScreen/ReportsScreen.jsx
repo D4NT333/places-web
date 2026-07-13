@@ -9,6 +9,7 @@ import {
   ReportFilters,
   ReportStats,
   ReportsTable,
+  ReportDetailModal,
 } from "./Components";
 
 import { REPORT_STATUS_FILTERS } from "./data";
@@ -43,6 +44,9 @@ export default function ReportsScreen() {
   const [loadedBatches, setLoadedBatches] = useState(0);
 
   const reportsCount = reports.length;
+
+  const [selectedReport, setSelectedReport] = useState(null);
+const [isResolvingReport, setIsResolvingReport] = useState(false);
 
   const fetchReports = useCallback(
     async ({ reset = false } = {}) => {
@@ -124,14 +128,132 @@ export default function ReportsScreen() {
     setSelectedStatus(status);
   };
 
-  function handleOpenReport(report) {
-    navigate(`/reports/${report.id}`, {
-      state: {
-        report,
-        selectedStatus,
-      },
-    });
+ function handleOpenReport(report) {
+  setSelectedReport(report);
+}
+
+function handleCloseReportModal() {
+  if (isResolvingReport) {
+    return;
   }
+
+  setSelectedReport(null);
+}
+
+function handleOpenRelated({ targetType, id }) {
+
+  
+  if (!id) {
+    return;
+  }
+
+  setSelectedReport(null);
+
+  if (targetType === "user") {
+    navigate(`/administration/users/${id}`);
+    return;
+  }
+
+  if (targetType === "place") {
+    navigate(`/administration/places/${id}`);
+  }
+}
+
+async function handleValidateReport({
+  reportId,
+  resolutionNote,
+}) {
+  try {
+    setIsResolvingReport(true);
+
+    console.log("Validar reporte:", {
+      reportId,
+      resolutionNote,
+    });
+
+    /*
+      Después conectaremos algo como:
+
+      await resolveReportService(reportId, {
+        status: "resolved",
+        resolutionNote,
+      });
+    */
+
+    setReports((currentReports) =>
+      currentReports.map((report) =>
+        report.id === reportId
+          ? {
+              ...report,
+              status: "resolved",
+              statusLabel: "Resuelto",
+              resolutionNote,
+              resolvedAt: new Date().toISOString(),
+            }
+          : report
+      )
+    );
+
+    setSelectedReport(null);
+  } catch (error) {
+    console.error("Error validando reporte:", error);
+  } finally {
+    setIsResolvingReport(false);
+  }
+}
+
+async function handleDiscardReport({
+  reportId,
+  resolutionNote,
+}) {
+  try {
+    setIsResolvingReport(true);
+
+    console.log("Descartar reporte:", {
+      reportId,
+      resolutionNote,
+    });
+
+    /*
+      Después conectaremos algo como:
+
+      await resolveReportService(reportId, {
+        status: "discarded",
+        resolutionNote,
+      });
+    */
+
+    setReports((currentReports) =>
+      currentReports.map((report) =>
+        report.id === reportId
+          ? {
+              ...report,
+              status: "discarded",
+              statusLabel: "Descartado",
+              resolutionNote,
+              resolvedAt: new Date().toISOString(),
+            }
+          : report
+      )
+    );
+
+    setSelectedReport(null);
+  } catch (error) {
+    console.error("Error descartando reporte:", error);
+  } finally {
+    setIsResolvingReport(false);
+  }
+}
+
+function handleOpenReporter(reporterId) {
+  if (!reporterId) {
+    return;
+  }
+
+  setSelectedReport(null);
+
+  navigate(`/administration/users/${reporterId}`);
+}
 
   function handleLoadMore() {
     if (loading || loadingMore || !hasMore) return;
@@ -214,6 +336,17 @@ export default function ReportsScreen() {
           </div>
         ) : null}
       </div>
+      <ReportDetailModal
+  isOpen={Boolean(selectedReport)}
+  report={selectedReport}
+  loading={false}
+  isSubmitting={isResolvingReport}
+  onClose={handleCloseReportModal}
+  onValidate={handleValidateReport}
+  onDiscard={handleDiscardReport}
+  onOpenRelated={handleOpenRelated}
+  onOpenReporter={handleOpenReporter}
+/>
     </LayoutScreen>
   );
 }

@@ -1,31 +1,33 @@
 const styles = {
-  row: {
-    width: "100%",
-    display: "grid",
-    gridTemplateColumns: "2fr 1.1fr 1.1fr 1.1fr 1.1fr 1.2fr",
-    alignItems: "center",
-    minHeight: 78,
-    padding: "0 24px",
-    border: "none",
-    borderBottom: "1px solid #e5e7eb",
-    backgroundColor: "#ffffff",
-    color: "#0f172a",
-    fontSize: 13,
-    fontWeight: 700,
-    textAlign: "left",
-    cursor: "pointer",
-  },
+ row: {
+  width: "100%",
+  display: "grid",
+  gridTemplateColumns:
+    "2fr 0.9fr 1fr 1.1fr 1.1fr 1.1fr 1.2fr",
+  alignItems: "center",
+  minHeight: 78,
+  padding: "0 24px",
+  border: "none",
+  borderBottom: "1px solid #e5e7eb",
+  backgroundColor: "#ffffff",
+  color: "#0f172a",
+  fontSize: 13,
+  fontWeight: 700,
+  textAlign: "center",
+  cursor: "pointer",
+},
 
   rowHovered: {
     backgroundColor: "#f8fafc",
   },
 
   placeCell: {
-    display: "flex",
-    alignItems: "center",
-    gap: 14,
-    minWidth: 0,
-  },
+  display: "flex",
+  alignItems: "center",
+  gap: 14,
+  minWidth: 0,
+  textAlign: "left",
+},
 
   imageBox: {
     width: 44,
@@ -95,6 +97,12 @@ const styles = {
     fontSize: 13,
     fontWeight: 800,
   },
+  sourceCell: {
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+},
 };
 
 export default styles;

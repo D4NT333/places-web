@@ -63,16 +63,18 @@ const styles = {
   },
 
   tableHeader: {
-    display: "grid",
-    gridTemplateColumns: "2fr 1.1fr 1.1fr 1.1fr 1.1fr 1.2fr",
-    alignItems: "center",
-    minHeight: 56,
-    padding: "0 24px",
-    borderBottom: "1px solid #dbe3ec",
-    color: "#0f172a",
-    fontSize: 13,
-    fontWeight: 900,
-  },
+  display: "grid",
+  gridTemplateColumns:
+    "2fr 0.9fr 1fr 1.1fr 1.1fr 1.1fr 1.2fr",
+  alignItems: "center",
+  minHeight: 56,
+  textAlign: "center",
+  padding: "0 24px",
+  borderBottom: "1px solid #dbe3ec",
+  color: "#0f172a",
+  fontSize: 13,
+  fontWeight: 900,
+},
 
   tableBody: {
     display: "flex",

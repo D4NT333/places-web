@@ -2,6 +2,12 @@ import React, { useState } from "react";
 
 import styles from "./styles";
 
+const SOURCE_LABELS = {
+  google_candidate: "Registro Administrativo",
+  place_submission: "Propuesta de usuario",
+  mobile: "Propuesta de usuario",
+};
+
 const MODERATION_STATUS_LABELS = {
   published: "Publicado",
   in_review: "En revisión",
@@ -12,7 +18,7 @@ const MODERATION_STATUS_LABELS = {
 const ACTIVITY_STATUS_LABELS = {
   active: "Activo",
   low_activity: "Baja actividad",
-  needs_confirmation: "Por confirmar",
+  pending: "Por confirmar",
   inactive: "Inactivo",
 };
 
@@ -37,7 +43,7 @@ function getInitials(name) {
 
   const parts = name
     .trim()
-    .split(" ")
+    .split(/\s+/)
     .filter(Boolean);
 
   if (parts.length === 1) {
@@ -49,6 +55,9 @@ function getInitials(name) {
 
 export default function PlaceRow({ place, onSelect }) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const sourceLabel =
+    SOURCE_LABELS[place.source] || "Sin información";
 
   const activityLabel =
     ACTIVITY_STATUS_LABELS[place.activityStatus] || "Sin estado";
@@ -81,7 +90,7 @@ export default function PlaceRow({ place, onSelect }) {
           {place.imageUrl ? (
             <img
               src={place.imageUrl}
-              alt={place.name}
+              alt={place.name || "Lugar"}
               style={styles.image}
             />
           ) : (
@@ -103,16 +112,20 @@ export default function PlaceRow({ place, onSelect }) {
         </div>
       </div>
 
+      <div style={styles.sourceCell}>
+        {sourceLabel}
+      </div>
+
       <div style={styles.dateCell}>
         {formatDate(place.createdAt)}
       </div>
 
       <div style={styles.createdByCell}>
-        {place.createdByName || "Sin usuario"}
+        {place.createdBy?.name || "Sin usuario"}
       </div>
 
       <div style={styles.approvedByCell}>
-        {place.approvedByName || "Sin aceptar"}
+        {place.approvedBy?.name || "Sin aceptar"}
       </div>
 
       <div style={styles.statusCell}>

@@ -1,4 +1,10 @@
-import React, { useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import LayoutScreen from "../../../layout";
@@ -6,7 +12,8 @@ import LayoutScreen from "../../../layout";
 import PlaceRow from "./Components/PlaceRow";
 import PlaceStatusFilters from "./Components/PlaceStatusFilters";
 
-import placesData from "./data";
+import getAdminPlacesService from "../../../services/api/administration/places/getAdminPlaces.service";
+
 import styles from "./styles";
 
 const PAGE_LIMIT = 15;
@@ -27,27 +34,137 @@ export default function AdministrationPlaceScreen() {
   const [moderationStatus, setModerationStatus] = useState("all");
   const [activityStatus, setActivityStatus] = useState("all");
 
-  const places = placesData;
+  const [places, setPlaces] = useState([]);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [hasMore, setHasMore] = useState(false);
 
-  const filteredPlaces = useMemo(() => {
-    return places.filter((place) => {
-      const matchesModeration =
-        moderationStatus === "all" ||
-        place.moderationStatus === moderationStatus;
+  const [loadedBatchesCount, setLoadedBatchesCount] = useState(0);
 
-      const matchesActivity =
-        activityStatus === "all" ||
-        place.activityStatus === activityStatus;
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-      return matchesModeration && matchesActivity;
-    });
-  }, [places, moderationStatus, activityStatus]);
+  const loadedPlacesCount = places.length;
 
-  const loadedPlacesCount = filteredPlaces.length;
+  const loadPlaces = useCallback(
+    async ({ reset = false } = {}) => {
+      if (reset) {
+        setLoading(true);
+      } else {
+        if (loadingMore || !hasMore || !nextCursor) {
+          return;
+        }
 
-  const loadedBatchesCount = useMemo(() => {
-    return Math.max(1, Math.ceil(loadedPlacesCount / PAGE_LIMIT));
-  }, [loadedPlacesCount]);
+        setLoadingMore(true);
+      }
+
+      try {
+        setErrorMessage("");
+
+        const result = await getAdminPlacesService({
+          limit: PAGE_LIMIT,
+          cursor: reset ? null : nextCursor,
+          moderationStatus,
+          activityStatus,
+        });
+
+        const newPlaces = Array.isArray(result.places)
+          ? result.places
+          : [];
+
+        if (reset) {
+          setPlaces(newPlaces);
+          setLoadedBatchesCount(1);
+        } else {
+          setPlaces((currentPlaces) => [
+            ...currentPlaces,
+            ...newPlaces,
+          ]);
+
+          setLoadedBatchesCount((currentCount) => currentCount + 1);
+        }
+
+        setNextCursor(result.nextCursor || null);
+        setHasMore(Boolean(result.hasMore));
+      } catch (error) {
+        console.error("Error cargando lugares:", error);
+
+        setErrorMessage(
+          error.message || "No se pudieron cargar los lugares."
+        );
+
+        if (reset) {
+          setPlaces([]);
+          setNextCursor(null);
+          setHasMore(false);
+          setLoadedBatchesCount(0);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [
+      moderationStatus,
+      activityStatus,
+      nextCursor,
+      hasMore,
+      loadingMore,
+    ]
+  );
+
+  useEffect(() => {
+    loadPlaces({ reset: true });
+  }, [moderationStatus, activityStatus]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loading || loadingMore || !hasMore) {
+        return;
+      }
+
+      const scrollTop =
+        window.scrollY || document.documentElement.scrollTop;
+
+      const viewportHeight = window.innerHeight;
+
+      const documentHeight =
+        document.documentElement.scrollHeight;
+
+      const scrollProgress =
+        (scrollTop + viewportHeight) / documentHeight;
+
+      if (scrollProgress >= 0.8) {
+        loadPlaces();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [loadPlaces, loading, loadingMore, hasMore]);
+
+  const summaryBatchesCount = useMemo(() => {
+    if (loadedPlacesCount === 0) {
+      return 0;
+    }
+
+    return loadedBatchesCount;
+  }, [loadedPlacesCount, loadedBatchesCount]);
+
+  const handleChangeModerationStatus = (newStatus) => {
+    setModerationStatus(newStatus);
+    setNextCursor(null);
+    setHasMore(false);
+  };
+
+  const handleChangeActivityStatus = (newStatus) => {
+    setActivityStatus(newStatus);
+    setNextCursor(null);
+    setHasMore(false);
+  };
 
   const handleSelectPlace = (place) => {
     const selectedPlaceId = place.id || place.placeId;
@@ -70,7 +187,8 @@ export default function AdministrationPlaceScreen() {
             </h1>
 
             <p style={styles.subtitle}>
-              Consulta, filtra y revisa los lugares publicados dentro de Lsearch.
+              Consulta, filtra y revisa los lugares publicados dentro de
+              Lsearch.
             </p>
 
             <div style={styles.summaryChipsRow}>
@@ -79,7 +197,7 @@ export default function AdministrationPlaceScreen() {
               </span>
 
               <span style={styles.summaryChip}>
-                Lotes cargados {loadedBatchesCount}
+                Lotes cargados {summaryBatchesCount}
               </span>
             </div>
           </header>
@@ -87,14 +205,27 @@ export default function AdministrationPlaceScreen() {
           <PlaceStatusFilters
             moderationStatus={moderationStatus}
             activityStatus={activityStatus}
-            onChangeModerationStatus={setModerationStatus}
-            onChangeActivityStatus={setActivityStatus}
+            onChangeModerationStatus={handleChangeModerationStatus}
+            onChangeActivityStatus={handleChangeActivityStatus}
           />
         </section>
 
+        {errorMessage && (
+          <p
+            style={{
+              margin: "0 0 16px",
+              color: "#991b1b",
+              fontWeight: 600,
+            }}
+          >
+            {errorMessage}
+          </p>
+        )}
+
         <section style={styles.table}>
           <div style={styles.tableHeader}>
-            <div>Nombre</div>
+            <div style={{ textAlign: "left" }}>Nombre</div>
+            <div>Fuente</div>
             <div>Fecha de creación</div>
             <div>Creado por</div>
             <div>Aceptado por</div>
@@ -103,13 +234,44 @@ export default function AdministrationPlaceScreen() {
           </div>
 
           <div style={styles.tableBody}>
-            {filteredPlaces.map((place) => (
-              <PlaceRow
-                key={place.id || place.placeId}
-                place={place}
-                onSelect={handleSelectPlace}
-              />
-            ))}
+            {loading ? (
+              <div
+                style={{
+                  padding: "28px",
+                  textAlign: "center",
+                }}
+              >
+                Cargando lugares...
+              </div>
+            ) : places.length === 0 ? (
+              <div
+                style={{
+                  padding: "28px",
+                  textAlign: "center",
+                }}
+              >
+                No se encontraron lugares con estos filtros.
+              </div>
+            ) : (
+              places.map((place) => (
+                <PlaceRow
+                  key={place.id || place.placeId}
+                  place={place}
+                  onSelect={handleSelectPlace}
+                />
+              ))
+            )}
+
+            {loadingMore && (
+              <div
+                style={{
+                  padding: "20px",
+                  textAlign: "center",
+                }}
+              >
+                Cargando más lugares...
+              </div>
+            )}
           </div>
         </section>
       </main>
