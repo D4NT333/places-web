@@ -6,7 +6,15 @@ export default function CommentsHistoryCard({
   hasMore = false,
   loadingMore = false,
   onLoadMore,
+  onSelectComment,
 }) {
+  const handleRowKeyDown = (event, comment) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelectComment?.(comment);
+    }
+  };
+
   return (
     <section style={styles.card}>
       <header style={styles.header}>
@@ -45,11 +53,27 @@ export default function CommentsHistoryCard({
               comments.map((comment) => (
                 <tr
                   key={comment.id}
-                  style={styles.tableRow}
+                  tabIndex={0}
+                  role="button"
+                  onClick={() => onSelectComment?.(comment)}
+                  onKeyDown={(event) =>
+                    handleRowKeyDown(event, comment)
+                  }
+                  style={{
+                    ...styles.tableRow,
+                    cursor: "pointer",
+                    outline: "none",
+                  }}
                   onMouseEnter={(event) => {
                     event.currentTarget.style.backgroundColor = "#F9FAFB";
                   }}
                   onMouseLeave={(event) => {
+                    event.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                  onFocus={(event) => {
+                    event.currentTarget.style.backgroundColor = "#F9FAFB";
+                  }}
+                  onBlur={(event) => {
                     event.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
@@ -61,10 +85,10 @@ export default function CommentsHistoryCard({
                         gap: "8px",
                       }}
                     >
-                      {comment.userPhoto && (
+                      {comment.userPhoto ? (
                         <img
                           src={comment.userPhoto}
-                          alt=""
+                          alt={`Foto de ${comment.user}`}
                           style={{
                             width: 28,
                             height: 28,
@@ -72,6 +96,24 @@ export default function CommentsHistoryCard({
                             objectFit: "cover",
                           }}
                         />
+                      ) : (
+                        <div
+                          style={{
+                            width: 28,
+                            height: 28,
+                            display: "grid",
+                            placeItems: "center",
+                            borderRadius: "50%",
+                            backgroundColor: "#E2E8F0",
+                            color: "#334155",
+                            fontSize: 12,
+                            fontWeight: 800,
+                          }}
+                        >
+                          {(comment.user || "U")
+                            .charAt(0)
+                            .toUpperCase()}
+                        </div>
                       )}
 
                       <span>{comment.user}</span>
@@ -111,7 +153,9 @@ export default function CommentsHistoryCard({
               fontWeight: 700,
             }}
           >
-            {loadingMore ? "Cargando..." : "Cargar más comentarios"}
+            {loadingMore
+              ? "Cargando..."
+              : "Cargar más comentarios"}
           </button>
         </div>
       )}

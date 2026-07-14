@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import LayoutScreen from "../../../../layout";
 
@@ -147,6 +151,11 @@ export default function AdministrationDetailUserScreen() {
   const navigate = useNavigate();
   const { userId } = useParams();
 
+  const location = useLocation();
+
+const navigationState =
+  location.state || {};
+
   const [userDetail, setUserDetail] = useState(null);
 
   const [selectedWeekStart, setSelectedWeekStart] =
@@ -206,19 +215,52 @@ const [isResolvingReport, setIsResolvingReport] =
     return normalizeReportsForView(reportsItems);
   }, [reportsItems]);
 
-  const breadcrumbs = [
+  const breadcrumbs = useMemo(() => {
+  const baseBreadcrumbs = [
     {
       label: "Inicio",
       to: "/",
     },
-    {
+  ];
+
+  if (
+    navigationState.from === "place-review" &&
+    navigationState.returnTo
+  ) {
+    if (navigationState.parentBreadcrumb) {
+      baseBreadcrumbs.push(
+        navigationState.parentBreadcrumb
+      );
+    }
+
+    baseBreadcrumbs.push({
+      label:
+        navigationState.returnLabel ||
+        navigationState.placeName ||
+        "Detalle del lugar",
+
+      to: navigationState.returnTo,
+    });
+  } else {
+    baseBreadcrumbs.push({
       label: "Administrar usuarios",
       to: "/administration/users",
-    },
-    {
-      label: user?.name || userId || "Usuario",
-    },
-  ];
+    });
+  }
+
+  baseBreadcrumbs.push({
+    label:
+      user?.name ||
+      userId ||
+      "Usuario",
+  });
+
+  return baseBreadcrumbs;
+}, [
+  navigationState,
+  user?.name,
+  userId,
+]);
 
  const loadUserDetail = async ({
   weekStart = null,
@@ -402,8 +444,16 @@ const [isResolvingReport, setIsResolvingReport] =
   };
 
   const handleBack = () => {
-    navigate("/administration/users");
-  };
+  if (navigationState.returnTo) {
+    navigate(navigationState.returnTo, {
+      state: navigationState.returnState || null,
+    });
+
+    return;
+  }
+
+  navigate("/administration/users");
+};
 
   const handleModerateUser = () => {
   setIsModerationPanelOpen(true);

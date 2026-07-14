@@ -20,6 +20,7 @@ import {
   WeeklyViewsChartCard,
   WeeklySubmissionsChartCard,
   ProposalsHistoryCard,
+  ReviewDetailModal,
 } from "./Components";
 
 import getAdminPlaceDetailService from "../../../../services/api/administration/places/getAdminPlaceDetail.service";
@@ -29,6 +30,8 @@ import getAdminPlaceReviewsService from "../../../../services/api/administration
 import getAdminPlaceReportsService from "../../../../services/api/administration/places/getAdminPlaceReports.service";
 
 import getAdminPlaceSubmissionsService from "../../../../services/api/administration/places/getAdminPlaceSubmissions.service";
+
+import getAdminPlaceReviewDetailService from "../../../../services/api/administration/places/getAdminPlaceReviewDetail.service";
 
 import styles from "./styles";
 
@@ -174,16 +177,18 @@ function normalizePlace(place) {
       "Sin administrador asignado",
 
     source:
-      place.validation?.source === "google_candidate"
-        ? "Candidato de Google"
-        : place.validation?.source === "user_submission"
-          ? "Propuesta de usuario"
-          : place.validation?.source || "Sin fuente",
+  place.validation?.source === "google_candidate"
+    ? "Candidato de Google"
+    : place.validation?.source === "place_submission"
+      ? "Propuesta de lugar"
+      : place.validation?.source === "user_submission"
+        ? "Propuesta de usuario"
+        : place.validation?.source || "Sin fuente",
 
     creatorName:
-      place.validation?.createdBy?.name ||
-      place.validation?.submittedBy ||
-      "Sistema",
+    place.validation?.submittedBy?.name ||
+    place.validation?.createdBy?.name ||
+    "Sistema",
 
     createdAt: formatDate(place.validation?.createdAt),
 
@@ -330,6 +335,17 @@ export default function PlaceDetailScreen() {
   const [loadingProposals, setLoadingProposals] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [selectedReview, setSelectedReview] = useState(null);
+
+const [isReviewModalOpen, setIsReviewModalOpen] =
+  useState(false);
+
+const [loadingReviewDetail, setLoadingReviewDetail] =
+  useState(false);
+
+const [reviewDetailError, setReviewDetailError] =
+  useState("");
 
   const loadInitialData = useCallback(async () => {
     if (!placeId) {
@@ -598,6 +614,85 @@ export default function PlaceDetailScreen() {
     console.log("Abrir modal de moderación", place);
   };
 
+  const handleOpenReviewDetail = async (comment) => {
+  if (!comment?.id || !placeId) {
+    return;
+  }
+
+  setIsReviewModalOpen(true);
+  setSelectedReview(null);
+  setReviewDetailError("");
+  setLoadingReviewDetail(true);
+
+  try {
+    const result = await getAdminPlaceReviewDetailService({
+      placeId,
+      reviewId: comment.id,
+    });
+
+    setSelectedReview(result.review || null);
+  } catch (error) {
+    console.error(
+      "Error cargando detalle del comentario:",
+      error
+    );
+
+    setReviewDetailError(
+      error.response?.data?.message ||
+        error.message ||
+        "No se pudo cargar el detalle del comentario."
+    );
+  } finally {
+    setLoadingReviewDetail(false);
+  }
+};
+
+const handleCloseReviewDetail = useCallback(() => {
+  if (loadingReviewDetail) {
+    return;
+  }
+
+  setIsReviewModalOpen(false);
+  setSelectedReview(null);
+  setReviewDetailError("");
+}, [loadingReviewDetail]);
+
+const handleOpenReviewUser = (userId) => {
+  if (!userId) {
+    console.warn("La reseña no tiene userId.");
+    return;
+  }
+
+  setIsReviewModalOpen(false);
+  setSelectedReview(null);
+  setReviewDetailError("");
+
+  navigate(
+    `/administration/users/${encodeURIComponent(userId)}`,
+    {
+      state: {
+        from: "place-review",
+
+        returnTo: `/administration/places/${placeId}`,
+
+        returnLabel:
+          place?.name ||
+          "Detalle del lugar",
+
+        parentBreadcrumb: {
+          label: "Administrar lugares",
+          to: "/administration/places",
+        },
+
+        placeId,
+        placeName:
+          place?.name ||
+          "Lugar",
+      },
+    }
+  );
+};
+
   if (loading) {
     return (
       <LayoutScreen breadcrumbs={breadcrumbs}>
@@ -699,12 +794,13 @@ export default function PlaceDetailScreen() {
             />
           </div>
 
-          <CommentsHistoryCard
-            comments={comments}
-            hasMore={hasMoreReviews}
-            loadingMore={loadingReviews}
-            onLoadMore={loadMoreReviews}
-          />
+   <CommentsHistoryCard
+  comments={comments}
+  hasMore={hasMoreReviews}
+  loadingMore={loadingReviews}
+  onLoadMore={loadMoreReviews}
+  onSelectComment={handleOpenReviewDetail}
+/>
         </section>
 
         <section style={styles.bottomGrid}>
@@ -762,6 +858,15 @@ export default function PlaceDetailScreen() {
           </button>
         </div>
       </main>
+
+  <ReviewDetailModal
+  isOpen={isReviewModalOpen}
+  review={selectedReview}
+  loading={loadingReviewDetail}
+  errorMessage={reviewDetailError}
+  onClose={handleCloseReviewDetail}
+  onOpenUser={handleOpenReviewUser}
+/>
     </LayoutScreen>
   );
 }

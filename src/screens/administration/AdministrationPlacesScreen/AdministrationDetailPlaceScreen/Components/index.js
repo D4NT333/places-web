@@ -8,3 +8,4 @@ export { default as ValidationInfoCard } from "./ValidationInfoCard";
 export { default as WeeklyInteractionsCard } from "./WeeklyInteractionsCard";
 export { default as WeeklySubmissionsChartCard } from "./WeeklySubmissionsChartCard";
 export { default as WeeklyViewsChartCard } from "./WeeklyViewsChartCard";
+export { default as ReviewDetailModal } from "./ReviewDetailModal";
