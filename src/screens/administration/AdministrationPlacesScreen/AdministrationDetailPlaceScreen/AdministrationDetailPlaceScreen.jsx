@@ -23,6 +23,8 @@ import {
   ReviewDetailModal,
 } from "./Components";
 
+import ReportDetailModal from "../../../management/ReportsScreen/Components/ReportDetailModal";
+
 import getAdminPlaceDetailService from "../../../../services/api/administration/places/getAdminPlaceDetail.service";
 
 import getAdminPlaceReviewsService from "../../../../services/api/administration/places/getAdminPlaceReviews.service";
@@ -87,8 +89,9 @@ function getActivityStatusLabel(status) {
 function getReportStatusLabel(status) {
   const labels = {
     pending: "Pendiente",
+    in_review: "En revisión",
     resolved: "Resuelto",
-    discarded: "Descartado",
+    dismissed: "Descartado",
   };
 
   return labels[status] || status || "Sin estado";
@@ -250,35 +253,185 @@ function normalizeReports(reports) {
     return [];
   }
 
-  return reports.map((report) => ({
-    id: report.reportId,
+  return reports.map((report) => {
+    const reportId =
+      report.reportId ||
+      report.id;
 
-    type:
+    const rawStatus =
+      report.status ||
+      "pending";
+
+    const reasonLabel =
       report.reason?.label ||
-      "Reporte",
+      report.reasonLabel ||
+      "Motivo no especificado";
 
-    reasonId:
-      report.reason?.id ||
-      null,
+    return {
+      /*
+       * Identificadores
+       */
+      id: reportId,
+      reportId,
 
-    message:
-      report.message ||
-      "",
+      /*
+       * Tipo de reporte.
+       * El modal acepta target.
+       */
+      target:
+        report.target ||
+        "place",
 
-    date: formatDate(report.createdAt),
+      type:
+        report.target ||
+        "place",
 
-    status: getReportStatusLabel(report.status),
+      typeLabel: "Lugar",
 
-    statusId: report.status,
+      /*
+       * Motivo.
+       */
+      reasonId:
+        report.reason?.id ||
+        report.reasonId ||
+        "",
 
-    priority:
-      report.priority ||
-      "normal",
+      reasonLabel,
 
-    reporter:
-      report.reporter?.name ||
-      "Usuario",
-  }));
+      /*
+       * Información principal.
+       */
+      message:
+        report.message ||
+        "",
+
+      priority:
+        report.priority ||
+        "normal",
+
+      source:
+        report.source ||
+        "place_detail",
+
+      metadata:
+        report.metadata ||
+        {},
+
+      /*
+       * Estado técnico, no traducido.
+       */
+      status: rawStatus,
+
+      statusId: rawStatus,
+
+      statusLabel:
+        getReportStatusLabel(rawStatus),
+
+      /*
+       * Lugar relacionado.
+       */
+      relatedTo: {
+        type: "place",
+
+        id:
+          report.place?.placeId ||
+          placeId ||
+          null,
+
+        label:
+          report.place?.placeName ||
+          place?.name ||
+          "Lugar reportado",
+      },
+
+      place: {
+        placeId:
+          report.place?.placeId ||
+          placeId ||
+          null,
+
+        placeName:
+          report.place?.placeName ||
+          place?.name ||
+          "Lugar reportado",
+      },
+
+      /*
+       * Usuario que realizó el reporte.
+       */
+      reporter: {
+        uid:
+          report.reporter?.uid ||
+          null,
+
+        name:
+          report.reporter?.name ||
+          "Usuario desconocido",
+
+        email:
+          report.reporter?.email ||
+          "",
+
+        photoURL:
+          report.reporter?.photoURL ||
+          null,
+      },
+
+      /*
+       * Información adicional.
+       */
+      reportedUser:
+        report.reportedUser ||
+        null,
+
+      review:
+        report.review ||
+        null,
+
+      /*
+       * El backend los entrega dentro de admin,
+       * pero el modal los espera arriba.
+       */
+      assignedTo:
+        report.admin?.assignedTo ||
+        null,
+
+      resolutionNote:
+        report.admin?.resolutionNote ||
+        "",
+
+      resolvedBy:
+        report.admin?.resolvedBy ||
+        null,
+
+      resolvedAt:
+        report.admin?.resolvedAt ||
+        null,
+
+      /*
+       * Fechas originales para el modal.
+       */
+      createdAt:
+        report.createdAt ||
+        null,
+
+      updatedAt:
+        report.updatedAt ||
+        null,
+
+      /*
+       * Campos visuales para ReportsCard.
+       */
+      date:
+        formatDate(report.createdAt),
+
+      displayReason:
+        reasonLabel,
+
+      displayStatus:
+        getReportStatusLabel(rawStatus),
+    };
+  });
 }
 
 function normalizeProposals(submissions) {
@@ -374,6 +527,36 @@ const [
 
 const [reviewsLoadedBatches, setReviewsLoadedBatches] =
   useState(0);
+
+  const [
+  selectedReport,
+  setSelectedReport,
+] = useState(null);
+
+const [
+  isResolvingReport,
+  setIsResolvingReport,
+] = useState(false);
+
+const handleOpenReportDetail = (report) => {
+  if (!report?.id) {
+    return;
+  }
+
+  setSelectedReport(report);
+};
+
+const handleCloseReportDetail = () => {
+  if (isResolvingReport) {
+    return;
+  }
+
+  setSelectedReport(null);
+};
+
+const handleOpenReportRelated = () => {
+  setSelectedReport(null);
+};
 
   const loadInitialData = useCallback(async () => {
     if (!placeId) {
@@ -823,6 +1006,107 @@ const handleOpenReviewUser = (userId) => {
   );
 };
 
+const handleValidatePlaceReport = async ({
+  reportId,
+  resolutionNote,
+}) => {
+  try {
+    setIsResolvingReport(true);
+
+    console.log("Validar reporte de lugar:", {
+      reportId,
+      resolutionNote,
+    });
+
+    setReports((currentReports) =>
+      currentReports.map((report) =>
+        report.id === reportId
+          ? {
+              ...report,
+              status: "Resuelto",
+              statusId: "resolved",
+              statusLabel: "Resuelto",
+              resolutionNote,
+              resolvedAt:
+                new Date().toISOString(),
+            }
+          : report
+      )
+    );
+
+    setSelectedReport(null);
+  } catch (error) {
+    console.error(
+      "Error validando el reporte:",
+      error
+    );
+  } finally {
+    setIsResolvingReport(false);
+  }
+};
+
+const handleDiscardPlaceReport = async ({
+  reportId,
+  resolutionNote,
+}) => {
+  try {
+    setIsResolvingReport(true);
+
+    console.log("Descartar reporte de lugar:", {
+      reportId,
+      resolutionNote,
+    });
+
+    setReports((currentReports) =>
+      currentReports.map((report) =>
+        report.id === reportId
+          ? {
+              ...report,
+              status: "Descartado",
+              statusId: "dismissed",
+              statusLabel: "Descartado",
+              resolutionNote,
+              resolvedAt:
+                new Date().toISOString(),
+            }
+          : report
+      )
+    );
+
+    setSelectedReport(null);
+  } catch (error) {
+    console.error(
+      "Error descartando el reporte:",
+      error
+    );
+  } finally {
+    setIsResolvingReport(false);
+  }
+};
+
+const handleOpenReportReporter = (userId) => {
+  if (!userId) {
+    return;
+  }
+
+  setSelectedReport(null);
+
+  navigate(
+    `/administration/users/${encodeURIComponent(
+      userId
+    )}`,
+    {
+      state: {
+        from: "place-report",
+        returnTo:
+          `/administration/places/${placeId}`,
+        returnLabel:
+          place?.name || "Detalle del lugar",
+      },
+    }
+  );
+};
+
   if (loading) {
     return (
       <LayoutScreen breadcrumbs={breadcrumbs}>
@@ -917,11 +1201,12 @@ const handleOpenReviewUser = (userId) => {
             <ValidationInfoCard place={place} />
 
             <ReportsCard
-              reports={reports}
-              hasMore={hasMoreReports}
-              loadingMore={loadingReports}
-              onLoadMore={loadMoreReports}
-            />
+  reports={reports}
+  hasMore={hasMoreReports}
+  loadingMore={loadingReports}
+  onLoadMore={loadMoreReports}
+  onSelectReport={handleOpenReportDetail}
+/>
           </div>
 
 <CommentsHistoryCard
@@ -1000,6 +1285,18 @@ const handleOpenReviewUser = (userId) => {
   onClose={handleCloseReviewDetail}
   onOpenUser={handleOpenReviewUser}
   onChangeVisibility={handleChangeReviewVisibility}
+/>
+
+<ReportDetailModal
+  isOpen={Boolean(selectedReport)}
+  report={selectedReport}
+  loading={false}
+  isSubmitting={isResolvingReport}
+  onClose={handleCloseReportDetail}
+  onValidate={handleValidatePlaceReport}
+  onDiscard={handleDiscardPlaceReport}
+  onOpenRelated={handleOpenReportRelated}
+  onOpenReporter={handleOpenReportReporter}
 />
     </LayoutScreen>
   );

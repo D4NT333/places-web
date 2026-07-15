@@ -6,6 +6,7 @@ export default function ReportsCard({
   hasMore = false,
   loadingMore = false,
   onLoadMore,
+  onSelectReport,
 }) {
   const activeReportsCount = reports.filter(
     (report) => report.statusId === "pending"
@@ -15,10 +16,13 @@ export default function ReportsCard({
     <section style={styles.card}>
       <header style={styles.headerRow}>
         <div>
-          <h2 style={styles.title}>Reportes del lugar</h2>
+          <h2 style={styles.title}>
+            Reportes del lugar
+          </h2>
 
           <p style={styles.subtitle}>
-            Reportes pendientes cargados: {activeReportsCount}
+            Reportes pendientes cargados:{" "}
+            {activeReportsCount}
           </p>
         </div>
       </header>
@@ -28,7 +32,9 @@ export default function ReportsCard({
           <thead>
             <tr>
               <th style={styles.th}>Tipo</th>
-              <th style={styles.th}>Fecha de publicación</th>
+              <th style={styles.th}>
+                Fecha de publicación
+              </th>
               <th style={styles.th}>Estado</th>
             </tr>
           </thead>
@@ -51,17 +57,44 @@ export default function ReportsCard({
               reports.map((report) => (
                 <tr
                   key={report.id}
-                  style={styles.tableRow}
+                  style={{
+                    ...styles.tableRow,
+                    cursor: "pointer",
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  onClick={() =>
+                    onSelectReport?.(report)
+                  }
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === "Enter" ||
+                      event.key === " "
+                    ) {
+                      event.preventDefault();
+                      onSelectReport?.(report);
+                    }
+                  }}
                   onMouseEnter={(event) => {
-                    event.currentTarget.style.backgroundColor = "#F9FAFB";
+                    event.currentTarget.style.backgroundColor =
+                      "#F9FAFB";
                   }}
                   onMouseLeave={(event) => {
-                    event.currentTarget.style.backgroundColor = "transparent";
+                    event.currentTarget.style.backgroundColor =
+                      "transparent";
                   }}
                 >
-                  <td style={styles.td}>{report.type}</td>
-                  <td style={styles.td}>{report.date}</td>
-                  <td style={styles.td}>{report.status}</td>
+                  <td style={styles.td}>
+  {report.reasonLabel}
+</td>
+
+<td style={styles.td}>
+  {report.date}
+</td>
+
+<td style={styles.td}>
+  {report.statusLabel}
+</td>
                 </tr>
               ))
             )}
@@ -86,11 +119,15 @@ export default function ReportsCard({
               border: "1px solid #CBD5E1",
               borderRadius: "999px",
               backgroundColor: "#FFFFFF",
-              cursor: loadingMore ? "not-allowed" : "pointer",
+              cursor: loadingMore
+                ? "not-allowed"
+                : "pointer",
               fontWeight: 700,
             }}
           >
-            {loadingMore ? "Cargando..." : "Cargar más reportes"}
+            {loadingMore
+              ? "Cargando..."
+              : "Cargar más reportes"}
           </button>
         </div>
       )}
