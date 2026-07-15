@@ -357,6 +357,59 @@ userNameLink: {
   textUnderlineOffset: 3,
   whiteSpace: "nowrap",
 },
+moderationSection: {
+  marginTop: 22,
+  padding: 16,
+  border: "1px solid #CBD5E1",
+  borderRadius: 12,
+  backgroundColor: "#F8FAFC",
+},
+
+moderationHelp: {
+  margin: "0 0 12px",
+  color: "#64748B",
+  fontSize: 12,
+  fontWeight: 600,
+  lineHeight: 1.5,
+},
+
+reasonInput: {
+  width: "100%",
+  minHeight: 96,
+  resize: "vertical",
+  padding: "12px 14px",
+  border: "1px solid #94A3B8",
+  borderRadius: 10,
+  backgroundColor: "#FFFFFF",
+  color: "#0F172A",
+  fontFamily: "inherit",
+  fontSize: 13,
+  lineHeight: 1.5,
+  outline: "none",
+  boxSizing: "border-box",
+},
+
+reasonMeta: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 12,
+  marginTop: 7,
+  color: "#64748B",
+  fontSize: 11,
+  fontWeight: 700,
+},
+
+moderationError: {
+  marginTop: 12,
+  padding: "10px 12px",
+  border: "1px solid #FECACA",
+  borderRadius: 9,
+  backgroundColor: "#FEF2F2",
+  color: "#991B1B",
+  fontSize: 12,
+  fontWeight: 700,
+},
 };
 
 export default styles;

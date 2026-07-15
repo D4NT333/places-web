@@ -33,6 +33,8 @@ import getAdminPlaceSubmissionsService from "../../../../services/api/administra
 
 import getAdminPlaceReviewDetailService from "../../../../services/api/administration/places/getAdminPlaceReviewDetail.service";
 
+import updateAdminPlaceReviewVisibilityService from "../../../../services/api/administration/places/updateAdminPlaceReviewVisibility.service";
+
 import styles from "./styles";
 
 const PAGE_LIMIT = 10;
@@ -233,7 +235,10 @@ function normalizeComments(reviews) {
       review.recommended,
 
     status:
-      review.status,
+      review.status || "published",
+
+    statusLabel:
+      getReviewStatusLabel(review.status),
 
     answers:
       review.answers || [],
@@ -312,6 +317,16 @@ function normalizeProposals(submissions) {
   }));
 }
 
+function getReviewStatusLabel(status) {
+  const labels = {
+    published: "Publicado",
+    hidden: "Oculto",
+    deleted: "Eliminado",
+  };
+
+  return labels[status] || status || "Sin estado";
+}
+
 export default function PlaceDetailScreen() {
   const navigate = useNavigate();
   const { placeId } = useParams();
@@ -346,6 +361,16 @@ const [loadingReviewDetail, setLoadingReviewDetail] =
 
 const [reviewDetailError, setReviewDetailError] =
   useState("");
+
+  const [
+  changingReviewVisibility,
+  setChangingReviewVisibility,
+] = useState(false);
+
+const [
+  reviewVisibilityError,
+  setReviewVisibilityError,
+] = useState("");
 
   const loadInitialData = useCallback(async () => {
     if (!placeId) {
@@ -620,9 +645,10 @@ const [reviewDetailError, setReviewDetailError] =
   }
 
   setIsReviewModalOpen(true);
-  setSelectedReview(null);
-  setReviewDetailError("");
-  setLoadingReviewDetail(true);
+setSelectedReview(null);
+setReviewDetailError("");
+setReviewVisibilityError("");
+setLoadingReviewDetail(true);
 
   try {
     const result = await getAdminPlaceReviewDetailService({
@@ -647,15 +673,103 @@ const [reviewDetailError, setReviewDetailError] =
   }
 };
 
-const handleCloseReviewDetail = useCallback(() => {
-  if (loadingReviewDetail) {
+const handleCloseReviewDetail =
+  useCallback(() => {
+    if (
+      loadingReviewDetail ||
+      changingReviewVisibility
+    ) {
+      return;
+    }
+
+    setIsReviewModalOpen(false);
+    setSelectedReview(null);
+    setReviewDetailError("");
+    setReviewVisibilityError("");
+  }, [
+    loadingReviewDetail,
+    changingReviewVisibility,
+  ]);
+
+  const handleChangeReviewVisibility = async ({
+  hidden,
+  reason = "",
+}) => {
+  if (
+    !selectedReview?.reviewId ||
+    !placeId ||
+    changingReviewVisibility
+  ) {
     return;
   }
 
-  setIsReviewModalOpen(false);
-  setSelectedReview(null);
-  setReviewDetailError("");
-}, [loadingReviewDetail]);
+  setChangingReviewVisibility(true);
+  setReviewVisibilityError("");
+
+  try {
+    const result =
+      await updateAdminPlaceReviewVisibilityService({
+        placeId,
+        reviewId: selectedReview.reviewId,
+        hidden,
+        reason,
+      });
+
+    const nextStatus =
+      result.status ||
+      (hidden ? "hidden" : "published");
+
+    /*
+     * Actualiza el detalle actualmente abierto.
+     */
+    setSelectedReview((currentReview) => {
+      if (!currentReview) {
+        return currentReview;
+      }
+
+      return {
+        ...currentReview,
+        status: nextStatus,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+
+    /*
+     * Actualiza la fila de la tabla sin volver
+     * a consultar todas las páginas.
+     */
+    setComments((currentComments) =>
+      currentComments.map((comment) => {
+        if (
+          comment.id !==
+          selectedReview.reviewId
+        ) {
+          return comment;
+        }
+
+        return {
+          ...comment,
+          status: nextStatus,
+          statusLabel:
+            getReviewStatusLabel(nextStatus),
+        };
+      })
+    );
+  } catch (error) {
+    console.error(
+      "Error cambiando visibilidad de la reseña:",
+      error
+    );
+
+    setReviewVisibilityError(
+      error.response?.data?.message ||
+        error.message ||
+        "No se pudo actualizar la visibilidad del comentario."
+    );
+  } finally {
+    setChangingReviewVisibility(false);
+  }
+};
 
 const handleOpenReviewUser = (userId) => {
   if (!userId) {
@@ -859,13 +973,16 @@ const handleOpenReviewUser = (userId) => {
         </div>
       </main>
 
-  <ReviewDetailModal
+<ReviewDetailModal
   isOpen={isReviewModalOpen}
   review={selectedReview}
   loading={loadingReviewDetail}
   errorMessage={reviewDetailError}
+  isChangingVisibility={changingReviewVisibility}
+  visibilityError={reviewVisibilityError}
   onClose={handleCloseReviewDetail}
   onOpenUser={handleOpenReviewUser}
+  onChangeVisibility={handleChangeReviewVisibility}
 />
     </LayoutScreen>
   );

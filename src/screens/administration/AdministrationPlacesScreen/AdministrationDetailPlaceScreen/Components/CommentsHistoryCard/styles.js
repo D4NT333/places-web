@@ -57,6 +57,19 @@ const styles = {
     fontSize: 13,
     color: "#111827",
   },
+  statusPill: {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: 78,
+  padding: "5px 10px",
+  border: "1px solid #CBD5E1",
+  borderRadius: 999,
+  backgroundColor: "#FFFFFF",
+  color: "#0F172A",
+  fontSize: 11,
+  fontWeight: 800,
+},
 };
 
 export default styles;

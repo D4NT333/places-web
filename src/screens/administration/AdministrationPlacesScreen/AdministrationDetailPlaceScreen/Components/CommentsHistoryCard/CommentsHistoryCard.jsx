@@ -32,6 +32,7 @@ export default function CommentsHistoryCard({
               <th style={styles.th}>Usuario</th>
               <th style={styles.th}>Fecha de publicación</th>
               <th style={styles.th}>Valoración</th>
+              <th style={styles.th}>Estado</th>
             </tr>
           </thead>
 
@@ -39,7 +40,7 @@ export default function CommentsHistoryCard({
             {comments.length === 0 ? (
               <tr>
                 <td
-                  colSpan={3}
+                  colSpan={4}
                   style={{
                     ...styles.td,
                     textAlign: "center",
@@ -125,6 +126,12 @@ export default function CommentsHistoryCard({
                   <td style={styles.td}>
                     {comment.rating}
                   </td>
+
+                  <td style={styles.td}>
+  <span style={styles.statusPill}>
+    {comment.statusLabel}
+  </span>
+</td>
                 </tr>
               ))
             )}
