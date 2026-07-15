@@ -228,7 +228,7 @@ async function handleDiscardReport({
         report.id === reportId
           ? {
               ...report,
-              status: "discarded",
+              status: "dismissed",
               statusLabel: "Descartado",
               resolutionNote,
               resolvedAt: new Date().toISOString(),

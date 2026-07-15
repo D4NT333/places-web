@@ -70,6 +70,12 @@ const styles = {
   fontSize: 11,
   fontWeight: 800,
 },
+countersRow: {
+  display: "flex",
+  alignItems: "center",
+  gap: 14,
+  flexWrap: "wrap",
+},
 };
 
 export default styles;

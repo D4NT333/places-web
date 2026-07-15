@@ -10,15 +10,40 @@ const TARGET_LABELS = {
 
 const STATUS_LABELS = {
   pending: "Pendiente",
+  in_review: "En revisión",
   resolved: "Resuelto",
-  discarded: "Descartado",
+  dismissed: "Descartado",
 };
+
 
 const PRIORITY_LABELS = {
   low: "Baja",
+  normal: "Normal",
   medium: "Media",
   high: "Alta",
 };
+
+const SOURCE_LABELS = {
+  place_detail: "Detalle del lugar",
+  review: "Reseña",
+  user_profile: "Perfil de usuario",
+  general: "Sistema general",
+  manual: "Registro manual",
+  ReportProblemScreen: "Pantalla de reportes",
+  PlaceDetailScreen: "Detalle del lugar",
+};
+
+function getSourceLabel(report) {
+  const source =
+    report?.source ||
+    report?.metadata?.createdFrom ||
+    "";
+
+  return (
+    SOURCE_LABELS[source] ||
+    "No especificado"
+  );
+}
 
 function formatDate(value) {
   if (!value) {
@@ -44,6 +69,8 @@ function getTargetType(report) {
   return (
     report?.reportTarget ||
     report?.target ||
+    report?.type ||
+    report?.relatedTo?.type ||
     "general"
   );
 }
@@ -53,13 +80,23 @@ function getRelatedEntity(report, targetType) {
     return {
       id:
         report?.reportedUser?.uid ||
+        report?.relatedTo?.id ||
         report?.reportedUserId ||
         null,
 
       name:
         report?.reportedUser?.name ||
+        report?.relatedTo?.label ||
         report?.relatedLabel ||
         "Usuario desconocido",
+
+      email:
+        report?.reportedUser?.email ||
+        "",
+
+      photoURL:
+        report?.reportedUser?.photoURL ||
+        null,
 
       actionLabel: "Ver usuario",
     };
@@ -68,16 +105,20 @@ function getRelatedEntity(report, targetType) {
   if (targetType === "place") {
     return {
       id:
+        report?.relatedTo?.id ||
         report?.place?.placeId ||
         report?.placeId ||
         null,
 
       name:
+        report?.relatedTo?.label ||
         report?.place?.placeName ||
         report?.placeName ||
         report?.relatedLabel ||
         "Lugar desconocido",
 
+      email: "",
+      photoURL: null,
       actionLabel: "Ver lugar",
     };
   }
@@ -85,6 +126,8 @@ function getRelatedEntity(report, targetType) {
   return {
     id: null,
     name: "Sistema general",
+    email: "",
+    photoURL: null,
     actionLabel: null,
   };
 }
@@ -269,21 +312,23 @@ export default function ReportDetailModal({
     };
 
     if (selectedAction === "resolved") {
-      onValidate?.(payload);
-      return;
-    }
+  onValidate?.(payload);
+  return;
+}
 
-    onDiscard?.(payload);
+if (selectedAction === "dismissed") {
+  onDiscard?.(payload);
+}
   };
 
   const statusStyle = {
-    ...styles.statusChip,
-    ...(status === "resolved"
-      ? styles.statusResolved
-      : status === "discarded"
-        ? styles.statusDiscarded
-        : styles.statusPending),
-  };
+  ...styles.statusChip,
+  ...(status === "resolved"
+    ? styles.statusResolved
+    : status === "dismissed"
+      ? styles.statusDiscarded
+      : styles.statusPending),
+};
 
   const targetStyle = {
     ...styles.targetChip,
@@ -359,16 +404,16 @@ export default function ReportDetailModal({
 
                 <div style={styles.infoGrid}>
                   <div style={styles.infoItem}>
-                    <span style={styles.infoLabel}>
-                      Motivo
-                    </span>
+  <span style={styles.infoLabel}>
+    Motivo
+  </span>
 
-                    <strong style={styles.infoValue}>
-                      {report?.reasonLabel ||
-                        report?.reason ||
-                        "Sin motivo"}
-                    </strong>
-                  </div>
+  <strong style={styles.infoValue}>
+    {report?.reasonLabel ||
+      report?.reason ||
+      "Sin motivo"}
+  </strong>
+</div>
 
                   <div style={styles.infoItem}>
                     <span style={styles.infoLabel}>
@@ -403,53 +448,101 @@ export default function ReportDetailModal({
                     </span>
 
                     <strong style={styles.infoValue}>
-                      {report?.source ||
-                        report?.metadata?.createdFrom ||
-                        "No especificado"}
-                    </strong>
+  {getSourceLabel(report)}
+</strong>
                   </div>
                 </div>
               </section>
 
               <div style={styles.twoColumnGrid}>
                 <section style={styles.entityCard}>
-                  <div style={styles.entityHeader}>
-                    <div>
-                      <span style={styles.eyebrow}>
-                        Relacionado con
-                      </span>
+  <span style={styles.eyebrow}>
+    Relacionado con
+  </span>
 
-                      <h3 style={styles.entityName}>
-                        {relatedEntity.name}
-                      </h3>
-                    </div>
+  {targetType === "user" ? (
+    <div style={styles.reporterRow}>
+      <div style={styles.avatar}>
+        {relatedEntity.photoURL ? (
+          <img
+            src={relatedEntity.photoURL}
+            alt={relatedEntity.name}
+            style={styles.avatarImage}
+          />
+        ) : (
+          <span style={styles.avatarText}>
+            {getInitials(relatedEntity.name)}
+          </span>
+        )}
+      </div>
 
-                    {relatedEntity.id &&
-                    relatedEntity.actionLabel ? (
-                      <button
-                        type="button"
-                        style={styles.secondaryButton}
-                        onClick={() =>
-                          onOpenRelated?.({
-                            targetType,
-                            id: relatedEntity.id,
-                            report,
-                          })
-                        }
-                      >
-                        {relatedEntity.actionLabel}
-                      </button>
-                    ) : null}
-                  </div>
+      <div style={styles.reporterText}>
+        <strong style={styles.reporterName}>
+          {relatedEntity.name}
+        </strong>
 
-                  <p style={styles.entityDescription}>
-                    {targetType === "user"
-                      ? "Perfil señalado por el reporte."
-                      : targetType === "place"
-                        ? "Lugar relacionado con el reporte."
-                        : "El reporte está relacionado con el funcionamiento general del sistema."}
-                  </p>
-                </section>
+        {relatedEntity.email ? (
+          <span style={styles.reporterEmail}>
+            {relatedEntity.email}
+          </span>
+        ) : (
+          <span style={styles.reporterEmail}>
+            Usuario señalado
+          </span>
+        )}
+      </div>
+
+      {relatedEntity.id ? (
+        <button
+          type="button"
+          style={styles.secondaryButton}
+          onClick={() =>
+            onOpenRelated?.({
+              targetType,
+              id: relatedEntity.id,
+              report,
+            })
+          }
+        >
+          Ver usuario
+        </button>
+      ) : null}
+    </div>
+  ) : (
+    <>
+      <div style={styles.entityHeader}>
+        <div>
+          <h3 style={styles.entityName}>
+            {relatedEntity.name}
+          </h3>
+        </div>
+
+        {relatedEntity.id &&
+        relatedEntity.actionLabel ? (
+          <button
+            type="button"
+            style={styles.secondaryButton}
+            onClick={() =>
+              onOpenRelated?.({
+                targetType,
+                id: relatedEntity.id,
+                report,
+              })
+            }
+          >
+            {relatedEntity.actionLabel}
+          </button>
+        ) : null}
+      </div>
+
+      <p style={styles.entityDescription}>
+        {targetType === "place"
+          ? "Lugar relacionado con el reporte."
+          : "El reporte está relacionado con el funcionamiento general del sistema."}
+      </p>
+    </>
+  )}
+</section>
 
                 <section style={styles.entityCard}>
                   <span style={styles.eyebrow}>
@@ -563,23 +656,20 @@ export default function ReportDetailModal({
                   </h3>
 
                   <div style={styles.actionOptions}>
-                    <button
-                      type="button"
-                      style={{
-                        ...styles.actionOption,
-                        ...(selectedAction ===
-                        "discarded"
-                          ? styles.actionOptionSelected
-                          : {}),
-                      }}
-                      onClick={() =>
-                        handleSelectAction(
-                          "discarded"
-                        )
-                      }
-                    >
-                      Descartar reporte
-                    </button>
+          <button
+  type="button"
+  style={{
+    ...styles.actionOption,
+    ...(selectedAction === "dismissed"
+      ? styles.actionOptionSelected
+      : {}),
+  }}
+  onClick={() =>
+    handleSelectAction("dismissed")
+  }
+>
+  Descartar reporte
+</button>
 
                     <button
                       type="button"

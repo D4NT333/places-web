@@ -372,6 +372,9 @@ const [
   setReviewVisibilityError,
 ] = useState("");
 
+const [reviewsLoadedBatches, setReviewsLoadedBatches] =
+  useState(0);
+
   const loadInitialData = useCallback(async () => {
     if (!placeId) {
       setErrorMessage("No se recibió el identificador del lugar.");
@@ -414,6 +417,13 @@ const [
       setComments(
         normalizeComments(reviewsResult.reviews)
       );
+
+      setReviewsLoadedBatches(
+  Array.isArray(reviewsResult.reviews) &&
+  reviewsResult.reviews.length > 0
+    ? 1
+    : 0
+);
 
       setReports(
         normalizeReports(reportsResult.reports)
@@ -490,6 +500,12 @@ const [
         ...currentComments,
         ...newComments,
       ]);
+
+      if (newComments.length > 0) {
+  setReviewsLoadedBatches(
+    (currentBatches) => currentBatches + 1
+  );
+}
 
       setReviewsCursor(
         result.pagination?.nextCursor || null
@@ -908,8 +924,9 @@ const handleOpenReviewUser = (userId) => {
             />
           </div>
 
-   <CommentsHistoryCard
+<CommentsHistoryCard
   comments={comments}
+  loadedBatches={reviewsLoadedBatches}
   hasMore={hasMoreReviews}
   loadingMore={loadingReviews}
   onLoadMore={loadMoreReviews}

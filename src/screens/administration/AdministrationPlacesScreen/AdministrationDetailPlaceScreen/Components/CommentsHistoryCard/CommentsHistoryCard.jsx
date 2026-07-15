@@ -3,6 +3,7 @@ import styles from "./styles";
 
 export default function CommentsHistoryCard({
   comments = [],
+  loadedBatches = 0,
   hasMore = false,
   loadingMore = false,
   onLoadMore,
@@ -17,13 +18,21 @@ export default function CommentsHistoryCard({
 
   return (
     <section style={styles.card}>
-      <header style={styles.header}>
-        <h2 style={styles.title}>Historial de comentarios</h2>
+     <header style={styles.header}>
+  <h2 style={styles.title}>
+    Historial de comentarios
+  </h2>
 
-        <span style={styles.counter}>
-          Comentarios cargados: {comments.length}
-        </span>
-      </header>
+  <div style={styles.countersRow}>
+    <span style={styles.counter}>
+      Comentarios cargados: {comments.length}
+    </span>
+
+    <span style={styles.counter}>
+      Lotes cargados: {loadedBatches}
+    </span>
+  </div>
+</header>
 
       <div style={styles.tableWrapper}>
         <table style={styles.table}>
