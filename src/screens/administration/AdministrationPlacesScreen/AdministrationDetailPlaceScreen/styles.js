@@ -28,15 +28,16 @@ const styles = {
     color: "#6B7280",
   },
 
-  topGrid: {
-    width: "100%",
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1.48fr) minmax(0, 0.95fr)",
-    gap: 22,
-    alignItems: "stretch",
-    marginBottom: 22,
-    boxSizing: "border-box",
-  },
+ topGrid: {
+  width: "100%",
+  display: "grid",
+  gridTemplateColumns:
+    "minmax(0, 1.48fr) minmax(0, 0.95fr)",
+  gap: 22,
+  alignItems: "stretch",
+  marginBottom: 22,
+  boxSizing: "border-box",
+},
 
   middleGrid: {
     width: "100%",

@@ -1,7 +1,7 @@
 const styles = {
   card: {
     padding: 18,
-    border: "1px solid #D1D5DB",
+    border: "3px solid #000000",
     borderRadius: 16,
     backgroundColor: "#FFFFFF",
     boxShadow: "0 12px 28px rgba(15, 23, 42, 0.06)",
@@ -17,7 +17,7 @@ const styles = {
 
   title: {
     margin: 0,
-    fontSize: 17,
+    fontSize: 26,
     fontWeight: 800,
     color: "#111827",
   },
@@ -59,9 +59,9 @@ const styles = {
 
   th: {
     padding: "11px 8px",
-    borderBottom: "1px solid #D1D5DB",
+    borderBottom: "2px solid #000000",
     textAlign: "left",
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: 800,
     color: "#374151",
   },
@@ -73,10 +73,37 @@ const styles = {
 
   td: {
     padding: "13px 8px",
-    borderBottom: "1px solid #EEF2F7",
-    fontSize: 13,
-    color: "#111827",
+    borderBottom: "1px solid #acadaf",
+    fontSize: 18,
+    color: "#000000",
   },
+  countersRow: {
+  display: "flex",
+  alignItems: "center",
+  flexWrap: "wrap",
+  gap: 12,
+  marginTop: 8,
+},
+
+counter: {
+  color: "#475569",
+  fontSize: 16,
+  fontWeight: 600,
+},
+
+statusPill: {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: 76,
+  padding: "5px 10px",
+  border: "1px solid",
+  borderRadius: 999,
+  fontSize: 18,
+  fontWeight: 800,
+  lineHeight: 1,
+  whiteSpace: "nowrap",
+},
 };
 
 export default styles;

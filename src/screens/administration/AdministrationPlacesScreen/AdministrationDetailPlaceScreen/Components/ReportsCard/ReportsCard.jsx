@@ -1,17 +1,57 @@
 import React from "react";
 import styles from "./styles";
 
+function getStatusPillStyle(status) {
+  const statusStyles = {
+    pending: {
+      backgroundColor: "#FFFBEB",
+      borderColor: "#FDE68A",
+      color: "#92400E",
+    },
+
+    in_review: {
+      backgroundColor: "#EFF6FF",
+      borderColor: "#BFDBFE",
+      color: "#1D4ED8",
+    },
+
+    resolved: {
+      backgroundColor: "#ECFDF5",
+      borderColor: "#A7F3D0",
+      color: "#047857",
+    },
+
+    dismissed: {
+      backgroundColor: "#F8FAFC",
+      borderColor: "#CBD5E1",
+      color: "#475569",
+    },
+
+    discarded: {
+      backgroundColor: "#F8FAFC",
+      borderColor: "#CBD5E1",
+      color: "#475569",
+    },
+  };
+
+  return {
+    ...styles.statusPill,
+    ...(statusStyles[status] || {
+      backgroundColor: "#F8FAFC",
+      borderColor: "#CBD5E1",
+      color: "#475569",
+    }),
+  };
+}
+
 export default function ReportsCard({
   reports = [],
+  loadedBatches = 0,
   hasMore = false,
   loadingMore = false,
   onLoadMore,
   onSelectReport,
 }) {
-  const activeReportsCount = reports.filter(
-    (report) => report.statusId === "pending"
-  ).length;
-
   return (
     <section style={styles.card}>
       <header style={styles.headerRow}>
@@ -20,10 +60,15 @@ export default function ReportsCard({
             Reportes del lugar
           </h2>
 
-          <p style={styles.subtitle}>
-            Reportes pendientes cargados:{" "}
-            {activeReportsCount}
-          </p>
+          <div style={styles.countersRow}>
+            <span style={styles.counter}>
+              Reportes cargados: {reports.length}
+            </span>
+
+            <span style={styles.counter}>
+              Lotes cargados: {loadedBatches}
+            </span>
+          </div>
         </div>
       </header>
 
@@ -31,11 +76,25 @@ export default function ReportsCard({
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.th}>Tipo</th>
-              <th style={styles.th}>
-                Fecha de publicación
-              </th>
-              <th style={styles.th}>Estado</th>
+             <th style={styles.th}>Tipo</th>
+
+<th
+  style={{
+    ...styles.th,
+    textAlign: "center",
+  }}
+>
+  Fecha de publicación
+</th>
+
+<th
+  style={{
+    ...styles.th,
+    textAlign: "center",
+  }}
+>
+  Estado
+</th>
             </tr>
           </thead>
 
@@ -83,17 +142,41 @@ export default function ReportsCard({
                     event.currentTarget.style.backgroundColor =
                       "transparent";
                   }}
+                  onFocus={(event) => {
+                    event.currentTarget.style.backgroundColor =
+                      "#F9FAFB";
+                  }}
+                  onBlur={(event) => {
+                    event.currentTarget.style.backgroundColor =
+                      "transparent";
+                  }}
                 >
                   <td style={styles.td}>
   {report.reasonLabel}
 </td>
 
-<td style={styles.td}>
+<td
+  style={{
+    ...styles.td,
+    textAlign: "center",
+  }}
+>
   {report.date}
 </td>
 
-<td style={styles.td}>
-  {report.statusLabel}
+<td
+  style={{
+    ...styles.td,
+    textAlign: "center",
+  }}
+>
+  <span
+    style={getStatusPillStyle(
+      report.statusId
+    )}
+  >
+    {report.statusLabel}
+  </span>
 </td>
                 </tr>
               ))

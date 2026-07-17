@@ -3,19 +3,38 @@ const styles = {
     width: "100%",
     minWidth: 0,
     padding: 18,
-    border: "1px solid #D1D5DB",
+    border: "3px solid #000000",
     borderRadius: 16,
     backgroundColor: "#FFFFFF",
-    boxShadow: "0 12px 28px rgba(15, 23, 42, 0.06)",
+    boxShadow:
+      "0 12px 28px rgba(15, 23, 42, 0.06)",
     boxSizing: "border-box",
     overflow: "hidden",
   },
 
+  header: {
+    marginBottom: 14,
+  },
+
   title: {
-    margin: "0 0 14px",
-    fontSize: 17,
+    margin: 0,
+    fontSize: 22,
     fontWeight: 800,
     color: "#111827",
+  },
+
+  countersRow: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 8,
+  },
+
+  counter: {
+    color: "#475569",
+    fontSize: 16,
+    fontWeight: 600,
   },
 
   tableWrapper: {
@@ -32,9 +51,9 @@ const styles = {
 
   th: {
     padding: "11px 8px",
-    borderBottom: "1px solid #D1D5DB",
+    borderBottom: "2px solid #000000",
     textAlign: "left",
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: 800,
     color: "#374151",
     whiteSpace: "nowrap",
@@ -47,10 +66,39 @@ const styles = {
 
   td: {
     padding: "13px 8px",
-    borderBottom: "1px solid #EEF2F7",
-    fontSize: 13,
+    borderBottom: "1px solid #C5C6C8",
+    fontSize: 18,
     color: "#111827",
     whiteSpace: "nowrap",
+  },
+
+  statusPill: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 92,
+    padding: "6px 12px",
+    border: "1px solid",
+    borderRadius: 999,
+    fontSize: 16,
+    fontWeight: 800,
+    lineHeight: 1,
+    whiteSpace: "nowrap",
+  },
+
+  loadMoreRow: {
+    display: "flex",
+    justifyContent: "center",
+    paddingTop: 14,
+  },
+
+  loadMoreButton: {
+    padding: "8px 18px",
+    border: "1px solid #CBD5E1",
+    borderRadius: 999,
+    backgroundColor: "#FFFFFF",
+    fontWeight: 700,
+    cursor: "pointer",
   },
 };
 

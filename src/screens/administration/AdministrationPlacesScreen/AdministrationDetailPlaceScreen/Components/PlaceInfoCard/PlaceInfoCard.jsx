@@ -41,6 +41,8 @@ export default function PlaceInfoCard({
         </div>
       </div>
 
+      <div style={styles.content}>
+
       <div style={styles.fieldGroup}>
         <span style={styles.label}>Nombre del lugar</span>
         <div style={styles.inputLike}>{place.name}</div>
@@ -52,48 +54,53 @@ export default function PlaceInfoCard({
       </div>
 
       <div style={styles.infoGrid}>
-        <div style={styles.fieldGroup}>
-          <span style={styles.label}>Etiqueta</span>
-          <div style={styles.inputLike}>{place.tagLabel}</div>
-        </div>
+  <div style={styles.infoFieldGroup}>
+    <span style={styles.label}>Etiqueta</span>
+    <div style={styles.tagBox}>
+  {place.tagLabel}
+</div>
+  </div>
 
-        <div style={styles.fieldGroup}>
-          <span style={styles.label}>Valoración de Google</span>
+  <div style={styles.infoFieldGroup}>
+    <span style={styles.label}>
+      Valoración de Google
+    </span>
 
-          <div style={styles.scoreBox}>
-            {place.googleRating.toFixed(1)}
-          </div>
+    <div style={styles.scoreBox}>
+      {place.googleRating.toFixed(1)}
+    </div>
 
-          <span
-            style={{
-              marginTop: 5,
-              fontSize: 12,
-              color: "#64748B",
-            }}
-          >
-            {place.googleRatingCount} valoraciones
-          </span>
-        </div>
+    <span
+      style={{
+        marginTop: 5,
+        fontSize: 14,
+        color: "#64748B",
+      }}
+    >
+      {place.googleRatingCount} valoraciones
+    </span>
+  </div>
 
-        <div style={styles.fieldGroup}>
-          <span style={styles.label}>Valoración Lsearch</span>
+  <div style={styles.infoFieldGroup}>
+    <span style={styles.label}>
+      Valoración Lsearch
+    </span>
 
-          <div style={styles.scoreBox}>
-            {place.lsearchRating.toFixed(1)}
-          </div>
+    <div style={styles.scoreBox}>
+      {place.lsearchRating.toFixed(1)}
+    </div>
 
-          <span
-            style={{
-              marginTop: 5,
-              fontSize: 12,
-              color: "#64748B",
-            }}
-          >
-            {place.lsearchRatingCount} valoraciones
-          </span>
-        </div>
-      </div>
-
+    <span
+      style={{
+        marginTop: 5,
+        fontSize: 14,
+        color: "#64748B",
+      }}
+    >
+      {place.lsearchRatingCount} valoraciones
+    </span>
+  </div>
+</div>
       <div style={styles.fieldGroup}>
         <span style={styles.label}>Subetiquetas</span>
 
@@ -136,6 +143,7 @@ export default function PlaceInfoCard({
           <span style={styles.label}>Horario</span>
           <div style={styles.inputLike}>{place.schedule}</div>
         </div>
+      </div>
       </div>
     </section>
   );

@@ -23,6 +23,8 @@ import {
   ReviewDetailModal,
 } from "./Components";
 
+import { ImageGalleryModal } from "../../../../components";
+
 import ReportDetailModal from "../../../management/ReportsScreen/Components/ReportDetailModal";
 
 import getAdminPlaceDetailService from "../../../../services/api/administration/places/getAdminPlaceDetail.service";
@@ -36,6 +38,8 @@ import getAdminPlaceSubmissionsService from "../../../../services/api/administra
 import getAdminPlaceReviewDetailService from "../../../../services/api/administration/places/getAdminPlaceReviewDetail.service";
 
 import updateAdminPlaceReviewVisibilityService from "../../../../services/api/administration/places/updateAdminPlaceReviewVisibility.service";
+
+import getAdminPlaceLsearchGalleryService from "../../../../services/api/administration/places/getAdminPlaceLsearchGallery.service";
 
 import styles from "./styles";
 
@@ -190,6 +194,16 @@ function normalizePlace(place) {
         ? "Propuesta de usuario"
         : place.validation?.source || "Sin fuente",
 
+        submissionId:
+  place.validation?.submissionId ||
+  place.origin?.submissionId ||
+  null,
+
+sourceId:
+  place.validation?.source ||
+  place.origin?.type ||
+  null,
+
     creatorName:
     place.validation?.submittedBy?.name ||
     place.validation?.createdBy?.name ||
@@ -206,6 +220,8 @@ function normalizePlace(place) {
     weeklyInteractions: place.weeklyInteractions || {},
 
     google: place.google || {},
+
+    
   };
 }
 
@@ -528,6 +544,9 @@ const [
 const [reviewsLoadedBatches, setReviewsLoadedBatches] =
   useState(0);
 
+  const [reportsLoadedBatches, setReportsLoadedBatches] =
+  useState(0);
+
   const [
   selectedReport,
   setSelectedReport,
@@ -557,6 +576,21 @@ const handleCloseReportDetail = () => {
 const handleOpenReportRelated = () => {
   setSelectedReport(null);
 };
+
+const [galleryPhotos, setGalleryPhotos] =
+  useState([]);
+
+const [galleryIndex, setGalleryIndex] =
+  useState(0);
+
+const [isGalleryOpen, setIsGalleryOpen] =
+  useState(false);
+
+const [loadingGallery, setLoadingGallery] =
+  useState(false);
+
+const [galleryError, setGalleryError] =
+  useState("");
 
   const loadInitialData = useCallback(async () => {
     if (!placeId) {
@@ -611,6 +645,13 @@ const handleOpenReportRelated = () => {
       setReports(
         normalizeReports(reportsResult.reports)
       );
+
+      setReportsLoadedBatches(
+  Array.isArray(reportsResult.reports) &&
+  reportsResult.reports.length > 0
+    ? 1
+    : 0
+);
 
       setProposals(
         normalizeProposals(submissionsResult.submissions)
@@ -738,6 +779,12 @@ const handleOpenReportRelated = () => {
         ...currentReports,
         ...newReports,
       ]);
+
+      if (newReports.length > 0) {
+  setReportsLoadedBatches(
+    (currentBatches) => currentBatches + 1
+  );
+}
 
       setReportsCursor(
         result.pagination?.nextCursor || null
@@ -1107,6 +1154,150 @@ const handleOpenReportReporter = (userId) => {
   );
 };
 
+const handleOpenPlaceGallery = async (
+  selectedIndex = 0
+) => {
+  if (loadingGallery || !place?.placeId) {
+    return;
+  }
+
+  setLoadingGallery(true);
+  setGalleryError("");
+
+  try {
+    const lsearchGallery =
+      await getAdminPlaceLsearchGalleryService(
+        place.placeId
+      );
+
+    const lsearchPhotos = Array.isArray(
+      lsearchGallery?.photos
+    )
+      ? lsearchGallery.photos
+      : [];
+
+    const existingPhotos = Array.isArray(
+      place.photos
+    )
+      ? place.photos
+      : [];
+
+    const normalizedExistingPhotos =
+      existingPhotos
+        .map((photo, index) => {
+          if (typeof photo === "string") {
+            return {
+              id: `existing-${index}`,
+              originalUrl: photo,
+              thumbnailUrl: photo,
+              sourceType: "existing",
+            };
+          }
+
+          if (
+            photo?.originalUrl ||
+            photo?.url
+          ) {
+            const url =
+              photo.originalUrl ||
+              photo.url;
+
+            return {
+              ...photo,
+
+              id:
+                photo.id ||
+                `existing-${index}`,
+
+              originalUrl: url,
+
+              thumbnailUrl:
+                photo.thumbnailUrl ||
+                url,
+
+              sourceType:
+                photo.sourceType ||
+                "existing",
+            };
+          }
+
+          if (photo?.reference) {
+            const url =
+              `/api/places/photos/google?reference=${encodeURIComponent(
+                photo.reference
+              )}`;
+
+            return {
+              ...photo,
+
+              id:
+                photo.id ||
+                `google-${index}`,
+
+              originalUrl: url,
+              thumbnailUrl: url,
+              sourceType: "google",
+            };
+          }
+
+          return null;
+        })
+        .filter(Boolean);
+
+    /*
+     * Google:
+     * fotos originales de Google + aportes Lsearch.
+     *
+     * Lsearch:
+     * usamos solamente el endpoint Lsearch,
+     * porque ya incluye la propuesta de origen
+     * y las propuestas de fotos aprobadas.
+     */
+    const isGooglePlace =
+      place.sourceId === "google_candidate";
+
+    const galleryPhotosToShow = isGooglePlace
+      ? [
+          ...normalizedExistingPhotos,
+          ...lsearchPhotos,
+        ]
+      : lsearchPhotos;
+
+    if (galleryPhotosToShow.length === 0) {
+      setGalleryError(
+        "Este lugar no tiene fotografías disponibles."
+      );
+
+      return;
+    }
+
+    setGalleryPhotos(galleryPhotosToShow);
+
+    setGalleryIndex(
+      Math.min(
+        Math.max(selectedIndex, 0),
+        galleryPhotosToShow.length - 1
+      )
+    );
+
+    setIsGalleryOpen(true);
+  } catch (error) {
+    console.error(
+      "Error obteniendo galería del lugar:",
+      error
+    );
+
+    setGalleryError(
+      error.response?.data?.message ||
+      error.message ||
+      "No se pudieron cargar las fotografías del lugar."
+    );
+  } finally {
+    setLoadingGallery(false);
+  }
+};
+
+
   if (loading) {
     return (
       <LayoutScreen breadcrumbs={breadcrumbs}>
@@ -1193,15 +1384,20 @@ const handleOpenReportReporter = (userId) => {
             onModerate={handleModerate}
           />
 
-          <PlaceMediaLocationCard place={place} />
+          <PlaceMediaLocationCard
+  place={place}
+  loadingGallery={loadingGallery}
+  onOpenGallery={handleOpenPlaceGallery}
+/>
         </section>
 
         <section style={styles.middleGrid}>
           <div style={styles.leftStack}>
             <ValidationInfoCard place={place} />
 
-            <ReportsCard
+      <ReportsCard
   reports={reports}
+  loadedBatches={reportsLoadedBatches}
   hasMore={hasMoreReports}
   loadingMore={loadingReports}
   onLoadMore={loadMoreReports}
@@ -1297,6 +1493,22 @@ const handleOpenReportReporter = (userId) => {
   onDiscard={handleDiscardPlaceReport}
   onOpenRelated={handleOpenReportRelated}
   onOpenReporter={handleOpenReportReporter}
+/>
+
+<ImageGalleryModal
+  isOpen={isGalleryOpen}
+  photos={galleryPhotos}
+  currentIndex={galleryIndex}
+  title={
+    place?.name
+      ? `Fotografías de ${place.name}`
+      : "Galería del lugar"
+  }
+  onChangeIndex={setGalleryIndex}
+  onClose={() => {
+    setIsGalleryOpen(false);
+    setGalleryError("");
+  }}
 />
     </LayoutScreen>
   );

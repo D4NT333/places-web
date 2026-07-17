@@ -39,9 +39,32 @@ export default function CommentsHistoryCard({
           <thead>
             <tr>
               <th style={styles.th}>Usuario</th>
-              <th style={styles.th}>Fecha de publicación</th>
-              <th style={styles.th}>Valoración</th>
-              <th style={styles.th}>Estado</th>
+             <th
+  style={{
+    ...styles.th,
+    textAlign: "center",
+  }}
+>
+  Fecha de publicación
+</th>
+
+<th
+  style={{
+    ...styles.th,
+    textAlign: "center",
+  }}
+>
+  Valoración
+</th>
+
+<th
+  style={{
+    ...styles.th,
+    textAlign: "center",
+  }}
+>
+  Estado
+</th>
             </tr>
           </thead>
 
@@ -130,16 +153,40 @@ export default function CommentsHistoryCard({
                     </div>
                   </td>
 
-                  <td style={styles.td}>{comment.date}</td>
+           <td
+  style={{
+    ...styles.td,
+    textAlign: "center",
+  }}
+>
+  {comment.date}
+</td>
 
-                  <td style={styles.td}>
-                    {comment.rating}
-                  </td>
+<td
+  style={{
+    ...styles.td,
+    textAlign: "center",
+  }}
+>
+  {comment.rating}
+</td>
 
-                  <td style={styles.td}>
-  <span style={styles.statusPill}>
-    {comment.statusLabel}
-  </span>
+<td
+  style={{
+    ...styles.td,
+    textAlign: "center",
+  }}
+>
+  <span
+  style={{
+    ...styles.statusPill,
+    ...(comment.status === "hidden"
+      ? styles.statusPillHidden
+      : styles.statusPillPublished),
+  }}
+>
+  {comment.statusLabel}
+</span>
 </td>
                 </tr>
               ))
