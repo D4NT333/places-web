@@ -125,10 +125,16 @@ export default function DescriptionDetailSubmissionScreen() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
-  const navigationState = location.state || {};
+ const navigationState =
+  location.state || {};
 
 const cameFromUserHistory =
   navigationState.from === "user-history" &&
+  Boolean(navigationState.returnTo);
+
+const cameFromPlaceDetail =
+  navigationState.from ===
+    "administration-place-detail" &&
   Boolean(navigationState.returnTo);
 
   const normalizedDetail = useMemo(() => {
@@ -245,8 +251,9 @@ const handleSubmitReject = async (payload) => {
   setShowRejectModal(true);
 };
 
-const breadcrumbs = cameFromUserHistory
-  ? [
+const breadcrumbs = useMemo(() => {
+  if (cameFromUserHistory) {
+    return [
       {
         label: "Inicio",
         to: "/",
@@ -264,34 +271,86 @@ const breadcrumbs = cameFromUserHistory
       {
         label: "Detalle de propuesta",
       },
-    ]
-  : [
+    ];
+  }
+
+  if (cameFromPlaceDetail) {
+    return [
       {
         label: "Inicio",
         to: "/",
       },
       {
-        label: "Propuestas de descripciones",
-        to: "/submissions/descriptions",
+        label:
+          navigationState.parentBreadcrumb?.label ||
+          "Administrar lugares",
+
+        to:
+          navigationState.parentBreadcrumb?.to ||
+          "/administration/places",
+      },
+      {
+        label:
+          navigationState.placeName ||
+          navigationState.returnLabel ||
+          normalizedDetail?.placeName ||
+          "Detalle del lugar",
+
+        to: navigationState.returnTo,
       },
       {
         label: "Detalle de propuesta",
       },
     ];
+  }
 
- const handleBack = () => {
-  if (cameFromUserHistory) {
-    navigate(navigationState.returnTo, {
-      state: {
-        selectedWeekStart:
-          navigationState.selectedWeekStart || null,
-      },
-    });
+  return [
+    {
+      label: "Inicio",
+      to: "/",
+    },
+    {
+      label: "Propuestas de descripciones",
+      to: "/submissions/descriptions",
+    },
+    {
+      label: "Detalle de propuesta",
+    },
+  ];
+}, [
+  cameFromUserHistory,
+  cameFromPlaceDetail,
+  navigationState.userName,
+  navigationState.placeName,
+  navigationState.returnLabel,
+  navigationState.returnTo,
+  navigationState.parentBreadcrumb,
+  normalizedDetail?.placeName,
+]);
+
+
+  const handleBack = () => {
+  if (
+    cameFromUserHistory ||
+    cameFromPlaceDetail
+  ) {
+    navigate(
+      navigationState.returnTo,
+      {
+        state: {
+          selectedWeekStart:
+            navigationState.selectedWeekStart ||
+            null,
+        },
+      }
+    );
 
     return;
   }
 
-  navigate("/submissions/descriptions");
+  navigate(
+    "/submissions/descriptions"
+  );
 };
 
   if (isLoading) {

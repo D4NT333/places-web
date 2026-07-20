@@ -3,7 +3,7 @@ const styles = {
     width: "100%",
     minWidth: 0,
     padding: 18,
-    border: "1px solid #D1D5DB",
+    border: "3px solid #000000",
     borderRadius: 16,
     backgroundColor: "#FFFFFF",
     boxShadow: "0 12px 28px rgba(15, 23, 42, 0.06)",
@@ -13,7 +13,7 @@ const styles = {
 
  title: {
   margin: "0 0 14px",
-  fontSize: 17,
+  fontSize: 22,
   fontWeight: 800,
   color: "#111827",
 },
@@ -24,7 +24,7 @@ const styles = {
     minWidth: 0,
     height: 220,
     padding: 14,
-    border: "1px solid #E5E7EB",
+    border: "1px solid #171818",
     borderRadius: 12,
     backgroundColor: "#FFFFFF",
     boxSizing: "border-box",
@@ -41,8 +41,8 @@ const styles = {
 },
 
 periodLabel: {
-  color: "#64748B",
-  fontSize: 11,
+  color: "#000000",
+  fontSize: 22,
   fontWeight: 700,
   whiteSpace: "nowrap",
 },

@@ -3,7 +3,7 @@ const styles = {
     width: "100%",
     minWidth: 0,
     padding: 18,
-    border: "1px solid #D1D5DB",
+    border: "3px solid #060606",
     borderRadius: 16,
     backgroundColor: "#FFFFFF",
     boxShadow: "0 12px 28px rgba(15, 23, 42, 0.06)",
@@ -24,7 +24,7 @@ const styles = {
 
   title: {
     margin: 0,
-    fontSize: 17,
+    fontSize: 22,
     fontWeight: 800,
     color: "#111827",
   },
@@ -37,7 +37,7 @@ const styles = {
   },
 
   statusLabel: {
-    fontSize: 10,
+    fontSize: 20,
     fontWeight: 800,
     color: "#374151",
     whiteSpace: "nowrap",
@@ -50,7 +50,7 @@ const styles = {
     borderRadius: 999,
     backgroundColor: "#FFFFFF",
     textAlign: "center",
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: 700,
     color: "#111827",
     boxSizing: "border-box",
@@ -58,7 +58,7 @@ const styles = {
 
   list: {
     display: "grid",
-    gap: 9,
+    gap: 8,
     margin: 0,
     padding: 0,
     listStyle: "none",
@@ -67,7 +67,7 @@ const styles = {
   item: {
     display: "flex",
     alignItems: "center",
-    gap: 9,
+    gap: 1,
     minHeight: 28,
     padding: "7px 8px",
     borderRadius: 9,
@@ -77,8 +77,8 @@ const styles = {
   },
 
   dot: {
-    width: 7,
-    height: 7,
+    width: 17,
+    height: 17,
     borderRadius: 999,
     backgroundColor: "#111827",
     flexShrink: 0,
@@ -86,7 +86,7 @@ const styles = {
 
   itemText: {
     minWidth: 0,
-    fontSize: 13,
+    fontSize: 18,
     fontWeight: 700,
     color: "#111827",
     overflow: "hidden",
@@ -100,8 +100,8 @@ const styles = {
 },
 
 dateLabel: {
-  color: "#64748B",
-  fontSize: 11,
+  color: "#4a4b4c",
+  fontSize: 18,
   fontWeight: 700,
   whiteSpace: "nowrap",
 },

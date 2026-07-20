@@ -1,75 +1,84 @@
 import React from "react";
 import styles from "./styles";
 
-function getStatusPillStyle(status) {
-  const statusStyles = {
-    pending: {
-      backgroundColor: "#FFFBEB",
-      borderColor: "#FDE68A",
-      color: "#92400E",
-    },
+function getProposalStatusStyle(statusId) {
+  const normalizedStatus =
+    String(statusId || "")
+      .trim()
+      .toLowerCase();
 
-    in_review: {
-      backgroundColor: "#EFF6FF",
-      borderColor: "#BFDBFE",
-      color: "#1D4ED8",
-    },
+  if (
+    normalizedStatus === "approved" ||
+    normalizedStatus === "published"
+  ) {
+    return {
+      ...styles.statusPill,
+      ...styles.statusApproved,
+    };
+  }
 
-    returned: {
-      backgroundColor: "#FFF7ED",
-      borderColor: "#FED7AA",
-      color: "#C2410C",
-    },
+  if (
+    normalizedStatus === "rejected"
+  ) {
+    return {
+      ...styles.statusPill,
+      ...styles.statusRejected,
+    };
+  }
 
-    resubmitted: {
-      backgroundColor: "#F5F3FF",
-      borderColor: "#DDD6FE",
-      color: "#6D28D9",
-    },
+  if (
+    normalizedStatus === "returned"
+  ) {
+    return {
+      ...styles.statusPill,
+      ...styles.statusReturned,
+    };
+  }
 
-    approved: {
-      backgroundColor: "#ECFDF5",
-      borderColor: "#A7F3D0",
-      color: "#047857",
-    },
+  if (
+    normalizedStatus === "resubmitted"
+  ) {
+    return {
+      ...styles.statusPill,
+      ...styles.statusResubmitted,
+    };
+  }
 
-    accepted: {
-      backgroundColor: "#ECFDF5",
-      borderColor: "#A7F3D0",
-      color: "#047857",
-    },
-
-    rejected: {
-      backgroundColor: "#FEF2F2",
-      borderColor: "#FECACA",
-      color: "#B91C1C",
-    },
-
-    pending_delete: {
-      backgroundColor: "#F8FAFC",
-      borderColor: "#CBD5E1",
-      color: "#475569",
-    },
-  };
+  if (
+    normalizedStatus === "pending_delete"
+  ) {
+    return {
+      ...styles.statusPill,
+      ...styles.statusPendingDelete,
+    };
+  }
 
   return {
     ...styles.statusPill,
-
-    ...(statusStyles[status] || {
-      backgroundColor: "#F8FAFC",
-      borderColor: "#CBD5E1",
-      color: "#475569",
-    }),
+    ...styles.statusPending,
   };
 }
 
 export default function ProposalsHistoryCard({
   proposals = [],
-  loadedBatches = 0,
   hasMore = false,
   loadingMore = false,
   onLoadMore,
+  onSelectProposal,
 }) {
+  const handleRowKeyDown = (
+    event,
+    proposal
+  ) => {
+    if (
+      event.key === "Enter" ||
+      event.key === " "
+    ) {
+      event.preventDefault();
+      onSelectProposal?.(proposal);
+    }
+  };
+
   return (
     <section style={styles.card}>
       <header style={styles.header}>
@@ -79,118 +88,101 @@ export default function ProposalsHistoryCard({
 
         <div style={styles.countersRow}>
           <span style={styles.counter}>
-            Propuestas cargadas: {proposals.length}
+            Propuestas cargadas:{" "}
+            {proposals.length}
           </span>
 
           <span style={styles.counter}>
-            Lotes cargados: {loadedBatches}
+            {hasMore
+              ? "Existen más propuestas"
+              : "Sin más propuestas"}
           </span>
         </div>
       </header>
 
-      <div style={styles.tableWrapper}>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>
-                Tipo
-              </th>
+      {proposals.length === 0 ? (
+        <p style={styles.emptyMessage}>
+          Este lugar todavía no tiene propuestas.
+        </p>
+      ) : (
+        <div style={styles.table}>
+          <div style={styles.tableHeader}>
+            <span>Tipo</span>
+            <span>Nombre</span>
+            <span>Fecha</span>
+            <span>Estado</span>
+          </div>
 
-              <th
-                style={{
-                  ...styles.th,
-                  textAlign: "center",
-                }}
-              >
-                Fecha
-              </th>
+          <div style={styles.tableBody}>
+            {proposals.map((proposal) => {
+              const proposalId =
+                proposal.submissionId ||
+                proposal.id;
 
-              <th
-                style={{
-                  ...styles.th,
-                  textAlign: "center",
-                }}
-              >
-                Estado
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {proposals.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={3}
-                  style={{
-                    ...styles.td,
-                    textAlign: "center",
-                    padding: "24px",
-                  }}
+              return (
+                <div
+                  key={proposalId}
+                  role="button"
+                  tabIndex={0}
+                  style={styles.row}
+                  onClick={() =>
+                    onSelectProposal?.(
+                      proposal
+                    )
+                  }
+                  onKeyDown={(event) =>
+                    handleRowKeyDown(
+                      event,
+                      proposal
+                    )
+                  }
                 >
-                  Este lugar todavía no tiene propuestas.
-                </td>
-              </tr>
-            ) : (
-              proposals.map((proposal) => (
-                <tr
-                  key={proposal.id}
-                  style={styles.tableRow}
-                  onMouseEnter={(event) => {
-                    event.currentTarget.style.backgroundColor =
-                      "#F9FAFB";
-                  }}
-                  onMouseLeave={(event) => {
-                    event.currentTarget.style.backgroundColor =
-                      "transparent";
-                  }}
-                >
-                  <td style={styles.td}>
+                  <span style={styles.typeCell}>
                     {proposal.type}
-                  </td>
+                  </span>
 
-                  <td
-                    style={{
-                      ...styles.td,
-                      textAlign: "center",
-                    }}
-                  >
+                  <span style={styles.nameCell}>
+                    {proposal.name ||
+                      "Lugar sin nombre"}
+                  </span>
+
+                  <span style={styles.dateCell}>
                     {proposal.date}
-                  </td>
+                  </span>
 
-                  <td
-                    style={{
-                      ...styles.td,
-                      textAlign: "center",
-                    }}
-                  >
+                  <span style={styles.statusCell}>
                     <span
-                      style={getStatusPillStyle(
+                      style={getProposalStatusStyle(
                         proposal.statusId
                       )}
                     >
                       {proposal.status}
                     </span>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {hasMore && (
-        <div style={styles.loadMoreRow}>
-          <button
-            type="button"
-            onClick={onLoadMore}
-            disabled={loadingMore}
-            style={styles.loadMoreButton}
-          >
-            {loadingMore
-              ? "Cargando..."
-              : "Cargar más propuestas"}
-          </button>
-        </div>
+        <button
+          type="button"
+          style={{
+            ...styles.loadMoreButton,
+
+            ...(loadingMore
+              ? styles.loadMoreButtonDisabled
+              : {}),
+          }}
+          disabled={loadingMore}
+          onClick={onLoadMore}
+        >
+          {loadingMore
+            ? "Cargando propuestas..."
+            : "Cargar más"}
+        </button>
       )}
     </section>
   );

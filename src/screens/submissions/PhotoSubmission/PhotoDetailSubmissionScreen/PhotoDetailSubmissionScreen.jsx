@@ -1,5 +1,6 @@
 import React, {
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -160,10 +161,16 @@ export default function PhotoDetailSubmissionScreen() {
     rejectionLoading ||
     approvalLoading;
 
-    const navigationState = location.state || {};
+  const navigationState =
+  location.state || {};
 
 const cameFromUserHistory =
   navigationState.from === "user-history" &&
+  Boolean(navigationState.returnTo);
+
+const cameFromPlaceDetail =
+  navigationState.from ===
+    "administration-place-detail" &&
   Boolean(navigationState.returnTo);
 
   useEffect(() => {
@@ -232,8 +239,9 @@ const cameFromUserHistory =
     reloadCounter,
   ]);
 
-  const breadcrumbs = cameFromUserHistory
-  ? [
+ const breadcrumbs = useMemo(() => {
+  if (cameFromUserHistory) {
+    return [
       {
         label: "Inicio",
         to: "/",
@@ -246,25 +254,70 @@ const cameFromUserHistory =
         label:
           navigationState.userName ||
           "Detalle del usuario",
-        to: navigationState.returnTo,
-      },
-      {
-        label: "Detalle de propuesta",
-      },
-    ]
-  : [
-      {
-        label: "Inicio",
-        to: "/",
-      },
-      {
-        label: "Propuestas de fotografías",
-        to: "/submissions/photos",
+
+        to:
+          navigationState.returnTo,
       },
       {
         label: "Detalle de propuesta",
       },
     ];
+  }
+
+  if (cameFromPlaceDetail) {
+    return [
+      {
+        label: "Inicio",
+        to: "/",
+      },
+      {
+        label:
+          navigationState.parentBreadcrumb?.label ||
+          "Administrar lugares",
+
+        to:
+          navigationState.parentBreadcrumb?.to ||
+          "/administration/places",
+      },
+      {
+        label:
+          navigationState.placeName ||
+          navigationState.returnLabel ||
+          submission?.placeName ||
+          "Detalle del lugar",
+
+        to:
+          navigationState.returnTo,
+      },
+      {
+        label: "Detalle de propuesta",
+      },
+    ];
+  }
+
+  return [
+    {
+      label: "Inicio",
+      to: "/",
+    },
+    {
+      label: "Propuestas de fotografías",
+      to: "/submissions/photos",
+    },
+    {
+      label: "Detalle de propuesta",
+    },
+  ];
+}, [
+  cameFromUserHistory,
+  cameFromPlaceDetail,
+  navigationState.userName,
+  navigationState.placeName,
+  navigationState.returnLabel,
+  navigationState.returnTo,
+  navigationState.parentBreadcrumb,
+  submission?.placeName,
+]);
 
  function handleGoBack() {
   if (cameFromUserHistory) {

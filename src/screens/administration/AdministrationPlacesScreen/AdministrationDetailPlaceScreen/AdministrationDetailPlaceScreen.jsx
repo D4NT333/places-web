@@ -425,35 +425,64 @@ function normalizeProposals(submissions) {
     return [];
   }
 
-  return submissions.map((submission) => ({
-    id: submission.submissionId,
+  return submissions.map((submission) => {
+    const submissionId =
+      submission.submissionId ||
+      submission.id ||
+      "";
 
-    type:
-      submission.typeLabel ||
+    const typeId =
       submission.type ||
-      "Propuesta",
+      submission.submissionType ||
+      "";
 
-    typeId:
-      submission.type,
+    const name =
+      submission.placeName ||
+      submission.name ||
+      submission.place?.name ||
+      submission.preview?.placeName ||
+      submission.preview?.name ||
+      "Lugar sin nombre";
 
-    date: formatDate(submission.createdAt),
+    return {
+      id: submissionId,
+      submissionId,
 
-    status:
-      submission.statusLabel ||
-      submission.status ||
-      "Sin estado",
+      name,
 
-    statusId:
-      submission.status,
+      type:
+        submission.typeLabel ||
+        typeId ||
+        "Propuesta",
 
-    user:
-      submission.user?.name ||
-      "Usuario",
+      typeId,
 
-    preview:
-      submission.preview ||
-      null,
-  }));
+      date: formatDate(
+        submission.createdAt
+      ),
+
+      status:
+        submission.statusLabel ||
+        submission.status ||
+        "Sin estado",
+
+      statusId:
+        submission.status ||
+        null,
+
+      user:
+        submission.user?.name ||
+        submission.createdByName ||
+        submission.createdBy?.name ||
+        "Usuario",
+
+      preview:
+        submission.preview ||
+        null,
+
+      raw: submission,
+    };
+  });
 }
 
 function getReviewStatusLabel(status) {
@@ -1298,6 +1327,114 @@ setReports(
     console.log("Abrir modal de moderación", place);
   };
 
+  const handleOpenProposal = useCallback(
+  (proposal) => {
+    const submissionId =
+      proposal?.submissionId ||
+      proposal?.id ||
+      "";
+
+    const type =
+      String(
+        proposal?.typeId ||
+        proposal?.raw?.type ||
+        proposal?.raw?.submissionType ||
+        ""
+      ).toLowerCase();
+
+    if (!submissionId) {
+      console.warn(
+        "La propuesta no tiene submissionId:",
+        proposal
+      );
+
+      return;
+    }
+
+    const navigationState = {
+      from: "administration-place-detail",
+
+      returnTo:
+        `/administration/places/${placeId}`,
+
+      returnLabel:
+        place?.name ||
+        "Detalle del lugar",
+
+      placeId,
+
+      placeName:
+        place?.name ||
+        proposal?.name ||
+        "Lugar",
+    };
+
+    if (
+      type === "place" ||
+      type === "place_submission" ||
+      type === "places"
+    ) {
+      navigate(
+        `/submissions/places/${encodeURIComponent(
+          submissionId
+        )}`,
+        {
+          state: navigationState,
+        }
+      );
+
+      return;
+    }
+
+    if (
+      type === "description" ||
+      type === "description_submission" ||
+      type === "descriptions"
+    ) {
+      navigate(
+        `/submissions/descriptions/${encodeURIComponent(
+          submissionId
+        )}`,
+        {
+          state: navigationState,
+        }
+      );
+
+      return;
+    }
+
+    if (
+      type === "photo" ||
+      type === "photos" ||
+      type === "photo_submission"
+    ) {
+      navigate(
+        `/submissions/photos/${encodeURIComponent(
+          submissionId
+        )}`,
+        {
+          state: navigationState,
+        }
+      );
+
+      return;
+    }
+
+    console.warn(
+      "Tipo de propuesta no reconocido:",
+      {
+        type,
+        proposal,
+      }
+    );
+  },
+  [
+    navigate,
+    placeId,
+    place?.name,
+  ]
+);
+
   const handleOpenReviewDetail = async (comment) => {
   if (!comment?.id || !placeId) {
     return;
@@ -1956,11 +2093,12 @@ const handleOpenPlaceGallery = async (
 />
 
     <ProposalsHistoryCard
-      proposals={proposals}
-      hasMore={hasMoreProposals}
-      loadingMore={loadingProposals}
-      onLoadMore={loadMoreProposals}
-    />
+  proposals={proposals}
+  hasMore={hasMoreProposals}
+  loadingMore={loadingProposals}
+  onLoadMore={loadMoreProposals}
+  onSelectProposal={handleOpenProposal}
+/>
   </div>
 </section>
 

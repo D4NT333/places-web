@@ -3,23 +3,21 @@ const styles = {
     width: "100%",
     minWidth: 0,
     padding: 18,
-    border: "3px solid #000000",
+    border: "2px solid #111827",
     borderRadius: 16,
     backgroundColor: "#FFFFFF",
-    boxShadow:
-      "0 12px 28px rgba(15, 23, 42, 0.06)",
     boxSizing: "border-box",
     overflow: "hidden",
   },
 
   header: {
-    marginBottom: 14,
+    marginBottom: 18,
   },
 
   title: {
-    margin: 0,
+    margin: "0 0 8px",
     fontSize: 22,
-    fontWeight: 800,
+    fontWeight: 900,
     color: "#111827",
   },
 
@@ -27,78 +25,162 @@ const styles = {
     display: "flex",
     alignItems: "center",
     flexWrap: "wrap",
-    gap: 12,
-    marginTop: 8,
+    gap: 10,
   },
 
   counter: {
-    color: "#475569",
-    fontSize: 16,
+    color: "#334155",
+    fontSize: 13,
     fontWeight: 600,
   },
 
-  tableWrapper: {
-    width: "100%",
-    maxWidth: "100%",
-    overflowX: "auto",
-    boxSizing: "border-box",
+  emptyMessage: {
+    margin: 0,
+    padding: "24px 0",
+    color: "#64748B",
+    fontSize: 14,
+    fontWeight: 600,
+    textAlign: "center",
   },
 
   table: {
     width: "100%",
-    borderCollapse: "collapse",
+    minWidth: 0,
   },
 
-  th: {
-    padding: "11px 8px",
-    borderBottom: "2px solid #000000",
-    textAlign: "left",
-    fontSize: 18,
-    fontWeight: 800,
-    color: "#374151",
-    whiteSpace: "nowrap",
+ tableHeader: {
+  display: "grid",
+  gridTemplateColumns:
+    "0.8fr minmax(150px, 1.6fr) 0.9fr 0.8fr",
+  alignItems: "center",
+  justifyItems: "center",
+  gap: 16,
+  minHeight: 42,
+  padding: "0 8px",
+  borderBottom: "1px solid #111827",
+  color: "#0F172A",
+  fontSize: 15,
+  fontWeight: 900,
+  textAlign: "center",
+  boxSizing: "border-box",
+},
+
+  tableBody: {
+    width: "100%",
   },
 
-  tableRow: {
-    transition: "background-color 0.15s ease",
-    cursor: "pointer",
-  },
+ row: {
+  display: "grid",
+  gridTemplateColumns:
+    "0.8fr minmax(150px, 1.6fr) 0.9fr 0.8fr",
+  alignItems: "center",
+  justifyItems: "center",
+  gap: 16,
+  minHeight: 52,
+  padding: "0 8px",
+  borderBottom: "1px solid #CBD5E1",
+  color: "#0F172A",
+  fontSize: 14,
+  textAlign: "center",
+  cursor: "pointer",
+  boxSizing: "border-box",
+  transition: "background-color 140ms ease",
+},
 
-  td: {
-    padding: "13px 8px",
-    borderBottom: "1px solid #C5C6C8",
-    fontSize: 18,
-    color: "#111827",
-    whiteSpace: "nowrap",
+typeCell: {
+  width: "100%",
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  textAlign: "center",
+},
+
+dateCell: {
+  width: "100%",
+  minWidth: 0,
+  textAlign: "center",
+  whiteSpace: "nowrap",
+},
+
+statusCell: {
+  width: "100%",
+  minWidth: 0,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+  statusCell: {
+    display: "flex",
+    justifyContent: "center",
+    minWidth: 0,
   },
 
   statusPill: {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 92,
-    padding: "6px 12px",
-    border: "1px solid",
+    minHeight: 24,
+    padding: "3px 10px",
     borderRadius: 999,
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: 800,
-    lineHeight: 1,
     whiteSpace: "nowrap",
   },
 
-  loadMoreRow: {
-    display: "flex",
-    justifyContent: "center",
-    paddingTop: 14,
+  statusApproved: {
+    border: "1px solid #A7F3D0",
+    backgroundColor: "#ECFDF5",
+    color: "#047857",
+  },
+
+  statusPending: {
+    border: "1px solid #FDE68A",
+    backgroundColor: "#FFFBEB",
+    color: "#B45309",
+  },
+
+  statusRejected: {
+    border: "1px solid #FECACA",
+    backgroundColor: "#FEF2F2",
+    color: "#B91C1C",
+  },
+
+  statusReturned: {
+    border: "1px solid #BFDBFE",
+    backgroundColor: "#EFF6FF",
+    color: "#1D4ED8",
+  },
+
+  statusResubmitted: {
+    border: "1px solid #DDD6FE",
+    backgroundColor: "#F5F3FF",
+    color: "#6D28D9",
+  },
+
+  statusPendingDelete: {
+    border: "1px solid #FED7AA",
+    backgroundColor: "#FFF7ED",
+    color: "#C2410C",
   },
 
   loadMoreButton: {
-    padding: "8px 18px",
+    width: "100%",
+    marginTop: 16,
+    minHeight: 40,
     border: "1px solid #CBD5E1",
-    borderRadius: 999,
+    borderRadius: 10,
     backgroundColor: "#FFFFFF",
-    fontWeight: 700,
+    color: "#0F172A",
+    fontSize: 13,
+    fontWeight: 800,
     cursor: "pointer",
+  },
+
+  loadMoreButtonDisabled: {
+    opacity: 0.6,
+    cursor: "not-allowed",
   },
 };
 
