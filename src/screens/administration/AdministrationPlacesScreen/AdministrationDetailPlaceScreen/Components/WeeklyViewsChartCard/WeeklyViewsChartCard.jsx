@@ -38,15 +38,26 @@ const DEFAULT_LABELS = [
 export default function WeeklyViewsChartCard({
   data = [],
   totalViews = 0,
+  weekLabel = "",
 }) {
-  const hasDailyData = Array.isArray(data) && data.length > 0;
+  const hasDailyData =
+    Array.isArray(data) &&
+    data.length > 0;
 
   const labels = hasDailyData
-    ? data.map((item) => item.label || item.date || "")
+    ? data.map(
+        (item) =>
+          item.label ||
+          item.date ||
+          ""
+      )
     : DEFAULT_LABELS;
 
   const values = hasDailyData
-    ? data.map((item) => Number(item.views) || 0)
+    ? data.map(
+        (item) =>
+          Number(item.views) || 0
+      )
     : DEFAULT_LABELS.map(() => 0);
 
   const chartData = useMemo(
@@ -112,40 +123,35 @@ export default function WeeklyViewsChartCard({
 
   return (
     <section style={styles.card}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "16px",
-        }}
-      >
-        <h2 style={styles.title}>Vistas en la semana</h2>
+      <header style={styles.header}>
+  <h2 style={styles.title}>
+    Vistas en la semana
+  </h2>
 
-        <span
-          style={{
-            fontWeight: 700,
-            color: "#475569",
-          }}
-        >
-          Total: {Number(totalViews) || 0}
-        </span>
-      </div>
+  <div style={styles.headerMeta}>
+    <span style={styles.total}>
+      Total: {Number(totalViews) || 0}
+    </span>
+
+    {weekLabel && (
+      <span style={styles.periodLabel}>
+        Semana: {weekLabel}
+      </span>
+    )}
+  </div>
+</header>
 
       <div style={styles.chartBox}>
-        <Line data={chartData} options={chartOptions} />
+        <Line
+          data={chartData}
+          options={chartOptions}
+        />
       </div>
 
       {!hasDailyData && (
-        <p
-          style={{
-            margin: "12px 0 0",
-            textAlign: "center",
-            color: "#64748B",
-            fontWeight: 600,
-          }}
-        >
-          Todavía no existen métricas separadas por día.
+        <p style={styles.emptyMessage}>
+          Todavía no existen métricas
+          separadas por día.
         </p>
       )}
     </section>

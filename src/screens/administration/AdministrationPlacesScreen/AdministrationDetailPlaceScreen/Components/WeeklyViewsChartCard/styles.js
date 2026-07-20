@@ -11,11 +11,28 @@ const styles = {
     overflow: "hidden",
   },
 
+  header: {
+    width: "100%",
+    minWidth: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 16,
+    marginBottom: 14,
+  },
+
   title: {
-    margin: "0 0 14px",
+    margin: 0,
     fontSize: 17,
     fontWeight: 800,
     color: "#111827",
+  },
+
+  total: {
+    color: "#475569",
+    fontSize: 13,
+    fontWeight: 700,
+    whiteSpace: "nowrap",
   },
 
   chartBox: {
@@ -30,6 +47,26 @@ const styles = {
     boxSizing: "border-box",
     overflow: "hidden",
   },
+
+  emptyMessage: {
+    margin: "12px 0 0",
+    textAlign: "center",
+    color: "#64748B",
+    fontWeight: 600,
+  },
+  headerMeta: {
+  display: "flex",
+  alignItems: "center",
+  gap: 14,
+  minWidth: 0,
+},
+
+periodLabel: {
+  color: "#64748B",
+  fontSize: 11,
+  fontWeight: 700,
+  whiteSpace: "nowrap",
+},
 };
 
 export default styles;

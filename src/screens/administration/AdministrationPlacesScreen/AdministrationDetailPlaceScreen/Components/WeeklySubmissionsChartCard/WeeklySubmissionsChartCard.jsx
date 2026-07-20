@@ -25,24 +25,36 @@ export default function WeeklySubmissionsChartCard({
   descriptions = 0,
   photos = 0,
   reports = 0,
+  weekLabel = "",
 }) {
   const chartData = useMemo(
     () => ({
-      labels: ["Descripciones", "Fotos", "Reportes"],
+      labels: [
+        "Descripciones",
+        "Fotos",
+        "Reportes",
+      ],
+
       datasets: [
         {
           label: "Total",
+
           data: [
             Number(descriptions) || 0,
             Number(photos) || 0,
             Number(reports) || 0,
           ],
+
           borderWidth: 1,
           borderRadius: 8,
         },
       ],
     }),
-    [descriptions, photos, reports]
+    [
+      descriptions,
+      photos,
+      reports,
+    ]
   );
 
   const chartOptions = {
@@ -91,12 +103,23 @@ export default function WeeklySubmissionsChartCard({
 
   return (
     <section style={styles.card}>
-      <h2 style={styles.title}>
-        Contribuciones y reportes de la semana
-      </h2>
+      <header style={styles.headerRow}>
+        <h2 style={styles.title}>
+          Contribuciones y reportes
+        </h2>
+
+        {weekLabel && (
+          <span style={styles.periodLabel}>
+            Semana: {weekLabel}
+          </span>
+        )}
+      </header>
 
       <div style={styles.chartBox}>
-        <Bar data={chartData} options={chartOptions} />
+        <Bar
+          data={chartData}
+          options={chartOptions}
+        />
       </div>
     </section>
   );

@@ -11,12 +11,12 @@ const styles = {
     overflow: "hidden",
   },
 
-  title: {
-    margin: "0 0 14px",
-    fontSize: 17,
-    fontWeight: 800,
-    color: "#111827",
-  },
+ title: {
+  margin: "0 0 14px",
+  fontSize: 17,
+  fontWeight: 800,
+  color: "#111827",
+},
 
   chartBox: {
     position: "relative",
@@ -30,6 +30,22 @@ const styles = {
     boxSizing: "border-box",
     overflow: "hidden",
   },
+  headerRow: {
+  width: "100%",
+  minWidth: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 16,
+  marginBottom: 14,
+},
+
+periodLabel: {
+  color: "#64748B",
+  fontSize: 11,
+  fontWeight: 700,
+  whiteSpace: "nowrap",
+},
 };
 
 export default styles;

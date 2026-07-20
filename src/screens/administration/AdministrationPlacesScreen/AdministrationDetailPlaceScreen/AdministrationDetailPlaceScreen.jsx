@@ -21,6 +21,7 @@ import {
   WeeklySubmissionsChartCard,
   ProposalsHistoryCard,
   ReviewDetailModal,
+  AnalyticsPeriodSelect, 
 } from "./Components";
 
 import { ImageGalleryModal } from "../../../../components";
@@ -40,6 +41,8 @@ import getAdminPlaceReviewDetailService from "../../../../services/api/administr
 import updateAdminPlaceReviewVisibilityService from "../../../../services/api/administration/places/updateAdminPlaceReviewVisibility.service";
 
 import getAdminPlaceLsearchGalleryService from "../../../../services/api/administration/places/getAdminPlaceLsearchGallery.service";
+
+import getAdminPlaceAnalyticsService from "../../../../services/api/administration/places/getAdminPlaceAnalytics.service";
 
 import styles from "./styles";
 
@@ -264,7 +267,13 @@ function normalizeComments(reviews) {
   }));
 }
 
-function normalizeReports(reports) {
+function normalizeReports(
+  reports,
+  {
+    placeId = null,
+    placeName = "Lugar reportado",
+  } = {}
+) {
   if (!Array.isArray(reports)) {
     return [];
   }
@@ -284,29 +293,21 @@ function normalizeReports(reports) {
       "Motivo no especificado";
 
     return {
-      /*
-       * Identificadores
-       */
       id: reportId,
       reportId,
 
-      /*
-       * Tipo de reporte.
-       * El modal acepta target.
-       */
       target:
         report.target ||
+        report.reportTarget ||
         "place",
 
       type:
         report.target ||
+        report.reportTarget ||
         "place",
 
       typeLabel: "Lugar",
 
-      /*
-       * Motivo.
-       */
       reasonId:
         report.reason?.id ||
         report.reasonId ||
@@ -314,9 +315,6 @@ function normalizeReports(reports) {
 
       reasonLabel,
 
-      /*
-       * Información principal.
-       */
       message:
         report.message ||
         "",
@@ -333,48 +331,33 @@ function normalizeReports(reports) {
         report.metadata ||
         {},
 
-      /*
-       * Estado técnico, no traducido.
-       */
       status: rawStatus,
-
       statusId: rawStatus,
-
       statusLabel:
         getReportStatusLabel(rawStatus),
 
-      /*
-       * Lugar relacionado.
-       */
       relatedTo: {
         type: "place",
 
         id:
           report.place?.placeId ||
-          placeId ||
-          null,
+          placeId,
 
         label:
           report.place?.placeName ||
-          place?.name ||
-          "Lugar reportado",
+          placeName,
       },
 
       place: {
         placeId:
           report.place?.placeId ||
-          placeId ||
-          null,
+          placeId,
 
         placeName:
           report.place?.placeName ||
-          place?.name ||
-          "Lugar reportado",
+          placeName,
       },
 
-      /*
-       * Usuario que realizó el reporte.
-       */
       reporter: {
         uid:
           report.reporter?.uid ||
@@ -393,9 +376,6 @@ function normalizeReports(reports) {
           null,
       },
 
-      /*
-       * Información adicional.
-       */
       reportedUser:
         report.reportedUser ||
         null,
@@ -404,10 +384,6 @@ function normalizeReports(reports) {
         report.review ||
         null,
 
-      /*
-       * El backend los entrega dentro de admin,
-       * pero el modal los espera arriba.
-       */
       assignedTo:
         report.admin?.assignedTo ||
         null,
@@ -424,9 +400,6 @@ function normalizeReports(reports) {
         report.admin?.resolvedAt ||
         null,
 
-      /*
-       * Fechas originales para el modal.
-       */
       createdAt:
         report.createdAt ||
         null,
@@ -435,9 +408,6 @@ function normalizeReports(reports) {
         report.updatedAt ||
         null,
 
-      /*
-       * Campos visuales para ReportsCard.
-       */
       date:
         formatDate(report.createdAt),
 
@@ -496,6 +466,280 @@ function getReviewStatusLabel(status) {
   return labels[status] || status || "Sin estado";
 }
 
+function normalizeAnalytics(analytics) {
+  if (!analytics) {
+    return {
+      week: null,
+
+      interactions: {
+        likesAdded: 0,
+        likesRemoved: 0,
+        netLikes: 0,
+
+        reviewsCreated: 0,
+        reviewsDeleted: 0,
+        netReviews: 0,
+
+        dwellTimeSeconds: 0,
+        validSessions: 0,
+        averageDwellTimeSeconds: 0,
+      },
+
+      views: {
+        total: 0,
+        days: [],
+      },
+
+      contributions: {
+        descriptions: 0,
+        photoSubmissions: 0,
+        photos: 0,
+        reports: 0,
+      },
+
+      recentActivity: [],
+      availableWeeks: [],
+    };
+  }
+
+  return {
+    week:
+      analytics.week ||
+      null,
+
+    interactions: {
+      likesAdded:
+        Number(
+          analytics.interactions?.likesAdded
+        ) || 0,
+
+      likesRemoved:
+        Number(
+          analytics.interactions?.likesRemoved
+        ) || 0,
+
+      netLikes:
+        Number(
+          analytics.interactions?.netLikes
+        ) || 0,
+
+      reviewsCreated:
+        Number(
+          analytics.interactions?.reviewsCreated
+        ) || 0,
+
+      reviewsDeleted:
+        Number(
+          analytics.interactions?.reviewsDeleted
+        ) || 0,
+
+      netReviews:
+        Number(
+          analytics.interactions?.netReviews
+        ) || 0,
+
+      dwellTimeSeconds:
+        Number(
+          analytics.interactions?.dwellTimeSeconds
+        ) || 0,
+
+      validSessions:
+        Number(
+          analytics.interactions?.validSessions
+        ) || 0,
+
+      averageDwellTimeSeconds:
+        Number(
+          analytics.interactions?.averageDwellTimeSeconds
+        ) || 0,
+    },
+
+    views: {
+      total:
+        Number(
+          analytics.views?.total
+        ) || 0,
+
+      days:
+        Array.isArray(
+          analytics.views?.days
+        )
+          ? analytics.views.days.map((day) => ({
+              dayId:
+                day.dayId ||
+                null,
+
+              label:
+                day.label ||
+                "",
+
+              views:
+                Number(day.views) ||
+                0,
+            }))
+          : [],
+    },
+
+    contributions: {
+      descriptions:
+        Number(
+          analytics.contributions?.descriptions
+        ) || 0,
+
+      photoSubmissions:
+        Number(
+          analytics.contributions?.photoSubmissions
+        ) || 0,
+
+      photos:
+        Number(
+          analytics.contributions?.photos
+        ) || 0,
+
+      reports:
+        Number(
+          analytics.contributions?.reports
+        ) || 0,
+    },
+
+    recentActivity:
+      Array.isArray(
+        analytics.recentActivity
+      )
+        ? analytics.recentActivity.map((event) => ({
+            id:
+              event.id ||
+              event.eventId,
+
+            type:
+              event.type ||
+              "unknown",
+
+            message:
+              event.label ||
+              "Actividad registrada",
+
+            label:
+              event.label ||
+              "Actividad registrada",
+
+            createdAt:
+              event.createdAt ||
+              null,
+
+            metadata:
+              event.metadata ||
+              {},
+
+            actor:
+              event.actor ||
+              null,
+          }))
+        : [],
+
+    availableWeeks:
+      Array.isArray(
+        analytics.availableWeeks
+      )
+        ? analytics.availableWeeks
+        : [],
+  };
+}
+
+function formatDwellTime(seconds) {
+  const totalSeconds =
+    Number(seconds);
+
+  if (
+    !Number.isFinite(totalSeconds) ||
+    totalSeconds <= 0
+  ) {
+    return "Sin datos";
+  }
+
+  const roundedSeconds =
+    Math.round(totalSeconds);
+
+  if (roundedSeconds < 60) {
+    return `${roundedSeconds} s`;
+  }
+
+  const minutes =
+    Math.floor(
+      roundedSeconds / 60
+    );
+
+  const remainingSeconds =
+    roundedSeconds % 60;
+
+  if (minutes < 60) {
+    return remainingSeconds > 0
+      ? `${minutes} min ${remainingSeconds} s`
+      : `${minutes} min`;
+  }
+
+  const hours =
+    Math.floor(
+      minutes / 60
+    );
+
+  const remainingMinutes =
+    minutes % 60;
+
+  return remainingMinutes > 0
+    ? `${hours} h ${remainingMinutes} min`
+    : `${hours} h`;
+}
+
+function formatWeekLabel(week) {
+  if (
+    !week?.weekStartId ||
+    !week?.weekEndId
+  ) {
+    return week?.weekId || "Semana";
+  }
+
+  const startDate = new Date(
+    `${week.weekStartId}T12:00:00`
+  );
+
+  const endDate = new Date(
+    `${week.weekEndId}T12:00:00`
+  );
+
+  if (
+    Number.isNaN(startDate.getTime()) ||
+    Number.isNaN(endDate.getTime())
+  ) {
+    return `${week.weekStartId} al ${week.weekEndId}`;
+  }
+
+  const startFormatter =
+    new Intl.DateTimeFormat(
+      "es-MX",
+      {
+        day: "numeric",
+        month: "short",
+      }
+    );
+
+  const endFormatter =
+    new Intl.DateTimeFormat(
+      "es-MX",
+      {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }
+    );
+
+  return `${startFormatter.format(
+    startDate
+  )} – ${endFormatter.format(
+    endDate
+  )}`;
+}
+
 export default function PlaceDetailScreen() {
   const navigate = useNavigate();
   const { placeId } = useParams();
@@ -504,6 +748,26 @@ export default function PlaceDetailScreen() {
   const [comments, setComments] = useState([]);
   const [reports, setReports] = useState([]);
   const [proposals, setProposals] = useState([]);
+
+  const [analytics, setAnalytics] =
+  useState(() =>
+    normalizeAnalytics(null)
+  );
+
+const [
+  selectedAnalyticsWeekId,
+  setSelectedAnalyticsWeekId,
+] = useState(null);
+
+const [
+  loadingAnalytics,
+  setLoadingAnalytics,
+] = useState(false);
+
+const [
+  analyticsError,
+  setAnalyticsError,
+] = useState("");
 
   const [reviewsCursor, setReviewsCursor] = useState(null);
   const [reportsCursor, setReportsCursor] = useState(null);
@@ -591,6 +855,102 @@ const [loadingGallery, setLoadingGallery] =
 
 const [galleryError, setGalleryError] =
   useState("");
+  
+
+
+  const loadPlaceAnalytics =
+  useCallback(
+    async ({
+      weekId = null,
+      silent = false,
+    } = {}) => {
+      if (!placeId) {
+        return;
+      }
+
+      try {
+        if (!silent) {
+          setLoadingAnalytics(true);
+        }
+
+        setAnalyticsError("");
+
+        const result =
+          await getAdminPlaceAnalyticsService({
+            placeId,
+            weekId,
+          });
+
+        const normalizedAnalytics =
+          normalizeAnalytics(result);
+
+        setAnalytics(
+          normalizedAnalytics
+        );
+
+        setSelectedAnalyticsWeekId(
+          normalizedAnalytics.week?.weekId ||
+          weekId ||
+          null
+        );
+
+        return normalizedAnalytics;
+      } catch (error) {
+        console.error(
+          "Error cargando analíticas del lugar:",
+          error
+        );
+
+        setAnalyticsError(
+          error.response?.data?.message ||
+          error.message ||
+          "No se pudieron cargar las analíticas del lugar."
+        );
+
+        if (!silent) {
+          setAnalytics(
+            normalizeAnalytics(null)
+          );
+        }
+
+        return null;
+      } finally {
+        if (!silent) {
+          setLoadingAnalytics(false);
+        }
+      }
+    },
+    [
+      placeId,
+    ]
+  );
+
+//   const selectedAnalyticsWeekIndex =
+//   useMemo(() => {
+//     if (
+//       !selectedAnalyticsWeekId ||
+//       analytics.availableWeeks.length === 0
+//     ) {
+//       return -1;
+//     }
+
+//     return analytics.availableWeeks.findIndex(
+//       (week) =>
+//         week.weekId ===
+//         selectedAnalyticsWeekId
+//     );
+//   }, [
+//     analytics.availableWeeks,
+//     selectedAnalyticsWeekId,
+//   ]);
+
+// const canOpenNewerWeek =
+//   selectedAnalyticsWeekIndex > 0;
+
+// const canOpenOlderWeek =
+//   selectedAnalyticsWeekIndex >= 0 &&
+//   selectedAnalyticsWeekIndex <
+//     analytics.availableWeeks.length - 1;
 
   const loadInitialData = useCallback(async () => {
     if (!placeId) {
@@ -604,11 +964,12 @@ const [galleryError, setGalleryError] =
 
     try {
       const [
-        detailResult,
-        reviewsResult,
-        reportsResult,
-        submissionsResult,
-      ] = await Promise.all([
+  detailResult,
+  reviewsResult,
+  reportsResult,
+  submissionsResult,
+  analyticsResult,
+] = await Promise.all([
         getAdminPlaceDetailService(placeId),
 
         getAdminPlaceReviewsService({
@@ -627,9 +988,40 @@ const [galleryError, setGalleryError] =
           limit: PAGE_LIMIT,
           type: "all",
         }),
+
+        getAdminPlaceAnalyticsService({
+  placeId,
+}).catch((error) => {
+  console.error(
+    "Error cargando analíticas iniciales:",
+    error
+  );
+
+  setAnalyticsError(
+    error.response?.data?.message ||
+    error.message ||
+    "No se pudieron cargar las analíticas."
+  );
+
+  return null;
+}),
       ]);
 
       setPlace(normalizePlace(detailResult.place));
+
+      const normalizedAnalytics =
+  normalizeAnalytics(
+    analyticsResult
+  );
+
+setAnalytics(
+  normalizedAnalytics
+);
+
+setSelectedAnalyticsWeekId(
+  normalizedAnalytics.week?.weekId ||
+  null
+);
 
       setComments(
         normalizeComments(reviewsResult.reviews)
@@ -642,9 +1034,22 @@ const [galleryError, setGalleryError] =
     : 0
 );
 
-      setReports(
-        normalizeReports(reportsResult.reports)
-      );
+     const normalizedPlace =
+  normalizePlace(detailResult.place);
+
+setPlace(normalizedPlace);
+
+setReports(
+  normalizeReports(
+    reportsResult.reports,
+    {
+      placeId,
+      placeName:
+        normalizedPlace?.name ||
+        "Lugar reportado",
+    }
+  )
+);
 
       setReportsLoadedBatches(
   Array.isArray(reportsResult.reports) &&
@@ -773,7 +1178,15 @@ const [galleryError, setGalleryError] =
         status: "all",
       });
 
-      const newReports = normalizeReports(result.reports);
+      const newReports = normalizeReports(
+  result.reports,
+  {
+    placeId,
+    placeName:
+      place?.name ||
+      "Lugar reportado",
+  }
+);
 
       setReports((currentReports) => [
         ...currentReports,
@@ -1053,6 +1466,28 @@ const handleOpenReviewUser = (userId) => {
   );
 };
 
+const handleSelectAnalyticsWeek =
+  useCallback(
+    async (weekId) => {
+      if (
+        !weekId ||
+        loadingAnalytics ||
+        weekId === selectedAnalyticsWeekId
+      ) {
+        return;
+      }
+
+      await loadPlaceAnalytics({
+        weekId,
+      });
+    },
+    [
+      loadingAnalytics,
+      selectedAnalyticsWeekId,
+      loadPlaceAnalytics,
+    ]
+  );
+
 const handleValidatePlaceReport = async ({
   reportId,
   resolutionNote,
@@ -1153,6 +1588,58 @@ const handleOpenReportReporter = (userId) => {
     }
   );
 };
+
+const selectedWeekLabel = useMemo(() => {
+  if (!analytics.week) {
+    return "Semana sin seleccionar";
+  }
+
+  return formatWeekLabel({
+    weekId: analytics.week.weekId,
+
+    weekStartId:
+      analytics.week.weekStartId,
+
+    weekEndId:
+      analytics.week.weekEndId,
+  });
+}, [analytics.week]);
+// const handleChangeAnalyticsWeek =
+//   useCallback(
+//     async (direction) => {
+//       if (
+//         loadingAnalytics ||
+//         selectedAnalyticsWeekIndex < 0
+//       ) {
+//         return;
+//       }
+
+//       const nextIndex =
+//         direction === "older"
+//           ? selectedAnalyticsWeekIndex + 1
+//           : selectedAnalyticsWeekIndex - 1;
+
+//       const selectedWeek =
+//         analytics.availableWeeks[
+//           nextIndex
+//         ];
+
+//       if (!selectedWeek?.weekId) {
+//         return;
+//       }
+
+//       await loadPlaceAnalytics({
+//         weekId:
+//           selectedWeek.weekId,
+//       });
+//     },
+//     [
+//       loadingAnalytics,
+//       selectedAnalyticsWeekIndex,
+//       analytics.availableWeeks,
+//       loadPlaceAnalytics,
+//     ]
+//   );
 
 const handleOpenPlaceGallery = async (
   selectedIndex = 0
@@ -1415,50 +1902,68 @@ const handleOpenPlaceGallery = async (
 />
         </section>
 
-        <section style={styles.bottomGrid}>
-          <div style={styles.metricsColumn}>
-            <WeeklyInteractionsCard
-              likes={
-                place.weeklyInteractions?.likes || 0
-              }
-              reviews={
-                place.weeklyInteractions?.reviews || 0
-              }
-              dwellTime="Sin datos"
-            />
+    <section style={styles.analyticsPeriodBar}>
+  <div>
+    <span style={styles.analyticsPeriodLabel}>
+      Analíticas del lugar
+    </span>
 
-            <RecentActivityCard
-              activity={[]}
-              activityStatus={place.activityStatus}
-            />
+    <strong style={styles.analyticsPeriodValue}>
+      {analytics.week
+        ? `${analytics.week.weekStartId} al ${analytics.week.weekEndId}`
+        : "Sin semana seleccionada"}
+    </strong>
+  </div>
 
-            <WeeklyViewsChartCard
-              data={[]}
-              totalViews={
-                place.weeklyInteractions?.views || 0
-              }
-            />
-          </div>
+  <AnalyticsPeriodSelect
+    availableWeeks={analytics.availableWeeks}
+    selectedWeekId={selectedAnalyticsWeekId}
+    loading={loadingAnalytics}
+    onChange={handleSelectAnalyticsWeek}
+  />
+</section>
 
-          <div style={styles.proposalsColumn}>
-            <WeeklySubmissionsChartCard
-              descriptions={0}
-              photos={
-                place.weeklyInteractions?.photos || 0
-              }
-              reports={
-                place.metrics?.reports || 0
-              }
-            />
+<section style={styles.bottomGrid}>
+  <div style={styles.metricsColumn}>
+    <WeeklyInteractionsCard
+  likes={analytics.interactions.netLikes}
+  reviews={analytics.interactions.netReviews}
+  dwellTime={formatDwellTime(
+    analytics.interactions.averageDwellTimeSeconds
+  )}
+  weekLabel={selectedWeekLabel}
+/>
 
-            <ProposalsHistoryCard
-              proposals={proposals}
-              hasMore={hasMoreProposals}
-              loadingMore={loadingProposals}
-              onLoadMore={loadMoreProposals}
-            />
-          </div>
-        </section>
+<RecentActivityCard
+  title="Actividad de hoy"
+  activity={analytics.recentActivity}
+  activityStatus={place.activityStatus}
+/>
+
+<WeeklyViewsChartCard
+  data={analytics.views.days}
+  totalViews={analytics.views.total}
+  weekLabel={selectedWeekLabel}
+/>
+  </div>
+
+  <div style={styles.proposalsColumn}>
+    <WeeklySubmissionsChartCard
+  descriptions={analytics.contributions.descriptions}
+  photos={analytics.contributions.photos}
+  reports={analytics.contributions.reports}
+  weekLabel={selectedWeekLabel}
+/>
+
+    <ProposalsHistoryCard
+      proposals={proposals}
+      hasMore={hasMoreProposals}
+      loadingMore={loadingProposals}
+      onLoadMore={loadMoreProposals}
+    />
+  </div>
+</section>
+
 
         <div style={styles.footerActions}>
           <button

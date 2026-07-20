@@ -92,6 +92,19 @@ const styles = {
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
+  titleBlock: {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  minWidth: 0,
+},
+
+dateLabel: {
+  color: "#64748B",
+  fontSize: 11,
+  fontWeight: 700,
+  whiteSpace: "nowrap",
+},
 };
 
 export default styles;

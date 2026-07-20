@@ -101,6 +101,35 @@ proposalsColumn: {
     fontWeight: 800,
     cursor: "pointer",
   },
+  analyticsPeriodBar: {
+  width: "100%",
+  minWidth: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 18,
+  marginBottom: 16,
+  padding: "14px 18px",
+  border: "1px solid #D1D5DB",
+  borderRadius: 14,
+  backgroundColor: "#FFFFFF",
+  boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+  boxSizing: "border-box",
+},
+
+analyticsPeriodLabel: {
+  display: "block",
+  marginBottom: 4,
+  color: "#64748B",
+  fontSize: 12,
+  fontWeight: 800,
+},
+
+analyticsPeriodValue: {
+  color: "#111827",
+  fontSize: 15,
+  fontWeight: 900,
+},
 };
 
 export default styles;
