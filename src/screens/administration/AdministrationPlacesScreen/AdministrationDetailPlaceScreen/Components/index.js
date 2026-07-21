@@ -10,3 +10,4 @@ export { default as WeeklySubmissionsChartCard } from "./WeeklySubmissionsChartC
 export { default as WeeklyViewsChartCard } from "./WeeklyViewsChartCard";
 export { default as ReviewDetailModal } from "./ReviewDetailModal";
 export { default as AnalyticsPeriodSelect } from "./AnalyticsPeriodSelect";
+export {default as PlaceModerationModal } from "./PlaceModerationModal";

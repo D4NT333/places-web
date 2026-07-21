@@ -22,6 +22,7 @@ import {
   ProposalsHistoryCard,
   ReviewDetailModal,
   AnalyticsPeriodSelect, 
+  PlaceModerationModal,
 } from "./Components";
 
 import { ImageGalleryModal } from "../../../../components";
@@ -43,6 +44,10 @@ import updateAdminPlaceReviewVisibilityService from "../../../../services/api/ad
 import getAdminPlaceLsearchGalleryService from "../../../../services/api/administration/places/getAdminPlaceLsearchGallery.service";
 
 import getAdminPlaceAnalyticsService from "../../../../services/api/administration/places/getAdminPlaceAnalytics.service";
+
+import resolveAdminPlaceReportService from "../../../../services/api/administration/places/resolveAdminPlaceReport.service"
+
+import moderateAdminPlaceService from "../../../../services/api/administration/places/moderateAdminPlace.service";
 
 import styles from "./styles";
 
@@ -70,13 +75,19 @@ function getModerationStatusLabel(status) {
   const labels = {
     published: "Publicado",
     approved: "Publicado",
+
+    in_review: "En revisión",
+    warned: "Advertido",
+    hidden: "Oculto",
+
     pending: "Pendiente",
     disabled: "Deshabilitado",
-    hidden: "Oculto",
     deleted: "Eliminado",
   };
 
-  return labels[status] || status || "Sin estado";
+  return labels[status] ||
+    status ||
+    "Sin estado";
 }
 
 function getActivityStatusLabel(status) {
@@ -109,122 +120,334 @@ function normalizePlace(place) {
     return null;
   }
 
-  const photos = Array.isArray(place.media?.photos)
+  const photos = Array.isArray(
+    place.media?.photos
+  )
     ? place.media.photos
-    : [];
+    : Array.isArray(place.photos)
+      ? place.photos
+      : [];
+
+  const moderationStatusId =
+    place.moderationStatus ||
+    place.moderation?.status ||
+    place.status ||
+    "published";
+
+  const activityStatusId =
+    place.activityStatus ||
+    "pending";
 
   return {
-    id: place.placeId,
-    placeId: place.placeId,
+    id:
+      place.placeId ||
+      place.id,
 
-    name: place.name || "Lugar sin nombre",
-    description: place.description || "Sin descripción",
+    placeId:
+      place.placeId ||
+      place.id,
+
+    name:
+      place.name ||
+      "Lugar sin nombre",
+
+    description:
+      place.description ||
+      "Sin descripción",
 
     tagLabel:
       place.category?.label ||
       place.category?.id ||
+      place.tagLabel ||
+      place.tagId ||
       "Sin categoría",
 
-    subtags: Array.isArray(place.subtags)
-      ? place.subtags.map((subtag) => subtag.label || subtag.id)
+    subtags: Array.isArray(
+      place.subtags
+    )
+      ? place.subtags.map(
+          (subtag) => {
+            if (
+              typeof subtag ===
+              "string"
+            ) {
+              return subtag;
+            }
+
+            return (
+              subtag.label ||
+              subtag.id ||
+              "Sin subetiqueta"
+            );
+          }
+        )
       : [],
 
-    approaches: Array.isArray(place.approaches)
+    approaches: Array.isArray(
+      place.approaches
+    )
       ? place.approaches.map(
-          (approach) => approach.label || approach.id
+          (approach) => {
+            if (
+              typeof approach ===
+              "string"
+            ) {
+              return approach;
+            }
+
+            return (
+              approach.label ||
+              approach.id ||
+              "Sin enfoque"
+            );
+          }
         )
       : [],
 
     price:
       place.priceRange?.label ||
       place.priceRange?.id ||
+      place.price ||
+      place.priceRangeId ||
       "Sin especificar",
 
     schedule:
       place.openingHours?.label ||
       "Horario no disponible",
 
-    googleRating: Number(place.ratings?.google) || 0,
+    googleRating:
+      Number(
+        place.ratings?.google
+      ) ||
+      Number(
+        place.google?.rating
+      ) ||
+      0,
 
     googleRatingCount:
-      Number(place.ratings?.googleRatingCount) || 0,
+      Number(
+        place.ratings
+          ?.googleRatingCount
+      ) ||
+      Number(
+        place.google
+          ?.userRatingCount
+      ) ||
+      0,
 
     lsearchRating:
-      Number(place.ratings?.lsearch) || 0,
+      Number(
+        place.ratings?.lsearch
+      ) ||
+      Number(
+        place.metrics
+          ?.averageRating
+      ) ||
+      0,
 
     lsearchRatingCount:
-      Number(place.ratings?.lsearchRatingCount) || 0,
+      Number(
+        place.ratings
+          ?.lsearchRatingCount
+      ) ||
+      Number(
+        place.metrics
+          ?.ratingsCount
+      ) ||
+      0,
 
-    moderationStatus: getModerationStatusLabel(
-      place.moderationStatus
-    ),
+    moderationStatus:
+      getModerationStatusLabel(
+        moderationStatusId
+      ),
 
-    activityStatus: getActivityStatusLabel(
-      place.activityStatus
-    ),
+    moderationStatusId,
 
-    moderationStatusId: place.moderationStatus,
-    activityStatusId: place.activityStatus,
+    moderation: {
+      status:
+        moderationStatusId,
 
-    address: place.address || "Dirección no disponible",
+      validReportsCount:
+        Number(
+          place.moderation
+            ?.validReportsCount ??
+          place.metrics
+            ?.validReportsCount ??
+          0
+        ) || 0,
+
+      dismissedReportsCount:
+        Number(
+          place.moderation
+            ?.dismissedReportsCount ??
+          place.metrics
+            ?.dismissedReportsCount ??
+          0
+        ) || 0,
+
+      source:
+        place.moderation
+          ?.source ||
+        null,
+
+      note:
+        place.moderation
+          ?.note ||
+        null,
+
+      updatedAt:
+        place.moderation
+          ?.updatedAt ||
+        null,
+
+      updatedBy:
+        place.moderation
+          ?.updatedBy ||
+        null,
+    },
+
+    activityStatus:
+      getActivityStatusLabel(
+        activityStatusId
+      ),
+
+    activityStatusId,
+
+    address:
+      place.address ||
+      "Dirección no disponible",
 
     location: {
-      lat: place.location?.lat ?? null,
-      lng: place.location?.lng ?? null,
+      lat:
+        place.location?.lat ??
+        null,
+
+      lng:
+        place.location?.lng ??
+        null,
     },
 
     photos,
-    mainPhoto: place.media?.mainPhoto || photos[0] || null,
+
+    mainPhoto:
+      place.media?.mainPhoto ||
+      place.mainPhoto ||
+      photos[0] ||
+      null,
 
     photoCount:
-      Number(place.media?.photoCount) || photos.length,
+      Number(
+        place.media?.photoCount ??
+        place.photoCount
+      ) ||
+      photos.length,
 
     photoIndex:
       photos.length > 0
-        ? `1/${place.media?.photoCount || photos.length}`
+        ? `1/${
+            Number(
+              place.media
+                ?.photoCount ??
+              place.photoCount
+            ) ||
+            photos.length
+          }`
         : "0/0",
 
     validatedBy:
-      place.validation?.approvedBy?.name ||
+      place.validation
+        ?.approvedBy?.name ||
+      place.approvedBy?.name ||
+      place.origin
+        ?.approvedByName ||
       "Sin administrador asignado",
 
     source:
-  place.validation?.source === "google_candidate"
-    ? "Candidato de Google"
-    : place.validation?.source === "place_submission"
-      ? "Propuesta de lugar"
-      : place.validation?.source === "user_submission"
-        ? "Propuesta de usuario"
-        : place.validation?.source || "Sin fuente",
+      place.validation?.source ===
+      "google_candidate"
+        ? "Candidato de Google"
+        : place.validation
+              ?.source ===
+            "place_submission"
+          ? "Propuesta de lugar"
+          : place.validation
+                ?.source ===
+              "user_submission"
+            ? "Propuesta de usuario"
+            : place.origin
+                  ?.type ===
+                "google_candidate"
+              ? "Candidato de Google"
+              : place.origin
+                    ?.type ===
+                  "place_submission"
+                ? "Propuesta de lugar"
+                : place.validation
+                    ?.source ||
+                  place.origin
+                    ?.type ||
+                  place.source ||
+                  "Sin fuente",
 
-        submissionId:
-  place.validation?.submissionId ||
-  place.origin?.submissionId ||
-  null,
+    submissionId:
+      place.validation
+        ?.submissionId ||
+      place.origin
+        ?.submissionId ||
+      place.origin
+        ?.placeSubmissionId ||
+      null,
 
-sourceId:
-  place.validation?.source ||
-  place.origin?.type ||
-  null,
+    sourceId:
+      place.validation
+        ?.source ||
+      place.origin?.type ||
+      place.source ||
+      null,
 
     creatorName:
-    place.validation?.submittedBy?.name ||
-    place.validation?.createdBy?.name ||
-    "Sistema",
+      place.validation
+        ?.submittedBy?.name ||
+      place.validation
+        ?.createdBy?.name ||
+      place.createdByName ||
+      place.origin
+        ?.submittedByName ||
+      "Sistema",
 
-    createdAt: formatDate(place.validation?.createdAt),
+    createdAt:
+      formatDate(
+        place.validation
+          ?.createdAt ||
+        place.createdAt
+      ),
 
-    validatedAt: formatDate(place.validation?.approvedAt),
+    validatedAt:
+      formatDate(
+        place.validation
+          ?.approvedAt ||
+        place.origin
+          ?.approvedAt
+      ),
 
-    updatedAt: formatDate(place.validation?.updatedAt),
+    updatedAt:
+      formatDate(
+        place.validation
+          ?.updatedAt ||
+        place.updatedAt
+      ),
 
-    metrics: place.metrics || {},
+    metrics:
+      place.metrics ||
+      {},
 
-    weeklyInteractions: place.weeklyInteractions || {},
+    weeklyInteractions:
+      place.weeklyInteractions ||
+      {},
 
-    google: place.google || {},
-
-    
+    google:
+      place.google ||
+      {},
   };
 }
 
@@ -884,6 +1107,21 @@ const [loadingGallery, setLoadingGallery] =
 
 const [galleryError, setGalleryError] =
   useState("");
+
+  const [
+  isModerationModalOpen,
+  setIsModerationModalOpen,
+] = useState(false);
+
+const [
+  moderatingPlace,
+  setModeratingPlace,
+] = useState(false);
+
+const [
+  moderationError,
+  setModerationError,
+] = useState("");
   
 
 
@@ -1324,8 +1562,113 @@ setReports(
   };
 
   const handleModerate = () => {
-    console.log("Abrir modal de moderación", place);
-  };
+  if (!place) {
+    return;
+  }
+
+  setModerationError("");
+  setIsModerationModalOpen(true);
+};
+
+const handleCloseModerationModal = () => {
+  if (moderatingPlace) {
+    return;
+  }
+
+  setIsModerationModalOpen(false);
+  setModerationError("");
+};
+
+const handleSubmitPlaceModeration = async ({
+  moderationStatus,
+  note,
+}) => {
+  if (
+    !place?.placeId ||
+    moderatingPlace
+  ) {
+    return;
+  }
+
+  try {
+    setModeratingPlace(true);
+    setModerationError("");
+
+    const result =
+      await moderateAdminPlaceService({
+        placeId: place.placeId,
+        moderationStatus,
+        note,
+      });
+
+    const nextModerationStatus =
+      result.moderation?.status ||
+      result.moderationStatus ||
+      result.status ||
+      moderationStatus;
+
+    setPlace((currentPlace) => {
+      if (!currentPlace) {
+        return currentPlace;
+      }
+
+      return {
+        ...currentPlace,
+
+        moderationStatusId:
+          nextModerationStatus,
+
+        moderationStatus:
+          getModerationStatusLabel(
+            nextModerationStatus
+          ),
+
+        moderation: {
+          ...currentPlace.moderation,
+
+          status:
+            nextModerationStatus,
+
+          validReportsCount:
+            Number(
+              result.moderation
+                ?.validReportsCount ??
+              currentPlace.moderation
+                ?.validReportsCount
+            ) || 0,
+
+          dismissedReportsCount:
+            Number(
+              result.moderation
+                ?.dismissedReportsCount ??
+              currentPlace.moderation
+                ?.dismissedReportsCount
+            ) || 0,
+
+          source:
+            result.moderation?.source ||
+            "manual_moderation",
+        },
+      };
+    });
+
+    setIsModerationModalOpen(false);
+    setModerationError("");
+  } catch (error) {
+    console.error(
+      "Error moderando el lugar:",
+      error
+    );
+
+    setModerationError(
+      error.response?.data?.message ||
+      error.message ||
+      "No se pudo aplicar la moderación."
+    );
+  } finally {
+    setModeratingPlace(false);
+  }
+};
 
   const handleOpenProposal = useCallback(
   (proposal) => {
@@ -1629,35 +1972,125 @@ const handleValidatePlaceReport = async ({
   reportId,
   resolutionNote,
 }) => {
+  if (
+    !place?.placeId ||
+    !reportId ||
+    isResolvingReport
+  ) {
+    return;
+  }
+
   try {
     setIsResolvingReport(true);
 
-    console.log("Validar reporte de lugar:", {
-      reportId,
-      resolutionNote,
-    });
+    const result =
+      await resolveAdminPlaceReportService({
+        placeId: place.placeId,
+        reportId,
+        decision: "resolved",
+        resolutionNote,
+      });
+
+    const resolvedAt =
+      new Date().toISOString();
 
     setReports((currentReports) =>
-      currentReports.map((report) =>
-        report.id === reportId
-          ? {
-              ...report,
-              status: "Resuelto",
-              statusId: "resolved",
-              statusLabel: "Resuelto",
-              resolutionNote,
-              resolvedAt:
-                new Date().toISOString(),
-            }
-          : report
-      )
+      currentReports.map((report) => {
+        if (report.id !== reportId) {
+          return report;
+        }
+
+        return {
+          ...report,
+
+          status: "resolved",
+          statusId: "resolved",
+          statusLabel:
+            getReportStatusLabel(
+              "resolved"
+            ),
+
+          displayStatus:
+            getReportStatusLabel(
+              "resolved"
+            ),
+
+          resolutionNote,
+
+          resolvedBy:
+            result.resolvedBy ||
+            result.admin?.resolvedBy ||
+            null,
+
+          resolvedAt:
+            result.resolvedAt ||
+            result.admin?.resolvedAt ||
+            resolvedAt,
+        };
+      })
     );
+
+    const nextModerationStatus =
+      result.moderation?.status ||
+      null;
+
+    if (nextModerationStatus) {
+      setPlace((currentPlace) => {
+        if (!currentPlace) {
+          return currentPlace;
+        }
+
+        return {
+          ...currentPlace,
+
+          moderationStatusId:
+            nextModerationStatus,
+
+          moderationStatus:
+            getModerationStatusLabel(
+              nextModerationStatus
+            ),
+
+          moderation: {
+            ...currentPlace.moderation,
+
+            status:
+              nextModerationStatus,
+
+            validReportsCount:
+              Number(
+                result.moderation
+                  ?.validReportsCount
+              ) || 0,
+
+            dismissedReportsCount:
+              Number(
+                result.moderation
+                  ?.dismissedReportsCount ??
+                currentPlace.moderation
+                  ?.dismissedReportsCount
+              ) || 0,
+          },
+        };
+      });
+    }
 
     setSelectedReport(null);
   } catch (error) {
     console.error(
       "Error validando el reporte:",
       error
+    );
+
+    /*
+     * Tu ReportDetailModal actualmente no recibe
+     * un error de resolución independiente.
+     * Por ahora lo mostramos arriba en la pantalla.
+     */
+    setErrorMessage(
+      error.response?.data?.message ||
+      error.message ||
+      "No se pudo validar el reporte."
     );
   } finally {
     setIsResolvingReport(false);
@@ -1668,35 +2101,112 @@ const handleDiscardPlaceReport = async ({
   reportId,
   resolutionNote,
 }) => {
+  if (
+    !place?.placeId ||
+    !reportId ||
+    isResolvingReport
+  ) {
+    return;
+  }
+
   try {
     setIsResolvingReport(true);
 
-    console.log("Descartar reporte de lugar:", {
-      reportId,
-      resolutionNote,
-    });
+    const result =
+      await resolveAdminPlaceReportService({
+        placeId: place.placeId,
+        reportId,
+        decision: "dismissed",
+        resolutionNote,
+      });
+
+    const resolvedAt =
+      new Date().toISOString();
 
     setReports((currentReports) =>
-      currentReports.map((report) =>
-        report.id === reportId
-          ? {
-              ...report,
-              status: "Descartado",
-              statusId: "dismissed",
-              statusLabel: "Descartado",
-              resolutionNote,
-              resolvedAt:
-                new Date().toISOString(),
-            }
-          : report
-      )
+      currentReports.map((report) => {
+        if (report.id !== reportId) {
+          return report;
+        }
+
+        return {
+          ...report,
+
+          status: "dismissed",
+          statusId: "dismissed",
+          statusLabel:
+            getReportStatusLabel(
+              "dismissed"
+            ),
+
+          displayStatus:
+            getReportStatusLabel(
+              "dismissed"
+            ),
+
+          resolutionNote,
+
+          resolvedBy:
+            result.resolvedBy ||
+            result.admin?.resolvedBy ||
+            null,
+
+          resolvedAt:
+            result.resolvedAt ||
+            result.admin?.resolvedAt ||
+            resolvedAt,
+        };
+      })
     );
+
+    /*
+     * Descartar no debe aumentar reportes válidos
+     * ni cambiar el estado de moderación.
+     *
+     * Solo sincronizamos los contadores si el
+     * backend los devuelve.
+     */
+    if (result.moderation) {
+      setPlace((currentPlace) => {
+        if (!currentPlace) {
+          return currentPlace;
+        }
+
+        return {
+          ...currentPlace,
+
+          moderation: {
+            ...currentPlace.moderation,
+
+            validReportsCount:
+              Number(
+                result.moderation
+                  ?.validReportsCount ??
+                currentPlace.moderation
+                  ?.validReportsCount
+              ) || 0,
+
+            dismissedReportsCount:
+              Number(
+                result.moderation
+                  ?.dismissedReportsCount
+              ) || 0,
+          },
+        };
+      });
+    }
 
     setSelectedReport(null);
   } catch (error) {
     console.error(
       "Error descartando el reporte:",
       error
+    );
+
+    setErrorMessage(
+      error.response?.data?.message ||
+      error.message ||
+      "No se pudo descartar el reporte."
     );
   } finally {
     setIsResolvingReport(false);
@@ -2136,6 +2646,15 @@ const handleOpenPlaceGallery = async (
   onDiscard={handleDiscardPlaceReport}
   onOpenRelated={handleOpenReportRelated}
   onOpenReporter={handleOpenReportReporter}
+/>
+
+<PlaceModerationModal
+  isOpen={isModerationModalOpen}
+  place={place}
+  loading={moderatingPlace}
+  errorMessage={moderationError}
+  onClose={handleCloseModerationModal}
+  onSubmit={handleSubmitPlaceModeration}
 />
 
 <ImageGalleryModal

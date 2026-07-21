@@ -215,8 +215,9 @@ export default function ReportDetailModal({
   const status =
     report?.status || "pending";
 
-  const isPending =
-    status === "pending";
+  const canResolveReport =
+  status === "pending" ||
+  status === "in_review";
 
   useEffect(() => {
     if (!isOpen) {
@@ -649,7 +650,7 @@ if (selectedAction === "dismissed") {
                 </section>
               ) : null}
 
-              {isPending ? (
+              {canResolveReport ? (
                 <section style={styles.actionCard}>
                   <h3 style={styles.sectionTitle}>
                     Resolución del reporte
@@ -736,7 +737,7 @@ if (selectedAction === "dismissed") {
                 Cerrar
               </button>
 
-              {isPending ? (
+              {canResolveReport ? (
                 <button
                   type="button"
                   style={styles.submitButton}
