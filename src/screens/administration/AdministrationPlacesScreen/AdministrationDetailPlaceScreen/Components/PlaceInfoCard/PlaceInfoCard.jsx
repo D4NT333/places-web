@@ -1,6 +1,48 @@
 import React from "react";
 import styles from "./styles";
 
+function getModerationStatusStyle(status) {
+  const statusStyles = {
+    published: styles.statusPillGreen,
+    approved: styles.statusPillGreen,
+
+    in_review: styles.statusPillYellow,
+
+    warned: styles.statusPillOrange,
+
+    hidden: styles.statusPillRed,
+    disabled: styles.statusPillRed,
+    deleted: styles.statusPillRed,
+  };
+
+  return (
+    statusStyles[status] ||
+    styles.statusPillDefault
+  );
+}
+
+function getActivityStatusStyle(status) {
+  const statusStyles = {
+    active: styles.statusPillGreen,
+
+    pending: styles.statusPillBlue,
+
+    low_activity: styles.statusPillYellow,
+
+    no_activity: styles.statusPillOrange,
+
+    forgotten: styles.statusPillRed,
+    hidden: styles.statusPillRed,
+
+    invisible: styles.statusPillPurple,
+  };
+
+  return (
+    statusStyles[status] ||
+    styles.statusPillDefault
+  );
+}
+
 export default function PlaceInfoCard({
   place,
   onModerate,
@@ -8,7 +50,9 @@ export default function PlaceInfoCard({
   return (
     <section style={styles.card}>
       <div style={styles.headerRow}>
-        <h2 style={styles.title}>Información del lugar</h2>
+        <h2 style={styles.title}>
+          Información del lugar
+        </h2>
 
         <div style={styles.statusGroup}>
           <div style={styles.statusBlock}>
@@ -16,7 +60,14 @@ export default function PlaceInfoCard({
               Estado de moderación
             </span>
 
-            <span style={styles.statusPill}>
+            <span
+              style={{
+                ...styles.statusPill,
+                ...getModerationStatusStyle(
+                  place.moderationStatusId
+                ),
+              }}
+            >
               {place.moderationStatus}
             </span>
           </div>
@@ -26,7 +77,14 @@ export default function PlaceInfoCard({
               Estado de actividad
             </span>
 
-            <span style={styles.statusPill}>
+            <span
+              style={{
+                ...styles.statusPill,
+                ...getActivityStatusStyle(
+                  place.activityStatusId
+                ),
+              }}
+            >
               {place.activityStatus}
             </span>
           </div>
@@ -42,108 +100,147 @@ export default function PlaceInfoCard({
       </div>
 
       <div style={styles.content}>
-
-      <div style={styles.fieldGroup}>
-        <span style={styles.label}>Nombre del lugar</span>
-        <div style={styles.inputLike}>{place.name}</div>
-      </div>
-
-      <div style={styles.fieldGroup}>
-        <span style={styles.label}>Descripción</span>
-        <div style={styles.textAreaLike}>{place.description}</div>
-      </div>
-
-      <div style={styles.infoGrid}>
-  <div style={styles.infoFieldGroup}>
-    <span style={styles.label}>Etiqueta</span>
-    <div style={styles.tagBox}>
-  {place.tagLabel}
-</div>
-  </div>
-
-  <div style={styles.infoFieldGroup}>
-    <span style={styles.label}>
-      Valoración de Google
-    </span>
-
-    <div style={styles.scoreBox}>
-      {place.googleRating.toFixed(1)}
-    </div>
-
-    <span
-      style={{
-        marginTop: 5,
-        fontSize: 14,
-        color: "#64748B",
-      }}
-    >
-      {place.googleRatingCount} valoraciones
-    </span>
-  </div>
-
-  <div style={styles.infoFieldGroup}>
-    <span style={styles.label}>
-      Valoración Lsearch
-    </span>
-
-    <div style={styles.scoreBox}>
-      {place.lsearchRating.toFixed(1)}
-    </div>
-
-    <span
-      style={{
-        marginTop: 5,
-        fontSize: 14,
-        color: "#64748B",
-      }}
-    >
-      {place.lsearchRatingCount} valoraciones
-    </span>
-  </div>
-</div>
-      <div style={styles.fieldGroup}>
-        <span style={styles.label}>Subetiquetas</span>
-
-        <div style={styles.chipsRow}>
-          {place.subtags?.length > 0 ? (
-            place.subtags.map((subtag) => (
-              <span key={subtag} style={styles.chip}>
-                {subtag}
-              </span>
-            ))
-          ) : (
-            <span style={styles.chip}>Sin subetiquetas</span>
-          )}
-        </div>
-      </div>
-
-      <div style={styles.bottomGrid}>
         <div style={styles.fieldGroup}>
-          <span style={styles.label}>Enfoque</span>
+          <span style={styles.label}>
+            Nombre del lugar
+          </span>
 
-          <div style={styles.chipsRow}>
-            {place.approaches?.length > 0 ? (
-              place.approaches.map((approach) => (
-                <span key={approach} style={styles.chip}>
-                  {approach}
-                </span>
-              ))
-            ) : (
-              <span style={styles.chip}>Sin enfoques</span>
-            )}
+          <div style={styles.inputLike}>
+            {place.name}
           </div>
         </div>
 
         <div style={styles.fieldGroup}>
-          <span style={styles.label}>Precio</span>
-          <div style={styles.inputLike}>{place.price}</div>
+          <span style={styles.label}>
+            Descripción
+          </span>
+
+          <div style={styles.textAreaLike}>
+            {place.description}
+          </div>
+        </div>
+
+        <div style={styles.infoGrid}>
+          <div style={styles.infoFieldGroup}>
+            <span style={styles.label}>
+              Etiqueta
+            </span>
+
+            <div style={styles.tagBox}>
+              {place.tagLabel}
+            </div>
+          </div>
+
+          <div style={styles.infoFieldGroup}>
+            <span style={styles.label}>
+              Valoración de Google
+            </span>
+
+            <div style={styles.scoreBox}>
+              {place.googleRating.toFixed(1)}
+            </div>
+
+            <span
+              style={{
+                marginTop: 5,
+                fontSize: 14,
+                color: "#64748B",
+              }}
+            >
+              {place.googleRatingCount} valoraciones
+            </span>
+          </div>
+
+          <div style={styles.infoFieldGroup}>
+            <span style={styles.label}>
+              Valoración Lsearch
+            </span>
+
+            <div style={styles.scoreBox}>
+              {place.lsearchRating.toFixed(1)}
+            </div>
+
+            <span
+              style={{
+                marginTop: 5,
+                fontSize: 14,
+                color: "#64748B",
+              }}
+            >
+              {place.lsearchRatingCount} valoraciones
+            </span>
+          </div>
         </div>
 
         <div style={styles.fieldGroup}>
-          <span style={styles.label}>Horario</span>
-          <div style={styles.inputLike}>{place.schedule}</div>
+          <span style={styles.label}>
+            Subetiquetas
+          </span>
+
+          <div style={styles.chipsRow}>
+            {place.subtags?.length > 0 ? (
+              place.subtags.map((subtag) => (
+                <span
+                  key={subtag}
+                  style={styles.chip}
+                >
+                  {subtag}
+                </span>
+              ))
+            ) : (
+              <span style={styles.chip}>
+                Sin subetiquetas
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+
+        <div style={styles.bottomGrid}>
+          <div style={styles.fieldGroup}>
+            <span style={styles.label}>
+              Enfoque
+            </span>
+
+            <div style={styles.chipsRow}>
+              {place.approaches?.length > 0 ? (
+                place.approaches.map(
+                  (approach) => (
+                    <span
+                      key={approach}
+                      style={styles.chip}
+                    >
+                      {approach}
+                    </span>
+                  )
+                )
+              ) : (
+                <span style={styles.chip}>
+                  Sin enfoques
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div style={styles.fieldGroup}>
+            <span style={styles.label}>
+              Precio
+            </span>
+
+            <div style={styles.inputLike}>
+              {place.price}
+            </div>
+          </div>
+
+          <div style={styles.fieldGroup}>
+            <span style={styles.label}>
+              Horario
+            </span>
+
+            <div style={styles.inputLike}>
+              {place.schedule}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

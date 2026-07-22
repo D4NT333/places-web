@@ -5,7 +5,11 @@ import React, {
   useState,
 } from "react";
 
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import LayoutScreen from "../../../../layout";
 
@@ -994,7 +998,25 @@ function formatWeekLabel(week) {
 
 export default function PlaceDetailScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { placeId } = useParams();
+
+  const navigationState =
+    location.state || {};
+
+  const returnTo =
+    navigationState.returnTo ||
+    "/administration/places";
+
+  const returnLabel =
+    navigationState.returnLabel ||
+    "Administrar lugares";
+
+  const parentBreadcrumb =
+    navigationState.parentBreadcrumb || {
+      label: "Administrar lugares",
+      to: "/administration/places",
+    };
 
   const [place, setPlace] = useState(null);
   const [comments, setComments] = useState([]);
@@ -1122,6 +1144,8 @@ const [
   moderationError,
   setModerationError,
 ] = useState("");
+
+
   
 
 
@@ -1150,6 +1174,7 @@ const [
 
         const normalizedAnalytics =
           normalizeAnalytics(result);
+
 
         setAnalytics(
           normalizedAnalytics
@@ -1540,26 +1565,41 @@ setReports(
     }
   };
 
-  const breadcrumbs = useMemo(
-    () => [
-      {
-        label: "Inicio",
-        to: "/",
-      },
-      {
-        label: "Administrar lugares",
-        to: "/administration/places",
-      },
-      {
-        label: place?.name || "Detalle del lugar",
-      },
-    ],
-    [place?.name]
-  );
+ const breadcrumbs = useMemo(
+  () => [
+    {
+      label: "Inicio",
+      to: "/",
+    },
+
+    {
+      label:
+        parentBreadcrumb.label ||
+        returnLabel,
+
+      to:
+        parentBreadcrumb.to ||
+        returnTo,
+    },
+
+    {
+      label:
+        place?.name ||
+        "Detalle del lugar",
+    },
+  ],
+  [
+    place?.name,
+    parentBreadcrumb.label,
+    parentBreadcrumb.to,
+    returnLabel,
+    returnTo,
+  ]
+);
 
   const handleBack = () => {
-    navigate("/administration/places");
-  };
+  navigate(returnTo);
+};
 
   const handleModerate = () => {
   if (!place) {

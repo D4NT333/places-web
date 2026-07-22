@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 import LayoutScreen from "../../../layout";
 
-import UserRow from "./Components/UserRow";
+import UserRow from "./Components/UserRow/index.js";
 
 import getAdminUsersService from "../../../services/api/administration/users/adminUsers.service.js";
 
-import styles from "./styles";
+import styles from "./styles.js";
 
 const PAGE_LIMIT = 15;
 

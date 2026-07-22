@@ -189,6 +189,48 @@ ratingCount: {
   fontSize: 12,
   color: "#64748B",
 },
+
+statusPillGreen: {
+  color: "#15803D",
+  borderColor: "#86EFAC",
+  backgroundColor: "#F0FDF4",
+},
+
+statusPillBlue: {
+  color: "#1D4ED8",
+  borderColor: "#93C5FD",
+  backgroundColor: "#EFF6FF",
+},
+
+statusPillYellow: {
+  color: "#A16207",
+  borderColor: "#FACC15",
+  backgroundColor: "#FEFCE8",
+},
+
+statusPillOrange: {
+  color: "#C2410C",
+  borderColor: "#FDBA74",
+  backgroundColor: "#FFF7ED",
+},
+
+statusPillRed: {
+  color: "#B91C1C",
+  borderColor: "#FCA5A5",
+  backgroundColor: "#FEF2F2",
+},
+
+statusPillPurple: {
+  color: "#6D28D9",
+  borderColor: "#C4B5FD",
+  backgroundColor: "#F5F3FF",
+},
+
+statusPillDefault: {
+  color: "#475569",
+  borderColor: "#CBD5E1",
+  backgroundColor: "#F8FAFC",
+},
 };
 
 export default styles;

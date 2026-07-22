@@ -16,6 +16,8 @@ import { REPORT_STATUS_FILTERS } from "./data";
 
 import getReportsService from "../../../services/api/reports/read/getReports.service";
 
+import resolveAdminPlaceReportService from "../../../services/api/administration/places/resolveAdminPlaceReport.service";
+
 const PAGE_LIMIT = 15;
 
 const breadcrumbs = [
@@ -27,6 +29,27 @@ const breadcrumbs = [
     label: "Reportes",
   },
 ];
+
+function getReportTarget(report) {
+  return String(
+    report?.reportTarget ||
+    report?.target ||
+    report?.type ||
+    report?.relatedTo?.type ||
+    "general"
+  )
+    .trim()
+    .toLowerCase();
+}
+
+function getReportPlaceId(report) {
+  return (
+    report?.place?.placeId ||
+    report?.relatedTo?.id ||
+    report?.placeId ||
+    null
+  );
+}
 
 export default function ReportsScreen() {
   const navigate = useNavigate();
@@ -47,6 +70,11 @@ export default function ReportsScreen() {
 
   const [selectedReport, setSelectedReport] = useState(null);
 const [isResolvingReport, setIsResolvingReport] = useState(false);
+
+const [
+  reportResolutionError,
+  setReportResolutionError,
+] = useState("");
 
   const fetchReports = useCallback(
     async ({ reset = false } = {}) => {
@@ -128,7 +156,8 @@ const [isResolvingReport, setIsResolvingReport] = useState(false);
     setSelectedStatus(status);
   };
 
- function handleOpenReport(report) {
+function handleOpenReport(report) {
+  setReportResolutionError("");
   setSelectedReport(report);
 }
 
@@ -138,6 +167,7 @@ function handleCloseReportModal() {
   }
 
   setSelectedReport(null);
+  setReportResolutionError("");
 }
 
 function handleOpenRelated({ targetType, id }) {
@@ -154,49 +184,154 @@ function handleOpenRelated({ targetType, id }) {
     return;
   }
 
-  if (targetType === "place") {
-    navigate(`/administration/places/${id}`);
-  }
+if (targetType === "place") {
+  setReportResolutionError("");
+
+  navigate(
+    `/administration/places/${encodeURIComponent(id)}`,
+    {
+      state: {
+        from: "reports",
+
+        returnTo: "/management/reports",
+
+        returnLabel: "Reportes",
+
+        parentBreadcrumb: {
+          label: "Reportes",
+          to: "/management/reports",
+        },
+      },
+    }
+  );
+}
 }
 
 async function handleValidateReport({
   reportId,
   resolutionNote,
 }) {
+  if (
+    !selectedReport ||
+    !reportId ||
+    isResolvingReport
+  ) {
+    return;
+  }
+
+  const targetType =
+    getReportTarget(
+      selectedReport
+    );
+
+  if (targetType === "user") {
+    setReportResolutionError(
+      "La resolución de reportes de usuarios todavía está en construcción."
+    );
+
+    return;
+  }
+
+  if (targetType === "general") {
+    setReportResolutionError(
+      "La resolución de reportes generales todavía no está implementada."
+    );
+
+    return;
+  }
+
+  if (targetType !== "place") {
+    setReportResolutionError(
+      "El tipo de reporte no es compatible con esta acción."
+    );
+
+    return;
+  }
+
+  const placeId =
+    getReportPlaceId(
+      selectedReport
+    );
+
+  if (!placeId) {
+    setReportResolutionError(
+      "No se encontró el lugar relacionado con el reporte."
+    );
+
+    return;
+  }
+
   try {
     setIsResolvingReport(true);
+    setReportResolutionError("");
+    setErrorMessage("");
 
-    console.log("Validar reporte:", {
-      reportId,
-      resolutionNote,
-    });
-
-    /*
-      Después conectaremos algo como:
-
-      await resolveReportService(reportId, {
-        status: "resolved",
+    const result =
+      await resolveAdminPlaceReportService({
+        placeId,
+        reportId,
+        decision: "resolved",
         resolutionNote,
       });
-    */
+
+    const resolvedAt =
+      result.resolvedAt ||
+      result.admin?.resolvedAt ||
+      new Date().toISOString();
+
+    const resolvedBy =
+      result.resolvedBy ||
+      result.admin?.resolvedBy ||
+      null;
 
     setReports((currentReports) =>
-      currentReports.map((report) =>
-        report.id === reportId
-          ? {
-              ...report,
-              status: "resolved",
-              statusLabel: "Resuelto",
-              resolutionNote,
-              resolvedAt: new Date().toISOString(),
-            }
-          : report
-      )
+      currentReports.map((report) => {
+        const currentReportId =
+          report.reportId ||
+          report.id;
+
+        if (
+          currentReportId !== reportId
+        ) {
+          return report;
+        }
+
+        return {
+          ...report,
+
+          status: "resolved",
+          statusId: "resolved",
+          statusLabel: "Resuelto",
+          displayStatus: "Resuelto",
+
+          resolutionNote,
+          resolvedAt,
+          resolvedBy,
+
+          admin: {
+            ...report.admin,
+
+            resolutionNote,
+            resolvedAt,
+            resolvedBy,
+          },
+        };
+      })
     );
 
     setSelectedReport(null);
+    setReportResolutionError("");
   } catch (error) {
-    console.error("Error validando reporte:", error);
+    console.error(
+      "Error validando reporte:",
+      error
+    );
+
+    setReportResolutionError(
+      error?.response?.data?.message ||
+      error?.message ||
+      "No se pudo validar el reporte."
+    );
   } finally {
     setIsResolvingReport(false);
   }
@@ -206,40 +341,127 @@ async function handleDiscardReport({
   reportId,
   resolutionNote,
 }) {
+  if (
+    !selectedReport ||
+    !reportId ||
+    isResolvingReport
+  ) {
+    return;
+  }
+
+  const targetType =
+    getReportTarget(
+      selectedReport
+    );
+
+  if (targetType === "user") {
+    setReportResolutionError(
+      "La resolución de reportes de usuarios todavía está en construcción."
+    );
+
+    return;
+  }
+
+  if (targetType === "general") {
+    setReportResolutionError(
+      "La resolución de reportes generales todavía no está implementada."
+    );
+
+    return;
+  }
+
+  if (targetType !== "place") {
+    setReportResolutionError(
+      "El tipo de reporte no es compatible con esta acción."
+    );
+
+    return;
+  }
+
+  const placeId =
+    getReportPlaceId(
+      selectedReport
+    );
+
+  if (!placeId) {
+    setReportResolutionError(
+      "No se encontró el lugar relacionado con el reporte."
+    );
+
+    return;
+  }
+
   try {
     setIsResolvingReport(true);
+    setReportResolutionError("");
+    setErrorMessage("");
 
-    console.log("Descartar reporte:", {
-      reportId,
-      resolutionNote,
-    });
-
-    /*
-      Después conectaremos algo como:
-
-      await resolveReportService(reportId, {
-        status: "discarded",
+    const result =
+      await resolveAdminPlaceReportService({
+        placeId,
+        reportId,
+        decision: "dismissed",
         resolutionNote,
       });
-    */
+
+    const resolvedAt =
+      result.resolvedAt ||
+      result.admin?.resolvedAt ||
+      new Date().toISOString();
+
+    const resolvedBy =
+      result.resolvedBy ||
+      result.admin?.resolvedBy ||
+      null;
 
     setReports((currentReports) =>
-      currentReports.map((report) =>
-        report.id === reportId
-          ? {
-              ...report,
-              status: "dismissed",
-              statusLabel: "Descartado",
-              resolutionNote,
-              resolvedAt: new Date().toISOString(),
-            }
-          : report
-      )
+      currentReports.map((report) => {
+        const currentReportId =
+          report.reportId ||
+          report.id;
+
+        if (
+          currentReportId !== reportId
+        ) {
+          return report;
+        }
+
+        return {
+          ...report,
+
+          status: "dismissed",
+          statusId: "dismissed",
+          statusLabel: "Descartado",
+          displayStatus: "Descartado",
+
+          resolutionNote,
+          resolvedAt,
+          resolvedBy,
+
+          admin: {
+            ...report.admin,
+
+            resolutionNote,
+            resolvedAt,
+            resolvedBy,
+          },
+        };
+      })
     );
 
     setSelectedReport(null);
+    setReportResolutionError("");
   } catch (error) {
-    console.error("Error descartando reporte:", error);
+    console.error(
+      "Error descartando reporte:",
+      error
+    );
+
+    setReportResolutionError(
+      error?.response?.data?.message ||
+      error?.message ||
+      "No se pudo descartar el reporte."
+    );
   } finally {
     setIsResolvingReport(false);
   }
@@ -251,9 +473,29 @@ function handleOpenReporter(reporterId) {
   }
 
   setSelectedReport(null);
+  setReportResolutionError("");
 
-  navigate(`/administration/users/${reporterId}`);
+  navigate(
+    `/administration/users/${encodeURIComponent(
+      reporterId
+    )}`,
+    {
+      state: {
+        from: "reports",
+
+        returnTo: "/management/reports",
+
+        returnLabel: "Reportes",
+
+        parentBreadcrumb: {
+          label: "Reportes",
+          to: "/management/reports",
+        },
+      },
+    }
+  );
 }
+
 
   function handleLoadMore() {
     if (loading || loadingMore || !hasMore) return;
@@ -336,11 +578,14 @@ function handleOpenReporter(reporterId) {
           </div>
         ) : null}
       </div>
-      <ReportDetailModal
+  <ReportDetailModal
   isOpen={Boolean(selectedReport)}
   report={selectedReport}
   loading={false}
   isSubmitting={isResolvingReport}
+
+  submitError={reportResolutionError}
+
   onClose={handleCloseReportModal}
   onValidate={handleValidateReport}
   onDiscard={handleDiscardReport}

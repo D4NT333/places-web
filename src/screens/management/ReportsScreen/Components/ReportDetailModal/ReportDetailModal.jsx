@@ -182,6 +182,9 @@ export default function ReportDetailModal({
   report,
   loading = false,
   isSubmitting = false,
+
+  submitError = "",
+
   onClose,
   onValidate,
   onDiscard,
@@ -611,8 +614,11 @@ if (selectedAction === "dismissed") {
                 </p>
               </section>
 
-              {status !== "pending" ? (
-                <section style={styles.resolutionCard}>
+             {(
+  status === "resolved" ||
+  status === "dismissed"
+) ? (
+  <section style={styles.resolutionCard}>
                   <h3 style={styles.sectionTitle}>
                     Resolución
                   </h3>
@@ -717,11 +723,11 @@ if (selectedAction === "dismissed") {
                       {resolutionNote.length}/500
                     </span>
 
-                    {errorMessage ? (
-                      <span style={styles.errorText}>
-                        {errorMessage}
-                      </span>
-                    ) : null}
+                   {errorMessage || submitError ? (
+  <span style={styles.errorText}>
+    {errorMessage || submitError}
+  </span>
+) : null}
                   </div>
                 </section>
               ) : null}

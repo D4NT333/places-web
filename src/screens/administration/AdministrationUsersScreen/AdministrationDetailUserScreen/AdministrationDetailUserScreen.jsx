@@ -7,19 +7,19 @@ import {
 
 import LayoutScreen from "../../../../layout";
 
-import UserOverviewCard from "./Components/UserOverviewCard";
-import ReceivedReportsPanel from "./Components/ReceivedReportsPanel";
-import ActivitySummaryCard from "./Components/ActivitySummaryCard";
-import UserHistoryPanel from "./Components/UserHistoryPanel";
-import ModerationPanel from "./Components/ModerationPanel";
-import ReportDetailModal from "./Components/ReportDetailModal";
+import UserOverviewCard from "./Components/UserOverviewCard/index.js";
+import ReceivedReportsPanel from "./Components/ReceivedReportsPanel/index.js";
+import ActivitySummaryCard from "./Components/ActivitySummaryCard/index.js";
+import UserHistoryPanel from "./Components/UserHistoryPanel/index.js";
+import ModerationPanel from "./Components/ModerationPanel/index.js";
+import ReportDetailModal from "./Components/ReportDetailModal/index.js";
 
 import getAdminUserDetailService from "../../../../services/api/administration/users/adminUserDetail.service.js";
 import getAdminUserHistoryService from "../../../../services/api/administration/users/adminUserHistory.service.js";
 import getAdminUserReportsService from "../../../../services/api/administration/users/adminUserReports.service.js";
 import getAdminUserReportDetailService from "../../../../services/api/administration/users/adminUserReportDetail.service.js";
 
-import styles from "./styles";
+import styles from "./styles.js";
 
 const HISTORY_PAGE_LIMIT = 15;
 const REPORTS_PAGE_LIMIT = 15;
