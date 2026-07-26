@@ -7,17 +7,20 @@ import {
 
 import LayoutScreen from "../../../../layout";
 
-import UserOverviewCard from "./Components/UserOverviewCard/index.js";
-import ReceivedReportsPanel from "./Components/ReceivedReportsPanel/index.js";
-import ActivitySummaryCard from "./Components/ActivitySummaryCard/index.js";
-import UserHistoryPanel from "./Components/UserHistoryPanel/index.js";
-import ModerationPanel from "./Components/ModerationPanel/index.js";
-import ReportDetailModal from "./Components/ReportDetailModal/index.js";
+import UserOverviewCard from "./Components/UserOverviewCard";
+import ReceivedReportsPanel from "./Components/ReceivedReportsPanel";
+import ActivitySummaryCard from "./Components/ActivitySummaryCard";
+import UserHistoryPanel from "./Components/UserHistoryPanel";
+import ReportDetailModal from "../../../../screens/management/ReportsScreen/Components/ReportDetailModal";
+import UserModerationModal from "./Components/UserModerationModal";
 
-import getAdminUserDetailService from "../../../../services/api/administration/users/adminUserDetail.service.js";
-import getAdminUserHistoryService from "../../../../services/api/administration/users/adminUserHistory.service.js";
-import getAdminUserReportsService from "../../../../services/api/administration/users/adminUserReports.service.js";
-import getAdminUserReportDetailService from "../../../../services/api/administration/users/adminUserReportDetail.service.js";
+import getAdminUserDetailService from "../../../../services/api/administration/users/read/adminUserDetail.service.js";
+import getAdminUserHistoryService from "../../../../services/api/administration/users/read/adminUserHistory.service.js";
+import getAdminUserReportsService from "../../../../services/api/administration/users/read/adminUserReports.service.js";
+import getAdminUserReportDetailService from "../../../../services/api/administration/users/read/adminUserReportDetail.service.js";
+
+import moderateAdminUserService from "../../../../services/api/administration/users/update/moderateAdminUser.service.js";
+import resolveAdminUserReportService from "../../../../services/api/administration/users/update/resolveAdminUserReport.service.js";
 
 import styles from "./styles.js";
 
@@ -187,6 +190,12 @@ const [loadingActivity, setLoadingActivity] =
   useState(false);
 
 const [isModerating, setIsModerating] = useState(false);
+
+const [
+  moderationSubmitError,
+  setModerationSubmitError,
+] = useState("");
+
 
 const [selectedReport, setSelectedReport] = useState(null);
 
@@ -427,6 +436,36 @@ const [isResolvingReport, setIsResolvingReport] =
     });
   };
 
+  const handleOpenRelated = ({
+  targetType,
+  id,
+}) => {
+  if (!id) {
+    return;
+  }
+
+  setSelectedReport(null);
+  setReportDetailError("");
+
+  if (targetType === "user") {
+    if (id === userId) {
+      return;
+    }
+
+    navigate(
+      `/administration/users/${encodeURIComponent(id)}`
+    );
+
+    return;
+  }
+
+  if (targetType === "place") {
+    navigate(
+      `/administration/places/${encodeURIComponent(id)}`
+    );
+  }
+};
+
   const handleLoadMoreReports = () => {
     if (
       loadingReports ||
@@ -455,7 +494,8 @@ const [isResolvingReport, setIsResolvingReport] =
   navigate("/administration/users");
 };
 
-  const handleModerateUser = () => {
+ const handleModerateUser = () => {
+  setModerationSubmitError("");
   setIsModerationPanelOpen(true);
 };
 
@@ -464,34 +504,76 @@ const handleCloseModerationPanel = () => {
     return;
   }
 
+  setModerationSubmitError("");
   setIsModerationPanelOpen(false);
 };
 
-const handleSubmitModeration = async (moderationData) => {
+const handleSubmitModeration = async (
+  moderationData
+) => {
+  if (
+    !userId ||
+    isModerating
+  ) {
+    return;
+  }
+
   try {
     setIsModerating(true);
+    setModerationSubmitError("");
 
-    console.log("Moderación del usuario:", moderationData);
+    const result =
+      await moderateAdminUserService({
+        userId,
 
-    /*
-      Aquí irá tu servicio cuando hagamos el backend:
+        moderationType:
+          moderationData.moderationType,
 
-      await moderateAdminUserService(userId, moderationData);
-    */
+        reason:
+          moderationData.reason,
+
+        reasonLabel:
+          moderationData.reasonLabel,
+
+        message:
+          moderationData.message,
+      });
+
+    console.log(
+      "Moderación aplicada:",
+      result
+    );
 
     setIsModerationPanelOpen(false);
 
     /*
-      Cuando el servicio exista puedes recargar el usuario:
+     * Recargamos el usuario para mostrar:
+     * active / warned / banned
+     * y el nuevo contador.
+     */
+    await loadUserDetail();
 
-      await loadUserDetail();
-    */
+    /*
+     * Recargamos historial porque se creó
+     * moderationHistory.
+     */
+    await loadUserHistory();
   } catch (error) {
-    console.error("Error moderating user:", error);
+    console.error(
+      "Error moderating user:",
+      error
+    );
+
+    setModerationSubmitError(
+      error?.response?.data?.message ||
+        error?.message ||
+        "No se pudo aplicar la medida."
+    );
   } finally {
     setIsModerating(false);
   }
 };
+
 
 const handleOpenHistoryItem = (item) => {
   const navigationState = {
@@ -595,28 +677,62 @@ const handleValidateReport = async ({
   reportId,
   resolutionNote,
 }) => {
+  if (
+    !reportId ||
+    isResolvingReport
+  ) {
+    return;
+  }
+
   try {
     setIsResolvingReport(true);
+    setReportDetailError("");
 
-    console.log("Validar reporte:", {
-      reportId,
-      resolutionNote,
-    });
+    const result =
+      await resolveAdminUserReportService({
+        userId,
+        reportId,
 
-    /*
-      Aquí después irá el servicio PATCH:
+        decision:
+          "resolved",
 
-      await resolveAdminReportService(reportId, {
-        status: "resolved",
         resolutionNote,
       });
-    */
+
+    console.log(
+      "Reporte validado:",
+      result
+    );
 
     setSelectedReport(null);
 
+    /*
+     * El reporte cambió a resolved.
+     */
     await loadUserReports();
+
+    /*
+     * El usuario pudo pasar:
+     * active → warned
+     * warned → banned
+     */
+    await loadUserDetail();
+
+    /*
+     * Se creó moderationHistory.
+     */
+    await loadUserHistory();
   } catch (error) {
-    console.error("Error validating report:", error);
+    console.error(
+      "Error validating report:",
+      error
+    );
+
+    setReportDetailError(
+      error?.response?.data?.message ||
+        error?.message ||
+        "No se pudo validar el reporte."
+    );
   } finally {
     setIsResolvingReport(false);
   }
@@ -626,32 +742,57 @@ const handleDiscardReport = async ({
   reportId,
   resolutionNote,
 }) => {
+  if (
+    !reportId ||
+    isResolvingReport
+  ) {
+    return;
+  }
+
   try {
     setIsResolvingReport(true);
+    setReportDetailError("");
 
-    console.log("Descartar reporte:", {
-      reportId,
-      resolutionNote,
-    });
+    const result =
+      await resolveAdminUserReportService({
+        userId,
+        reportId,
 
-    /*
-      Aquí después irá el servicio PATCH:
+        /*
+         * Tu backend acepta dismissed
+         * y lo normaliza internamente.
+         */
+        decision:
+          "dismissed",
 
-      await resolveAdminReportService(reportId, {
-        status: "discarded",
         resolutionNote,
       });
-    */
+
+    console.log(
+      "Reporte descartado:",
+      result
+    );
 
     setSelectedReport(null);
 
     await loadUserReports();
   } catch (error) {
-    console.error("Error discarding report:", error);
+    console.error(
+      "Error discarding report:",
+      error
+    );
+
+    setReportDetailError(
+      error?.response?.data?.message ||
+        error?.message ||
+        "No se pudo descartar el reporte."
+    );
   } finally {
     setIsResolvingReport(false);
   }
 };
+
+
 const handleOpenReporter = (reporterId) => {
   if (!reporterId) {
     return;
@@ -744,10 +885,11 @@ const handleWeekChange = async (weekStart) => {
         ) : null}
       </main>
 
-      <ModerationPanel
+ <UserModerationModal
   isOpen={isModerationPanelOpen}
   user={user}
   isSubmitting={isModerating}
+  submitError={moderationSubmitError}
   onClose={handleCloseModerationPanel}
   onSubmit={handleSubmitModeration}
 />
@@ -755,10 +897,13 @@ const handleWeekChange = async (weekStart) => {
 <ReportDetailModal
   isOpen={Boolean(selectedReport)}
   report={selectedReport}
+  loading={loadingReportDetail}
   isSubmitting={isResolvingReport}
+  submitError={reportDetailError}
   onClose={handleCloseReportModal}
   onValidate={handleValidateReport}
   onDiscard={handleDiscardReport}
+  onOpenRelated={handleOpenRelated}
   onOpenReporter={handleOpenReporter}
 />
     </LayoutScreen>

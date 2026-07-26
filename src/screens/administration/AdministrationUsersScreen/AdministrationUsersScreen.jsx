@@ -5,7 +5,7 @@ import LayoutScreen from "../../../layout";
 
 import UserRow from "./Components/UserRow/index.js";
 
-import getAdminUsersService from "../../../services/api/administration/users/adminUsers.service.js";
+import getAdminUsersService from "../../../services/api/administration/users/read/adminUsers.service.js";
 
 import styles from "./styles.js";
 

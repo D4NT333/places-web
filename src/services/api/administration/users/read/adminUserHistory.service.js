@@ -1,5 +1,5 @@
-import client from "../../client.js";
-import { auth } from "../../../../config/firebaseConfig.js";
+import client from "../../../client";
+import { auth } from "../../../../../config/firebaseConfig.js";
 
 export default async function getAdminUserHistoryService(
   userId,

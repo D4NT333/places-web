@@ -18,6 +18,8 @@ import getReportsService from "../../../services/api/reports/read/getReports.ser
 
 import resolveAdminPlaceReportService from "../../../services/api/administration/places/resolveAdminPlaceReport.service";
 
+import resolveAdminUserReportService from "../../../services/api/administration/users/update/resolveAdminUserReport.service.js";
+
 const PAGE_LIMIT = 15;
 
 const breadcrumbs = [
@@ -49,6 +51,77 @@ function getReportPlaceId(report) {
     report?.placeId ||
     null
   );
+}
+
+function getReportUserId(report) {
+  return (
+    report?.reportedUser?.uid ||
+    report?.reportedUserId ||
+    report?.relatedTo?.id ||
+    null
+  );
+}
+
+function updateResolvedReport({
+  reports,
+  reportId,
+  decision,
+  resolutionNote,
+  resolvedAt,
+  resolvedBy,
+}) {
+  const isResolved =
+    decision === "resolved";
+
+  const nextStatus =
+    isResolved
+      ? "resolved"
+      : "dismissed";
+
+  const nextStatusLabel =
+    isResolved
+      ? "Resuelto"
+      : "Descartado";
+
+  return reports.map((report) => {
+    const currentReportId =
+      report.reportId ||
+      report.id;
+
+    if (
+      currentReportId !== reportId
+    ) {
+      return report;
+    }
+
+    return {
+      ...report,
+
+      status:
+        nextStatus,
+
+      statusId:
+        nextStatus,
+
+      statusLabel:
+        nextStatusLabel,
+
+      displayStatus:
+        nextStatusLabel,
+
+      resolutionNote,
+      resolvedAt,
+      resolvedBy,
+
+      admin: {
+        ...report.admin,
+
+        resolutionNote,
+        resolvedAt,
+        resolvedBy,
+      },
+    };
+  });
 }
 
 export default function ReportsScreen() {
@@ -224,38 +297,9 @@ async function handleValidateReport({
       selectedReport
     );
 
-  if (targetType === "user") {
-    setReportResolutionError(
-      "La resolución de reportes de usuarios todavía está en construcción."
-    );
-
-    return;
-  }
-
   if (targetType === "general") {
     setReportResolutionError(
       "La resolución de reportes generales todavía no está implementada."
-    );
-
-    return;
-  }
-
-  if (targetType !== "place") {
-    setReportResolutionError(
-      "El tipo de reporte no es compatible con esta acción."
-    );
-
-    return;
-  }
-
-  const placeId =
-    getReportPlaceId(
-      selectedReport
-    );
-
-  if (!placeId) {
-    setReportResolutionError(
-      "No se encontró el lugar relacionado con el reporte."
     );
 
     return;
@@ -266,13 +310,75 @@ async function handleValidateReport({
     setReportResolutionError("");
     setErrorMessage("");
 
-    const result =
-      await resolveAdminPlaceReportService({
-        placeId,
-        reportId,
-        decision: "resolved",
-        resolutionNote,
-      });
+    let result;
+
+    if (targetType === "user") {
+      const reportedUserId =
+        getReportUserId(
+          selectedReport
+        );
+
+      if (!reportedUserId) {
+        setReportResolutionError(
+          "No se encontró el usuario relacionado con el reporte."
+        );
+
+        return;
+      }
+
+      /*
+       * Validar un reporte de usuario:
+       * - resuelve el reporte;
+       * - suma una advertencia;
+       * - cambia active → warned;
+       * - banea en la cuarta;
+       * - crea notificación interna y push.
+       */
+      result =
+        await resolveAdminUserReportService({
+          userId:
+            reportedUserId,
+
+          reportId,
+
+          decision:
+            "resolved",
+
+          resolutionNote,
+        });
+    } else if (
+      targetType === "place"
+    ) {
+      const placeId =
+        getReportPlaceId(
+          selectedReport
+        );
+
+      if (!placeId) {
+        setReportResolutionError(
+          "No se encontró el lugar relacionado con el reporte."
+        );
+
+        return;
+      }
+
+      result =
+        await resolveAdminPlaceReportService({
+          placeId,
+          reportId,
+
+          decision:
+            "resolved",
+
+          resolutionNote,
+        });
+    } else {
+      setReportResolutionError(
+        "El tipo de reporte no es compatible con esta acción."
+      );
+
+      return;
+    }
 
     const resolvedAt =
       result.resolvedAt ||
@@ -285,37 +391,18 @@ async function handleValidateReport({
       null;
 
     setReports((currentReports) =>
-      currentReports.map((report) => {
-        const currentReportId =
-          report.reportId ||
-          report.id;
+      updateResolvedReport({
+        reports:
+          currentReports,
 
-        if (
-          currentReportId !== reportId
-        ) {
-          return report;
-        }
+        reportId,
 
-        return {
-          ...report,
+        decision:
+          "resolved",
 
-          status: "resolved",
-          statusId: "resolved",
-          statusLabel: "Resuelto",
-          displayStatus: "Resuelto",
-
-          resolutionNote,
-          resolvedAt,
-          resolvedBy,
-
-          admin: {
-            ...report.admin,
-
-            resolutionNote,
-            resolvedAt,
-            resolvedBy,
-          },
-        };
+        resolutionNote,
+        resolvedAt,
+        resolvedBy,
       })
     );
 
@@ -354,38 +441,9 @@ async function handleDiscardReport({
       selectedReport
     );
 
-  if (targetType === "user") {
-    setReportResolutionError(
-      "La resolución de reportes de usuarios todavía está en construcción."
-    );
-
-    return;
-  }
-
   if (targetType === "general") {
     setReportResolutionError(
       "La resolución de reportes generales todavía no está implementada."
-    );
-
-    return;
-  }
-
-  if (targetType !== "place") {
-    setReportResolutionError(
-      "El tipo de reporte no es compatible con esta acción."
-    );
-
-    return;
-  }
-
-  const placeId =
-    getReportPlaceId(
-      selectedReport
-    );
-
-  if (!placeId) {
-    setReportResolutionError(
-      "No se encontró el lugar relacionado con el reporte."
     );
 
     return;
@@ -396,13 +454,74 @@ async function handleDiscardReport({
     setReportResolutionError("");
     setErrorMessage("");
 
-    const result =
-      await resolveAdminPlaceReportService({
-        placeId,
-        reportId,
-        decision: "dismissed",
-        resolutionNote,
-      });
+    let result;
+
+    if (targetType === "user") {
+      const reportedUserId =
+        getReportUserId(
+          selectedReport
+        );
+
+      if (!reportedUserId) {
+        setReportResolutionError(
+          "No se encontró el usuario relacionado con el reporte."
+        );
+
+        return;
+      }
+
+      /*
+       * Descartar reporte de usuario:
+       * - resuelve el reporte como descartado;
+       * - no suma advertencia;
+       * - no cambia el estado;
+       * - no manda notificación.
+       */
+      result =
+        await resolveAdminUserReportService({
+          userId:
+            reportedUserId,
+
+          reportId,
+
+          decision:
+            "dismissed",
+
+          resolutionNote,
+        });
+    } else if (
+      targetType === "place"
+    ) {
+      const placeId =
+        getReportPlaceId(
+          selectedReport
+        );
+
+      if (!placeId) {
+        setReportResolutionError(
+          "No se encontró el lugar relacionado con el reporte."
+        );
+
+        return;
+      }
+
+      result =
+        await resolveAdminPlaceReportService({
+          placeId,
+          reportId,
+
+          decision:
+            "dismissed",
+
+          resolutionNote,
+        });
+    } else {
+      setReportResolutionError(
+        "El tipo de reporte no es compatible con esta acción."
+      );
+
+      return;
+    }
 
     const resolvedAt =
       result.resolvedAt ||
@@ -415,37 +534,18 @@ async function handleDiscardReport({
       null;
 
     setReports((currentReports) =>
-      currentReports.map((report) => {
-        const currentReportId =
-          report.reportId ||
-          report.id;
+      updateResolvedReport({
+        reports:
+          currentReports,
 
-        if (
-          currentReportId !== reportId
-        ) {
-          return report;
-        }
+        reportId,
 
-        return {
-          ...report,
+        decision:
+          "dismissed",
 
-          status: "dismissed",
-          statusId: "dismissed",
-          statusLabel: "Descartado",
-          displayStatus: "Descartado",
-
-          resolutionNote,
-          resolvedAt,
-          resolvedBy,
-
-          admin: {
-            ...report.admin,
-
-            resolutionNote,
-            resolvedAt,
-            resolvedBy,
-          },
-        };
+        resolutionNote,
+        resolvedAt,
+        resolvedBy,
       })
     );
 
@@ -466,6 +566,7 @@ async function handleDiscardReport({
     setIsResolvingReport(false);
   }
 }
+
 
 function handleOpenReporter(reporterId) {
   if (!reporterId) {
