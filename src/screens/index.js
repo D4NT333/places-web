@@ -29,3 +29,6 @@ export {default as AdministrationDetailPlaceScreen} from "./administration/Admin
 
 export { default as DeletedSubmissionsScreen } from "./management/DeletedSubmissionsScreen";
 export { default as ReportsScreen } from "./management/ReportsScreen";
+
+export {default as MonitoringSummaryScreen } from "./monitoring/SummaryScreen";
+export {default as MonitoringIssuesScreen } from "./monitoring/IssuesScreen";

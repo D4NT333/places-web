@@ -22,6 +22,10 @@ import {AdministrationDetailPlaceScreen} from "../screens";
 
 import { DescriptionDetailSubmissionScreen } from "../screens";
 
+import {MonitoringSummaryScreen} from "../screens";
+import {MonitoringIssuesScreen} from "../screens";
+
+
 import LoginScreen from "../screens/auth/LoginScreen";
 
 function LoadingScreen() {
@@ -88,6 +92,10 @@ function AppRoutesContent({ adminUser }) {
 
           <Route path="/administration/places"element={<AdministrationPlaceScreen />}/>
           <Route path="/administration/places/:placeId" element={<AdministrationDetailPlaceScreen />}/>
+
+          <Route path="/monitoring/summary"element={<MonitoringSummaryScreen />}/>
+
+          <Route path="/monitoring/issues"element={<MonitoringIssuesScreen />}/>
 
           <Route path="*" element={<div>404 - Página no encontrada</div>} />
         </>
