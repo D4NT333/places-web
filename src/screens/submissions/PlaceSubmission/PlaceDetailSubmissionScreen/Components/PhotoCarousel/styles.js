@@ -1,65 +1,104 @@
 const styles = {
   container: {
     position: "relative",
+
     width: "100%",
-    height: 490,
-    border: "2px solid #111827",
-    borderRadius: 6,
+    height: "420px",
+
     overflow: "hidden",
-    backgroundColor: "#F8FAFC",
+
+    border: "1px solid rgba(33, 66, 105, 0.18)",
+    borderRadius: "12px",
+
+    background: "#eef4fa",
+
+    boxShadow: `
+      inset 0 1px 0 rgba(255, 255, 255, 0.7)
+    `,
   },
 
   image: {
+    display: "block",
+
     width: "100%",
     height: "100%",
+
     objectFit: "cover",
-    display: "block",
   },
 
- arrowButton: {
-  position: "absolute",
-  top: "50%",
-  transform: "translateY(-50%)",
-  width: 32,
-  height: 32,
-  borderRadius: "50%",
-  border: "1px solid rgba(0, 0, 0, 0.25)",
-  backgroundColor: "rgba(255, 255, 255, 0.20)",
-  color: "#111827",
-  fontWeight: 900,
-  cursor: "pointer",
-  zIndex: 2,
-  backdropFilter: "blur(4px)",
-  boxShadow: "none",
-},
+  arrowButton: {
+    position: "absolute",
+    top: "50%",
+
+    display: "grid",
+    placeItems: "center",
+
+    width: "54px",
+    height: "54px",
+
+    fontSize: "2rem",
+lineHeight: 1,
+padding: 0,
+
+    transform: "translateY(-50%)",
+
+    border: "1px solid rgba(255, 255, 255, 0.65)",
+    borderRadius: "50%",
+
+    background: "rgba(23, 24, 24, 0.48)",
+
+    color: "#fbf9f9",
+    fontWeight: 900,
+
+    boxShadow: `
+      0 5px 14px rgba(15, 15, 15, 0.18)
+    `,
+
+    backdropFilter: "blur(6px)",
+    WebkitBackdropFilter: "blur(6px)",
+
+    cursor: "pointer",
+
+    zIndex: 2,
+  },
 
   leftButton: {
-    left: 10,
+    left: "11px",
   },
 
   rightButton: {
-    right: 10,
+    right: "11px",
   },
 
   counter: {
     position: "absolute",
-    right: 12,
-    bottom: 12,
-    backgroundColor: "#0F172A",
-    color: "#FFFFFF",
-    padding: "4px 8px",
-    borderRadius: 999,
+
+    right: "12px",
+    bottom: "12px",
+
+    padding: "5px 9px",
+
+    borderRadius: "999px",
+
+    background: "rgba(7, 7, 7, 0.84)",
+
+    color: "#ffffff",
+    fontSize: "1.3rem",
     fontWeight: 800,
-    fontSize: 12,
+
+    backdropFilter: "blur(5px)",
+    WebkitBackdropFilter: "blur(5px)",
   },
 
   emptyText: {
-    height: "100%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#64748B",
-    fontWeight: 800,
+
+    height: "100%",
+
+    color: "#71869e",
+    fontWeight: 700,
   },
 };
 

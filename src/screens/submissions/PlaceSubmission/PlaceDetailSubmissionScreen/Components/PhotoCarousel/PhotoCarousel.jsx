@@ -1,29 +1,39 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
 import styles from "./styles";
 
 function getPhotoUrl(photo) {
-  if (!photo) return null;
+  if (!photo) {
+    return null;
+  }
 
-  if (typeof photo === "string") return photo;
+  if (typeof photo === "string") {
+    return photo;
+  }
 
   return (
-    // Nueva estructura normalizada desde backend
     photo.displayUrl ||
     photo.mediumUrl ||
     photo.thumbnailUrl ||
     photo.originalUrl ||
 
-    // Nueva estructura agrupada
     photo.medium?.url ||
     photo.original?.url ||
     photo.thumbnail?.url ||
 
-    // Estructura vieja
     photo.mediumURL ||
     photo.downloadURL ||
     photo.thumbnailURL ||
 
-    // Otros posibles nombres legacy
     photo.url ||
     photo.photoUrl ||
     photo.imageUrl ||
@@ -34,50 +44,104 @@ function getPhotoUrl(photo) {
 export default function PhotoCarousel({
   photos = [],
   containerStyle,
+  onPhotoClick,
   onCompareClick,
 }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] =
+    useState(0);
 
-  const photoUrls = useMemo(() => {
-    if (!Array.isArray(photos)) return [];
+  const validPhotos = useMemo(() => {
+    if (!Array.isArray(photos)) {
+      return [];
+    }
 
     return photos
-      .map(getPhotoUrl)
-      .filter(Boolean);
+      .map((photo, originalIndex) => ({
+        photo,
+        originalIndex,
+        displayUrl: getPhotoUrl(photo),
+      }))
+      .filter((item) =>
+        Boolean(item.displayUrl)
+      );
   }, [photos]);
 
   useEffect(() => {
-    if (currentIndex > photoUrls.length - 1) {
+    if (
+      currentIndex >
+      validPhotos.length - 1
+    ) {
       setCurrentIndex(0);
     }
-  }, [currentIndex, photoUrls.length]);
+  }, [
+    currentIndex,
+    validPhotos.length,
+  ]);
 
-  const hasPhotos = photoUrls.length > 0;
+  const hasPhotos =
+    validPhotos.length > 0;
 
   const safeCurrentIndex = Math.min(
     currentIndex,
-    Math.max(photoUrls.length - 1, 0)
+    Math.max(
+      validPhotos.length - 1,
+      0
+    )
   );
 
-  const currentPhotoUrl = hasPhotos ? photoUrls[safeCurrentIndex] : null;
+  const selectedPhoto =
+    hasPhotos
+      ? validPhotos[safeCurrentIndex]
+      : null;
 
   const handlePrevious = (event) => {
     event.stopPropagation();
 
-    if (!hasPhotos) return;
+    if (!hasPhotos) {
+      return;
+    }
 
-    setCurrentIndex((prev) =>
-      prev === 0 ? photoUrls.length - 1 : prev - 1
+    setCurrentIndex((previous) =>
+      previous === 0
+        ? validPhotos.length - 1
+        : previous - 1
     );
   };
 
   const handleNext = (event) => {
     event.stopPropagation();
 
-    if (!hasPhotos) return;
+    if (!hasPhotos) {
+      return;
+    }
 
-    setCurrentIndex((prev) =>
-      prev === photoUrls.length - 1 ? 0 : prev + 1
+    setCurrentIndex((previous) =>
+      previous ===
+      validPhotos.length - 1
+        ? 0
+        : previous + 1
+    );
+  };
+
+  const handleImageClick = (event) => {
+    /*
+     * Impide que el clic llegue al contenedor,
+     * porque el contenedor conserva la acción
+     * de comparar una corrección.
+     */
+    event.stopPropagation();
+
+    if (!selectedPhoto) {
+      return;
+    }
+
+    /*
+     * Mandamos el índice real dentro del arreglo
+     * original para que el modal abra exactamente
+     * la fotografía seleccionada.
+     */
+    onPhotoClick?.(
+      selectedPhoto.originalIndex
     );
   };
 
@@ -89,46 +153,74 @@ export default function PhotoCarousel({
       }}
       onClick={onCompareClick}
     >
-      {currentPhotoUrl ? (
+      {selectedPhoto ? (
         <>
           <img
-            src={currentPhotoUrl}
-            alt={`Foto ${safeCurrentIndex + 1}`}
-            style={styles.image}
+            src={selectedPhoto.displayUrl}
+            alt={`Foto ${
+              safeCurrentIndex + 1
+            }`}
+            style={{
+              ...styles.image,
+              cursor: "zoom-in",
+            }}
             loading="lazy"
             referrerPolicy="no-referrer"
+            onClick={handleImageClick}
             onError={(event) => {
-              console.log("No se pudo cargar la foto:", currentPhotoUrl);
-              event.currentTarget.style.display = "none";
+              console.log(
+                "No se pudo cargar la foto:",
+                selectedPhoto.displayUrl
+              );
+
+              event.currentTarget.style.display =
+                "none";
             }}
           />
 
-          {photoUrls.length > 1 && (
+          {validPhotos.length > 1 && (
             <>
               <button
                 type="button"
-                style={{ ...styles.arrowButton, ...styles.leftButton }}
+                style={{
+                  ...styles.arrowButton,
+                  ...styles.leftButton,
+                }}
                 onClick={handlePrevious}
+                aria-label="Fotografía anterior"
               >
-                ‹
+                <ChevronLeft
+                  size={34}
+                  strokeWidth={2.6}
+                />
               </button>
 
               <button
                 type="button"
-                style={{ ...styles.arrowButton, ...styles.rightButton }}
+                style={{
+                  ...styles.arrowButton,
+                  ...styles.rightButton,
+                }}
                 onClick={handleNext}
+                aria-label="Fotografía siguiente"
               >
-                ›
+                <ChevronRight
+                  size={34}
+                  strokeWidth={2.6}
+                />
               </button>
 
               <div style={styles.counter}>
-                {safeCurrentIndex + 1} / {photoUrls.length}
+                {safeCurrentIndex + 1} /{" "}
+                {validPhotos.length}
               </div>
             </>
           )}
         </>
       ) : (
-        <span style={styles.emptyText}>Fotos</span>
+        <span style={styles.emptyText}>
+          Sin fotografías
+        </span>
       )}
     </div>
   );

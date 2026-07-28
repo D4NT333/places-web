@@ -1,78 +1,97 @@
-const tableColumns = "2.3fr 1.2fr 1fr 1fr 1fr";
-
-const baseCircleImage = {
-  borderRadius: "999px",
-  border: "1px solid #d1d5db",
-  overflow: "hidden",
-  backgroundColor: "#f3f4f6",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  boxSizing: "border-box",
-  flexShrink: 0,
-};
-
-const baseStatusBadge = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minWidth: "86px",
-  padding: "4px 10px",
-  borderRadius: "999px",
-  fontSize: "22px",
-  fontWeight: "700",
-  boxSizing: "border-box",
+const columns = {
+  place: "34%",
+  date: "17%",
+  user: "20%",
+  photo: "14%",
+  status: "15%",
 };
 
 const styles = {
   row: {
-    display: "grid",
-    gridTemplateColumns: tableColumns,
-    gap: "1rem",
+    display: "flex",
     alignItems: "center",
-    minHeight: "150px",
-    padding: "0 1.25rem",
-    borderBottom: "1px solid #edf0f3",
+
+    width: "100%",
+    minHeight: "110px",
+
+    padding: "18px 24px",
+
+    borderBottom: "1px solid rgba(69, 111, 159, 0.12)",
+
+    background: "rgba(255, 255, 255, 0.46)",
+
     cursor: "pointer",
+
     boxSizing: "border-box",
+
+    transition: `
+      background-color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease
+    `,
   },
 
   placeCell: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
-    gap: "14px",
+
+    width: columns.place,
     minWidth: 0,
+
+    gap: "17px",
   },
 
   placeImage: {
-    ...baseCircleImage,
-    width: "98px",
-    height: "98px",
-    minWidth: "98px",
+    flexShrink: 0,
+
+    width: "118px",
+    height: "118px",
+
+    border: "2px solid rgba(255, 255, 255, 0.9)",
+    borderRadius: "50%",
+
     objectFit: "cover",
-    display: "block",
+
+    boxShadow: `
+      0 7px 15px rgba(28, 61, 103, 0.15)
+    `,
   },
 
   placeImagePlaceholder: {
-    ...baseCircleImage,
-    width: "98px",
-    height: "98px",
-    minWidth: "98px",
-    fontSize: "9px",
-    color: "#6b7280",
-    lineHeight: "11px",
-    textAlign: "center",
+    display: "grid",
+    placeItems: "center",
+
+    flexShrink: 0,
+
+    width: "62px",
+    height: "62px",
+
+    border: "1px solid rgba(33, 118, 229, 0.14)",
+    borderRadius: "17px",
+
+    background: `
+      linear-gradient(
+        145deg,
+        rgba(245, 250, 255, 0.98),
+        rgba(224, 239, 255, 0.95)
+      )
+    `,
+
+    color: "#2176e5",
+
+    boxShadow: `
+      0 7px 15px rgba(31, 78, 129, 0.10)
+    `,
   },
 
   placeName: {
-    display: "block",
-    maxWidth: "220px",
-    fontSize: "20px",
-    fontWeight: "800",
-    color: "#07162f",
-    whiteSpace: "nowrap",
     overflow: "hidden",
+
+    color: "#0c2450",
+    fontSize: "1.8rem",
+    fontWeight: 800,
+
+    whiteSpace: "nowrap",
     textOverflow: "ellipsis",
   },
 
@@ -80,103 +99,156 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "20px",
-    color: "#07162f",
+
+    width: columns.date,
+    minWidth: 0,
+
+    gap: "11px",
+
+    color: "#14294d",
+    fontSize: "1.6rem",
+    fontWeight: 550,
+
+    textAlign: "center",
+
+    whiteSpace: "nowrap",
+  },
+
+  dateIcon: {
+    flexShrink: 0,
+    color: "#2176e5",
   },
 
   userCell: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "20px",
-    color: "#07162f",
+
+    width: columns.user,
+    minWidth: 0,
+
+    overflow: "hidden",
+
+    color: "#14294d",
+    fontSize: "1.6rem",
+    fontWeight: 550,
+
+    textAlign: "center",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
   },
 
   userPhotoCell: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+
+    width: columns.photo,
   },
 
   userImage: {
-    ...baseCircleImage,
-    width: "98px",
-    height: "98px",
-    minWidth: "98px",
-    objectFit: "cover",
-    display: "block",
-  },
+    width: "108px",
+    height: "108px",
 
-  userImagePlaceholder: {
-    ...baseCircleImage,
-    width: "98px",
-    height: "98px",
-    minWidth: "42px",
-    fontSize: "8px",
-    color: "#6b7280",
-    lineHeight: "10px",
-    textAlign: "center",
+    border: "2px solid rgba(255, 255, 255, 0.9)",
+    borderRadius: "50%",
+
+    objectFit: "cover",
+
+    boxShadow: `
+      0 7px 15px rgba(28, 61, 103, 0.14)
+    `,
   },
 
   userImageFallback: {
-  width: 72,
-  height: 72,
-  borderRadius: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  border: "1px solid #d7e0ea",
-  backgroundColor: "#eef2f7",
-  color: "#10233f",
-  fontSize: 16,
-  fontWeight: 800,
-  overflow: "hidden",
-},
+    display: "grid",
+    placeItems: "center",
+
+     width: "108px",
+    height: "108px",
+
+    border: "1px solid rgba(81, 120, 165, 0.14)",
+    borderRadius: "50%",
+
+    background: `
+      linear-gradient(
+        145deg,
+        #f8fbff,
+        #eaf1f8
+      )
+    `,
+
+    color: "#102650",
+    fontSize: "0.8rem",
+    fontWeight: 800,
+
+    boxShadow: `
+      0 6px 14px rgba(35, 74, 118, 0.09)
+    `,
+  },
 
   statusCell: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+
+    width: columns.status,
   },
 
   statusBadge: {
-    ...baseStatusBadge,
-  },
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
 
-  statusPending: {
-    color: "#b45309",
-    backgroundColor: "#fef3c7",
-    border: "1px solid #f59e0b",
+    minWidth: "222px",
+    minHeight: "40px",
+
+    gap: "8px",
+
+    padding: "7px 14px",
+
+    borderRadius: "999px",
+
+    fontSize: "1.2rem",
+    fontWeight: 750,
+
+    boxSizing: "border-box",
   },
 
   statusApproved: {
-    color: "#047857",
-    backgroundColor: "#d1fae5",
-    border: "1px solid #6ee7b7",
+    border: "1px solid rgba(18, 168, 92, 0.24)",
+    background: "rgba(221, 250, 234, 0.86)",
+    color: "#078946",
   },
 
-  resubmitted: {
-  backgroundColor: "#ECFDF3",
-  color: "#027A48",
-  borderColor: "#75E0A7",
+  statusPending: {
+    border: "1px solid rgba(245, 158, 11, 0.32)",
+    background: "rgba(255, 247, 225, 0.9)",
+    color: "#dc7900",
   },
 
   statusReturned: {
-    color: "#1d4ed8",
-    backgroundColor: "#dbeafe",
-    border: "1px solid #60a5fa",
+    border: "1px solid rgba(118, 87, 244, 0.25)",
+    background: "rgba(239, 235, 255, 0.9)",
+    color: "#6748db",
+  },
+
+  statusCorrected: {
+    border: "1px solid rgba(33, 118, 229, 0.24)",
+    background: "rgba(227, 240, 255, 0.9)",
+    color: "#1768cf",
   },
 
   statusRejected: {
-    color: "#b91c1c",
-    backgroundColor: "#fee2e2",
-    border: "1px solid #f87171",
+    border: "1px solid rgba(239, 68, 68, 0.25)",
+    background: "rgba(255, 234, 234, 0.9)",
+    color: "#d63838",
   },
 
   statusDefault: {
-    color: "#334155",
-    backgroundColor: "#f1f5f9",
-    border: "1px solid #cbd5e1",
+    border: "1px solid rgba(97, 117, 141, 0.22)",
+    background: "rgba(239, 243, 248, 0.9)",
+    color: "#50637a",
   },
 };
 

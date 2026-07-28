@@ -8,10 +8,26 @@ import StatsOverview from "./components/StatsOverview";
 
 export default function HomeScreen() {
   const stats = [
-    { title: "Usuarios activos", value: "1,284", subtitle: "esta semana" },
-    { title: "Nuevos lugares", value: "73", subtitle: "esta semana" },
-    { title: "Lugares pendientes", value: "18", subtitle: "de aprobación" },
-    { title: "Errores críticos", value: "4", subtitle: "requieren atención" },
+    {
+      title: "Usuarios activos",
+      value: "1,284",
+      subtitle: "esta semana",
+    },
+    {
+      title: "Nuevos lugares",
+      value: "73",
+      subtitle: "esta semana",
+    },
+    {
+      title: "Lugares pendientes",
+      value: "18",
+      subtitle: "de aprobación",
+    },
+    {
+      title: "Errores críticos",
+      value: "4",
+      subtitle: "requieren atención",
+    },
   ];
 
   const activities = [
@@ -22,36 +38,39 @@ export default function HomeScreen() {
   ];
 
   return (
-  <LayoutScreen
-    padding="1.25rem"
-    bg="#efefef"
-    scroll
-    stickyHeader
-    breadcrumbs={[
-      { label: "Inicio" },
-    ]}
-  >
-    <div style={styles.container}>
-      <StatsOverview stats={stats} />
+    <LayoutScreen
+      padding="1.25rem"
+      bg="transparent"
+      scroll
+      stickyHeader
+      breadcrumbs={[
+        {
+          label: "Inicio",
+        },
+      ]}
+    >
+      <div style={styles.container}>
+        <StatsOverview stats={stats} />
 
-      <section style={styles.mainGrid}>
-        <ActivityPanel
-          title="Historial de Actividad Reciente"
-          items={activities}
-        />
+        <section style={styles.mainGrid}>
+          <ActivityPanel
+            title="Historial de Actividad Reciente"
+            items={activities}
+          />
 
-        <div style={styles.rightColumn}>
-          <InfoPanel
-            title="Estado del sistema"
-            content="Aquí puedes mostrar alertas, estado de servicios o tareas internas."
-          />
-          <InfoPanel
-            title="Resumen general"
-            content="Este espacio puede servir para indicadores rápidos del panel."
-          />
-        </div>
-      </section>
-    </div>
-  </LayoutScreen>
-);
+          <div style={styles.rightColumn}>
+            <InfoPanel
+              title="Estado del sistema"
+              content="Aquí puedes mostrar alertas, estado de servicios o tareas internas."
+            />
+
+            <InfoPanel
+              title="Resumen general"
+              content="Este espacio puede servir para indicadores rápidos del panel."
+            />
+          </div>
+        </section>
+      </div>
+    </LayoutScreen>
+  );
 }

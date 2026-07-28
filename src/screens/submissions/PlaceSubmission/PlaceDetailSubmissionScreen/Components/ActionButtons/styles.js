@@ -3,89 +3,87 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",
-    gap: 20,
-    width: "100%",
+    flexWrap: "wrap",
+
+    gap: "9px",
   },
 
-  baseButton: {
-    minWidth: 120,
-    height: 36,
-    padding: "0 22px",
-    borderRadius: 999,
-    backgroundColor: "#FFFFFF",
-    fontWeight: 700,
-    fontSize: 14,
+  button: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    minWidth: "105px",
+    minHeight: "40px",
+
+    gap: "7px",
+    padding: "0 14px",
+
+    borderRadius: "11px",
+
+    fontSize: "1rem",
+    fontWeight: 800,
+
     cursor: "pointer",
+
+    transition: `
+      transform 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease
+    `,
   },
 
-acceptButton: {
-  minWidth: 120,
-  height: 36,
-  padding: "0 22px",
-  borderRadius: 999,
-  backgroundColor: "#FFFFFF",
-  border: "2px solid #0F172A",
-  color: "#0F172A",
-  fontWeight: 800,
-  fontSize: 14,
-  cursor: "pointer",
-  transition: "all 0.18s ease",
-},
+  acceptButton: {
+    border: "1px solid rgba(18, 168, 92, 0.34)",
+    background: "rgba(230, 250, 238, 0.92)",
+    color: "#078946",
+  },
 
-  returnButton: {
-    minWidth: 120,
-    height: 36,
-    padding: "0 22px",
-    borderRadius: 999,
-    backgroundColor: "#FFFFFF",
-    border: "2px solid #0F172A",
-    color: "#0F172A",
-    fontWeight: 700,
-    fontSize: 14,
-    cursor: "pointer",
+  acceptButtonHover: {
+    background: "#0a9b55",
+    color: "#ffffff",
+
+    boxShadow: `
+      0 8px 17px rgba(18, 168, 92, 0.22)
+    `,
+
+    transform: "translateY(-1px)",
+  },
+
+  secondaryButton: {
+    border: "1px solid rgba(245, 158, 11, 0.36)",
+    background: "rgba(255, 248, 229, 0.94)",
+    color: "#d77800",
+  },
+
+  secondaryButtonHover: {
+    background: "#e58a00",
+    color: "#ffffff",
+
+    boxShadow: `
+      0 8px 17px rgba(245, 158, 11, 0.21)
+    `,
+
+    transform: "translateY(-1px)",
   },
 
   rejectButton: {
-  minWidth: 120,
-  height: 36,
-  padding: "0 22px",
-  borderRadius: 999,
-  backgroundColor: "#FFFFFF",
-  border: "2px solid #DC2626",
-  color: "#DC2626",
-  fontWeight: 800,
-  fontSize: 14,
-  cursor: "pointer",
-  transition: "all 0.18s ease",
-},
+    border: "1px solid rgba(239, 68, 68, 0.34)",
+    background: "rgba(255, 238, 238, 0.93)",
+    color: "#d63838",
+  },
 
- secondaryButton: {
-  minWidth: 120,
-  height: 36,
-  padding: "0 22px",
-  borderRadius: 999,
-  backgroundColor: "#FFFFFF",
-  border: "2px solid #0F172A",
-  color: "#0F172A",
-  fontWeight: 800,
-  fontSize: 14,
-  cursor: "pointer",
-  transition: "all 0.18s ease",
-},
+  rejectButtonHover: {
+    background: "#dd3f3f",
+    color: "#ffffff",
 
-darkButtonHover: {
-  backgroundColor: "#0F172A",
-  color: "#FFFFFF",
-  border: "2px solid #0F172A",
-  fontWeight: 900,
-},
+    boxShadow: `
+      0 8px 17px rgba(239, 68, 68, 0.2)
+    `,
 
-rejectButtonHover: {
-  backgroundColor: "#DC2626",
-  border: "2px solid #0F172A",
-  color: "#FFFFFF",
-  fontWeight: 900,
-},
+    transform: "translateY(-1px)",
+  },
 };
 
 export default styles;

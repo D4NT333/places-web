@@ -1,4 +1,14 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+} from "react";
+
+import {
+  CheckCircle2,
+  Eye,
+  RotateCcw,
+  XCircle,
+} from "lucide-react";
+
 import styles from "./styles";
 
 export default function ActionButtons({
@@ -8,58 +18,65 @@ export default function ActionButtons({
   onReject,
   onViewReason,
 }) {
-  const [hoveredButton, setHoveredButton] = useState(null);
+  const [hoveredButton, setHoveredButton] =
+    useState(null);
 
   const getButtonStyle = (type) => {
-    const isHovered = hoveredButton === type;
+    const isHovered =
+      hoveredButton === type;
 
     if (type === "reject") {
       return {
+        ...styles.button,
         ...styles.rejectButton,
-        ...(isHovered ? styles.rejectButtonHover : {}),
+        ...(isHovered
+          ? styles.rejectButtonHover
+          : {}),
       };
     }
 
     if (type === "secondary") {
       return {
+        ...styles.button,
         ...styles.secondaryButton,
-        ...(isHovered ? styles.darkButtonHover : {}),
+        ...(isHovered
+          ? styles.secondaryButtonHover
+          : {}),
       };
     }
 
     return {
+      ...styles.button,
       ...styles.acceptButton,
-      ...(isHovered ? styles.darkButtonHover : {}),
+      ...(isHovered
+        ? styles.acceptButtonHover
+        : {}),
     };
   };
 
-  if (status === "returned") {
+  if (
+    status === "returned" ||
+    status === "rejected"
+  ) {
     return (
       <div style={styles.container}>
         <button
           type="button"
           style={getButtonStyle("secondary")}
           onClick={onViewReason}
-          onMouseEnter={() => setHoveredButton("secondary")}
-          onMouseLeave={() => setHoveredButton(null)}
+          onMouseEnter={() =>
+            setHoveredButton("secondary")
+          }
+          onMouseLeave={() =>
+            setHoveredButton(null)
+          }
         >
-          Ver motivo
-        </button>
-      </div>
-    );
-  }
+          <Eye
+            size={17}
+            strokeWidth={2.2}
+          />
 
-  if (status === "rejected") {
-    return (
-      <div style={styles.container}>
-        <button
-          type="button"
-          style={getButtonStyle("secondary")}
-          onClick={onViewReason}
-          onMouseEnter={() => setHoveredButton("secondary")}
-          onMouseLeave={() => setHoveredButton(null)}
-        >
-          Ver motivo
+          <span>Ver motivo</span>
         </button>
       </div>
     );
@@ -72,20 +89,38 @@ export default function ActionButtons({
           type="button"
           style={getButtonStyle("accept")}
           onClick={onAccept}
-          onMouseEnter={() => setHoveredButton("accept")}
-          onMouseLeave={() => setHoveredButton(null)}
+          onMouseEnter={() =>
+            setHoveredButton("accept")
+          }
+          onMouseLeave={() =>
+            setHoveredButton(null)
+          }
         >
-          Aceptar
+          <CheckCircle2
+            size={17}
+            strokeWidth={2.2}
+          />
+
+          <span>Aceptar</span>
         </button>
 
         <button
           type="button"
           style={getButtonStyle("reject")}
           onClick={onReject}
-          onMouseEnter={() => setHoveredButton("reject")}
-          onMouseLeave={() => setHoveredButton(null)}
+          onMouseEnter={() =>
+            setHoveredButton("reject")
+          }
+          onMouseLeave={() =>
+            setHoveredButton(null)
+          }
         >
-          Rechazar
+          <XCircle
+            size={17}
+            strokeWidth={2.2}
+          />
+
+          <span>Rechazar</span>
         </button>
       </div>
     );
@@ -97,30 +132,57 @@ export default function ActionButtons({
         type="button"
         style={getButtonStyle("accept")}
         onClick={onAccept}
-        onMouseEnter={() => setHoveredButton("accept")}
-        onMouseLeave={() => setHoveredButton(null)}
+        onMouseEnter={() =>
+          setHoveredButton("accept")
+        }
+        onMouseLeave={() =>
+          setHoveredButton(null)
+        }
       >
-        Aceptar
+        <CheckCircle2
+          size={25}
+          strokeWidth={2.2}
+        />
+
+        <span>Aceptar</span>
       </button>
 
       <button
         type="button"
         style={getButtonStyle("secondary")}
         onClick={onReturn}
-        onMouseEnter={() => setHoveredButton("secondary")}
-        onMouseLeave={() => setHoveredButton(null)}
+        onMouseEnter={() =>
+          setHoveredButton("secondary")
+        }
+        onMouseLeave={() =>
+          setHoveredButton(null)
+        }
       >
-        Devolver
+        <RotateCcw
+          size={26}
+          strokeWidth={2.2}
+        />
+
+        <span>Devolver</span>
       </button>
 
       <button
         type="button"
         style={getButtonStyle("reject")}
         onClick={onReject}
-        onMouseEnter={() => setHoveredButton("reject")}
-        onMouseLeave={() => setHoveredButton(null)}
+        onMouseEnter={() =>
+          setHoveredButton("reject")
+        }
+        onMouseLeave={() =>
+          setHoveredButton(null)
+        }
       >
-        Rechazar
+        <XCircle
+          size={25}
+          strokeWidth={2.2}
+        />
+
+        <span>Rechazar</span>
       </button>
     </div>
   );

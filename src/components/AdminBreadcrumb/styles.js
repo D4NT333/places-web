@@ -3,13 +3,13 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    fontSize: 13,
+    fontSize: 23,
     color: "#64748b",
     whiteSpace: "nowrap",
   },
 
   breadcrumbLink: {
-    color: "#64748b",
+    color: "#656464",
     textDecoration: "none",
     fontWeight: 600,
   },
@@ -20,7 +20,7 @@ const styles = {
   },
 
   breadcrumbSeparator: {
-    color: "#cbd5e1",
+    color: "#414141",
     fontWeight: 700,
   },
 

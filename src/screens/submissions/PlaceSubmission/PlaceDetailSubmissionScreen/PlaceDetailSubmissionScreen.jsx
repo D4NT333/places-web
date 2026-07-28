@@ -4,6 +4,26 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+
+import {
+  ArrowLeft,
+  CalendarDays,
+  CheckCircle2,
+  CircleDollarSign,
+  Clock3,
+  FileText,
+  Images,
+  Layers3,
+  MapPin,
+  PencilLine,
+  RotateCcw,
+  ShieldCheck,
+  Tag,
+  Target,
+  UserRound,
+  XCircle,
+} from "lucide-react";
+
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
 
@@ -14,6 +34,10 @@ import ActionButtons from "./Components/ActionButtons";
 import RejectionModal from "./Components/RejectionModal";
 import CorrectionCompareModal from "./Components/CorrectionCompareModal";
 import RejectionReasonModal from "./Components/RejectionReasonModal";
+
+import {
+  ImageGalleryModal,
+} from "../../../../components";
 
 import getPlaceSubmissionDetailService from "../../../../services/api/submissions/places/read/getPlaceSubmissionDetail.service";
 import getReturnedPlaceSubmissionReviewService from "../../../../services/api/submissions/places/read/getReturnedPlaceSubmissionReview.service";
@@ -107,18 +131,61 @@ function getFullSubtagsReturnMessage(returnReview) {
   return fields.subtags?.message || "";
 }
 
-function DetailSection({ title, helper, children, style }) {
+function DetailSection({
+  title,
+  helper,
+  children,
+  style,
+  icon: Icon,
+  iconTone = "blue",
+}) {
+  const iconToneStyle = {
+    blue: styles.sectionIconBlue,
+    green: styles.sectionIconGreen,
+    orange: styles.sectionIconOrange,
+    violet: styles.sectionIconViolet,
+    red: styles.sectionIconRed,
+  };
+
   return (
-    <section style={{ ...styles.detailSection, ...style }}>
+    <section
+      style={{
+        ...styles.detailSection,
+        ...style,
+      }}
+    >
       <div style={styles.detailSectionHeader}>
-        <h3 style={styles.detailSectionTitle}>{title}</h3>
+        <div style={styles.detailSectionHeading}>
+          {Icon ? (
+            <div
+              style={{
+                ...styles.sectionIconBox,
+                ...(iconToneStyle[iconTone] ||
+                  styles.sectionIconBlue),
+              }}
+            >
+              <Icon
+                size={32}
+                strokeWidth={2}
+              />
+            </div>
+          ) : null}
+
+          <h3 style={styles.detailSectionTitle}>
+            {title}
+          </h3>
+        </div>
 
         {helper ? (
-          <span style={styles.detailSectionHelper}>{helper}</span>
+          <span style={styles.detailSectionHelper}>
+            {helper}
+          </span>
         ) : null}
       </div>
 
-      <div style={styles.detailSectionBody}>{children}</div>
+      <div style={styles.detailSectionBody}>
+        {children}
+      </div>
     </section>
   );
 }
@@ -159,6 +226,13 @@ export default function PlaceDetailSubmissionScreen() {
   const [returnReview, setReturnReview] = useState(null);
   const [loadingReturnReview, setLoadingReturnReview] = useState(false);
   const [activeCompareField, setActiveCompareField] = useState(null);
+
+
+  const [isGalleryOpen, setIsGalleryOpen] =
+  useState(false);
+
+const [galleryIndex, setGalleryIndex] =
+  useState(0);
 
   const [showRejectionReasonModal, setShowRejectionReasonModal] =
     useState(false);
@@ -219,6 +293,13 @@ export default function PlaceDetailSubmissionScreen() {
   const isRejected = submission?.status === "rejected";
   const isApproved = submission?.status === "approved";
 
+
+const hasProcessDates =
+  Boolean(submission?.returnedAt) ||
+  Boolean(submission?.resubmittedAt) ||
+  Boolean(submission?.rejectedAt) ||
+  Boolean(submission?.approvedAt);
+  
   const returnedAtLabel = formatDate(
     submission?.returnedAt || submission?.updatedAt
   );
@@ -552,6 +633,62 @@ export default function PlaceDetailSubmissionScreen() {
   navigate("/submissions/places");
 };
 
+const handleOpenSubmissionUser = () => {
+  if (!submission?.userId) {
+    return;
+  }
+
+  navigate(
+    `/administration/users/${encodeURIComponent(
+      submission.userId
+    )}`,
+    {
+      state: {
+        from: "place-submission-detail",
+
+        returnTo:
+          `/submissions/places/${submissionId}`,
+
+        returnLabel:
+          "Detalle de propuesta",
+
+        submissionId,
+
+        userName:
+          submission.userName ||
+          "Usuario",
+      },
+    }
+  );
+};
+
+const handleOpenGallery = (
+  selectedIndex = 0
+) => {
+  const photos = Array.isArray(
+    submission?.photos
+  )
+    ? submission.photos
+    : [];
+
+  if (photos.length === 0) {
+    return;
+  }
+
+  const safeIndex = Math.min(
+    Math.max(selectedIndex, 0),
+    photos.length - 1
+  );
+
+  setGalleryIndex(safeIndex);
+  setIsGalleryOpen(true);
+};
+
+const handleCloseGallery = () => {
+  setIsGalleryOpen(false);
+  setGalleryIndex(0);
+};
+
   if (loading) {
     return (
       <LayoutScreen breadcrumbs={breadcrumbs}>
@@ -589,7 +726,8 @@ export default function PlaceDetailSubmissionScreen() {
               <div style={styles.leftSection}>
                 <DetailSection
                   title="Fotografías"
-                   
+                  icon={Images}
+                  iconTone="blue"
                   helper={
                     canCompareCorrections &&
                     wasFieldReturned(returnReview, "photos")
@@ -597,24 +735,29 @@ export default function PlaceDetailSubmissionScreen() {
                       : "Imágenes enviadas por el usuario"
                   }
                 >
+                
                   <div style={getCorrectionBoxStyle("photos")}>
-                    <PhotoCarousel
-                      photos={submission?.photos || []}
-                      onCompareClick={() => handleOpenCompareModal("photos")}
-                    />
+                   <PhotoCarousel
+  photos={submission?.photos || []}
+  onPhotoClick={handleOpenGallery}
+  onCompareClick={() =>
+    handleOpenCompareModal("photos")
+  }
+/>
                   </div>
                 </DetailSection>
 
                 <DetailSection
-                  title="Ubicación"
-                  
-                  helper={
-                    canCompareCorrections &&
-                    wasFieldReturned(returnReview, "location")
-                      ? "Campo corregido, da clic para comparar"
-                      : "Punto marcado en el mapa"
-                  }
-                >
+  title="Ubicación"
+  icon={MapPin}
+  iconTone="green"
+  helper={
+    canCompareCorrections &&
+    wasFieldReturned(returnReview, "location")
+      ? "Campo corregido, da clic para comparar"
+      : "Punto marcado en el mapa"
+  }
+>
                   <div
                     style={getCorrectionBoxStyle("location")}
                     onClick={() => handleOpenCompareModal("location")}
@@ -627,223 +770,516 @@ export default function PlaceDetailSubmissionScreen() {
 
             <div style={styles.verticalDivider} />
 
-            <section style={styles.rightSection}>
-              <div style={styles.topRow}>
-                <div style={styles.infoGroup}>
-                  <InfoField
-                    label="Creado el:  "
-                    value={formatDate(submission?.createdAt)}
-                  />
+                  
+                  <section style={styles.rightSection}>
+  {/* METADATOS PRINCIPALES Y DECISIÓN */}
+  <div style={styles.topRow}>
+    <div style={styles.infoGroup}>
+      <InfoField
+        icon={CalendarDays}
+        tone="blue"
+        label="Fecha de creación"
+        value={formatDate(submission?.createdAt)}
+      />
 
-                  <InfoField
-                    label="Enviado por:  "
-                    value={submission?.userName || "Usuario desconocido"}
-                  />
+   <InfoField
+  icon={UserRound}
+  tone="blue"
+  label="Enviado por"
+  value={
+    submission?.userName ||
+    "Usuario desconocido"
+  }
+  imageUrl={submission?.userPhotoUrl}
+  imageAlt={
+    submission?.userName ||
+    "Usuario de la propuesta"
+  }
+  valueClickable={Boolean(
+    submission?.userId
+  )}
+  onValueClick={
+    handleOpenSubmissionUser
+  }
+/>
+    </div>
 
-                  {isReturned ? (
-                    <InfoField label="Devuelto el:" value={returnedAtLabel} />
-                  ) : null}
+    {!isApproved && (
+      <div style={styles.decisionPanel}>
+        <div style={styles.decisionPanelHeader}>
+          <div style={styles.decisionIconBox}>
+            <ShieldCheck
+              size={26}
+              strokeWidth={2}
+            />
+          </div>
 
-                  {isResubmitted ? (
-                    <InfoField label="Corregido el:" value={correctedAtLabel} />
-                  ) : null}
+          <div>
+            <h3 style={styles.decisionTitle}>
+              Decisión de la propuesta
+            </h3>
 
-                  {isRejected ? (
-                    <InfoField label="Rechazado el:" value={rejectedAtLabel} />
-                  ) : null}
-                </div>
+            <p style={styles.decisionSubtitle}>
+              Selecciona el destino de esta propuesta.
+            </p>
+          </div>
+        </div>
 
-              {!isApproved && (
-                <ActionButtons
-                  status={submission?.status}
-                  onAccept={handleAcceptSubmission}
-                 onReturn={() =>
-  navigate(`/submissions/places/${submissionId}/return`, {
-    state: {
-      ...navigationState,
-      submission,
-      mode: "edit",
-    },
-  })
-}
-                  onReject={() => setShowRejectionModal(true)}
-                  onViewReason={() => {
-                    if (submission?.status === "rejected") {
-                      setShowRejectionReasonModal(true);
-                      return;
-                    }
+        <ActionButtons
+          status={submission?.status}
+          onAccept={handleAcceptSubmission}
+          onReturn={() =>
+            navigate(
+              `/submissions/places/${submissionId}/return`,
+              {
+                state: {
+                  ...navigationState,
+                  submission,
+                  mode: "edit",
+                },
+              }
+            )
+          }
+          onReject={() =>
+            setShowRejectionModal(true)
+          }
+          onViewReason={() => {
+            if (
+              submission?.status === "rejected"
+            ) {
+              setShowRejectionReasonModal(true);
+              return;
+            }
 
-                   navigate(`/submissions/places/${submissionId}/return`, {
-  state: {
-    ...navigationState,
-    submission,
-    mode: "readonly",
-  },
-});
+            navigate(
+              `/submissions/places/${submissionId}/return`,
+              {
+                state: {
+                  ...navigationState,
+                  submission,
+                  mode: "readonly",
+                },
+              }
+            );
+          }}
+        />
+      </div>
+    )}
+  </div>
+
+  {/* IDENTIDAD, ESTADO Y FECHAS DEL PROCESO */}
+  <div
+  style={{
+    ...styles.identityGrid,
+    ...(hasProcessDates
+      ? styles.identityGridWithDates
+      : styles.identityGridWithoutDates),
+  }}
+>
+    <DetailSection
+      title="Nombre del lugar"
+      icon={MapPin}
+      iconTone="green"
+    >
+      <div
+        style={{
+          ...styles.simpleFieldBox,
+          ...getCorrectionClickableStyle("name"),
+        }}
+        onClick={() =>
+          handleOpenCompareModal("name")
+        }
+      >
+        <SimpleValue
+          value={
+            submission?.name ||
+            "Lugar sin nombre"
+          }
+        />
+      </div>
+    </DetailSection>
+
+    <DetailSection
+  title="Estado de revisión"
+  icon={ShieldCheck}
+  iconTone={
+    isRejected
+      ? "red"
+      : isReturned
+        ? "violet"
+        : isApproved
+          ? "green"
+          : "orange"
+  }
+>
+  <div style={styles.statusFieldBox}>
+    <div
+      style={{
+        ...styles.reviewStatusBadge,
+        ...(isApproved
+          ? styles.reviewStatusApproved
+          : isRejected
+            ? styles.reviewStatusRejected
+            : isReturned
+              ? styles.reviewStatusReturned
+              : isResubmitted
+                ? styles.reviewStatusCorrected
+                : styles.reviewStatusPending),
+      }}
+    >
+          {isApproved ? (
+            <CheckCircle2 size={24} />
+          ) : isRejected ? (
+            <XCircle size={24} />
+          ) : isReturned ? (
+            <RotateCcw size={24} />
+          ) : isResubmitted ? (
+            <PencilLine size={24} />
+          ) : (
+            <Clock3 size={24} />
+          )}
+
+          <span>
+            {getStatusLabel(submission?.status)}
+          </span>
+        </div>
+      </div>
+    </DetailSection>
+
+   {hasProcessDates ? (
+  <section style={styles.processDatesSection}>
+    <div style={styles.processDatesHeader}>
+      <div
+        style={{
+          ...styles.sectionIconBox,
+          ...styles.sectionIconBlue,
+        }}
+      >
+        <CalendarDays
+          size={24}
+          strokeWidth={2}
+        />
+      </div>
+
+      <h3 style={styles.detailSectionTitle}>
+        Fechas del proceso
+      </h3>
+    </div>
+
+    <div style={styles.processDatesBody}>
+      {submission?.returnedAt ? (
+        <div style={styles.processDateItem}>
+          <div
+            style={{
+              ...styles.processDateIcon,
+              ...styles.processDateReturned,
+            }}
+          >
+            <RotateCcw size={24} />
+          </div>
+
+          <div>
+            <span style={styles.processDateLabel}>
+              Devuelto el
+            </span>
+
+            <strong style={styles.processDateValue}>
+              {formatDate(submission.returnedAt)}
+            </strong>
+          </div>
+        </div>
+      ) : null}
+
+      {submission?.resubmittedAt ? (
+        <div style={styles.processDateItem}>
+          <div
+            style={{
+              ...styles.processDateIcon,
+              ...styles.processDateCorrected,
+            }}
+          >
+            <PencilLine size={24} />
+          </div>
+
+          <div>
+            <span style={styles.processDateLabel}>
+              Corregido el
+            </span>
+
+            <strong style={styles.processDateValue}>
+              {formatDate(submission.resubmittedAt)}
+            </strong>
+          </div>
+        </div>
+      ) : null}
+
+      {submission?.rejectedAt ? (
+        <div style={styles.processDateItem}>
+          <div
+            style={{
+              ...styles.processDateIcon,
+              ...styles.processDateRejected,
+            }}
+          >
+            <XCircle size={24} />
+          </div>
+
+          <div>
+            <span style={styles.processDateLabel}>
+              Rechazado el
+            </span>
+
+            <strong style={styles.processDateValue}>
+              {formatDate(submission.rejectedAt)}
+            </strong>
+          </div>
+        </div>
+      ) : null}
+
+      {submission?.approvedAt ? (
+        <div style={styles.processDateItem}>
+          <div
+            style={{
+              ...styles.processDateIcon,
+              ...styles.processDateApproved,
+            }}
+          >
+            <CheckCircle2 size={24} />
+          </div>
+
+          <div>
+            <span style={styles.processDateLabel}>
+              Aprobado el
+            </span>
+
+            <strong style={styles.processDateValue}>
+              {formatDate(submission.approvedAt)}
+            </strong>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  </section>
+) : null}
+  </div>
+
+  <DetailSection
+    title="Descripción"
+    icon={FileText}
+    iconTone="blue"
+    helper={
+      canCompareCorrections &&
+      wasFieldReturned(
+        returnReview,
+        "description"
+      )
+        ? "Campo corregido, da clic para comparar"
+        : "Texto descriptivo del lugar"
+    }
+  >
+    <div
+      style={{
+        ...styles.descriptionBox,
+        ...getCorrectionBoxStyle(
+          "description"
+        ),
+      }}
+      onClick={() =>
+        handleOpenCompareModal("description")
+      }
+    >
+      {submission?.description ||
+        "Sin descripción"}
+    </div>
+  </DetailSection>
+
+  <div style={styles.fieldsGrid}>
+    <DetailSection
+      title="Etiqueta principal"
+      icon={Tag}
+      iconTone="green"
+    >
+      <div
+        style={{
+          ...styles.simpleFieldBox,
+          ...getCorrectionClickableStyle("tag"),
+        }}
+        onClick={() =>
+          handleOpenCompareModal("tag")
+        }
+      >
+        <SimpleValue
+          value={
+            submission?.tagLabel ||
+            submission?.tagId ||
+            "Sin etiqueta"
+          }
+        />
+      </div>
+    </DetailSection>
+
+    <DetailSection
+      title="Subetiquetas"
+      icon={Layers3}
+      iconTone="blue"
+    >
+      <div style={styles.simpleFieldBox}>
+        {(submission?.subtags || []).length >
+        0 ? (
+          (submission?.subtags || []).map(
+            (subtag, index) => {
+              const compareMode =
+                getSubtagsCompareMode(
+                  snapshotBeforeReturn,
+                  submission
+                );
+
+              return (
+                <div
+                  key={`${subtag}-${index}`}
+                  style={{
+                    ...styles.simpleListItem,
+                    ...(compareMode ===
+                    "full_list"
+                      ? getCorrectionClickableStyle(
+                          "subtags"
+                        )
+                      : getSubtagCorrectionClickableStyle(
+                          index,
+                          subtag
+                        )),
                   }}
-                />
-              )}
-              </div>
+                  onClick={() =>
+                    handleOpenCompareModal(
+                      "subtags",
+                      {
+                        index,
+                        label: subtag,
+                      }
+                    )
+                  }
+                >
+                  <span
+                    style={
+                      styles.simpleListBullet
+                    }
+                  />
 
-              <div style={styles.nameStatusGrid}>
-                <DetailSection title="Nombre del lugar">
-                  <div
-                    style={{
-                      ...styles.simpleFieldBox,
-                      ...getCorrectionClickableStyle("name"),
-                    }}
-                    onClick={() => handleOpenCompareModal("name")}
-                  >
-                    <SimpleValue
-                      value={submission?.name || "Lugar sin nombre"}
-                    />
-                  </div>
-                </DetailSection>
+                  {subtag}
+                </div>
+              );
+            }
+          )
+        ) : (
+          <SimpleMutedValue value="Sin subetiquetas" />
+        )}
+      </div>
+    </DetailSection>
 
-                <DetailSection title="Estado de revisión">
-                  <div style={styles.simpleFieldBox}>
-                    <SimpleValue value={getStatusLabel(submission?.status)} />
-                  </div>
-                </DetailSection>
-              </div>
-
-              <DetailSection
-                title="Descripción"
-                helper={
-                  canCompareCorrections &&
-                  wasFieldReturned(returnReview, "description")
-                    ? "Campo corregido, da clic para comparar"
-                    : "Texto descriptivo del lugar"
+    <DetailSection
+      title="Enfoque"
+      icon={Target}
+      iconTone="blue"
+    >
+      <div style={styles.simpleFieldBox}>
+        {(submission?.approaches || [])
+          .length > 0 ? (
+          (submission?.approaches || []).map(
+            (approach) => (
+              <div
+                key={approach}
+                style={{
+                  ...styles.simpleListItem,
+                  ...getCorrectionClickableStyle(
+                    "approaches"
+                  ),
+                }}
+                onClick={() =>
+                  handleOpenCompareModal(
+                    "approaches"
+                  )
                 }
               >
-                <div
-                  style={{
-                    ...styles.descriptionBox,
-                    ...getCorrectionBoxStyle("description"),
-                  }}
-                  onClick={() => handleOpenCompareModal("description")}
-                >
-                  {submission?.description || "Sin descripción"}
-                </div>
-              </DetailSection>
-
-              <div style={styles.fieldsGrid}>
-                <DetailSection title="Etiqueta principal">
-                  <div
-                    style={{
-                      ...styles.simpleFieldBox,
-                      ...getCorrectionClickableStyle("tag"),
-                    }}
-                    onClick={() => handleOpenCompareModal("tag")}
-                  >
-                    <SimpleValue
-                      value={
-                        submission?.tagLabel ||
-                        submission?.tagId ||
-                        "Sin etiqueta"
-                      }
-                    />
-                  </div>
-                </DetailSection>
-
-                <DetailSection title="Subetiquetas">
-                  <div style={styles.simpleFieldBox}>
-                    {(submission?.subtags || []).length > 0 ? (
-                      (submission?.subtags || []).map((subtag, index) => {
-                        const compareMode = getSubtagsCompareMode(
-                          snapshotBeforeReturn,
-                          submission
-                        );
-
-                        return (
-                          <div
-                            key={`${subtag}-${index}`}
-                            style={{
-                              ...styles.simpleListItem,
-                              ...(compareMode === "full_list"
-                                ? getCorrectionClickableStyle("subtags")
-                                : getSubtagCorrectionClickableStyle(
-                                    index,
-                                    subtag
-                                  )),
-                            }}
-                            onClick={() =>
-                              handleOpenCompareModal("subtags", {
-                                index,
-                                label: subtag,
-                              })
-                            }
-                          >
-                            {subtag}
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <SimpleMutedValue value="Sin subetiquetas" />
-                    )}
-                  </div>
-                </DetailSection>
-
-                <DetailSection title="Enfoque">
-                  <div style={styles.simpleFieldBox}>
-                    {(submission?.approaches || []).length > 0 ? (
-                      (submission?.approaches || []).map((approach) => (
-                        <div
-                          key={approach}
-                          style={{
-                            ...styles.simpleListItem,
-                            ...getCorrectionClickableStyle("approaches"),
-                          }}
-                          onClick={() => handleOpenCompareModal("approaches")}
-                        >
-                          {approach}
-                        </div>
-                      ))
-                    ) : (
-                      <SimpleMutedValue value="Sin enfoque" />
-                    )}
-                  </div>
-                </DetailSection>
+                {approach}
               </div>
+            )
+          )
+        ) : (
+          <SimpleMutedValue value="Sin enfoque" />
+        )}
+      </div>
+    </DetailSection>
+  </div>
 
-              <div style={styles.fieldsGridTwo || styles.fieldsGrid}>
-                <DetailSection title="Rango de precio">
-                  <div
-                    style={{
-                      ...styles.simpleFieldBox,
-                      ...getCorrectionClickableStyle("price"),
-                    }}
-                    onClick={() => handleOpenCompareModal("price")}
-                  >
-                    <SimpleValue value={submission?.price || "Sin precio"} />
-                  </div>
-                </DetailSection>
+  <div style={styles.fieldsGridTwo}>
+    <DetailSection
+      title="Rango de precio"
+      icon={CircleDollarSign}
+      iconTone="blue"
+    >
+      <div
+        style={{
+          ...styles.simpleFieldBox,
+          ...getCorrectionClickableStyle(
+            "price"
+          ),
+        }}
+        onClick={() =>
+          handleOpenCompareModal("price")
+        }
+      >
+        <SimpleValue
+          value={
+            submission?.price ||
+            "Sin precio"
+          }
+        />
+      </div>
+    </DetailSection>
 
-                <DetailSection title="Horario">
-                  <div
-                    style={{
-                      ...styles.simpleFieldBox,
-                      ...getCorrectionClickableStyle("schedule"),
-                    }}
-                    onClick={() => handleOpenCompareModal("schedule")}
-                  >
-                    <SimpleValue
-                      value={submission?.schedule || "Horario no disponible"}
-                    />
-                  </div>
-                </DetailSection>
-              </div>
+    <DetailSection
+      title="Horario"
+      icon={Clock3}
+      iconTone="orange"
+    >
+      <div
+        style={{
+          ...styles.simpleFieldBox,
+          ...getCorrectionClickableStyle(
+            "schedule"
+          ),
+        }}
+        onClick={() =>
+          handleOpenCompareModal("schedule")
+        }
+      >
+        <SimpleValue
+          value={
+            submission?.schedule ||
+            "Horario no disponible"
+          }
+        />
+      </div>
+    </DetailSection>
+  </div>
 
-              <div style={styles.bottomActions}>
-                <button
-                  type="button"
-                  style={styles.backButton}
-                  onClick={handleGoBack}
-                >
-                  Volver
-                </button>
-              </div>
-            </section>
+  <div style={styles.bottomActions}>
+    <button
+      type="button"
+      style={styles.backButton}
+      onClick={handleGoBack}
+    >
+      <ArrowLeft
+        size={26}
+        strokeWidth={2.3}
+      />
+
+      <span>Volver</span>
+    </button>
+  </div>
+</section>
+
+            
           </section>
         </main>
       </LayoutScreen>
@@ -901,6 +1337,23 @@ export default function PlaceDetailSubmissionScreen() {
         message={activeCompareMessage}
         onClose={handleCloseCompareModal}
       />
+
+      <ImageGalleryModal
+  isOpen={isGalleryOpen}
+  photos={
+    Array.isArray(submission?.photos)
+      ? submission.photos
+      : []
+  }
+  currentIndex={galleryIndex}
+  title={
+    submission?.name
+      ? `Fotografías de ${submission.name}`
+      : "Fotografías de la propuesta"
+  }
+  onChangeIndex={setGalleryIndex}
+  onClose={handleCloseGallery}
+/>
 
       <RejectionReasonModal
         visible={showRejectionReasonModal}

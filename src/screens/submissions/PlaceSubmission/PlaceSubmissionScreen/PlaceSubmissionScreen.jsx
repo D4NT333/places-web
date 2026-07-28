@@ -1,9 +1,31 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  CheckCircle2,
+  Clock3,
+  Database,
+  Layers3,
+  LayoutGrid,
+  PencilLine,
+  RotateCcw,
+  XCircle,
+} from "lucide-react";
+
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 import LayoutScreen from "../../../../layout";
 import styles from "./styles";
+
 import PlaceSubmissionRow from "./Components/PlaceSubmissionRow";
+
 import getPlaceSubmissionsService from "../../../../services/api/submissions/places/read/getPlaceSubmissions.service";
 
 const PAGE_LIMIT = 15;
@@ -11,13 +33,22 @@ const CACHE_TTL_MS = 2 * 60 * 1000;
 
 const submissionsCache = new Map();
 
-function patchSubmissionStatusInCache(submissionId, nextStatus) {
+function patchSubmissionStatusInCache(
+  submissionId,
+  nextStatus
+) {
   submissionsCache.forEach((cacheEntry, cacheKey) => {
-    const statusFromKey = cacheKey.replace("place-submissions:", "");
+    const statusFromKey = cacheKey.replace(
+      "place-submissions:",
+      ""
+    );
+
     const currentItems = cacheEntry.items || [];
 
     let updatedItems = currentItems.map((item) => {
-      if (item.id !== submissionId) return item;
+      if (item.id !== submissionId) {
+        return item;
+      }
 
       return {
         ...item,
@@ -25,7 +56,10 @@ function patchSubmissionStatusInCache(submissionId, nextStatus) {
       };
     });
 
-    if (statusFromKey !== "all" && statusFromKey !== nextStatus) {
+    if (
+      statusFromKey !== "all" &&
+      statusFromKey !== nextStatus
+    ) {
       updatedItems = updatedItems.filter(
         (item) => item.id !== submissionId
       );
@@ -43,26 +77,38 @@ const statusFilters = [
   {
     label: "Todas",
     value: "all",
+    icon: LayoutGrid,
+    color: "#2176e5",
   },
   {
     label: "Pendientes",
     value: "in_review",
+    icon: Clock3,
+    color: "#f59e0b",
   },
   {
     label: "Aprobadas",
     value: "approved",
+    icon: CheckCircle2,
+    color: "#12a85c",
   },
   {
     label: "Corregidas",
     value: "resubmitted",
+    icon: PencilLine,
+    color: "#2176e5",
   },
   {
     label: "Devueltas",
     value: "returned",
+    icon: RotateCcw,
+    color: "#7657f4",
   },
   {
     label: "Rechazadas",
     value: "rejected",
+    icon: XCircle,
+    color: "#ef4444",
   },
 ];
 
@@ -88,7 +134,9 @@ function getCacheKey(status) {
 }
 
 function isCacheValid(cacheEntry) {
-  if (!cacheEntry) return false;
+  if (!cacheEntry) {
+    return false;
+  }
 
   return Date.now() - cacheEntry.savedAt < CACHE_TTL_MS;
 }
@@ -113,6 +161,14 @@ export default function PlaceSubmissionScreen() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const loadMoreRef = useRef(null);
+
+  const activeFilterIndex = useMemo(() => {
+    const index = statusFilters.findIndex(
+      (filter) => filter.value === currentStatus
+    );
+
+    return index >= 0 ? index : 0;
+  }, [currentStatus]);
 
   const isValidStatus = useMemo(() => {
     return statusFilters.some(
@@ -139,11 +195,7 @@ export default function PlaceSubmissionScreen() {
       items,
       nextCursor: cursor,
       hasMore: more,
-
-      // Conserva los contadores anteriores cuando
-      // la siguiente página no los vuelve a enviar.
       counts: counts || previousCache?.counts || null,
-
       savedAt: Date.now(),
     });
   };
@@ -152,8 +204,13 @@ export default function PlaceSubmissionScreen() {
     reset = false,
     silent = false,
   } = {}) => {
-    if (loading || loadingMore) return;
-    if (!reset && !hasMore) return;
+    if (loading || loadingMore) {
+      return;
+    }
+
+    if (!reset && !hasMore) {
+      return;
+    }
 
     try {
       if (!silent) {
@@ -217,7 +274,10 @@ export default function PlaceSubmissionScreen() {
 
       setHasMore(canLoadMore);
     } catch (error) {
-      console.error("Error cargando submissions:", error);
+      console.error(
+        "Error cargando submissions:",
+        error
+      );
 
       setErrorMessage(
         error?.message ||
@@ -244,11 +304,6 @@ export default function PlaceSubmissionScreen() {
     const cachedData = submissionsCache.get(cacheKey);
 
     if (isCacheValid(cachedData)) {
-      console.log(
-        "Usando caché y refrescando en segundo plano:",
-        cacheKey
-      );
-
       setSubmissions(cachedData.items || []);
       setNextCursor(cachedData.nextCursor || null);
       setHasMore(cachedData.hasMore ?? true);
@@ -278,7 +333,9 @@ export default function PlaceSubmissionScreen() {
   useEffect(() => {
     const target = loadMoreRef.current;
 
-    if (!target) return undefined;
+    if (!target) {
+      return undefined;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -317,7 +374,9 @@ export default function PlaceSubmissionScreen() {
   ]);
 
   const handleStatusChange = (statusValue) => {
-    if (statusValue === currentStatus) return;
+    if (statusValue === currentStatus) {
+      return;
+    }
 
     navigate(
       `/submissions/places?status=${statusValue}`
@@ -331,8 +390,13 @@ export default function PlaceSubmissionScreen() {
   return (
     <LayoutScreen
       breadcrumbs={[
-        { label: "Inicio", to: "/" },
-        { label: "Propuesta de lugares" },
+        {
+          label: "Inicio",
+          to: "/",
+        },
+        {
+          label: "Propuesta de lugares",
+        },
       ]}
     >
       <div style={styles.container}>
@@ -347,23 +411,77 @@ export default function PlaceSubmissionScreen() {
             </p>
 
             <div style={styles.loadedInfoWrapper}>
-              <div style={styles.loadedInfoChip}>
-                Lugares cargados
-                <strong style={styles.loadedInfoValue}>
-                  {submissions.length}
-                </strong>
+              <div style={styles.loadedInfoCard}>
+                <div
+                  style={{
+                    ...styles.loadedInfoIcon,
+                    ...styles.loadedInfoIconBlue,
+                  }}
+                >
+                  <Database
+                    size={25}
+                    strokeWidth={1.9}
+                  />
+                </div>
+
+                <div style={styles.loadedInfoContent}>
+                  <span style={styles.loadedInfoLabel}>
+                    Lugares cargados
+                  </span>
+
+                  <strong
+                    style={{
+                      ...styles.loadedInfoValue,
+                      color: "#2176e5",
+                    }}
+                  >
+                    {submissions.length}
+                  </strong>
+                </div>
               </div>
 
-              <div style={styles.loadedInfoChip}>
-                Lotes cargados
-                <strong style={styles.loadedInfoValue}>
-                  {loadedBatches}
-                </strong>
+              <div style={styles.loadedInfoCard}>
+                <div
+                  style={{
+                    ...styles.loadedInfoIcon,
+                    ...styles.loadedInfoIconGreen,
+                  }}
+                >
+                  <Layers3
+                    size={26}
+                    strokeWidth={1.9}
+                  />
+                </div>
+
+                <div style={styles.loadedInfoContent}>
+                  <span style={styles.loadedInfoLabel}>
+                    Lotes cargados
+                  </span>
+
+                  <strong
+                    style={{
+                      ...styles.loadedInfoValue,
+                      color: "#12a85c",
+                    }}
+                  >
+                    {loadedBatches}
+                  </strong>
+                </div>
               </div>
             </div>
           </div>
 
           <div style={styles.filtersWrapper}>
+            <div
+              aria-hidden="true"
+              style={{
+                ...styles.filterSlider,
+                transform: `
+                  translateX(${activeFilterIndex * 100}%)
+                `,
+              }}
+            />
+
             {statusFilters.map((filter) => {
               const isActive =
                 currentStatus === filter.value;
@@ -371,8 +489,9 @@ export default function PlaceSubmissionScreen() {
               const count =
                 statusCounts?.[filter.value];
 
-              const showCount =
-                hasValidCount(count);
+              const showCount = hasValidCount(count);
+
+              const FilterIcon = filter.icon;
 
               return (
                 <button
@@ -388,6 +507,17 @@ export default function PlaceSubmissionScreen() {
                     handleStatusChange(filter.value)
                   }
                 >
+                  <FilterIcon
+                    size={24}
+                    strokeWidth={2}
+                    color={
+                      isActive
+                        ? "#ffffff"
+                        : filter.color
+                    }
+                    style={styles.filterIcon}
+                  />
+
                   <span>{filter.label}</span>
 
                   {showCount && (
@@ -415,7 +545,7 @@ export default function PlaceSubmissionScreen() {
             </div>
 
             <div style={styles.headerDate}>
-              Creado el
+              Fecha de creación
             </div>
 
             <div style={styles.headerUser}>
@@ -434,7 +564,7 @@ export default function PlaceSubmissionScreen() {
           <div style={styles.rowsWrapper}>
             {loading ? (
               <div style={styles.emptyState}>
-                Cargando submissions...
+                Cargando propuestas...
               </div>
             ) : errorMessage ? (
               <div style={styles.emptyState}>
@@ -452,7 +582,7 @@ export default function PlaceSubmissionScreen() {
               ))
             ) : (
               <div style={styles.emptyState}>
-                No hay submissions para este estado.
+                No hay propuestas para este estado.
               </div>
             )}
           </div>
@@ -474,7 +604,14 @@ export default function PlaceSubmissionScreen() {
           !hasMore &&
           submissions.length > 0 && (
             <div style={styles.paginationCompleted}>
-              Se cargaron todas las propuestas.
+              <CheckCircle2
+                size={42}
+                strokeWidth={2.2}
+              />
+
+              <span>
+                Se cargaron todas las propuestas.
+              </span>
             </div>
           )}
       </div>

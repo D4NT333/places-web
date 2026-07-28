@@ -1,11 +1,29 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+} from "react";
+
+import {
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  MapPin,
+  PencilLine,
+  RotateCcw,
+  XCircle,
+} from "lucide-react";
+
 import styles from "./styles";
 
 function formatDate(dateValue) {
-  if (!dateValue) return "Sin fecha";
+  if (!dateValue) {
+    return "Sin fecha";
+  }
 
   if (dateValue?.toDate) {
-    return dateValue.toDate().toISOString().split("T")[0];
+    return dateValue
+      .toDate()
+      .toISOString()
+      .split("T")[0];
   }
 
   const date = new Date(dateValue);
@@ -17,27 +35,42 @@ function formatDate(dateValue) {
   return date.toISOString().split("T")[0];
 }
 
-function getStatusLabel(status) {
+function getStatusConfig(status) {
   const map = {
-    in_review: "Pendiente",
-    approved: "Aprobado",
-    returned: "Devuelta",
-    resubmitted: "Corregido",
-    rejected: "Rechazada",
+    in_review: {
+      label: "Pendiente",
+      icon: Clock3,
+      style: styles.statusPending,
+    },
+    approved: {
+      label: "Aprobado",
+      icon: CheckCircle2,
+      style: styles.statusApproved,
+    },
+    returned: {
+      label: "Devuelta",
+      icon: RotateCcw,
+      style: styles.statusReturned,
+    },
+    resubmitted: {
+      label: "Corregido",
+      icon: PencilLine,
+      style: styles.statusCorrected,
+    },
+    rejected: {
+      label: "Rechazada",
+      icon: XCircle,
+      style: styles.statusRejected,
+    },
   };
 
-  return map[status] || "Sin estado";
-}
-
-function getStatusStyle(status) {
-  const map = {
-    in_review: styles.statusPending,
-    approved: styles.statusApproved,
-    returned: styles.statusReturned,
-    rejected: styles.statusRejected,
-  };
-
-  return map[status] || styles.statusDefault;
+  return (
+    map[status] || {
+      label: "Sin estado",
+      icon: Clock3,
+      style: styles.statusDefault,
+    }
+  );
 }
 
 function getPlaceImageUrl(item) {
@@ -55,21 +88,31 @@ function getPlaceImageUrl(item) {
 function getInitials(name = "") {
   const cleanName = String(name).trim();
 
-  if (!cleanName) return "?";
+  if (!cleanName) {
+    return "?";
+  }
 
-  const parts = cleanName.split(/\s+/).filter(Boolean);
+  const parts = cleanName
+    .split(/\s+/)
+    .filter(Boolean);
 
   if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
+    return parts[0]
+      .slice(0, 2)
+      .toUpperCase();
   }
 
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
-function UserAvatar({ src, name }) {
+function UserAvatar({
+  src,
+  name,
+}) {
   const [hasError, setHasError] = useState(false);
 
-  const canShowImage = Boolean(src) && !hasError;
+  const canShowImage =
+    Boolean(src) && !hasError;
 
   if (!canShowImage) {
     return (
@@ -91,8 +134,14 @@ function UserAvatar({ src, name }) {
   );
 }
 
-export default function PlaceSubmissionRow({ item, onClick }) {
+export default function PlaceSubmissionRow({
+  item,
+  onClick,
+}) {
   const placeImageUrl = getPlaceImageUrl(item);
+
+  const statusConfig = getStatusConfig(item.status);
+  const StatusIcon = statusConfig.icon;
 
   return (
     <div
@@ -101,7 +150,10 @@ export default function PlaceSubmissionRow({ item, onClick }) {
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
+        if (
+          event.key === "Enter" ||
+          event.key === " "
+        ) {
           onClick?.();
         }
       }}
@@ -114,11 +166,17 @@ export default function PlaceSubmissionRow({ item, onClick }) {
             style={styles.placeImage}
             loading="lazy"
             onError={(event) => {
-              event.currentTarget.style.display = "none";
+              event.currentTarget.style.display =
+                "none";
             }}
           />
         ) : (
-          <div style={styles.placeImagePlaceholder}>Lugar</div>
+          <div style={styles.placeImagePlaceholder}>
+            <MapPin
+              size={24}
+              strokeWidth={2}
+            />
+          </div>
         )}
 
         <strong style={styles.placeName}>
@@ -127,7 +185,15 @@ export default function PlaceSubmissionRow({ item, onClick }) {
       </div>
 
       <div style={styles.dateCell}>
-        {formatDate(item.createdAt)}
+        <CalendarDays
+          size={28}
+          strokeWidth={2}
+          style={styles.dateIcon}
+        />
+
+        <span>
+          {formatDate(item.createdAt)}
+        </span>
       </div>
 
       <div style={styles.userCell}>
@@ -145,10 +211,15 @@ export default function PlaceSubmissionRow({ item, onClick }) {
         <span
           style={{
             ...styles.statusBadge,
-            ...getStatusStyle(item.status),
+            ...statusConfig.style,
           }}
         >
-          {getStatusLabel(item.status)}
+          <StatusIcon
+            size={24}
+            strokeWidth={2.4}
+          />
+
+          <span>{statusConfig.label}</span>
         </span>
       </div>
     </div>
