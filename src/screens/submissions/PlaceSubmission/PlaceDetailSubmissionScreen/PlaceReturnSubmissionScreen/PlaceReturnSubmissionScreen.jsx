@@ -4,6 +4,20 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import LayoutScreen from "../../../../../layout";
 import styles from "./styles";
 
+import {
+  AlignLeft,
+  CircleDollarSign,
+  Clock3,
+  Images,
+  Layers3,
+  Lightbulb,
+  MapPin,
+  RotateCcw,
+  Tag,
+  Target,
+  Type,
+} from "lucide-react";
+
 import ReturnTextArea from "./Components/ReturnTextArea";
 import ReturnCorrectionItem from "./Components/ReturnCorrectionItem";
 import ReturnActionButtons from "./Components/ReturnActionButtons";
@@ -97,16 +111,24 @@ const correctionFields = [
   {
     key: "name",
     label: "Nombre",
-    getValue: (submission) => submission?.name || "",
+    icon: Type,
+    tone: "green",
+    getValue: (submission) =>
+      submission?.name || "",
   },
   {
     key: "description",
     label: "Descripción",
-    getValue: (submission) => submission?.description || "",
+    icon: AlignLeft,
+    tone: "blue",
+    getValue: (submission) =>
+      submission?.description || "",
   },
   {
     key: "tag",
     label: "Etiqueta",
+    icon: Tag,
+    tone: "green",
     getValue: (submission) =>
       submission?.tagLabel ||
       submission?.tag?.label ||
@@ -116,9 +138,14 @@ const correctionFields = [
   {
     key: "subtags",
     label: "Subetiquetas",
+    icon: Layers3,
+    tone: "blue",
     type: "items",
     getValue: (submission) => {
-      const subtags = submission?.subtags || submission?.subtagLabels || [];
+      const subtags =
+        submission?.subtags ||
+        submission?.subtagLabels ||
+        [];
 
       if (Array.isArray(subtags)) {
         return subtags
@@ -126,7 +153,9 @@ const correctionFields = [
             index,
             label: item?.label || item,
           }))
-          .filter((item) => Boolean(item.label));
+          .filter((item) =>
+            Boolean(item.label)
+          );
       }
 
       return [];
@@ -135,6 +164,8 @@ const correctionFields = [
   {
     key: "approaches",
     label: "Enfoque",
+    icon: Target,
+    tone: "blue",
     getValue: (submission) => {
       const approaches =
         submission?.approaches ||
@@ -145,7 +176,11 @@ const correctionFields = [
         [];
 
       if (Array.isArray(approaches)) {
-        return approaches.map((item) => item?.label || item).filter(Boolean);
+        return approaches
+          .map((item) =>
+            item?.label || item
+          )
+          .filter(Boolean);
       }
 
       return (
@@ -159,6 +194,8 @@ const correctionFields = [
   {
     key: "price",
     label: "Rango de precio",
+    icon: CircleDollarSign,
+    tone: "blue",
     getValue: (submission) =>
       submission?.price ||
       submission?.priceLabel ||
@@ -169,6 +206,8 @@ const correctionFields = [
   {
     key: "schedule",
     label: "Horario",
+    icon: Clock3,
+    tone: "orange",
     getValue: (submission) =>
       submission?.openingHours?.label ||
       submission?.schedule ||
@@ -177,25 +216,39 @@ const correctionFields = [
   {
     key: "photos",
     label: "Fotos",
+    icon: Images,
+    tone: "violet",
     type: "photos",
     getValue: (submission) => {
-      const photos = submission?.photos || submission?.photoUrls || [];
+      const photos =
+        submission?.photos ||
+        submission?.photoUrls ||
+        [];
 
       if (!Array.isArray(photos)) {
         return [];
       }
 
       return photos
-        .map((photo, index) => normalizePhotoForReturn(photo, index))
+        .map((photo, index) =>
+          normalizePhotoForReturn(
+            photo,
+            index
+          )
+        )
         .filter(Boolean);
     },
   },
   {
     key: "location",
     label: "Ubicación",
+    icon: MapPin,
+    tone: "green",
     type: "location",
     getValue: (submission) =>
-      submission?.location || submission?.coordinates || null,
+      submission?.location ||
+      submission?.coordinates ||
+      null,
   },
 ];
 
@@ -695,19 +748,30 @@ function PlaceReturnSubmissionScreen() {
     <LayoutScreen breadcrumbs={breadcrumbs}>
       <div style={styles.screen}>
         <section style={styles.pagePanel}>
-          <header style={styles.header}>
-            <div>
-              <h1 style={styles.title}>
-                {isReadonly ? "Motivo de devolución" : "Devolver para corrección"}
-              </h1>
+         <header style={styles.header}>
+  <div style={styles.headerContent}>
+    <div style={styles.headerIconBox}>
+      <RotateCcw
+        size={36}
+        strokeWidth={2.2}
+      />
+    </div>
 
-              <p style={styles.subtitle}>
-                {isReadonly
-                  ? "Consulta los campos que fueron solicitados para corrección."
-                  : "Selecciona los campos que el usuario debe corregir y escribe el motivo de forma clara."}
-              </p>
-            </div>
-          </header>
+    <div>
+      <h1 style={styles.title}>
+        {isReadonly
+          ? "Motivo de devolución"
+          : "Devolver para corrección"}
+      </h1>
+
+      <p style={styles.subtitle}>
+        {isReadonly
+          ? "Consulta los campos que fueron solicitados para corrección."
+          : "Selecciona los campos que el usuario debe corregir."}
+      </p>
+    </div>
+  </div>
+</header>
 
           <section style={styles.contentGrid}>
             <div style={styles.generalCommentPanel}>
@@ -722,64 +786,130 @@ function PlaceReturnSubmissionScreen() {
             </div>
 
             <aside style={styles.helperPanel}>
-              <h2 style={styles.helperTitle}>Guía rápida</h2>
+  <div style={styles.helperHeader}>
+    <div style={styles.helperIconBox}>
+      <Lightbulb
+        size={36}
+        strokeWidth={2.1}
+      />
+    </div>
 
-              <p style={styles.helperText}>
-                Marca únicamente los campos que necesitan corrección. Cada campo
-                marcado debe tener un motivo específico para que el usuario sepa
-                qué cambiar.
-              </p>
+    <h2 style={styles.helperTitle}>
+      Guía rápida
+    </h2>
+  </div>
 
-              <div style={styles.helperList}>
-                <span>Comentario general: mínimo 30 caracteres.</span>
-                <span>Motivo por campo: mínimo 10 caracteres.</span>
-                <span>Fotos y subetiquetas se revisan individualmente.</span>
-              </div>
-            </aside>
+  <p style={styles.helperText}>
+    Marca únicamente los campos que necesitan
+    corrección. Cada campo marcado debe tener
+    un motivo específico para que el usuario
+    sepa qué cambiar.
+  </p>
+
+  <div style={styles.helperList}>
+    <span style={styles.helperListItem}>
+      <span style={styles.helperBullet} />
+      Comentario general: mínimo 30 caracteres.
+    </span>
+
+    <span style={styles.helperListItem}>
+      <span style={styles.helperBullet} />
+      Motivo por campo: mínimo 10 caracteres.
+    </span>
+
+    <span style={styles.helperListItem}>
+      <span style={styles.helperBullet} />
+      Fotos y subetiquetas se revisan
+      individualmente.
+    </span>
+  </div>
+</aside>
+
           </section>
 
           <section style={styles.fieldsSection}>
-            <div style={styles.sectionHeader}>
-              <h2 style={styles.sectionTitle}>Campos de la propuesta</h2>
+           
 
-              <p style={styles.sectionSubtitle}>
-                Selecciona uno o varios campos para solicitar corrección.
-              </p>
-            </div>
+           <div style={styles.sectionHeader}>
+  <div style={styles.sectionHeadingRow}>
+    <div style={styles.sectionIconBox}>
+      <Layers3
+        size={36}
+        strokeWidth={2.1}
+      />
+    </div>
+
+    <h2 style={styles.sectionTitle}>
+      Campos de la propuesta
+    </h2>
+  </div>
+
+  <p style={styles.sectionSubtitle}>
+    Selecciona uno o varios campos para solicitar
+    corrección.
+  </p>
+</div>
 
             <div style={styles.fieldsContainer}>
               {visibleCorrectionFields.map((field) => (
-                <div key={field.key} style={styles.fieldCard}>
-                  <ReturnCorrectionItem
-                    fieldKey={field.key}
-                    label={field.label}
-                    value={field.value}
-                    type={field.type}
-                    selected={Boolean(selectedFields[field.key])}
-                    comment={fieldComments[field.key] || ""}
-                    selectedPhotos={selectedPhotos}
-                    photoComments={photoComments}
-                    selectedSubtags={selectedSubtags}
-                    subtagComments={subtagComments}
-                    onToggle={handleToggleField}
-                    onCommentChange={handleChangeFieldComment}
-                    onTogglePhoto={handleTogglePhoto}
-                    onPhotoCommentChange={handleChangePhotoComment}
-                    onToggleSubtag={handleToggleSubtag}
-                    onSubtagCommentChange={handleChangeSubtagComment}
-                    readOnly={isReadonly}
-                  />
+                <div
+  key={field.key}
+  style={{
+    ...styles.fieldCard,
+
+    ...(field.key === "description"
+      ? styles.fieldCardWide
+      : {}),
+
+    ...(field.key === "location"
+      ? styles.fieldCardLocation
+      : {}),
+  }}
+><ReturnCorrectionItem
+  fieldKey={field.key}
+  label={field.label}
+  icon={field.icon}
+  tone={field.tone}
+  value={field.value}
+  type={field.type}
+  selected={Boolean(
+    selectedFields[field.key]
+  )}
+  comment={
+    fieldComments[field.key] || ""
+  }
+  selectedPhotos={selectedPhotos}
+  photoComments={photoComments}
+  selectedSubtags={selectedSubtags}
+  subtagComments={subtagComments}
+  onToggle={handleToggleField}
+  onCommentChange={
+    handleChangeFieldComment
+  }
+  onTogglePhoto={handleTogglePhoto}
+  onPhotoCommentChange={
+    handleChangePhotoComment
+  }
+  onToggleSubtag={handleToggleSubtag}
+  onSubtagCommentChange={
+    handleChangeSubtagComment
+  }
+  readOnly={isReadonly}
+/>
+
                 </div>
               ))}
             </div>
           </section>
 
-            <ReturnActionButtons
-              canSubmit={canSubmit}
-              onCancel={() => navigate(-1)}
-              onSubmit={handleSubmit}
-              readOnly={isReadonly}
-            />
+           <div style={styles.actionsArea}>
+  <ReturnActionButtons
+    canSubmit={canSubmit}
+    onCancel={() => navigate(-1)}
+    onSubmit={handleSubmit}
+    readOnly={isReadonly}
+  />
+</div>
           
         </section>
       </div>

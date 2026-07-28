@@ -1,4 +1,10 @@
 import React from "react";
+
+import {
+  ArrowLeft,
+  RotateCcw,
+} from "lucide-react";
+
 import styles from "./styles";
 
 export default function ReturnActionButtons({
@@ -15,7 +21,12 @@ export default function ReturnActionButtons({
           style={styles.cancelButton}
           onClick={onCancel}
         >
-          Volver
+          <ArrowLeft
+            size={30}
+            strokeWidth={2.2}
+          />
+
+          <span>Volver</span>
         </button>
       </div>
     );
@@ -28,20 +39,32 @@ export default function ReturnActionButtons({
         style={styles.cancelButton}
         onClick={onCancel}
       >
-        Cancelar
+        <ArrowLeft
+          size={30}
+          strokeWidth={2.2}
+        />
+
+        <span>Cancelar</span>
       </button>
 
       <button
         type="button"
         style={{
           ...styles.submitButton,
-          opacity: canSubmit ? 1 : 0.45,
-          cursor: canSubmit ? "pointer" : "not-allowed",
+          opacity: canSubmit ? 1 : 0.48,
+          cursor: canSubmit
+            ? "pointer"
+            : "not-allowed",
         }}
         disabled={!canSubmit}
         onClick={onSubmit}
       >
-        Devolver propuesta
+        <RotateCcw
+          size={30}
+          strokeWidth={2.2}
+        />
+
+        <span>Devolver propuesta</span>
       </button>
     </div>
   );

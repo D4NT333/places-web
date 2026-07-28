@@ -1,9 +1,17 @@
 import React from "react";
-import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
+
+import {
+  CircleMarker,
+  MapContainer,
+  TileLayer,
+} from "react-leaflet";
+
 import styles from "./styles";
 
 function getLocationCoords(value) {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
 
   const latitude =
     value.latitude ??
@@ -23,7 +31,10 @@ function getLocationCoords(value) {
   const finalLatitude = Number(latitude);
   const finalLongitude = Number(longitude);
 
-  if (Number.isNaN(finalLatitude) || Number.isNaN(finalLongitude)) {
+  if (
+    Number.isNaN(finalLatitude) ||
+    Number.isNaN(finalLongitude)
+  ) {
     return null;
   }
 
@@ -34,9 +45,13 @@ function getLocationCoords(value) {
 }
 
 function getPhotoUrl(photo) {
-  if (!photo) return null;
+  if (!photo) {
+    return null;
+  }
 
-  if (typeof photo === "string") return photo;
+  if (typeof photo === "string") {
+    return photo;
+  }
 
   return (
     photo.url ||
@@ -56,16 +71,30 @@ function getPhotoUrl(photo) {
   );
 }
 
-function getPhotoIndex(photo, fallbackIndex) {
-  if (photo && typeof photo === "object" && typeof photo.index === "number") {
+function getPhotoIndex(
+  photo,
+  fallbackIndex
+) {
+  if (
+    photo &&
+    typeof photo === "object" &&
+    typeof photo.index === "number"
+  ) {
     return photo.index;
   }
 
   return fallbackIndex;
 }
 
-function getItemIndex(item, fallbackIndex) {
-  if (item && typeof item === "object" && typeof item.index === "number") {
+function getItemIndex(
+  item,
+  fallbackIndex
+) {
+  if (
+    item &&
+    typeof item === "object" &&
+    typeof item.index === "number"
+  ) {
     return item.index;
   }
 
@@ -73,16 +102,27 @@ function getItemIndex(item, fallbackIndex) {
 }
 
 function getItemLabel(item) {
-  if (!item) return "";
+  if (!item) {
+    return "";
+  }
 
-  if (typeof item === "string") return item;
+  if (typeof item === "string") {
+    return item;
+  }
 
-  return item.label || item.name || item.value || "";
+  return (
+    item.label ||
+    item.name ||
+    item.value ||
+    ""
+  );
 }
 
 export default function ReturnCorrectionItem({
   fieldKey,
   label,
+  icon: Icon,
+  tone = "blue",
   value,
   type,
   selected,
@@ -97,124 +137,227 @@ export default function ReturnCorrectionItem({
   onPhotoCommentChange,
   onToggleSubtag,
   onSubtagCommentChange,
-  readOnly = false,
+  readOnly,
 }) {
-  const isWide = type === "photos" || type === "location" || type === "items";
+  const isWide =
+    type === "photos" ||
+    type === "location" ||
+    type === "items";
+
+  const iconToneStyles = {
+    blue: styles.fieldIconBlue,
+    green: styles.fieldIconGreen,
+    orange: styles.fieldIconOrange,
+    violet: styles.fieldIconViolet,
+    red: styles.fieldIconRed,
+  };
 
   function renderPhotosValue() {
-    const photos = Array.isArray(value) ? value : [];
+    const photos = Array.isArray(value)
+      ? value
+      : [];
 
     if (photos.length === 0) {
-      return <span style={styles.emptyValue}>Sin fotos</span>;
+      return (
+        <span style={styles.emptyValue}>
+          Sin fotos
+        </span>
+      );
     }
 
     return (
       <div style={styles.photosGrid}>
-        {photos.map((photo, fallbackIndex) => {
-          const photoUrl = getPhotoUrl(photo);
-          const photoIndex = getPhotoIndex(photo, fallbackIndex);
-          const indexKey = String(photoIndex);
-          const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
+        {photos.map(
+          (
+            photo,
+            fallbackIndex
+          ) => {
+            const photoUrl =
+              getPhotoUrl(photo);
 
-          if (!photoUrl) return null;
+            const photoIndex =
+              getPhotoIndex(
+                photo,
+                fallbackIndex
+              );
 
-          return (
-            <button
-              key={`${photoUrl}-${indexKey}`}
-              type="button"
-              style={{
-                ...styles.photoButton,
-                ...(isPhotoSelected ? styles.photoButtonSelected : {}),
-                cursor: readOnly ? "default" : "pointer",
-              }}
-              onClick={(event) => {
-                event.stopPropagation();
+            const indexKey =
+              String(photoIndex);
 
-                if (readOnly) return;
+            const isPhotoSelected =
+              Boolean(
+                selectedPhotos[
+                  indexKey
+                ]
+              );
 
-                onTogglePhoto?.(indexKey);
-              }}
-            >
-              <img
-                src={photoUrl}
-                alt={`Foto ${photoIndex + 1}`}
-                style={styles.photoThumbnail}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                onError={(event) => {
-                  event.currentTarget.style.display = "none";
+            if (!photoUrl) {
+              return null;
+            }
+
+            return (
+              <button
+                key={`${photoUrl}-${indexKey}`}
+                type="button"
+                style={{
+                  ...styles.photoButton,
+
+                  ...(isPhotoSelected
+                    ? styles.photoButtonSelected
+                    : {}),
+
+                  cursor: readOnly
+                    ? "default"
+                    : "pointer",
                 }}
-              />
+                onClick={(
+                  event
+                ) => {
+                  event.stopPropagation();
 
-              <span style={styles.photoBadge}>Foto {photoIndex + 1}</span>
-            </button>
-          );
-        })}
+                  if (readOnly) {
+                    return;
+                  }
+
+                  onTogglePhoto?.(
+                    indexKey
+                  );
+                }}
+              >
+                <img
+                  src={photoUrl}
+                  alt={`Foto ${
+                    photoIndex + 1
+                  }`}
+                  style={
+                    styles.photoThumbnail
+                  }
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  onError={(
+                    event
+                  ) => {
+                    event.currentTarget.style.display =
+                      "none";
+                  }}
+                />
+
+                <span
+                  style={
+                    styles.photoBadge
+                  }
+                >
+                  Foto{" "}
+                  {photoIndex + 1}
+                </span>
+              </button>
+            );
+          }
+        )}
       </div>
     );
   }
 
   function renderItemsValue() {
-    const items = Array.isArray(value) ? value : [];
+    const items = Array.isArray(value)
+      ? value
+      : [];
 
     if (items.length === 0) {
-      return <span style={styles.emptyValue}>Sin información</span>;
+      return (
+        <span style={styles.emptyValue}>
+          Sin información
+        </span>
+      );
     }
 
     return (
       <div style={styles.tagsWrap}>
-        {items.map((item, fallbackIndex) => {
-          const itemIndex = getItemIndex(item, fallbackIndex);
-          const indexKey = String(itemIndex);
-          const itemLabel = getItemLabel(item);
-          const isItemSelected = Boolean(selectedSubtags[indexKey]);
+        {items.map(
+          (
+            item,
+            fallbackIndex
+          ) => {
+            const itemIndex =
+              getItemIndex(
+                item,
+                fallbackIndex
+              );
 
-          if (!itemLabel) return null;
+            const indexKey =
+              String(itemIndex);
 
-          return (
-            <button
-              key={`${itemLabel}-${indexKey}`}
-              type="button"
-              style={{
-                ...styles.miniPill,
-                ...(isItemSelected ? styles.valueBoxSelected : {}),
-                cursor: readOnly ? "default" : "pointer",
-              }}
-              onClick={(event) => {
-                event.stopPropagation();
+            const itemLabel =
+              getItemLabel(item);
 
-                if (readOnly) return;
+            const isItemSelected =
+              Boolean(
+                selectedSubtags[
+                  indexKey
+                ]
+              );
 
-                onToggleSubtag?.(indexKey);
-              }}
-            >
-              {itemLabel}
-            </button>
-          );
-        })}
+            if (!itemLabel) {
+              return null;
+            }
+
+            return (
+              <button
+                key={`${itemLabel}-${indexKey}`}
+                type="button"
+                style={{
+                  ...styles.miniPill,
+
+                  ...(isItemSelected
+                    ? styles.valueBoxSelected
+                    : {}),
+
+                  cursor: readOnly
+                    ? "default"
+                    : "pointer",
+                }}
+                onClick={(
+                  event
+                ) => {
+                  event.stopPropagation();
+
+                  if (readOnly) {
+                    return;
+                  }
+
+                  onToggleSubtag?.(
+                    indexKey
+                  );
+                }}
+              >
+                {itemLabel}
+              </button>
+            );
+          }
+        )}
       </div>
     );
   }
 
   function renderLocationValue() {
-    const coords = getLocationCoords(value);
+    const coords =
+      getLocationCoords(value);
 
     if (!coords) {
-      return <span style={styles.emptyValue}>Sin ubicación</span>;
+      return (
+        <span style={styles.emptyValue}>
+          Sin ubicación
+        </span>
+      );
     }
 
     return (
-      <div
-        style={{
-          width: "100%",
-          height: 260,
-          borderRadius: 10,
-          overflow: "hidden",
-          pointerEvents: "none",
-        }}
-      >
+      <div style={styles.locationMap}>
         <MapContainer
-          center={[coords.latitude, coords.longitude]}
+          center={[
+            coords.latitude,
+            coords.longitude,
+          ]}
           zoom={16}
           dragging={false}
           scrollWheelZoom={false}
@@ -229,10 +372,17 @@ export default function ReturnCorrectionItem({
             height: "100%",
           }}
         >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <TileLayer
+            url={
+              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            }
+          />
 
           <CircleMarker
-            center={[coords.latitude, coords.longitude]}
+            center={[
+              coords.latitude,
+              coords.longitude,
+            ]}
             radius={11}
             interactive={false}
             pathOptions={{
@@ -252,7 +402,10 @@ export default function ReturnCorrectionItem({
       return renderPhotosValue();
     }
 
-    if (type === "items" && fieldKey === "subtags") {
+    if (
+      type === "items" &&
+      fieldKey === "subtags"
+    ) {
       return renderItemsValue();
     }
 
@@ -261,136 +414,310 @@ export default function ReturnCorrectionItem({
     }
 
     if (Array.isArray(value)) {
-      if (!value.length) return "Sin información";
+      if (!value.length) {
+        return "Sin información";
+      }
 
       return (
         <div style={styles.tagsWrap}>
-          {value.map((item, index) => (
-            <span key={`${item}-${index}`} style={styles.miniPill}>
-              {item}
-            </span>
-          ))}
+          {value.map(
+            (
+              item,
+              index
+            ) => (
+              <span
+                key={`${item}-${index}`}
+                style={
+                  styles.miniPill
+                }
+              >
+                {typeof item ===
+                "object"
+                  ? getItemLabel(
+                      item
+                    )
+                  : item}
+              </span>
+            )
+          )}
         </div>
       );
     }
 
-    return value || "Sin información";
+    return (
+      value ||
+      "Sin información"
+    );
   }
 
   function renderPhotoComments() {
-    if (type !== "photos") return null;
+    if (type !== "photos") {
+      return null;
+    }
 
-    const photos = Array.isArray(value) ? value : [];
-    const selectedPhotoIndexes = Object.keys(selectedPhotos);
+    const photos = Array.isArray(value)
+      ? value
+      : [];
 
-    if (selectedPhotoIndexes.length === 0) {
+    const selectedPhotoIndexes =
+      Object.keys(
+        selectedPhotos
+      );
+
+    if (
+      selectedPhotoIndexes.length ===
+      0
+    ) {
       return null;
     }
 
     return (
-      <div style={styles.photoCommentsWrapper}>
-        {photos.map((photo, fallbackIndex) => {
-          const photoUrl = getPhotoUrl(photo);
-          const photoIndex = getPhotoIndex(photo, fallbackIndex);
-          const indexKey = String(photoIndex);
-          const isPhotoSelected = Boolean(selectedPhotos[indexKey]);
+      <div
+        style={
+          styles.photoCommentsWrapper
+        }
+      >
+        {photos.map(
+          (
+            photo,
+            fallbackIndex
+          ) => {
+            const photoUrl =
+              getPhotoUrl(photo);
 
-          if (!photoUrl || !isPhotoSelected) return null;
+            const photoIndex =
+              getPhotoIndex(
+                photo,
+                fallbackIndex
+              );
 
-          const currentComment = photoComments[indexKey] || "";
+            const indexKey =
+              String(photoIndex);
 
-          return (
-            <div
-              key={`photo-comment-${indexKey}`}
-              style={styles.photoCommentItem}
-            >
-              <label style={styles.commentLabel}>
-                Motivo para foto {photoIndex + 1}:
-              </label>
+            const isPhotoSelected =
+              Boolean(
+                selectedPhotos[
+                  indexKey
+                ]
+              );
 
-              <textarea
-                style={{
-                  ...styles.commentInput,
-                  opacity: readOnly ? 0.85 : 1,
-                  cursor: readOnly ? "default" : "text",
-                }}
-                value={currentComment}
-                rows={2}
-                readOnly={readOnly}
-                onChange={(event) => {
-                  if (readOnly) return;
+            if (
+              !photoUrl ||
+              !isPhotoSelected
+            ) {
+              return null;
+            }
 
-                  onPhotoCommentChange?.(indexKey, event.target.value);
-                }}
-                placeholder={`Escribe qué debe corregirse en la foto ${
-                  photoIndex + 1
-                }...`}
-              />
+            const currentComment =
+              photoComments[
+                indexKey
+              ] || "";
 
-              <div style={styles.commentFooter}>
-                {currentComment.trim().length}/10 mínimo
+            return (
+              <div
+                key={`photo-comment-${indexKey}`}
+                style={
+                  styles.photoCommentItem
+                }
+              >
+                <label
+                  style={
+                    styles.commentLabel
+                  }
+                >
+                  Motivo para foto{" "}
+                  {photoIndex + 1}:
+                </label>
+
+                <textarea
+                  style={{
+                    ...styles.commentInput,
+
+                    opacity: readOnly
+                      ? 0.85
+                      : 1,
+
+                    cursor: readOnly
+                      ? "default"
+                      : "text",
+                  }}
+                  value={
+                    currentComment
+                  }
+                  rows={2}
+                  readOnly={
+                    readOnly
+                  }
+                  onChange={(
+                    event
+                  ) => {
+                    if (readOnly) {
+                      return;
+                    }
+
+                    onPhotoCommentChange?.(
+                      indexKey,
+                      event.target
+                        .value
+                    );
+                  }}
+                  placeholder={`Escribe qué debe corregirse en la foto ${
+                    photoIndex + 1
+                  }...`}
+                />
+
+                <div
+                  style={
+                    styles.commentFooter
+                  }
+                >
+                  {
+                    currentComment.trim()
+                      .length
+                  }
+                  /10 mínimo
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          }
+        )}
       </div>
     );
   }
 
   function renderSubtagComments() {
-    if (type !== "items" || fieldKey !== "subtags") return null;
+    if (
+      type !== "items" ||
+      fieldKey !== "subtags"
+    ) {
+      return null;
+    }
 
-    const items = Array.isArray(value) ? value : [];
-    const selectedSubtagIndexes = Object.keys(selectedSubtags);
+    const items = Array.isArray(value)
+      ? value
+      : [];
 
-    if (selectedSubtagIndexes.length === 0) {
+    const selectedSubtagIndexes =
+      Object.keys(
+        selectedSubtags
+      );
+
+    if (
+      selectedSubtagIndexes.length ===
+      0
+    ) {
       return null;
     }
 
     return (
-      <div style={styles.photoCommentsWrapper}>
-        {items.map((item, fallbackIndex) => {
-          const itemIndex = getItemIndex(item, fallbackIndex);
-          const indexKey = String(itemIndex);
-          const itemLabel = getItemLabel(item);
-          const isItemSelected = Boolean(selectedSubtags[indexKey]);
+      <div
+        style={
+          styles.photoCommentsWrapper
+        }
+      >
+        {items.map(
+          (
+            item,
+            fallbackIndex
+          ) => {
+            const itemIndex =
+              getItemIndex(
+                item,
+                fallbackIndex
+              );
 
-          if (!itemLabel || !isItemSelected) return null;
+            const indexKey =
+              String(itemIndex);
 
-          const currentComment = subtagComments[indexKey] || "";
+            const itemLabel =
+              getItemLabel(item);
 
-          return (
-            <div
-              key={`subtag-comment-${indexKey}`}
-              style={styles.photoCommentItem}
-            >
-              <label style={styles.commentLabel}>
-                Motivo para subetiqueta "{itemLabel}":
-              </label>
+            const isItemSelected =
+              Boolean(
+                selectedSubtags[
+                  indexKey
+                ]
+              );
 
-              <textarea
-                style={{
-                  ...styles.commentInput,
-                  opacity: readOnly ? 0.85 : 1,
-                  cursor: readOnly ? "default" : "text",
-                }}
-                value={currentComment}
-                rows={2}
-                readOnly={readOnly}
-                onChange={(event) => {
-                  if (readOnly) return;
+            if (
+              !itemLabel ||
+              !isItemSelected
+            ) {
+              return null;
+            }
 
-                  onSubtagCommentChange?.(indexKey, event.target.value);
-                }}
-                placeholder={`Escribe qué debe corregirse en "${itemLabel}"...`}
-              />
+            const currentComment =
+              subtagComments[
+                indexKey
+              ] || "";
 
-              <div style={styles.commentFooter}>
-                {currentComment.trim().length}/10 mínimo
+            return (
+              <div
+                key={`subtag-comment-${indexKey}`}
+                style={
+                  styles.photoCommentItem
+                }
+              >
+                <label
+                  style={
+                    styles.commentLabel
+                  }
+                >
+                  Motivo para
+                  subetiqueta "
+                  {itemLabel}":
+                </label>
+
+                <textarea
+                  style={{
+                    ...styles.commentInput,
+
+                    opacity: readOnly
+                      ? 0.85
+                      : 1,
+
+                    cursor: readOnly
+                      ? "default"
+                      : "text",
+                  }}
+                  value={
+                    currentComment
+                  }
+                  rows={2}
+                  readOnly={
+                    readOnly
+                  }
+                  onChange={(
+                    event
+                  ) => {
+                    if (readOnly) {
+                      return;
+                    }
+
+                    onSubtagCommentChange?.(
+                      indexKey,
+                      event.target
+                        .value
+                    );
+                  }}
+                  placeholder={`Escribe qué debe corregirse en "${itemLabel}"...`}
+                />
+
+                <div
+                  style={
+                    styles.commentFooter
+                  }
+                >
+                  {
+                    currentComment.trim()
+                      .length
+                  }
+                  /10 mínimo
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          }
+        )}
       </div>
     );
   }
@@ -399,73 +726,180 @@ export default function ReturnCorrectionItem({
     <div
       style={{
         ...styles.item,
-        ...(isWide ? styles.itemWide : styles.itemCompact),
+
+        ...(isWide
+          ? styles.itemWide
+          : styles.itemCompact),
       }}
     >
-      <div style={styles.label}>{label}</div>
+      <div
+        style={
+          styles.fieldHeader
+        }
+      >
+        <div
+          style={{
+            ...styles.fieldIconBox,
+
+            ...(iconToneStyles[
+              tone
+            ] ||
+              styles.fieldIconBlue),
+          }}
+        >
+          {Icon ? (
+            <Icon
+              size={30}
+              strokeWidth={2.2}
+            />
+          ) : null}
+        </div>
+
+        <span
+          style={styles.label}
+        >
+          {label}
+        </span>
+      </div>
 
       <div
         style={{
           ...styles.valueBox,
-          ...(selected ? styles.valueBoxSelected : {}),
-          ...(isWide ? styles.valueBoxWide : styles.valueBoxCompact),
+
+          ...(selected
+            ? styles.valueBoxSelected
+            : {}),
+
+          ...(isWide
+            ? styles.valueBoxWide
+            : styles.valueBoxCompact),
+
           cursor:
-            readOnly || type === "photos" || type === "items"
+            readOnly ||
+            type === "photos" ||
+            type === "items"
               ? "default"
               : "pointer",
         }}
         role="button"
-        tabIndex={readOnly ? -1 : 0}
+        tabIndex={
+          readOnly ? -1 : 0
+        }
         onClick={() => {
-          if (readOnly) return;
+          if (readOnly) {
+            return;
+          }
 
-          if (type !== "photos" && type !== "items") {
-            onToggle?.(fieldKey);
+          if (
+            type !== "photos" &&
+            type !== "items"
+          ) {
+            onToggle?.(
+              fieldKey
+            );
           }
         }}
-        onKeyDown={(event) => {
-          if (readOnly) return;
-          if (type === "photos" || type === "items") return;
+        onKeyDown={(
+          event
+        ) => {
+          if (readOnly) {
+            return;
+          }
 
-          if (event.key === "Enter" || event.key === " ") {
+          if (
+            type === "photos" ||
+            type === "items"
+          ) {
+            return;
+          }
+
+          if (
+            event.key ===
+              "Enter" ||
+            event.key === " "
+          ) {
             event.preventDefault();
-            onToggle?.(fieldKey);
+
+            onToggle?.(
+              fieldKey
+            );
           }
         }}
       >
         {renderValue()}
       </div>
 
-      {type === "photos" && renderPhotoComments()}
+      {type === "photos" &&
+        renderPhotoComments()}
 
-      {type === "items" && fieldKey === "subtags" && renderSubtagComments()}
+      {type === "items" &&
+        fieldKey ===
+          "subtags" &&
+        renderSubtagComments()}
 
-      {selected && type !== "photos" && type !== "items" && (
-        <div style={styles.commentWrapper}>
-          <label style={styles.commentLabel}>Motivo:</label>
+      {selected &&
+        type !== "photos" &&
+        type !== "items" && (
+          <div
+            style={
+              styles.commentWrapper
+            }
+          >
+            <label
+              style={
+                styles.commentLabel
+              }
+            >
+              Motivo:
+            </label>
 
-          <textarea
-            style={{
-              ...styles.commentInput,
-              opacity: readOnly ? 0.85 : 1,
-              cursor: readOnly ? "default" : "text",
-            }}
-            value={comment || ""}
-            rows={2}
-            readOnly={readOnly}
-            onChange={(event) => {
-              if (readOnly) return;
+            <textarea
+              style={{
+                ...styles.commentInput,
 
-              onCommentChange?.(fieldKey, event.target.value);
-            }}
-            placeholder={`Escribe el motivo de corrección para ${label.toLowerCase()}...`}
-          />
+                opacity: readOnly
+                  ? 0.85
+                  : 1,
 
-          <div style={styles.commentFooter}>
-            {(comment || "").trim().length}/10 mínimo
+                cursor: readOnly
+                  ? "default"
+                  : "text",
+              }}
+              value={
+                comment || ""
+              }
+              rows={2}
+              readOnly={readOnly}
+              onChange={(
+                event
+              ) => {
+                if (readOnly) {
+                  return;
+                }
+
+                onCommentChange?.(
+                  fieldKey,
+                  event.target
+                    .value
+                );
+              }}
+              placeholder={`Escribe el motivo de corrección para ${label.toLowerCase()}...`}
+            />
+
+            <div
+              style={
+                styles.commentFooter
+              }
+            >
+              {
+                (
+                  comment || ""
+                ).trim().length
+              }
+              /10 mínimo
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }

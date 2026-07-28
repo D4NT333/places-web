@@ -33,7 +33,7 @@ export default function LayoutScreen({
   /*
    * Único estado encargado de mostrar u ocultar el panel.
    */
-  const [sidebarOpen, setSidebarOpen] = useState(showSidebar);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (scrollToTop && mainRef.current) {
