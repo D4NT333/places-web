@@ -101,6 +101,29 @@ const styles = {
     fontWeight: 800,
     textAlign: "left",
   },
+  manageAdminsButton: {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+
+  width: "100%",
+
+  marginBottom: "8px",
+  padding: "10px 12px",
+
+  color: "#176fdc",
+  background: "#edf5ff",
+
+  border: "1px solid #c9dfff",
+  borderRadius: "8px",
+
+  fontFamily: "inherit",
+  fontSize: "0.78rem",
+  fontWeight: 800,
+  textAlign: "left",
+
+  cursor: "pointer",
+},
 };
 
 export default styles;

@@ -25,6 +25,7 @@ export {default as AdministrationDetailUserScreen } from "./administration/Admin
 
 export {default as AdministrationPlaceScreen } from "./administration/AdministrationPlacesScreen";
 export {default as AdministrationDetailPlaceScreen} from "./administration/AdministrationPlacesScreen/AdministrationDetailPlaceScreen";
+export {default as AdministratorsScreen} from "./administration/AdministratorsScreen"
 
 
 export { default as DeletedSubmissionsScreen } from "./management/DeletedSubmissionsScreen";

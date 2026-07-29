@@ -89,6 +89,10 @@ export default function Header({
     console.log("Abrir notificaciones");
   };
 
+  const handleManageAdministrators = () => {
+  navigate("/administration/administrators");
+};
+
   const fallbackUser = auth.currentUser;
 
   const displayName =
@@ -105,6 +109,9 @@ export default function Header({
     adminUser?.photoURL ||
     fallbackUser?.photoURL ||
     null;
+
+    const isSuperAdmin =
+  adminUser?.role === "super_admin";
 
   return (
     <header style={styles.headerWrapper}>
@@ -282,11 +289,15 @@ export default function Header({
           </button>
 
           <UserBadge
-            name={displayName}
-            email={email}
-            photoURL={photoURL}
-            onLogout={handleLogout}
-          />
+  name={displayName}
+  email={email}
+  photoURL={photoURL}
+  isSuperAdmin={isSuperAdmin}
+  onManageAdministrators={
+    handleManageAdministrators
+  }
+  onLogout={handleLogout}
+/>
         </div>
       </div>
 

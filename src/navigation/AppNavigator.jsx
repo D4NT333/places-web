@@ -20,6 +20,8 @@ import {AdministrationDetailUserScreen} from "../screens";
 import {AdministrationPlaceScreen} from "../screens";
 import {AdministrationDetailPlaceScreen} from "../screens";
 
+import {AdministratorsScreen} from "../screens";
+
 import { DescriptionDetailSubmissionScreen } from "../screens";
 
 import {MonitoringSummaryScreen} from "../screens";
@@ -92,6 +94,8 @@ function AppRoutesContent({ adminUser }) {
 
           <Route path="/administration/places"element={<AdministrationPlaceScreen />}/>
           <Route path="/administration/places/:placeId" element={<AdministrationDetailPlaceScreen />}/>
+
+          <Route path="/administration/administrators"element={<AdministratorsScreen />}/>
 
           <Route path="/monitoring/summary"element={<MonitoringSummaryScreen />}/>
 
