@@ -1,4 +1,7 @@
-import React from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
 
 import {
   CalendarDays,
@@ -71,10 +74,22 @@ function InfoField({
 export default function SubmissionInfoCard({
   placeName,
   createdByName,
+  userId,
+  userPhotoUrl,
   createdAt,
   photoCount,
   status,
+  onUserClick,
 }) {
+  const [
+    userPhotoFailed,
+    setUserPhotoFailed,
+  ] = useState(false);
+
+  useEffect(() => {
+    setUserPhotoFailed(false);
+  }, [userPhotoUrl]);
+
   const statusConfig =
     STATUS_CONFIG[status] ||
     STATUS_CONFIG.in_review;
@@ -82,12 +97,21 @@ export default function SubmissionInfoCard({
   const StatusIcon =
     statusConfig.icon;
 
+  const canOpenUser =
+    Boolean(userId) &&
+    typeof onUserClick ===
+      "function";
+
+  const showUserPhoto =
+    Boolean(userPhotoUrl) &&
+    !userPhotoFailed;
+
   return (
     <section style={styles.card}>
       <div style={styles.header}>
         <div style={styles.headerIconBox}>
           <Images
-            size={40}
+            size={30}
             strokeWidth={2.2}
           />
         </div>
@@ -114,15 +138,67 @@ export default function SubmissionInfoCard({
           }
         />
 
-        <InfoField
-          icon={UserRound}
-          toneStyle={styles.iconGreen}
-          label="Enviada por"
-          value={
-            createdByName ||
-            "Usuario"
-          }
-        />
+        <div style={styles.infoField}>
+          <div
+            style={
+              showUserPhoto
+                ? styles.userPhotoBox
+                : {
+                    ...styles.fieldIconBox,
+                    ...styles.iconGreen,
+                  }
+            }
+          >
+            {showUserPhoto ? (
+              <img
+                src={userPhotoUrl}
+                alt={
+                  createdByName ||
+                  "Usuario de la propuesta"
+                }
+                style={styles.userPhoto}
+                loading="lazy"
+                onError={() =>
+                  setUserPhotoFailed(
+                    true
+                  )
+                }
+              />
+            ) : (
+              <UserRound
+                size={37}
+                strokeWidth={2.2}
+              />
+            )}
+          </div>
+
+          <div style={styles.fieldContent}>
+            <span style={styles.infoLabel}>
+              Enviada por
+            </span>
+
+            {canOpenUser ? (
+              <button
+                type="button"
+                style={{
+                  ...styles.infoValue,
+                  ...styles.userLink,
+                }}
+                onClick={
+                  onUserClick
+                }
+              >
+                {createdByName ||
+                  "Usuario"}
+              </button>
+            ) : (
+              <strong style={styles.infoValue}>
+                {createdByName ||
+                  "Usuario"}
+              </strong>
+            )}
+          </div>
+        </div>
 
         <InfoField
           icon={CalendarDays}
@@ -163,7 +239,7 @@ export default function SubmissionInfoCard({
             }}
           >
             <StatusIcon
-              size={34}
+              size={30}
               strokeWidth={2.4}
             />
 

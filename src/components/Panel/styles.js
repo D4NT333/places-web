@@ -13,7 +13,7 @@ const colors = {
 };
 
 const styles = {
-  container: {
+ container: {
   position: "relative",
 
   width: "100%",
@@ -152,7 +152,7 @@ const styles = {
   brandTitle: {
     overflow: "hidden",
     color: colors.white,
-    fontSize: "18px",
+    fontSize: "40px",
     fontWeight: 750,
     lineHeight: 1.18,
     whiteSpace: "nowrap",
@@ -162,7 +162,7 @@ const styles = {
   brandSubtitle: {
     marginTop: "4px",
     color: colors.textSoft,
-    fontSize: "12px",
+    fontSize: "28px",
     fontWeight: 500,
     letterSpacing: "0.02em",
   },
@@ -252,7 +252,7 @@ const styles = {
 
   homeText: {
     overflow: "hidden",
-    fontSize: "14px",
+    fontSize: "40px",
     fontWeight: 700,
     whiteSpace: "nowrap",
     transition: "opacity 150ms ease, width 240ms ease",
@@ -261,7 +261,7 @@ const styles = {
   sectionsContainer: {
     display: "flex",
     flexDirection: "column",
-    gap: "5px",
+    gap: "40px",
   },
 
   sectionBlock: {
@@ -323,7 +323,7 @@ const styles = {
   sectionText: {
     overflow: "hidden",
     color: "inherit",
-    fontSize: "14px",
+    fontSize: "40px",
     fontWeight: 650,
     whiteSpace: "nowrap",
     transition: "opacity 150ms ease, width 240ms ease",
@@ -338,7 +338,7 @@ const styles = {
     borderRadius: "999px",
     background: colors.green500,
     color: colors.white,
-    fontSize: "11px",
+    fontSize: "30px",
     fontWeight: 800,
     boxShadow: "0 5px 12px rgba(49, 201, 103, 0.2)",
     boxSizing: "border-box",
@@ -357,7 +357,7 @@ const styles = {
     borderRadius: "999px",
     background: colors.green500,
     color: colors.white,
-    fontSize: "9px",
+    fontSize: "30px",
     fontWeight: 800,
     boxSizing: "border-box",
   },
@@ -400,7 +400,7 @@ const styles = {
   sectionContentInner: {
     display: "flex",
     flexDirection: "column",
-    gap: "3px",
+    gap: "18px",
     paddingLeft: "15px",
   },
 
@@ -444,7 +444,7 @@ const styles = {
 
   optionText: {
     overflow: "hidden",
-    fontSize: "13px",
+    fontSize: "30px",
     fontWeight: 560,
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",

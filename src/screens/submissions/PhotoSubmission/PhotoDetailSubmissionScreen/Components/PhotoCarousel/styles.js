@@ -190,8 +190,8 @@ const styles = {
 
   thumbnailButton: {
     position: "relative",
-    width: 94,
-    height: 66,
+    width: 136,
+    height: 136,
     flex: "0 0 94px",
     padding: 0,
     overflow: "hidden",

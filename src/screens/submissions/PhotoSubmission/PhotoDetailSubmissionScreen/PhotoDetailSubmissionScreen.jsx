@@ -13,10 +13,13 @@ import {
 import LayoutScreen from "../../../../layout";
 
 import PhotoCarousel from "./Components/PhotoCarousel";
-import PhotoDetailHeader from "./Components/PhotoDetailHeader";
 import SubmissionInfoCard from "./Components/SubmissionInfoCard";
 import ReviewActions from "./Components/ReviewActions";
 import PhotoRejectionModal from "./Components/PhotoRejectionModal";
+
+import {
+  ImageGalleryModal,
+} from "../../../../components";
 
 import getPhotoSubmissionDetailService from "../../../../services/api/submissions/photo/read/getPhotoSubmissionDetail.service";
 
@@ -116,7 +119,8 @@ export default function PhotoDetailSubmissionScreen() {
   const navigate =
     useNavigate();
 
-    const location = useLocation();
+  const location =
+    useLocation();
 
   const {
     submissionId,
@@ -157,21 +161,36 @@ export default function PhotoDetailSubmissionScreen() {
     setApprovalLoading,
   ] = useState(false);
 
+  const [
+    isGalleryOpen,
+    setIsGalleryOpen,
+  ] = useState(false);
+
+  const [
+    galleryIndex,
+    setGalleryIndex,
+  ] = useState(0);
+
   const actionLoading =
     rejectionLoading ||
     approvalLoading;
 
   const navigationState =
-  location.state || {};
+    location.state || {};
 
-const cameFromUserHistory =
-  navigationState.from === "user-history" &&
-  Boolean(navigationState.returnTo);
+  const cameFromUserHistory =
+    navigationState.from ===
+      "user-history" &&
+    Boolean(
+      navigationState.returnTo
+    );
 
-const cameFromPlaceDetail =
-  navigationState.from ===
-    "administration-place-detail" &&
-  Boolean(navigationState.returnTo);
+  const cameFromPlaceDetail =
+    navigationState.from ===
+      "administration-place-detail" &&
+    Boolean(
+      navigationState.returnTo
+    );
 
   useEffect(() => {
     let requestCancelled =
@@ -239,100 +258,118 @@ const cameFromPlaceDetail =
     reloadCounter,
   ]);
 
- const breadcrumbs = useMemo(() => {
-  if (cameFromUserHistory) {
-    return [
-      {
-        label: "Inicio",
-        to: "/",
-      },
-      {
-        label: "Administrar usuarios",
-        to: "/administration/users",
-      },
-      {
-        label:
-          navigationState.userName ||
-          "Detalle del usuario",
+  const breadcrumbs =
+    useMemo(() => {
+      if (cameFromUserHistory) {
+        return [
+          {
+            label: "Inicio",
+            to: "/",
+          },
+          {
+            label:
+              "Administrar usuarios",
+            to:
+              "/administration/users",
+          },
+          {
+            label:
+              navigationState.userName ||
+              "Detalle del usuario",
 
-        to:
-          navigationState.returnTo,
-      },
-      {
-        label: "Detalle de propuesta",
-      },
-    ];
+            to:
+              navigationState.returnTo,
+          },
+          {
+            label:
+              "Detalle de propuesta",
+          },
+        ];
+      }
+
+      if (cameFromPlaceDetail) {
+        return [
+          {
+            label: "Inicio",
+            to: "/",
+          },
+          {
+            label:
+              navigationState
+                .parentBreadcrumb
+                ?.label ||
+              "Administrar lugares",
+
+            to:
+              navigationState
+                .parentBreadcrumb
+                ?.to ||
+              "/administration/places",
+          },
+          {
+            label:
+              navigationState.placeName ||
+              navigationState.returnLabel ||
+              submission?.placeName ||
+              "Detalle del lugar",
+
+            to:
+              navigationState.returnTo,
+          },
+          {
+            label:
+              "Detalle de propuesta",
+          },
+        ];
+      }
+
+      return [
+        {
+          label: "Inicio",
+          to: "/",
+        },
+        {
+          label:
+            "Propuestas de fotografías",
+          to:
+            "/submissions/photos",
+        },
+        {
+          label:
+            "Detalle de propuesta",
+        },
+      ];
+    }, [
+      cameFromUserHistory,
+      cameFromPlaceDetail,
+      navigationState.userName,
+      navigationState.placeName,
+      navigationState.returnLabel,
+      navigationState.returnTo,
+      navigationState.parentBreadcrumb,
+      submission?.placeName,
+    ]);
+
+  function handleGoBack() {
+    if (cameFromUserHistory) {
+      navigate(
+        navigationState.returnTo,
+        {
+          state: {
+            selectedWeekStart:
+              navigationState.selectedWeekStart ||
+              null,
+          },
+        }
+      );
+
+      return;
+    }
+
+    navigate(
+      "/submissions/photos"
+    );
   }
-
-  if (cameFromPlaceDetail) {
-    return [
-      {
-        label: "Inicio",
-        to: "/",
-      },
-      {
-        label:
-          navigationState.parentBreadcrumb?.label ||
-          "Administrar lugares",
-
-        to:
-          navigationState.parentBreadcrumb?.to ||
-          "/administration/places",
-      },
-      {
-        label:
-          navigationState.placeName ||
-          navigationState.returnLabel ||
-          submission?.placeName ||
-          "Detalle del lugar",
-
-        to:
-          navigationState.returnTo,
-      },
-      {
-        label: "Detalle de propuesta",
-      },
-    ];
-  }
-
-  return [
-    {
-      label: "Inicio",
-      to: "/",
-    },
-    {
-      label: "Propuestas de fotografías",
-      to: "/submissions/photos",
-    },
-    {
-      label: "Detalle de propuesta",
-    },
-  ];
-}, [
-  cameFromUserHistory,
-  cameFromPlaceDetail,
-  navigationState.userName,
-  navigationState.placeName,
-  navigationState.returnLabel,
-  navigationState.returnTo,
-  navigationState.parentBreadcrumb,
-  submission?.placeName,
-]);
-
- function handleGoBack() {
-  if (cameFromUserHistory) {
-    navigate(navigationState.returnTo, {
-      state: {
-        selectedWeekStart:
-          navigationState.selectedWeekStart || null,
-      },
-    });
-
-    return;
-  }
-
-  navigate("/submissions/photos");
-}
 
   function handleRetry() {
     setReloadCounter(
@@ -340,6 +377,83 @@ const cameFromPlaceDetail =
         currentValue + 1
     );
   }
+
+  function handleOpenGallery(
+    selectedIndex = 0
+  ) {
+    const photos =
+      Array.isArray(
+        submission?.photos
+      )
+        ? submission.photos
+        : [];
+
+    if (
+      photos.length === 0
+    ) {
+      return;
+    }
+
+    const safeIndex =
+      Math.min(
+        Math.max(
+          selectedIndex,
+          0
+        ),
+        photos.length - 1
+      );
+
+    setGalleryIndex(
+      safeIndex
+    );
+
+    setIsGalleryOpen(
+      true
+    );
+  }
+
+  function handleCloseGallery() {
+    setIsGalleryOpen(
+      false
+    );
+
+    setGalleryIndex(0);
+  }
+
+  function handleOpenSubmissionUser() {
+  const userId =
+    submission?.userId ||
+    submission?.createdBy ||
+    "";
+
+  if (!userId) {
+    return;
+  }
+
+  navigate(
+    `/administration/users/${encodeURIComponent(
+      userId
+    )}`,
+    {
+      state: {
+        from:
+          "photo-submission-detail",
+
+        returnTo:
+          `/submissions/photos/${submissionId}`,
+
+        returnLabel:
+          "Detalle de propuesta",
+
+        submissionId,
+
+        userName:
+          submission?.createdByName ||
+          "Usuario",
+      },
+    }
+  );
+}
 
   async function handleApprove() {
     if (
@@ -565,8 +679,16 @@ const cameFromPlaceDetail =
 
   if (loading) {
     return (
-     <LayoutScreen breadcrumbs={breadcrumbs}>
-        <main style={styles.screen}>
+      <LayoutScreen
+        breadcrumbs={
+          breadcrumbs
+        }
+      >
+        <main
+          style={
+            styles.screen
+          }
+        >
           <div
             style={
               styles.centerState
@@ -598,8 +720,16 @@ const cameFromPlaceDetail =
     !submission
   ) {
     return (
-      <LayoutScreen breadcrumbs={breadcrumbs}>
-        <main style={styles.screen}>
+      <LayoutScreen
+        breadcrumbs={
+          breadcrumbs
+        }
+      >
+        <main
+          style={
+            styles.screen
+          }
+        >
           <div
             style={
               styles.centerState
@@ -683,91 +813,112 @@ const cameFromPlaceDetail =
       : photos.length;
 
   return (
-   <LayoutScreen breadcrumbs={breadcrumbs}>
-      <main style={styles.screen}>
-        <PhotoDetailHeader
-          placeName={
-            submission.placeName
-          }
-        />
-
-        <section
+    <>
+      <LayoutScreen
+        breadcrumbs={
+          breadcrumbs
+        }
+      >
+        <main
           style={
-            styles.contentArea
+            styles.screen
           }
         >
+          <section
+            style={
+              styles.contentArea
+            }
+          >
+            <div
+              style={
+                styles.carouselColumn
+              }
+            >
+              <PhotoCarousel
+                photos={photos}
+                placeName={
+                  submission.placeName
+                }
+                onPhotoClick={
+                  handleOpenGallery
+                }
+              />
+            </div>
+
+            <aside
+              style={
+                styles.sideColumn
+              }
+            >
+             <SubmissionInfoCard
+  placeName={
+    submission.placeName
+  }
+  createdByName={
+    submission.createdByName
+  }
+  userId={
+    submission.userId ||
+    submission.createdBy ||
+    ""
+  }
+  userPhotoUrl={
+    submission.userPhotoUrl ||
+    submission.createdByPhotoUrl ||
+    submission.createdBy?.photoURL ||
+    submission.createdBy?.photoUrl ||
+    ""
+  }
+  createdAt={
+    shortDate
+  }
+  photoCount={
+    photoCount
+  }
+  status={
+    submission.status
+  }
+  onUserClick={
+    handleOpenSubmissionUser
+  }
+/>
+
+              <ReviewActions
+                status={
+                  submission.status
+                }
+                loading={
+                  actionLoading
+                }
+                onReject={
+                  handleOpenRejectModal
+                }
+                onApprove={
+                  handleApprove
+                }
+              />
+            </aside>
+          </section>
+
           <div
             style={
-              styles.carouselColumn
+              styles.backButtonWrapper
             }
           >
-            <PhotoCarousel
-              photos={photos}
-              placeName={
-                submission.placeName
+            <button
+              type="button"
+              style={
+                styles.backButton
               }
-            />
+              onClick={
+                handleGoBack
+              }
+            >
+              Volver
+            </button>
           </div>
-
-          <aside
-            style={
-              styles.sideColumn
-            }
-          >
-            <SubmissionInfoCard
-              placeName={
-                submission.placeName
-              }
-              createdByName={
-                submission
-                  .createdByName
-              }
-              createdAt={
-                shortDate
-              }
-              photoCount={
-                photoCount
-              }
-              status={
-                submission.status
-              }
-            />
-
-            <ReviewActions
-              status={
-                submission.status
-              }
-              loading={
-                actionLoading
-              }
-              onReject={
-                handleOpenRejectModal
-              }
-              onApprove={
-                handleApprove
-              }
-            />
-          </aside>
-        </section>
-
-        <div
-          style={
-            styles.backButtonWrapper
-          }
-        >
-          <button
-            type="button"
-            style={
-              styles.backButton
-            }
-            onClick={
-              handleGoBack
-            }
-          >
-            Volver
-          </button>
-        </div>
-      </main>
+        </main>
+      </LayoutScreen>
 
       <PhotoRejectionModal
         visible={
@@ -783,6 +934,27 @@ const cameFromPlaceDetail =
           handleSubmitRejection
         }
       />
-    </LayoutScreen>
+
+      <ImageGalleryModal
+        isOpen={
+          isGalleryOpen
+        }
+        photos={photos}
+        currentIndex={
+          galleryIndex
+        }
+        title={
+          submission?.placeName
+            ? `Fotografías de ${submission.placeName}`
+            : "Fotografías de la propuesta"
+        }
+        onChangeIndex={
+          setGalleryIndex
+        }
+        onClose={
+          handleCloseGallery
+        }
+      />
+    </>
   );
 }

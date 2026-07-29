@@ -21,7 +21,7 @@ export default function LayoutScreen({
   className = "",
   style = {},
   scrollToTop = false,
-  sidebarWidth = "286px",
+  sidebarWidth = "526px",
   stickyHeader = true,
   showHeader = true,
   showSidebar = true,

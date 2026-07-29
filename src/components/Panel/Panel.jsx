@@ -196,7 +196,7 @@ function SidebarLink({
       }}
     >
       <Icon
-        size={18}
+        size={29}
         strokeWidth={2}
         style={styles.optionIcon}
       />
@@ -235,7 +235,7 @@ function SidebarSection({
       >
         <span style={styles.sectionButtonMain}>
           <SectionIcon
-            size={20}
+            size={40}
             strokeWidth={2}
             style={styles.sectionIcon}
           />
@@ -253,7 +253,7 @@ function SidebarSection({
           )}
 
           <ChevronDown
-            size={17}
+            size={34}
             strokeWidth={2.2}
             style={{
               ...styles.chevron,
@@ -354,7 +354,7 @@ export default function Panel({
             style={styles.collapseButton}
           >
             <X
-              size={20}
+              size={30}
               strokeWidth={2.2}
             />
           </button>
@@ -374,7 +374,7 @@ export default function Panel({
             }}
           >
             <Home
-              size={21}
+              size={34}
               strokeWidth={2.2}
               style={styles.homeIcon}
             />
@@ -420,7 +420,7 @@ export default function Panel({
             </div>
 
             <ChevronRight
-              size={19}
+              size={39}
               strokeWidth={2}
               style={styles.userChevron}
             />

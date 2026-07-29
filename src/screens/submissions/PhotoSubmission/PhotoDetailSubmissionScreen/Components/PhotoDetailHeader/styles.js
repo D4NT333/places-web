@@ -38,7 +38,7 @@ const styles = {
     maxWidth: 760,
     margin: "6px 0 0",
     color: "#5B708F",
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: 600,
     lineHeight: 1.5,
   },
