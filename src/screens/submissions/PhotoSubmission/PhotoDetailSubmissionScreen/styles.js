@@ -2,236 +2,120 @@ const styles = {
   screen: {
     width: "100%",
     minWidth: 0,
-
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
-
-    padding: "8px 36px 14px",
+    gap: 16,
+    padding: "18px clamp(18px, 2vw, 32px) 28px",
     boxSizing: "border-box",
-
-    overflow: "hidden",
   },
 
   contentArea: {
-    width: "100%",
-
-    /*
-     * Controla el alto completo de:
-     * - Carrusel
-     * - Información + acciones
-     */
-    height: "clamp(960px, 61dvh, 540px)",
-
-    minWidth: 0,
-    minHeight: 0,
-
-    display: "grid",
-
-    /*
-     * Controla el ancho del panel derecho.
-     */
-    gridTemplateColumns:
-      "minmax(0, 1fr) clamp(590px, 28vw, 500px)",
-
-    alignItems: "stretch",
-    gap: "16px",
-
-    boxSizing: "border-box",
-    overflow: "hidden",
-  },
+  width: "100%",
+  minWidth: 0,
+  display: "grid",
+  gridTemplateColumns:
+    "minmax(0, 1.65fr) minmax(360px, 0.65fr)",
+  alignItems: "stretch",
+  gap: 16,
+},
 
   carouselColumn: {
-    width: "100%",
-    height: "100%",
-
     minWidth: 0,
-    minHeight: 0,
-
-    overflow: "hidden",
+    display: "flex",
   },
 
-  sideColumn: {
+ sideColumn: {
+  minWidth: 0,
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  alignSelf: "stretch",
+  gap: 14,
+},
+
+  backButtonWrapper: {
     width: "100%",
-    height: "100%",
-
-    minWidth: 0,
-    minHeight: 0,
-
     display: "flex",
-    flexDirection: "column",
-    gap: "10px",
+    justifyContent: "flex-end",
+  },
 
-    overflow: "hidden",
+  backButton: {
+    minHeight: 42,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: "9px 18px",
+    border: "1px solid #B6CAE5",
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    color: "#0A2858",
+    fontFamily: "inherit",
+    fontSize: 34,
+    fontWeight: 900,
+    cursor: "pointer",
+    boxShadow: "0 8px 18px rgba(30, 72, 126, 0.1)",
+    backdropFilter: "blur(8px)",
   },
 
   centerState: {
-    width: "100%",
-    height: "100%",
-
-    minHeight: 0,
-
+    width: "min(720px, 100%)",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-
-    padding: "2rem",
+    alignItems: "flex-start",
+    gap: 8,
+    padding: 22,
+    border: "1px solid rgba(195, 213, 237, 0.96)",
+    borderRadius: 18,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    boxShadow: "0 14px 30px rgba(30, 72, 126, 0.1)",
     boxSizing: "border-box",
-
-    border: "1px solid #d9e0e8",
-    borderRadius: "12px",
-
-    backgroundColor: "#ffffff",
-
-    textAlign: "center",
-  },
-
-  loader: {
-    width: "36px",
-    height: "36px",
-
-    marginBottom: "1rem",
-
-    border: "4px solid #e5e7eb",
-    borderTopColor: "#2563eb",
-    borderRadius: "50%",
-
-    animation: "spin 0.8s linear infinite",
   },
 
   errorIcon: {
-    width: "44px",
-    height: "44px",
-
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-
-    marginBottom: "0.9rem",
-
-    borderRadius: "50%",
-
-    backgroundColor: "#fee2e2",
-    color: "#b91c1c",
-
-    fontSize: "1.3rem",
-    fontWeight: "800",
+    width: 48,
+    height: 48,
+    display: "grid",
+    placeItems: "center",
+    border: "1px solid #FFC0C0",
+    borderRadius: 14,
+    backgroundColor: "#FFF0F0",
+    color: "#DC3535",
+    fontSize: 38,
+    fontWeight: 900,
   },
 
   stateTitle: {
     margin: 0,
-
-    color: "#111827",
-
-    fontSize: "1.05rem",
-    fontWeight: "800",
+    color: "#071B45",
+    fontSize: 32,
+    fontWeight: 900,
   },
 
   stateText: {
-    maxWidth: "470px",
-
-    margin: "0.45rem 0 1.1rem",
-
-    color: "#64748b",
-
-    fontSize: "0.9rem",
+    margin: 0,
+    color: "#637895",
+    fontSize: 34,
+    fontWeight: 600,
     lineHeight: 1.5,
   },
 
-  errorActions: {
-    display: "flex",
+  secondaryButton: {
+    minHeight: 40,
+    display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "0.7rem",
-
-    marginTop: "1rem",
-  },
-
-  warningMessage: {
-    width: "100%",
-
-    padding: "0.7rem 0.9rem",
-    boxSizing: "border-box",
-
-    border: "1px solid #fde68a",
-    borderRadius: "9px",
-
-    backgroundColor: "#fffbeb",
-    color: "#92400e",
-
-    fontSize: "0.82rem",
-  },
-
-  primaryButton: {
-    minWidth: "120px",
-    height: "38px",
-
-    padding: "0 1rem",
-
-    border: "none",
-    borderRadius: "999px",
-
-    backgroundColor: "#16a34a",
-    color: "#ffffff",
-
+    marginTop: 4,
+    padding: "9px 16px",
+    border: "1px solid #B8D0EF",
+    borderRadius: 999,
+    backgroundColor: "#F0F6FF",
+    color: "#1768CF",
     fontFamily: "inherit",
-    fontSize: "0.8rem",
-    fontWeight: "800",
-
+    fontSize: 34,
+    fontWeight: 900,
     cursor: "pointer",
   },
-
-  secondaryButton: {
-    minWidth: "120px",
-    height: "38px",
-
-    padding: "0 1rem",
-
-    border: "1px solid #0f172a",
-    borderRadius: "999px",
-
-    backgroundColor: "#ffffff",
-    color: "#0f172a",
-
-    fontFamily: "inherit",
-    fontSize: "0.8rem",
-    fontWeight: "800",
-
-    cursor: "pointer",
-  },
-
-backButtonWrapper: {
-  width: "100%",
-  display: "flex",
-  justifyContent: "flex-end",
-  alignItems: "center",
-
-  paddingTop: "2px",
-  boxSizing: "border-box",
-},
-
-backButton: {
-  minWidth: "112px",
-  height: "36px",
-
-  padding: "0 18px",
-
-  border: "1px solid #111827",
-  borderRadius: "999px",
-
-  backgroundColor: "#ffffff",
-  color: "#111827",
-
-  fontFamily: "inherit",
-  fontSize: "12px",
-  fontWeight: "800",
-
-  cursor: "pointer",
-
-  boxShadow:
-    "0 2px 6px rgba(15, 23, 42, 0.06)",
-},
 };
 
 export default styles;

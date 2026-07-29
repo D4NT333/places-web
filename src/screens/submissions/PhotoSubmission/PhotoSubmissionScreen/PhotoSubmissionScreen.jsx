@@ -7,6 +7,19 @@ import React, {
 } from "react";
 
 import {
+  CheckCircle2,
+  CircleAlert,
+  Clock3,
+  Database,
+  Images,
+  Inbox,
+  Layers3,
+  LoaderCircle,
+  RotateCw,
+  XCircle,
+} from "lucide-react";
+
+import {
   useNavigate,
 } from "react-router-dom";
 
@@ -29,18 +42,26 @@ const statusFilters = [
   {
     label: "Todas",
     value: "all",
+    icon: Layers3,
+    tone: "blue",
   },
   {
     label: "Pendientes",
     value: "in_review",
+    icon: Clock3,
+    tone: "orange",
   },
   {
     label: "Aprobadas",
     value: "approved",
+    icon: CheckCircle2,
+    tone: "green",
   },
   {
     label: "Rechazadas",
     value: "rejected",
+    icon: XCircle,
+    tone: "red",
   },
 ];
 
@@ -50,6 +71,22 @@ function getErrorMessage(error) {
     error?.message ||
     "No se pudieron cargar las propuestas de fotografías."
   );
+}
+
+function getFilterIconStyle(tone) {
+  if (tone === "green") {
+    return styles.filterIconGreen;
+  }
+
+  if (tone === "orange") {
+    return styles.filterIconOrange;
+  }
+
+  if (tone === "red") {
+    return styles.filterIconRed;
+  }
+
+  return styles.filterIconBlue;
 }
 
 export default function PhotoSubmissionScreen() {
@@ -359,43 +396,109 @@ export default function PhotoSubmissionScreen() {
               styles.headerInformation
             }
           >
-            <h1 style={styles.title}>
-              Propuestas de fotografías
-            </h1>
+            <div style={styles.titleRow}>
+              <div style={styles.titleIconBox}>
+                <Images
+                  size={40}
+                  strokeWidth={2.2}
+                />
+              </div>
 
-            <p style={styles.subtitle}>
-              Revisión de fotografías propuestas por los usuarios.
-            </p>
+              <div>
+                <h1 style={styles.title}>
+                  Propuestas de fotografías
+                </h1>
+
+                <p style={styles.subtitle}>
+                  Revisa las fotografías propuestas por los usuarios
+                  antes de incorporarlas a los lugares.
+                </p>
+              </div>
+            </div>
 
             <div
               style={
-                styles.summaryChips
+                styles.summaryCards
               }
             >
               <div
                 style={
-                  styles.summaryChip
+                  styles.summaryCard
                 }
               >
-                Propuestas cargadas:
-
-                <strong>
-                  {
-                    photoSubmissions.length
+                <div
+                  style={
+                    styles.summaryIconBlue
                   }
-                </strong>
+                >
+                  <Database
+                    size={40}
+                    strokeWidth={2.2}
+                  />
+                </div>
+
+                <div
+                  style={
+                    styles.summaryInformation
+                  }
+                >
+                  <span
+                    style={
+                      styles.summaryLabel
+                    }
+                  >
+                    Propuestas cargadas
+                  </span>
+
+                  <strong
+                    style={
+                      styles.summaryValueBlue
+                    }
+                  >
+                    {
+                      photoSubmissions.length
+                    }
+                  </strong>
+                </div>
               </div>
 
               <div
                 style={
-                  styles.summaryChip
+                  styles.summaryCard
                 }
               >
-                Lotes cargados:
+                <div
+                  style={
+                    styles.summaryIconGreen
+                  }
+                >
+                  <Layers3
+                    size={40}
+                    strokeWidth={2.2}
+                  />
+                </div>
 
-                <strong>
-                  {loadedBatches}
-                </strong>
+                <div
+                  style={
+                    styles.summaryInformation
+                  }
+                >
+                  <span
+                    style={
+                      styles.summaryLabel
+                    }
+                  >
+                    Lotes cargados
+                  </span>
+
+                  <strong
+                    style={
+                      styles.summaryValueGreen
+                    }
+                  >
+                    {loadedBatches}
+                  </strong>
+                </div>
               </div>
             </div>
           </div>
@@ -407,6 +510,9 @@ export default function PhotoSubmissionScreen() {
                   selectedStatus ===
                   filter.value;
 
+                const FilterIcon =
+                  filter.icon;
+
                 return (
                   <button
                     key={
@@ -415,7 +521,6 @@ export default function PhotoSubmissionScreen() {
                     type="button"
                     style={{
                       ...styles.filterButton,
-
                       ...(isActive
                         ? styles.filterButtonActive
                         : {}),
@@ -426,7 +531,21 @@ export default function PhotoSubmissionScreen() {
                       )
                     }
                   >
-                    {filter.label}
+                    <FilterIcon
+                      size={34}
+                      strokeWidth={2.3}
+                      style={
+                        isActive
+                          ? styles.filterIconActive
+                          : getFilterIconStyle(
+                              filter.tone
+                            )
+                      }
+                    />
+
+                    <span>
+                      {filter.label}
+                    </span>
                   </button>
                 );
               }
@@ -435,35 +554,99 @@ export default function PhotoSubmissionScreen() {
         </header>
 
         {loading ? (
-          <div
+          <section
             style={
-              styles.emptyState
+              styles.feedbackCard
             }
           >
-            Cargando propuestas de fotografías...
-          </div>
+            <div
+              style={
+                styles.feedbackIconBlue
+              }
+            >
+              <LoaderCircle
+                size={42}
+                strokeWidth={2.2}
+              />
+            </div>
+
+            <div>
+              <h2
+                style={
+                  styles.feedbackTitle
+                }
+              >
+                Cargando propuestas
+              </h2>
+
+              <p
+                style={
+                  styles.feedbackText
+                }
+              >
+                Estamos obteniendo las fotografías enviadas por los
+                usuarios.
+              </p>
+            </div>
+          </section>
         ) : error &&
           photoSubmissions.length ===
             0 ? (
-          <div
+          <section
             style={
-              styles.emptyState
+              styles.feedbackCard
             }
           >
-            <p>{error}</p>
-
-            <button
-              type="button"
+            <div
               style={
-                styles.filterButton
-              }
-              onClick={
-                loadFirstPage
+                styles.feedbackIconRed
               }
             >
-              Reintentar
-            </button>
-          </div>
+              <CircleAlert
+                size={40}
+                strokeWidth={2.2}
+              />
+            </div>
+
+            <div
+              style={
+                styles.feedbackContent
+              }
+            >
+              <h2
+                style={
+                  styles.feedbackTitle
+                }
+              >
+                No se pudieron cargar las propuestas
+              </h2>
+
+              <p
+                style={
+                  styles.feedbackText
+                }
+              >
+                {error}
+              </p>
+
+              <button
+                type="button"
+                style={
+                  styles.retryButton
+                }
+                onClick={
+                  loadFirstPage
+                }
+              >
+                <RotateCw
+                  size={40}
+                  strokeWidth={2.3}
+                />
+
+                Reintentar
+              </button>
+            </div>
+          </section>
         ) : photoSubmissions.length >
           0 ? (
           <>
@@ -531,26 +714,34 @@ export default function PhotoSubmissionScreen() {
             </section>
 
             {error ? (
-              <div
+              <section
                 style={
-                  styles.emptyState
+                  styles.inlineError
                 }
               >
-                {error}
-              </div>
+                <CircleAlert
+                  size={40}
+                  strokeWidth={2.3}
+                />
+
+                <span>{error}</span>
+              </section>
             ) : null}
 
             {pagination.hasMore ? (
               <div
                 style={
-                  styles.paginationEnd
+                  styles.paginationActions
                 }
               >
                 <button
                   type="button"
-                  style={
-                    styles.filterButton
-                  }
+                  style={{
+                    ...styles.loadMoreButton,
+                    ...(loadingMore
+                      ? styles.loadMoreButtonDisabled
+                      : {}),
+                  }}
                   disabled={
                     loadingMore
                   }
@@ -558,6 +749,18 @@ export default function PhotoSubmissionScreen() {
                     handleLoadMore
                   }
                 >
+                  {loadingMore ? (
+                    <LoaderCircle
+                      size={21}
+                      strokeWidth={2.2}
+                    />
+                  ) : (
+                    <Images
+                      size={21}
+                      strokeWidth={2.2}
+                    />
+                  )}
+
                   {loadingMore
                     ? "Cargando..."
                     : "Cargar más propuestas"}
@@ -569,18 +772,53 @@ export default function PhotoSubmissionScreen() {
                   styles.paginationEnd
                 }
               >
-                Llegaste al final. Ya se cargaron todas las propuestas de fotografías.
+                <CheckCircle2
+                  size={40}
+                  strokeWidth={2.4}
+                />
+
+                <span>
+                  Se cargaron todas las propuestas de fotografías.
+                </span>
               </div>
             )}
           </>
         ) : (
-          <div
+          <section
             style={
-              styles.emptyState
+              styles.feedbackCard
             }
           >
-            No hay propuestas de fotografías con este estado.
-          </div>
+            <div
+              style={
+                styles.feedbackIconBlue
+              }
+            >
+              <Inbox
+                size={40}
+                strokeWidth={2.2}
+              />
+            </div>
+
+            <div>
+              <h2
+                style={
+                  styles.feedbackTitle
+                }
+              >
+                No hay propuestas
+              </h2>
+
+              <p
+                style={
+                  styles.feedbackText
+                }
+              >
+                No hay propuestas de fotografías con el estado
+                seleccionado.
+              </p>
+            </div>
+          </section>
         )}
       </main>
     </LayoutScreen>

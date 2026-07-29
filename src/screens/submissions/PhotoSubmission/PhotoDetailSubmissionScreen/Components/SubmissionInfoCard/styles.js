@@ -1,185 +1,164 @@
 const styles = {
   card: {
-    width: "100%",
-
-    /*
-     * Hace crecer Información y rellena
-     * el espacio sobrante de la derecha.
-     */
-    flex: "1 1 0",
-
-    minWidth: 0,
-    minHeight: 0,
-
-    display: "flex",
-    flexDirection: "column",
-
-    overflow: "hidden",
-
-    border: "1px solid #d9e0e8",
-    borderRadius: "12px",
-
-    backgroundColor: "#ffffff",
-
-    boxShadow:
-      "0 3px 12px rgba(15, 23, 42, 0.05)",
-  },
+  width: "100%",
+  minWidth: 0,
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  padding: 14,
+  border: "1px solid rgba(195, 213, 237, 0.98)",
+  borderRadius: 18,
+  backgroundColor: "rgba(255, 255, 255, 0.9)",
+  boxShadow: "0 14px 30px rgba(30, 72, 126, 0.1)",
+  backdropFilter: "blur(9px)",
+  boxSizing: "border-box",
+},
 
   header: {
-    flex: "0 0 60px",
-
-    height: "60px",
-    minHeight: "60px",
-
     display: "flex",
     alignItems: "center",
+    gap: 11,
+    paddingBottom: 13,
+    borderBottom: "1px solid #D9E4F1",
+  },
 
-    padding: "9px 16px",
-    boxSizing: "border-box",
-
-    borderBottom: "1px solid #e5eaf0",
+  headerIconBox: {
+    width: 54,
+    height: 54,
+    flex: "0 0 44px",
+    display: "grid",
+    placeItems: "center",
+    border: "1px solid #B8D3FA",
+    borderRadius: 13,
+    backgroundColor: "#EDF5FF",
+    color: "#2475E8",
   },
 
   title: {
     margin: 0,
-
-    color: "#111827",
-
-    fontSize: "20px",
-    fontWeight: "800",
+    color: "#071B45",
+    fontSize: 44,
+    fontWeight: 900,
   },
 
   subtitle: {
     margin: "3px 0 0",
-
-    color: "#64748b",
-
-    fontSize: "15px",
-    lineHeight: 1.35,
+    color: "#647A96",
+    fontSize: 28,
+    fontWeight: 600,
   },
 
   content: {
-    /*
-     * Distribuye las filas uniformemente
-     * dentro del alto disponible.
-     */
-    flex: 1,
-    minHeight: 0,
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  gap: 10,
+  paddingTop: 13,
+},
 
-    display: "grid",
-    gridTemplateRows:
-      "repeat(5, minmax(0, 1fr))",
-
-    padding: "0 16px",
+  infoField: {
+    minWidth: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    padding: 11,
+    border: "1px solid #D1DEEE",
+    borderRadius: 14,
+    backgroundColor: "#F4F8FD",
+    boxSizing: "border-box",
   },
 
-  infoRow: {
+  fieldIconBox: {
+    width: 52,
+    height: 52,
+    flex: "0 0 42px",
     display: "grid",
-    gridTemplateColumns:
-      "115px minmax(0, 1fr)",
+    placeItems: "center",
+    borderRadius: 12,
+  },
 
-    alignItems: "center",
-    gap: "12px",
+  iconBlue: {
+    border: "1px solid #B7D3FA",
+    backgroundColor: "#EAF3FF",
+    color: "#2475E8",
+  },
 
-    minHeight: 0,
+  iconGreen: {
+    border: "1px solid #A9E2C4",
+    backgroundColor: "#E9F9F0",
+    color: "#0A9854",
+  },
 
-    padding: "7px 0",
-    boxSizing: "border-box",
+  iconViolet: {
+    border: "1px solid #D0C5FF",
+    backgroundColor: "#F1EDFF",
+    color: "#6D4FE8",
+  },
 
-    borderBottom: "1px solid #e8edf2",
+  iconOrange: {
+    border: "1px solid #FFD18A",
+    backgroundColor: "#FFF6E5",
+    color: "#D77A00",
+  },
+
+  iconRed: {
+    border: "1px solid #FFB9B9",
+    backgroundColor: "#FFF0F0",
+    color: "#DF3434",
+  },
+
+  fieldContent: {
+    minWidth: 0,
+    display: "flex",
+    flexDirection: "column",
+    gap: 3,
   },
 
   infoLabel: {
-    color: "#64748b",
-
-    fontSize: "20px",
-    fontWeight: "600",
+    color: "#71839A",
+    fontSize: 34,
+    fontWeight: 900,
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
   },
 
   infoValue: {
     overflowWrap: "anywhere",
-
-    color: "#111827",
-
-    fontSize: "18px",
-    fontWeight: "800",
-
-    lineHeight: 1.35,
-
-    textAlign: "right",
+    color: "#122F59",
+    fontSize: 30,
+    fontWeight: 900,
+    lineHeight: 1.3,
   },
 
   status: {
-    justifySelf: "end",
-
+    width: "fit-content",
     display: "inline-flex",
     alignItems: "center",
-    gap: "5px",
-
-    padding: "5px 9px",
-
+    gap: 6,
+    padding: "7px 11px",
     border: "1px solid",
-    borderRadius: "999px",
-
-    fontSize: "20px",
-    fontWeight: "800",
-  },
-
-  statusDot: {
-    width: "5px",
-    height: "5px",
-
-    borderRadius: "50%",
-
-    backgroundColor: "currentColor",
+    borderRadius: 999,
+    fontSize: 30,
+    fontWeight: 900,
   },
 
   pendingStatus: {
-    borderColor: "#f59e0b",
-    backgroundColor: "#fffbeb",
-    color: "#b45309",
+    borderColor: "#FFD18A",
+    backgroundColor: "#FFF7E5",
+    color: "#C86D00",
   },
 
   approvedStatus: {
-    borderColor: "#22c55e",
-    backgroundColor: "#f0fdf4",
-    color: "#15803d",
+    borderColor: "#A4E2C0",
+    backgroundColor: "#E7F9EF",
+    color: "#078842",
   },
 
   rejectedStatus: {
-    borderColor: "#ef4444",
-    backgroundColor: "#fef2f2",
-    color: "#b91c1c",
-  },
-
-  footer: {
-    flex: "0 0 auto",
-
-    display: "flex",
-    flexDirection: "column",
-    gap: "2px",
-
-    padding: "8px 16px",
-
-    backgroundColor: "#f8fafc",
-
-    borderTop: "1px solid #e5eaf0",
-  },
-
-  idLabel: {
-    color: "#6b7280",
-
-    fontSize: "9px",
-    fontWeight: "600",
-  },
-
-  idValue: {
-    overflowWrap: "anywhere",
-
-    color: "#475569",
-
-    fontFamily: "monospace",
-    fontSize: "9px",
+    borderColor: "#FFB9B9",
+    backgroundColor: "#FFF0F0",
+    color: "#DF3434",
   },
 };
 

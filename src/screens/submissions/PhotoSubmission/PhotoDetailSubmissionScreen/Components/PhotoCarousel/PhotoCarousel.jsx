@@ -4,6 +4,15 @@ import React, {
   useState,
 } from "react";
 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Expand,
+  ImageOff,
+  Images,
+  X,
+} from "lucide-react";
+
 import styles from "./styles";
 
 export default function PhotoCarousel({
@@ -40,19 +49,11 @@ export default function PhotoCarousel({
             photo.photoId ||
             `photo-${index + 1}`,
 
-          /*
-           * La versión medium se utiliza
-           * dentro del carrusel.
-           */
           mediumUrl:
             photo.mediumUrl ||
             photo.originalUrl ||
             "",
 
-          /*
-           * La original solamente se utiliza
-           * cuando se amplía la fotografía.
-           */
           originalUrl:
             photo.originalUrl ||
             photo.mediumUrl ||
@@ -68,19 +69,11 @@ export default function PhotoCarousel({
   const hasMultiplePhotos =
     availablePhotos.length > 1;
 
-  /*
-   * Reinicia el carrusel cuando cambia
-   * la propuesta o el número de fotos.
-   */
   useEffect(() => {
     setActiveIndex(0);
     setLightboxOpen(false);
   }, [availablePhotos.length]);
 
-  /*
-   * Cierra la vista ampliada con Escape
-   * y evita que el fondo pueda desplazarse.
-   */
   useEffect(() => {
     if (!lightboxOpen) {
       return undefined;
@@ -175,40 +168,40 @@ export default function PhotoCarousel({
   ) {
     return (
       <section style={styles.card}>
-        <div
-          style={styles.cardHeader}
-        >
-          <div>
-            <h2 style={styles.title}>
-              Fotografías propuestas
-            </h2>
+        <div style={styles.cardHeader}>
+          <div style={styles.headerHeading}>
+            <div style={styles.headerIconBox}>
+              <Images
+                size={30}
+                strokeWidth={2.2}
+              />
+            </div>
 
-            <p
-              style={styles.subtitle}
-            >
-              Archivos enviados por el usuario.
-            </p>
+            <div>
+              <h2 style={styles.title}>
+                Fotografías propuestas
+              </h2>
+
+              <p style={styles.subtitle}>
+                Archivos enviados por el usuario.
+              </p>
+            </div>
           </div>
         </div>
 
-        <div
-          style={styles.emptyState}
-        >
-          <div
-            style={styles.emptyIcon}
-          >
-            ▧
+        <div style={styles.emptyState}>
+          <div style={styles.emptyIcon}>
+            <ImageOff
+              size={42}
+              strokeWidth={2}
+            />
           </div>
 
-          <p
-            style={styles.emptyTitle}
-          >
+          <p style={styles.emptyTitle}>
             No hay fotografías disponibles
           </p>
 
-          <p
-            style={styles.emptyText}
-          >
+          <p style={styles.emptyText}>
             La propuesta no contiene imágenes que puedan mostrarse.
           </p>
         </div>
@@ -219,27 +212,34 @@ export default function PhotoCarousel({
   return (
     <>
       <section style={styles.card}>
-        <div
-          style={styles.cardHeader}
-        >
-          <div>
-            <h2 style={styles.title}>
-              Fotografías propuestas
-            </h2>
+        <div style={styles.cardHeader}>
+          <div style={styles.headerHeading}>
+            <div style={styles.headerIconBox}>
+              <Images
+                size={40}
+                strokeWidth={2.2}
+              />
+            </div>
 
-            <p
-              style={styles.subtitle}
-            >
-              Revisa cada imagen antes de tomar una decisión.
-            </p>
+            <div>
+              <h2 style={styles.title}>
+                Fotografías propuestas
+              </h2>
+
+              <p style={styles.subtitle}>
+                Revisa cada imagen antes de tomar una decisión.
+              </p>
+            </div>
           </div>
 
-          <span
-            style={styles.photoCount}
-          >
+          <span style={styles.photoCount}>
+            <Images
+              size={40}
+              strokeWidth={2.3}
+            />
+
             {availablePhotos.length}{" "}
-            {availablePhotos.length ===
-            1
+            {availablePhotos.length === 1
               ? "fotografía"
               : "fotografías"}
           </span>
@@ -248,30 +248,21 @@ export default function PhotoCarousel({
         <div style={styles.viewer}>
           <button
             type="button"
-            style={
-              styles.mainImageButton
-            }
-            onClick={
-              handleOpenLightbox
-            }
+            style={styles.mainImageButton}
+            onClick={handleOpenLightbox}
             aria-label={`Ampliar fotografía ${
               activeIndex + 1
             }`}
           >
             <img
-              /*
-               * La vista normal usa medium.
-               */
-              src={
-                activePhoto.mediumUrl
-              }
+              src={activePhoto.mediumUrl}
               alt={`${placeName}, fotografía ${
                 activeIndex + 1
               }`}
-              style={
-                styles.mainImage
-              }
+              style={styles.mainImage}
             />
+
+            <div style={styles.imageOverlay} />
           </button>
 
           {hasMultiplePhotos ? (
@@ -282,12 +273,13 @@ export default function PhotoCarousel({
                   ...styles.navigationButton,
                   ...styles.previousButton,
                 }}
-                onClick={
-                  showPreviousPhoto
-                }
+                onClick={showPreviousPhoto}
                 aria-label="Fotografía anterior"
               >
-                ‹
+                <ChevronLeft
+                  size={40}
+                  strokeWidth={2.5}
+                />
               </button>
 
               <button
@@ -296,55 +288,42 @@ export default function PhotoCarousel({
                   ...styles.navigationButton,
                   ...styles.nextButton,
                 }}
-                onClick={
-                  showNextPhoto
-                }
+                onClick={showNextPhoto}
                 aria-label="Fotografía siguiente"
               >
-                ›
+                <ChevronRight
+                  size={40}
+                  strokeWidth={2.5}
+                />
               </button>
             </>
           ) : null}
 
-          <span
-            style={styles.counter}
-          >
+          <span style={styles.counter}>
             {activeIndex + 1} de{" "}
             {availablePhotos.length}
           </span>
 
-          <span
-            style={
-              styles.expandHint
-            }
-          >
+          <span style={styles.expandHint}>
+            <Expand
+              size={40}
+              strokeWidth={2.3}
+            />
+
             Presiona para ampliar
           </span>
         </div>
 
-        <div
-          style={
-            styles.thumbnailSection
-          }
-        >
-          <p
-            style={
-              styles.thumbnailLabel
-            }
-          >
+        <div style={styles.thumbnailSection}>
+          <p style={styles.thumbnailLabel}>
             Todas las fotografías
           </p>
 
-          <div
-            style={
-              styles.thumbnailList
-            }
-          >
+          <div style={styles.thumbnailList}>
             {availablePhotos.map(
               (photo, index) => {
                 const isActive =
-                  index ===
-                  activeIndex;
+                  index === activeIndex;
 
                 return (
                   <button
@@ -355,15 +334,12 @@ export default function PhotoCarousel({
                     type="button"
                     style={{
                       ...styles.thumbnailButton,
-
                       ...(isActive
                         ? styles.activeThumbnailButton
                         : {}),
                     }}
                     onClick={() =>
-                      setActiveIndex(
-                        index
-                      )
+                      setActiveIndex(index)
                     }
                     aria-label={`Mostrar fotografía ${
                       index + 1
@@ -375,23 +351,14 @@ export default function PhotoCarousel({
                     }
                   >
                     <img
-                      /*
-                       * Las imágenes pequeñas
-                       * también usan medium.
-                       */
-                      src={
-                        photo.mediumUrl
-                      }
+                      src={photo.mediumUrl}
                       alt=""
-                      style={
-                        styles.thumbnailImage
-                      }
+                      style={styles.thumbnailImage}
                     />
 
                     <span
                       style={{
                         ...styles.thumbnailNumber,
-
                         ...(isActive
                           ? styles.activeThumbnailNumber
                           : {}),
@@ -421,47 +388,30 @@ export default function PhotoCarousel({
         >
           <button
             type="button"
-            style={
-              styles.lightboxBackdrop
-            }
-            onClick={
-              handleCloseLightbox
-            }
+            style={styles.lightboxBackdrop}
+            onClick={handleCloseLightbox}
             aria-label="Cerrar fotografía ampliada"
           />
 
-          <div
-            style={
-              styles.lightboxContent
-            }
-          >
+          <div style={styles.lightboxContent}>
             <button
               type="button"
-              style={
-                styles.closeButton
-              }
-              onClick={
-                handleCloseLightbox
-              }
+              style={styles.closeButton}
+              onClick={handleCloseLightbox}
               aria-label="Cerrar"
             >
-              ×
+              <X
+                size={38}
+                strokeWidth={2.4}
+              />
             </button>
 
             <img
-              /*
-               * Solamente la vista ampliada
-               * carga la fotografía original.
-               */
-              src={
-                activePhoto.originalUrl
-              }
+              src={activePhoto.originalUrl}
               alt={`${placeName}, fotografía ampliada ${
                 activeIndex + 1
               }`}
-              style={
-                styles.lightboxImage
-              }
+              style={styles.lightboxImage}
             />
 
             {hasMultiplePhotos ? (
@@ -472,12 +422,13 @@ export default function PhotoCarousel({
                     ...styles.lightboxNavigation,
                     ...styles.lightboxPrevious,
                   }}
-                  onClick={
-                    showPreviousPhoto
-                  }
+                  onClick={showPreviousPhoto}
                   aria-label="Fotografía anterior"
                 >
-                  ‹
+                  <ChevronLeft
+                    size={34}
+                    strokeWidth={2.4}
+                  />
                 </button>
 
                 <button
@@ -486,21 +437,18 @@ export default function PhotoCarousel({
                     ...styles.lightboxNavigation,
                     ...styles.lightboxNext,
                   }}
-                  onClick={
-                    showNextPhoto
-                  }
+                  onClick={showNextPhoto}
                   aria-label="Fotografía siguiente"
                 >
-                  ›
+                  <ChevronRight
+                    size={34}
+                    strokeWidth={2.4}
+                  />
                 </button>
               </>
             ) : null}
 
-            <span
-              style={
-                styles.lightboxCounter
-              }
-            >
+            <span style={styles.lightboxCounter}>
               {activeIndex + 1} de{" "}
               {availablePhotos.length}
             </span>

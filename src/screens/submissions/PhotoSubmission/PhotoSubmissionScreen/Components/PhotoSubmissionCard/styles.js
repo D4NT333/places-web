@@ -2,16 +2,22 @@ const styles = {
   card: {
     width: "100%",
     minWidth: 0,
-    backgroundColor: "#FFFFFF",
-    border: "1px solid #E5E7EB",
-    borderRadius: 14,
-    overflow: "hidden",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
+    overflow: "hidden",
+    border:
+      "1px solid rgba(195, 213, 237, 0.98)",
+    borderRadius: 18,
+    backgroundColor:
+      "rgba(255, 255, 255, 0.9)",
+    boxShadow:
+      "0 14px 30px rgba(30, 72, 126, 0.1)",
+    backdropFilter:
+      "blur(9px)",
     boxSizing: "border-box",
-    boxShadow: "0 6px 18px rgba(15, 23, 42, 0.05)",
     transition:
-      "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+      "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
   },
 
   cardClickable: {
@@ -21,35 +27,57 @@ const styles = {
   imageContainer: {
     position: "relative",
     width: "100%",
-    height: 190,
+    height: 275,
     overflow: "hidden",
-    borderBottom: "1px solid #E5E7EB",
-    backgroundColor: "#F3F4F6",
+    borderBottom:
+      "1px solid rgba(195, 213, 237, 0.92)",
+    backgroundColor: "#EAF1F9",
   },
 
   photoCountBadge: {
     position: "absolute",
-    top: 10,
-    right: 10,
-    zIndex: 2,
+    top: 13,
+    right: 13,
+    zIndex: 3,
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "5px 9px",
-    border: "1px solid rgba(203, 213, 225, 0.9)",
+    gap: 6,
+    padding: "7px 11px",
+    border:
+      "1px solid rgba(183, 204, 231, 0.94)",
     borderRadius: 999,
-    backgroundColor: "rgba(255, 255, 255, 0.92)",
-    color: "#334155",
-    fontSize: 12,
-    fontWeight: 800,
-    boxShadow: "0 3px 10px rgba(15, 23, 42, 0.08)",
+    backgroundColor:
+      "rgba(255, 255, 255, 0.94)",
+    color: "#17355F",
+    fontSize: 20,
+    fontWeight: 900,
+    boxShadow:
+      "0 6px 16px rgba(10, 35, 70, 0.15)",
+    backdropFilter:
+      "blur(7px)",
   },
 
   image: {
     width: "100%",
     height: "100%",
-    objectFit: "cover",
     display: "block",
+    objectFit: "cover",
+    objectPosition: "center",
+  },
+
+  imageGradient: {
+    position: "absolute",
+    inset: 0,
+    zIndex: 1,
+    pointerEvents: "none",
+    background: `
+      linear-gradient(
+        180deg,
+        rgba(7, 27, 69, 0.04) 45%,
+        rgba(7, 27, 69, 0.22) 100%
+      )
+    `,
   },
 
   imagePlaceholder: {
@@ -59,33 +87,77 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: 7,
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: 600,
+    gap: 8,
+    padding: 24,
+    color: "#6D8099",
+    textAlign: "center",
+    boxSizing: "border-box",
+    background: `
+      linear-gradient(
+        145deg,
+        #F4F8FD,
+        #E6EEF8
+      )
+    `,
   },
 
-  placeholderIcon: {
-    fontSize: 28,
-    lineHeight: 1,
-    color: "#CBD5E1",
+  placeholderIconBox: {
+    width: 58,
+    height: 58,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border:
+      "1px solid #C9D8EA",
+    borderRadius: 16,
+    backgroundColor:
+      "rgba(255, 255, 255, 0.72)",
+    color: "#7890AC",
+  },
+
+  placeholderTitle: {
+    color: "#344E70",
+    fontSize: 15,
+    fontWeight: 900,
+  },
+
+  placeholderText: {
+    maxWidth: 300,
+    color: "#71849C",
+    fontSize: 12,
+    fontWeight: 600,
+    lineHeight: 1.45,
   },
 
   infoSection: {
-    minHeight: 105,
-    padding: "14px 16px",
+    flex: 1,
     display: "flex",
     flexDirection: "column",
-    justifyContent: "space-between",
-    gap: 16,
+    gap: 15,
+    padding: 16,
     boxSizing: "border-box",
   },
 
-  mainInformation: {
+  cardHeading: {
     display: "flex",
-    flexDirection: "column",
-    gap: 7,
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 16,
+  },
+
+  placeInformation: {
     minWidth: 0,
+    flex: 1,
+  },
+
+  cardEyebrow: {
+    display: "block",
+    marginBottom: 4,
+    color: "#6B7F9B",
+    fontSize: 24,
+    fontWeight: 900,
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
   },
 
   placeName: {
@@ -93,41 +165,10 @@ const styles = {
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    color: "#111827",
-    fontSize: 15,
-    fontWeight: 800,
-  },
-
-  userText: {
-    margin: 0,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    color: "#64748B",
-    fontSize: 13,
-    fontWeight: 500,
-  },
-
-  userLabel: {
-    color: "#475569",
-    fontWeight: 700,
-  },
-
-  bottomRow: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-
-  createdAt: {
-    minWidth: 0,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    color: "#64748B",
-    fontSize: 12,
-    fontWeight: 600,
+    color: "#091F49",
+    fontSize:38,
+    fontWeight: 900,
+    lineHeight: 1.2,
   },
 
   statusBadge: {
@@ -135,11 +176,89 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "5px 10px",
+    gap: 6,
+    padding: "7px 11px",
     border: "1px solid",
     borderRadius: 999,
-    fontSize: 11,
-    fontWeight: 800,
+    fontSize: 28,
+    fontWeight: 900,
+    whiteSpace: "nowrap",
+  },
+
+  metadataGrid: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(2, minmax(0, 1fr))",
+    gap: 10,
+  },
+
+  metadataItem: {
+    minWidth: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: 9,
+    padding: 10,
+    border:
+      "1px solid #D1DEEE",
+    borderRadius: 13,
+    backgroundColor:
+      "rgba(246, 250, 255, 0.88)",
+    boxSizing: "border-box",
+  },
+
+  userIconBox: {
+    width: 58,
+    height: 58,
+    flex: "0 0 38px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border:
+      "1px solid #A9E2C4",
+    borderRadius: 11,
+    backgroundColor: "#E9F9F0",
+    color: "#0A9854",
+  },
+
+  dateIconBox: {
+    width: 58,
+    height: 58,
+    flex: "0 0 38px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border:
+      "1px solid #B7D3FA",
+    borderRadius: 11,
+    backgroundColor: "#EDF5FF",
+    color: "#2475E8",
+  },
+
+  metadataText: {
+    minWidth: 0,
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+  },
+
+  metadataLabel: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    color: "#74869E",
+    fontSize: 24,
+    fontWeight: 850,
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
+  },
+
+  metadataValue: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    color: "#18345D",
+    fontSize: 26,
+    fontWeight: 900,
   },
 };
 

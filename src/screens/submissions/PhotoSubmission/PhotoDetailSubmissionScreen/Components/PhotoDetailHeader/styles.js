@@ -1,105 +1,46 @@
 const styles = {
   container: {
     width: "100%",
-
-    flex: "0 0 auto",
-
+    minWidth: 0,
     display: "flex",
     alignItems: "center",
-
+    gap: 14,
     boxSizing: "border-box",
   },
 
-  information: {
-    width: "100%",
-    minWidth: 0,
-
-    display: "flex",
-    flexDirection: "column",
-    gap: "3px",
+  iconBox: {
+    width: 52,
+    height: 52,
+    flex: "0 0 52px",
+    display: "grid",
+    placeItems: "center",
+    border: "1px solid #B8D3FA",
+    borderRadius: 15,
+    backgroundColor: "rgba(235, 244, 255, 0.94)",
+    color: "#2475E8",
+    boxShadow: "0 8px 18px rgba(36, 117, 232, 0.11)",
   },
 
-  titleRow: {
-    width: "100%",
-
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "18px",
+  information: {
+    minWidth: 0,
   },
 
   title: {
     margin: 0,
-
-    color: "#111827",
-
-    fontSize: "20px",
-    fontWeight: "800",
-    lineHeight: 1.2,
+    color: "#071B45",
+    fontSize: "clamp(27px, 2vw, 36px)",
+    fontWeight: 900,
+    lineHeight: 1.12,
+    letterSpacing: "-0.025em",
   },
 
   subtitle: {
-    margin: 0,
-
-    color: "#64748b",
-
-    fontSize: "12px",
-    lineHeight: 1.35,
-  },
-
-  userName: {
-    color: "#1f2937",
-
-    fontWeight: "800",
-  },
-
-  separator: {
-    margin: "0 6px",
-
-    color: "#94a3b8",
-  },
-
-  status: {
-    flexShrink: 0,
-
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "5px",
-
-    padding: "5px 10px",
-
-    border: "1px solid",
-    borderRadius: "999px",
-
-    fontSize: "10px",
-    fontWeight: "800",
-  },
-
-  statusDot: {
-    width: "5px",
-    height: "5px",
-
-    borderRadius: "50%",
-
-    backgroundColor: "currentColor",
-  },
-
-  pendingStatus: {
-    borderColor: "#f59e0b",
-    backgroundColor: "#fffbeb",
-    color: "#b45309",
-  },
-
-  approvedStatus: {
-    borderColor: "#22c55e",
-    backgroundColor: "#f0fdf4",
-    color: "#15803d",
-  },
-
-  rejectedStatus: {
-    borderColor: "#ef4444",
-    backgroundColor: "#fef2f2",
-    color: "#b91c1c",
+    maxWidth: 760,
+    margin: "6px 0 0",
+    color: "#5B708F",
+    fontSize: 15,
+    fontWeight: 600,
+    lineHeight: 1.5,
   },
 };
 

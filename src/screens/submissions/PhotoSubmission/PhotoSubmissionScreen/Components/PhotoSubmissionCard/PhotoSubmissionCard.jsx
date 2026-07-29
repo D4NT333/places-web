@@ -1,38 +1,61 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  ImageOff,
+  Images,
+  UserRound,
+  XCircle,
+} from "lucide-react";
 
 import styles from "./styles";
 
 const STATUS_CONFIG = {
   in_review: {
     label: "Pendiente",
+    icon: Clock3,
     style: {
-      backgroundColor: "#FEF3C7",
-      color: "#B45309",
-      borderColor: "#FDE68A",
+      backgroundColor:
+        "#FFF7E5",
+      color: "#C86D00",
+      borderColor:
+        "#FFD18A",
     },
   },
 
   approved: {
     label: "Aprobada",
+    icon: CheckCircle2,
     style: {
-      backgroundColor: "#DCFCE7",
-      color: "#15803D",
-      borderColor: "#BBF7D0",
+      backgroundColor:
+        "#E7F9EF",
+      color: "#078842",
+      borderColor:
+        "#A4E2C0",
     },
   },
 
   rejected: {
     label: "Rechazada",
+    icon: XCircle,
     style: {
-      backgroundColor: "#FEE2E2",
-      color: "#B91C1C",
-      borderColor: "#FECACA",
+      backgroundColor:
+        "#FFF0F0",
+      color: "#DF3434",
+      borderColor:
+        "#FFB9B9",
     },
   },
 };
 
 function getPhotoCountLabel(count) {
-  const safeCount = Number(count) || 0;
+  const safeCount =
+    Number(count) || 0;
 
   return `${safeCount} ${
     safeCount === 1
@@ -45,8 +68,15 @@ export default function PhotoSubmissionCard({
   submission,
   onClick,
 }) {
-  const [imageFailed, setImageFailed] =
-    useState(false);
+  const [
+    imageFailed,
+    setImageFailed,
+  ] = useState(false);
+
+  const [
+    userPhotoFailed,
+    setUserPhotoFailed,
+  ] = useState(false);
 
   const {
     placeName,
@@ -58,13 +88,29 @@ export default function PhotoSubmissionCard({
     status = "in_review",
   } = submission;
 
+  const userPhotoUrl =
+    submission?.userPhotoUrl ||
+    submission?.createdByPhotoUrl ||
+    submission?.createdBy?.photoURL ||
+    submission?.createdBy?.photoUrl ||
+    submission?.createdBy?.picture ||
+    submission?.createdBy?.imageUrl ||
+    "";
+
   useEffect(() => {
     setImageFailed(false);
   }, [imageUrl]);
 
+  useEffect(() => {
+    setUserPhotoFailed(false);
+  }, [userPhotoUrl]);
+
   const statusConfig =
     STATUS_CONFIG[status] ||
     STATUS_CONFIG.in_review;
+
+  const StatusIcon =
+    statusConfig.icon;
 
   const finalPhotoCount =
     photoCount ??
@@ -75,8 +121,16 @@ export default function PhotoSubmissionCard({
     Boolean(imageUrl) &&
     !imageFailed;
 
-  const handleKeyDown = (event) => {
-    if (!onClick) return;
+  const showUserPhoto =
+    Boolean(userPhotoUrl) &&
+    !userPhotoFailed;
+
+  const handleKeyDown = (
+    event
+  ) => {
+    if (!onClick) {
+      return;
+    }
 
     if (
       event.key === "Enter" ||
@@ -108,12 +162,21 @@ export default function PhotoSubmissionCard({
           : undefined
       }
     >
-      <div style={styles.imageContainer}>
+      <div
+        style={
+          styles.imageContainer
+        }
+      >
         <span
           style={
             styles.photoCountBadge
           }
         >
+          <Images
+            size={36}
+            strokeWidth={2.3}
+          />
+
           {getPhotoCountLabel(
             finalPhotoCount
           )}
@@ -138,52 +201,74 @@ export default function PhotoSubmissionCard({
               styles.imagePlaceholder
             }
           >
-            <span
+            <div
               style={
-                styles.placeholderIcon
+                styles.placeholderIconBox
               }
             >
-              ▧
+              <ImageOff
+                size={36}
+                strokeWidth={2}
+              />
+            </div>
+
+            <span
+              style={
+                styles.placeholderTitle
+              }
+            >
+              Sin imagen disponible
             </span>
 
-            <span>
-              Sin imagen disponible
+            <span
+              style={
+                styles.placeholderText
+              }
+            >
+              No fue posible mostrar la fotografía de portada.
             </span>
           </div>
         )}
-      </div>
 
-      <div style={styles.infoSection}>
         <div
           style={
-            styles.mainInformation
+            styles.imageGradient
+          }
+        />
+      </div>
+
+      <div
+        style={
+          styles.infoSection
+        }
+      >
+        <div
+          style={
+            styles.cardHeading
           }
         >
-          <h2 style={styles.placeName}>
-            {placeName ||
-              "Lugar sin nombre"}
-          </h2>
-
-          <p style={styles.userText}>
+          <div
+            style={
+              styles.placeInformation
+            }
+          >
             <span
               style={
-                styles.userLabel
+                styles.cardEyebrow
               }
             >
-              Por:
-            </span>{" "}
-            {createdByName ||
-              "Usuario"}
-          </p>
-        </div>
+              Propuesta de fotografías
+            </span>
 
-        <div style={styles.bottomRow}>
-          <span
-            style={styles.createdAt}
-          >
-            {createdAt ||
-              "Fecha no disponible"}
-          </span>
+            <h2
+              style={
+                styles.placeName
+              }
+            >
+              {placeName ||
+                "Lugar sin nombre"}
+            </h2>
+          </div>
 
           <span
             style={{
@@ -191,8 +276,118 @@ export default function PhotoSubmissionCard({
               ...statusConfig.style,
             }}
           >
+            <StatusIcon
+              size={30}
+              strokeWidth={2.4}
+            />
+
             {statusConfig.label}
           </span>
+        </div>
+
+        <div
+          style={
+            styles.metadataGrid
+          }
+        >
+          <div
+            style={
+              styles.metadataItem
+            }
+          >
+            <div
+              style={
+                styles.userIconBox
+              }
+            >
+              {showUserPhoto ? (
+                <img
+                  src={userPhotoUrl}
+                  alt={
+                    createdByName ||
+                    "Usuario de la propuesta"
+                  }
+                  style={
+                    styles.userPhoto
+                  }
+                  loading="lazy"
+                  onError={() =>
+                    setUserPhotoFailed(
+                      true
+                    )
+                  }
+                />
+              ) : (
+                <UserRound
+                  size={36}
+                  strokeWidth={2.2}
+                />
+              )}
+            </div>
+
+            <div
+              style={
+                styles.metadataText
+              }
+            >
+              <span
+                style={
+                  styles.metadataLabel
+                }
+              >
+                Enviado por
+              </span>
+
+              <strong
+                style={
+                  styles.metadataValue
+                }
+              >
+                {createdByName ||
+                  "Usuario"}
+              </strong>
+            </div>
+          </div>
+
+          <div
+            style={
+              styles.metadataItem
+            }
+          >
+            <div
+              style={
+                styles.dateIconBox
+              }
+            >
+              <CalendarDays
+                size={36}
+                strokeWidth={2.2}
+              />
+            </div>
+
+            <div
+              style={
+                styles.metadataText
+              }
+            >
+              <span
+                style={
+                  styles.metadataLabel
+                }
+              >
+                Fecha de creación
+              </span>
+
+              <strong
+                style={
+                  styles.metadataValue
+                }
+              >
+                {createdAt ||
+                  "Fecha no disponible"}
+              </strong>
+            </div>
+          </div>
         </div>
       </div>
     </article>
