@@ -14,33 +14,33 @@ const colors = {
 
 const styles = {
   headerWrapper: {
-    position: "relative",
+  position: "relative",
 
-    width: "100%",
+  width: "100%",
 
-    overflow: "hidden",
+  overflow: "visible",
 
-    background: `
-      linear-gradient(
-        105deg,
-        rgba(231, 249, 234, 0.94) 0%,
-        rgba(245, 251, 255, 0.96) 37%,
-        rgba(224, 240, 255, 0.96) 72%,
-        rgba(207, 229, 255, 0.94) 100%
-      )
-    `,
+  background: `
+    linear-gradient(
+      105deg,
+      rgba(231, 249, 234, 0.94) 0%,
+      rgba(245, 251, 255, 0.96) 37%,
+      rgba(224, 240, 255, 0.96) 72%,
+      rgba(207, 229, 255, 0.94) 100%
+    )
+  `,
 
-    backdropFilter: "blur(18px)",
-    WebkitBackdropFilter: "blur(18px)",
+  backdropFilter: "blur(18px)",
+  WebkitBackdropFilter: "blur(18px)",
 
-    borderBottom: "1px solid rgba(33, 118, 229, 0.16)",
+  borderBottom: "1px solid rgba(33, 118, 229, 0.16)",
 
-    boxShadow: `
-      0 8px 25px rgba(29, 89, 151, 0.08)
-    `,
+  boxShadow: `
+    0 8px 25px rgba(29, 89, 151, 0.08)
+  `,
 
-    boxSizing: "border-box",
-  },
+  boxSizing: "border-box",
+},
 
   header: {
     position: "relative",
