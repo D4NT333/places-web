@@ -42,8 +42,8 @@ const styles = {
 },
 
   containerCollapsed: {
-    width: "88px",
-    minWidth: "88px",
+    width: "188px",
+    minWidth: "188px",
   },
 
   inner: {
@@ -152,7 +152,7 @@ const styles = {
   brandTitle: {
     overflow: "hidden",
     color: colors.white,
-    fontSize: "15px",
+    fontSize: "18px",
     fontWeight: 750,
     lineHeight: 1.18,
     whiteSpace: "nowrap",

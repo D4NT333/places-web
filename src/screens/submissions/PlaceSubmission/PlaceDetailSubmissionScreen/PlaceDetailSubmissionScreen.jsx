@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Tag,
   Target,
+  Type,
   UserRound,
   XCircle,
 } from "lucide-react";
@@ -877,10 +878,10 @@ const handleCloseGallery = () => {
   }}
 >
     <DetailSection
-      title="Nombre del lugar"
-      icon={MapPin}
-      iconTone="green"
-    >
+  title="Nombre del lugar"
+  icon={Type}
+  iconTone="green"
+>
       <div
         style={{
           ...styles.simpleFieldBox,
@@ -1021,7 +1022,7 @@ const handleCloseGallery = () => {
               ...styles.processDateRejected,
             }}
           >
-            <XCircle size={24} />
+            <XCircle size={30} />
           </div>
 
           <div>

@@ -569,7 +569,7 @@ statusFieldBox: {
 
     color: "#7489a1",
 
-    fontSize: "0.63rem",
+    fontSize: "1.2rem",
     fontWeight: 650,
   },
 
@@ -580,7 +580,7 @@ statusFieldBox: {
 
     color: "#102650",
 
-    fontSize: "0.76rem",
+    fontSize: "1.2rem",
     fontWeight: 800,
   },
 

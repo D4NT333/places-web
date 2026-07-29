@@ -72,7 +72,7 @@ export default function ActionButtons({
           }
         >
           <Eye
-            size={17}
+            size={30}
             strokeWidth={2.2}
           />
 
