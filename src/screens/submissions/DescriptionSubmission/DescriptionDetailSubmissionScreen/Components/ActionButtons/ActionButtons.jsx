@@ -1,4 +1,11 @@
 import React from "react";
+
+import {
+  CheckCircle2,
+  LoaderCircle,
+  XCircle,
+} from "lucide-react";
+
 import styles from "./styles";
 
 export default function ActionButtons({
@@ -17,6 +24,12 @@ export default function ActionButtons({
         onClick={onAccept}
         disabled={disabled}
       >
+        {disabled ? (
+          <LoaderCircle size={40} strokeWidth={2.4} />
+        ) : (
+          <CheckCircle2 size={40} strokeWidth={2.4} />
+        )}
+
         {disabled ? "Aceptando..." : "Aceptar"}
       </button>
 
@@ -29,6 +42,7 @@ export default function ActionButtons({
         onClick={onReject}
         disabled={disabled}
       >
+        <XCircle size={40} strokeWidth={2.4} />
         Rechazar
       </button>
     </div>

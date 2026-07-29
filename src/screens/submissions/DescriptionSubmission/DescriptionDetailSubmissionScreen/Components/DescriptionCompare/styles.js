@@ -1,64 +1,149 @@
 const styles = {
   container: {
     display: "grid",
-    gridTemplateColumns: "1fr 64px 1fr",
+    gridTemplateColumns:
+      "minmax(0, 1fr) 52px minmax(0, 1fr)",
     alignItems: "stretch",
-    gap: 18,
-    marginTop: 8,
+    gap: 12,
   },
 
   descriptionCard: {
-    minHeight: 260,
-    borderRadius: 20,
-    border: "1px solid #E5E7EB",
-    backgroundColor: "#F8FAFC",
-    padding: 22,
+    minWidth: 0,
+    minHeight: 270,
+    borderRadius: 16,
+    border: "1px solid #C9D9EC",
+    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    padding: 14,
     display: "flex",
     flexDirection: "column",
-    gap: 18,
+    gap: 12,
+    boxShadow: "0 8px 22px rgba(34, 82, 145, 0.07)",
   },
 
   newDescriptionCard: {
-    backgroundColor: "#FFFFFF",
-    border: "1px solid #CBD5E1",
-    boxShadow: "0 14px 26px rgba(15, 23, 42, 0.06)",
+    border: "1px solid #AFCDF8",
+    backgroundColor: "rgba(255, 255, 255, 0.90)",
   },
 
   cardHeader: {
+    minHeight: 48,
     display: "flex",
-    flexDirection: "column",
-    gap: 5,
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+
+  headingGroup: {
+    minWidth: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  oldIconBox: {
+    width: 50,
+    height: 50,
+    flex: "0 0 40px",
+    borderRadius: 12,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#64748B",
+    backgroundColor: "#F3F6FA",
+    border: "1px solid #D8E1EC",
+  },
+
+  newIconBox: {
+    width: 50,
+    height: 50,
+    flex: "0 0 40px",
+    borderRadius: 12,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#2563EB",
+    backgroundColor: "#EAF3FF",
+    border: "1px solid #B7D4FF",
   },
 
   cardEyebrow: {
-    fontSize: 12,
+    display: "block",
+    marginBottom: 2,
+    fontSize: 30,
     fontWeight: 900,
-    color: "#64748B",
+    color: "#718096",
     textTransform: "uppercase",
-    letterSpacing: "0.05em",
+    letterSpacing: "0.055em",
   },
 
   newCardEyebrow: {
-    fontSize: 12,
+    display: "block",
+    marginBottom: 2,
+    fontSize: 30,
     fontWeight: 900,
     color: "#2563EB",
     textTransform: "uppercase",
-    letterSpacing: "0.05em",
+    letterSpacing: "0.055em",
   },
 
   cardTitle: {
     margin: 0,
-    fontSize: 18,
+    fontSize: 24,
+    lineHeight: 1.2,
     fontWeight: 900,
-    color: "#0F172A",
+    color: "#0A214A",
+  },
+
+  oldBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "6px 10px",
+    borderRadius: 999,
+    backgroundColor: "#F4F7FA",
+    border: "1px solid #D7E0EA",
+    color: "#63748A",
+    fontSize: 30,
+    fontWeight: 900,
+    whiteSpace: "nowrap",
+  },
+
+  newBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "6px 10px",
+    borderRadius: 999,
+    backgroundColor: "#EAF3FF",
+    border: "1px solid #B7D4FF",
+    color: "#1760C8",
+    fontSize: 30,
+    fontWeight: 900,
+    whiteSpace: "nowrap",
+  },
+
+  descriptionContent: {
+    flex: 1,
+    boxSizing: "border-box",
+    padding: 16,
+    borderRadius: 13,
+    backgroundColor: "#F3F7FC",
+    border: "1px solid #D5E2F1",
+  },
+
+  newDescriptionContent: {
+    backgroundColor: "#EDF5FF",
+    border: "1px solid #C7DCFA",
   },
 
   descriptionText: {
     margin: 0,
-    fontSize: 15,
-    lineHeight: 1.75,
-    color: "#334155",
+    fontSize: 24,
+    lineHeight: 1.72,
+    fontWeight: 600,
+    color: "#273D5F",
     whiteSpace: "pre-line",
+    overflowWrap: "anywhere",
   },
 
   arrowBox: {
@@ -68,17 +153,15 @@ const styles = {
   },
 
   arrow: {
-    width: 44,
-    height: 44,
+    width: 50,
+    height: 50,
     borderRadius: "50%",
-    backgroundColor: "#0F172A",
+    backgroundColor: "#0B2A5B",
     color: "#FFFFFF",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 24,
-    fontWeight: 900,
-    boxShadow: "0 12px 22px rgba(15, 23, 42, 0.22)",
+    boxShadow: "0 10px 20px rgba(11, 42, 91, 0.20)",
   },
 };
 
