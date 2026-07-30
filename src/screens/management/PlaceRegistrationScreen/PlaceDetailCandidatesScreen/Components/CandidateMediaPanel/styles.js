@@ -188,7 +188,7 @@ const styles = {
   },
 
   mapBox: {
-    height: "250px",
+    height: "650px",
     overflow: "hidden",
     background: "#eef4fa",
   },
