@@ -180,8 +180,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "34px",
-    height: "34px",
+    width: "54px",
+    height: "54px",
     flexShrink: 0,
     color: "#247cf0",
     background: "#eef6ff",
@@ -234,8 +234,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "31px",
-    height: "31px",
+    width: "51px",
+    height: "51px",
     flexShrink: 0,
     color: "#0a9b51",
     background: "#ecfaf2",
@@ -369,6 +369,323 @@ const styles = {
     fontSize: "2rem",
     fontWeight: 850,
     cursor: "pointer",
+  },
+    actionPanel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "14px",
+    padding: "16px",
+    background:
+      "linear-gradient(180deg, #fbfdff 0%, #f5f9ff 100%)",
+    border: "1px solid #bfd8f8",
+    borderRadius: "10px",
+  },
+
+  disableActionPanel: {
+    background:
+      "linear-gradient(180deg, #fffafa 0%, #fff4f4 100%)",
+    borderColor: "#ffcaca",
+  },
+
+  reactivateActionPanel: {
+    background:
+      "linear-gradient(180deg, #fafffc 0%, #effbf5 100%)",
+    borderColor: "#bfe9d2",
+  },
+
+  actionPanelHeader: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "12px",
+  },
+
+  actionPanelTitle: {
+    margin: 0,
+    color: "#163e73",
+    fontSize: "1.8rem",
+    fontWeight: 900,
+  },
+
+  disableActionTitle: {
+    color: "#d93d3d",
+  },
+
+  reactivateActionTitle: {
+    color: "#078d49",
+  },
+
+  actionPanelDescription: {
+    margin: "4px 0 0",
+    color: "#607896",
+    fontSize: "1.5rem",
+    fontWeight: 600,
+    lineHeight: 1.4,
+  },
+
+  roleOptions: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(2, minmax(0, 1fr))",
+    gap: "12px",
+  },
+
+  roleOption: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    width: "100%",
+    minWidth: 0,
+    padding: "14px",
+    color: "#24466e",
+    background: "#ffffff",
+    border: "1px solid #d4e2f2",
+    borderRadius: "10px",
+    fontFamily: "inherit",
+    textAlign: "left",
+    cursor: "pointer",
+  },
+
+  roleOptionSelected: {
+    color: "#176fdc",
+    background: "#eef6ff",
+    borderColor: "#81b8fa",
+    boxShadow:
+      "0 0 0 2px rgba(37, 124, 240, 0.1)",
+  },
+
+  roleOptionIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "54px",
+    height: "54px",
+    flexShrink: 0,
+    color: "#237be9",
+    background: "#edf5ff",
+    border: "1px solid #cde1fb",
+    borderRadius: "10px",
+  },
+
+  roleOptionText: {
+    display: "flex",
+    flex: 1,
+    flexDirection: "column",
+    gap: "4px",
+    minWidth: 0,
+  },
+
+  roleOptionTitleRow: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: "7px",
+  },
+
+  roleOptionTitle: {
+    color: "inherit",
+    fontSize: "1.65rem",
+    fontWeight: 900,
+  },
+
+  currentRoleBadge: {
+    padding: "2px 8px",
+    color: "#087e9c",
+    background: "#eaf8fb",
+    border: "1px solid #bee5ed",
+    borderRadius: "999px",
+    fontSize: "1.2rem",
+    fontWeight: 850,
+  },
+
+  roleOptionDescription: {
+    color: "#607896",
+    fontSize: "1.35rem",
+    fontWeight: 600,
+    lineHeight: 1.35,
+  },
+
+  roleSelection: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "42px",
+    height: "42px",
+    flexShrink: 0,
+    color: "#ffffff",
+    background: "#ffffff",
+    border: "2px solid #cbd9e8",
+    borderRadius: "999px",
+  },
+
+  roleSelectionActive: {
+    color: "#ffffff",
+    background: "#2780ed",
+    borderColor: "#2780ed",
+  },
+
+  actionPanelNotice: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    padding: "10px 12px",
+    color: "#9b650b",
+    background: "#fff9eb",
+    border: "1px solid #f1d18c",
+    borderRadius: "8px",
+    fontSize: "1.35rem",
+    fontWeight: 700,
+  },
+
+  reasonField: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "7px",
+  },
+
+  reasonLabel: {
+    color: "#7f3434",
+    fontSize: "1.55rem",
+    fontWeight: 850,
+  },
+
+  reasonInput: {
+    width: "100%",
+    minHeight: "94px",
+    padding: "12px 14px",
+    boxSizing: "border-box",
+    resize: "vertical",
+    color: "#4b2828",
+    background: "#ffffff",
+    border: "1px solid #efb9b9",
+    borderRadius: "9px",
+    outline: "none",
+    fontFamily: "inherit",
+    fontSize: "1.4rem",
+    fontWeight: 600,
+    lineHeight: 1.4,
+  },
+
+  reasonHelper: {
+    color: "#9a6c6c",
+    fontSize: "1.2rem",
+    fontWeight: 650,
+  },
+
+  confirmationCheck: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "11px 12px",
+    color: "#7c3333",
+    background: "#fff7f7",
+    border: "1px solid #efc5c5",
+    borderRadius: "8px",
+    fontSize: "1.4rem",
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+
+  confirmationCheckbox: {
+    width: "22px",
+    height: "22px",
+    flexShrink: 0,
+    accentColor: "#df4141",
+    cursor: "pointer",
+  },
+
+  reactivateConfirmation: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "12px",
+    color: "#087d44",
+    background: "#effbf5",
+    border: "1px solid #bfe9d2",
+    borderRadius: "8px",
+    fontSize: "1.4rem",
+    fontWeight: 700,
+  },
+
+  actionPanelButtons: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+    gap: "10px",
+  },
+
+  panelCancelButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "7px",
+    minHeight: "42px",
+    padding: "0 15px",
+    color: "#536b87",
+    background: "#ffffff",
+    border: "1px solid #cad8e7",
+    borderRadius: "9px",
+    fontFamily: "inherit",
+    fontSize: "1.45rem",
+    fontWeight: 850,
+    cursor: "pointer",
+  },
+
+  panelConfirmButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "7px",
+    minHeight: "42px",
+    padding: "0 15px",
+    color: "#ffffff",
+    background: "#237be9",
+    border: "1px solid #237be9",
+    borderRadius: "9px",
+    fontFamily: "inherit",
+    fontSize: "1.45rem",
+    fontWeight: 850,
+    cursor: "pointer",
+  },
+
+  panelDangerButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "7px",
+    minHeight: "42px",
+    padding: "0 15px",
+    color: "#ffffff",
+    background: "#df4141",
+    border: "1px solid #df4141",
+    borderRadius: "9px",
+    fontFamily: "inherit",
+    fontSize: "1.45rem",
+    fontWeight: 850,
+    cursor: "pointer",
+  },
+
+  panelSuccessButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "7px",
+    minHeight: "42px",
+    padding: "0 15px",
+    color: "#ffffff",
+    background: "#07954e",
+    border: "1px solid #07954e",
+    borderRadius: "9px",
+    fontFamily: "inherit",
+    fontSize: "1.45rem",
+    fontWeight: 850,
+    cursor: "pointer",
+  },
+
+  panelButtonDisabled: {
+    opacity: 0.48,
+    cursor: "not-allowed",
   },
 };
 

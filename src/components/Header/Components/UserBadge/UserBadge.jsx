@@ -129,7 +129,7 @@ export default function UserBadge({
               }
             >
               <ShieldCheck
-                size={16}
+                size={34}
                 strokeWidth={2.2}
               />
 
@@ -144,7 +144,7 @@ export default function UserBadge({
             style={styles.logoutButton}
             onClick={handleLogout}
           >
-            Salir
+            Cerrar sesión
           </button>
         </div>
       )}

@@ -1,4 +1,6 @@
 import React, {
+  useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -12,124 +14,38 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-/*
- * Ajusta únicamente esta ruta si LayoutScreen
- * se encuentra en otra carpeta.
- */
 import LayoutScreen from "../../../layout";
+
+import getAdminsService from "../../../services/auth/getAdmins.service";
+
+import updateAdminRoleService from "../../../services/auth/updateAdminRole.service";
+import updateAdminStatusService from "../../../services/auth/updateAdminStatus.service";
 
 import AdminDetailModal from "./components/AdminDetailModal";
 import AdminFilters from "./components/AdminFilters";
 import AdminSummaryCard from "./components/AdminSummaryCard";
 import AdminTable from "./components/AdminTable";
 
+
+
 import styles from "./styles";
 
-const MOCK_ADMINS = [
-  {
-    id: "admin-1",
-    uid: "B8bZKhBsXeWAzE5oXMMz8xvGEYn2",
-    displayName: "Dante",
-    email: "venceceti@gmail.com",
-    role: "super_admin",
-    status: "active",
-    createdAt: "2026-05-10",
-    createdBy: "Sistema",
-    lastActivityAt: "Hace 15 min",
-    avatarUrl: null,
-    initials: "DA",
-    isCurrentAdmin: true,
-    activity: {
-      approvedPlaces: 12,
-      resolvedReports: 8,
-      loadedCandidates: 3,
-      lastAction: "Hace 15 min",
-    },
-  },
-  {
-    id: "admin-2",
-    uid: "DPfrJ2UQUSaujWZb3eewLbXRNEp1",
-    displayName: "Aster",
-    email: "asterworlas2@gmail.com",
-    role: "admin",
-    status: "active",
-    createdAt: "2026-05-31",
-    createdBy: "Dante",
-    lastActivityAt: "Hace 2 h",
-    avatarUrl: null,
-    initials: "AS",
-    isCurrentAdmin: false,
-    activity: {
-      approvedPlaces: 8,
-      resolvedReports: 11,
-      loadedCandidates: 0,
-      lastAction: "Hace 2 h",
-    },
-  },
-  {
-    id: "admin-3",
-    uid: "admin-mariana",
-    displayName: "Mariana López",
-    email: "mariana.lopez@lsearch.com",
-    role: "admin",
-    status: "active",
-    createdAt: "2026-06-08",
-    createdBy: "Dante",
-    lastActivityAt: "Hace 1 día",
-    avatarUrl: null,
-    initials: "ML",
-    isCurrentAdmin: false,
-    activity: {
-      approvedPlaces: 21,
-      resolvedReports: 5,
-      loadedCandidates: 0,
-      lastAction: "Hace 1 día",
-    },
-  },
-  {
-    id: "admin-4",
-    uid: "admin-carlos",
-    displayName: "Carlos Ruiz",
-    email: "carlos.ruiz@lsearch.com",
-    role: "super_admin",
-    status: "active",
-    createdAt: "2026-06-14",
-    createdBy: "Dante",
-    lastActivityAt: "Hace 2 días",
-    avatarUrl: null,
-    initials: "CR",
-    isCurrentAdmin: false,
-    activity: {
-      approvedPlaces: 17,
-      resolvedReports: 14,
-      loadedCandidates: 6,
-      lastAction: "Hace 2 días",
-    },
-  },
-  {
-    id: "admin-5",
-    uid: "admin-javier",
-    displayName: "Javier Vargas",
-    email: "javier.vargas@lsearch.com",
-    role: "admin",
-    status: "disabled",
-    createdAt: "2026-06-21",
-    createdBy: "Aster",
-    lastActivityAt: "Hace 8 días",
-    avatarUrl: null,
-    initials: "JV",
-    isCurrentAdmin: false,
-    activity: {
-      approvedPlaces: 4,
-      resolvedReports: 2,
-      loadedCandidates: 0,
-      lastAction: "Hace 8 días",
-    },
-  },
-];
+const EMPTY_SUMMARY = {
+  total: 0,
+  active: 0,
+  disabled: 0,
+  admins: 0,
+  superAdmins: 0,
+  activeSuperAdmins: 0,
+};
 
 export default function AdministratorsScreen() {
   const navigate = useNavigate();
+
+  const [
+  actionLoading,
+  setActionLoading,
+] = useState(false);
 
   const [
     selectedFilter,
@@ -141,102 +57,544 @@ export default function AdministratorsScreen() {
     setSelectedAdmin,
   ] = useState(null);
 
-  /*
-   * Se conservan diferentes nombres de propiedad para que
-   * los breadcrumbs funcionen con el Header aunque este use
-   * route, path o la función onClick.
-   */
-  const breadcrumbs = useMemo(
-    () => [
-      {
-        label: "Inicio",
-        route: "/",
-        path: "/",
-        onClick: () => navigate("/"),
+  const [
+    admins,
+    setAdmins,
+  ] = useState([]);
+
+  const [
+    summary,
+    setSummary,
+  ] = useState(
+    EMPTY_SUMMARY,
+  );
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+const breadcrumbs = useMemo(
+  () => [
+    {
+      label: "Inicio",
+      to: "/",
+    },
+    {
+      label: "Administradores",
+    },
+  ],
+  [],
+);
+
+  const loadAdmins =
+    useCallback(
+      async ({
+        filter =
+          selectedFilter,
+        preserveSelection = true,
+      } = {}) => {
+        try {
+          setLoading(true);
+          setError("");
+
+          const result =
+            await getAdminsService({
+              filter,
+              limit: 50,
+            });
+
+          const nextAdmins =
+            Array.isArray(
+              result?.items,
+            )
+              ? result.items
+              : [];
+
+          setAdmins(
+            nextAdmins,
+          );
+
+          setSummary({
+            ...EMPTY_SUMMARY,
+            ...(result?.summary ||
+              {}),
+          });
+
+          /*
+           * Si el modal está abierto y volvemos
+           * a cargar, conservamos la selección
+           * únicamente si el administrador sigue
+           * existiendo en la respuesta.
+           */
+          if (
+            preserveSelection
+          ) {
+            setSelectedAdmin(
+              (
+                currentAdmin,
+              ) => {
+                if (
+                  !currentAdmin
+                ) {
+                  return null;
+                }
+
+                return (
+                  nextAdmins.find(
+                    (admin) =>
+                      admin.uid ===
+                      currentAdmin.uid,
+                  ) || null
+                );
+              },
+            );
+          } else {
+            setSelectedAdmin(
+              null,
+            );
+          }
+        } catch (
+          serviceError
+        ) {
+          console.error(
+            "Error cargando administradores:",
+            serviceError,
+          );
+
+          setAdmins([]);
+
+          setSummary(
+            EMPTY_SUMMARY,
+          );
+
+          setSelectedAdmin(
+            null,
+          );
+
+          setError(
+            serviceError
+              ?.message ||
+              "No fue posible cargar los administradores.",
+          );
+
+          if (
+            serviceError
+              ?.statusCode ===
+            401
+          ) {
+            navigate(
+              "/login",
+              {
+                replace: true,
+              },
+            );
+          }
+        } finally {
+          setLoading(false);
+        }
       },
-      {
-        label: "Administradores",
-        current: true,
-        isCurrent: true,
-      },
-    ],
-    [navigate],
-  );
+      [
+        navigate,
+        selectedFilter,
+      ],
+    );
 
-  const filteredAdmins = useMemo(() => {
-    if (selectedFilter === "all") {
-      return MOCK_ADMINS;
+  useEffect(() => {
+    let isMounted = true;
+
+    async function load() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const result =
+          await getAdminsService({
+            filter:
+              selectedFilter,
+            limit: 50,
+          });
+
+        if (!isMounted) {
+          return;
+        }
+
+        setAdmins(
+          Array.isArray(
+            result?.items,
+          )
+            ? result.items
+            : [],
+        );
+
+        setSummary({
+          ...EMPTY_SUMMARY,
+          ...(result?.summary ||
+            {}),
+        });
+
+        setSelectedAdmin(
+          null,
+        );
+      } catch (
+        serviceError
+      ) {
+        if (!isMounted) {
+          return;
+        }
+
+        console.error(
+          "Error cargando administradores:",
+          serviceError,
+        );
+
+        setAdmins([]);
+
+        setSummary(
+          EMPTY_SUMMARY,
+        );
+
+        setSelectedAdmin(
+          null,
+        );
+
+        setError(
+          serviceError
+            ?.message ||
+            "No fue posible cargar los administradores.",
+        );
+
+        if (
+          serviceError
+            ?.statusCode ===
+          401
+        ) {
+          navigate(
+            "/login",
+            {
+              replace: true,
+            },
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
 
-    if (selectedFilter === "active") {
-      return MOCK_ADMINS.filter(
-        (admin) =>
-          admin.status === "active",
-      );
-    }
+    load();
 
-    if (selectedFilter === "disabled") {
-      return MOCK_ADMINS.filter(
-        (admin) =>
-          admin.status === "disabled",
-      );
-    }
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    navigate,
+    selectedFilter,
+  ]);
 
-    if (selectedFilter === "super_admin") {
-      return MOCK_ADMINS.filter(
-        (admin) =>
-          admin.role === "super_admin",
-      );
-    }
-
-    if (selectedFilter === "admin") {
-      return MOCK_ADMINS.filter(
-        (admin) =>
-          admin.role === "admin",
-      );
-    }
-
-    return MOCK_ADMINS;
-  }, [selectedFilter]);
-
-  const activeAdminsCount = useMemo(
-    () =>
-      MOCK_ADMINS.filter(
-        (admin) =>
-          admin.status === "active",
-      ).length,
-    [],
-  );
-
-  const superAdminsCount = useMemo(
-    () =>
-      MOCK_ADMINS.filter(
-        (admin) =>
-          admin.role === "super_admin" &&
-          admin.status === "active",
-      ).length,
-    [],
-  );
-
-  function handleOpenDetails(admin) {
-    setSelectedAdmin(admin);
+  function handleOpenDetails(
+    admin,
+  ) {
+    setSelectedAdmin(
+      admin,
+    );
   }
 
   function handleCloseDetails() {
-    setSelectedAdmin(null);
+    setSelectedAdmin(
+      null,
+    );
   }
 
-  function handleChangeRole(admin) {
-    console.log("Cambiar rol:", admin);
+  async function handleChangeRole(
+  admin,
+  selectedRole,
+) {
+  if (
+    actionLoading ||
+    !admin?.uid ||
+    !selectedRole
+  ) {
+    return;
   }
 
-  function handleToggleStatus(admin) {
-    console.log("Cambiar estado:", admin);
+  try {
+    setActionLoading(true);
+
+    const response =
+      await updateAdminRoleService({
+        adminUid:
+          admin.uid,
+
+        role:
+          selectedRole,
+      });
+
+    const updatedAdmin =
+      response?.admin || {};
+
+    setAdmins(
+      (currentAdmins) =>
+        currentAdmins.map(
+          (currentAdmin) => {
+            if (
+              currentAdmin.uid !==
+              admin.uid
+            ) {
+              return currentAdmin;
+            }
+
+            return {
+              ...currentAdmin,
+
+              role:
+                updatedAdmin.role ||
+                selectedRole,
+
+              permissions:
+                updatedAdmin.permissions ||
+                currentAdmin.permissions,
+            };
+          },
+        ),
+    );
+
+    setSelectedAdmin(
+      (currentAdmin) => {
+        if (
+          !currentAdmin ||
+          currentAdmin.uid !==
+            admin.uid
+        ) {
+          return currentAdmin;
+        }
+
+        return {
+          ...currentAdmin,
+
+          role:
+            updatedAdmin.role ||
+            selectedRole,
+
+          permissions:
+            updatedAdmin.permissions ||
+            currentAdmin.permissions,
+        };
+      },
+    );
+
+    setSummary(
+      (currentSummary) => {
+        if (
+          admin.role ===
+          selectedRole
+        ) {
+          return currentSummary;
+        }
+
+        const wasSuperAdmin =
+          admin.role ===
+          "super_admin";
+
+        const isSuperAdmin =
+          selectedRole ===
+          "super_admin";
+
+        return {
+          ...currentSummary,
+
+          admins:
+            currentSummary.admins +
+            (isSuperAdmin ? -1 : 1),
+
+          superAdmins:
+            currentSummary.superAdmins +
+            (isSuperAdmin ? 1 : -1),
+
+          activeSuperAdmins:
+            admin.status ===
+              "active"
+              ? currentSummary
+                  .activeSuperAdmins +
+                (wasSuperAdmin
+                  ? -1
+                  : 1)
+              : currentSummary
+                  .activeSuperAdmins,
+        };
+      },
+    );
+
+    window.alert(
+      response?.message ||
+        "El rol administrativo se actualizó correctamente.",
+    );
+  } catch (serviceError) {
+    console.error(
+      "Error cambiando rol administrativo:",
+      serviceError,
+    );
+
+    window.alert(
+      serviceError?.message ||
+        "No fue posible cambiar el rol administrativo.",
+    );
+  } finally {
+    setActionLoading(false);
+  }
+}
+
+  async function handleToggleStatus(
+  admin,
+  statusData,
+) {
+  if (
+    actionLoading ||
+    !admin?.uid ||
+    !statusData?.action
+  ) {
+    return;
   }
 
-  function handleViewAudit(admin) {
-    console.log("Ver auditoría:", admin);
+  try {
+    setActionLoading(true);
+
+    const response =
+      await updateAdminStatusService({
+        adminUid:
+          admin.uid,
+
+        action:
+          statusData.action,
+
+        reason:
+          statusData.reason ||
+          "",
+      });
+
+    const updatedAdmin =
+      response?.admin || {};
+
+    const nextStatus =
+      updatedAdmin.status ||
+      (statusData.action ===
+      "disable"
+        ? "disabled"
+        : "active");
+
+    const nextIsActive =
+      updatedAdmin.isActive ??
+      (nextStatus === "active");
+
+    setAdmins(
+      (currentAdmins) =>
+        currentAdmins.map(
+          (currentAdmin) => {
+            if (
+              currentAdmin.uid !==
+              admin.uid
+            ) {
+              return currentAdmin;
+            }
+
+            return {
+              ...currentAdmin,
+
+              status:
+                nextStatus,
+
+              isActive:
+                nextIsActive,
+            };
+          },
+        ),
+    );
+
+    setSelectedAdmin(
+      (currentAdmin) => {
+        if (
+          !currentAdmin ||
+          currentAdmin.uid !==
+            admin.uid
+        ) {
+          return currentAdmin;
+        }
+
+        return {
+          ...currentAdmin,
+
+          status:
+            nextStatus,
+
+          isActive:
+            nextIsActive,
+        };
+      },
+    );
+
+    setSummary(
+      (currentSummary) => {
+        const isBeingActivated =
+          nextStatus === "active";
+
+        const isSuperAdmin =
+          admin.role ===
+          "super_admin";
+
+        return {
+          ...currentSummary,
+
+          active:
+            currentSummary.active +
+            (isBeingActivated
+              ? 1
+              : -1),
+
+          disabled:
+            currentSummary.disabled +
+            (isBeingActivated
+              ? -1
+              : 1),
+
+          activeSuperAdmins:
+            isSuperAdmin
+              ? currentSummary
+                  .activeSuperAdmins +
+                (isBeingActivated
+                  ? 1
+                  : -1)
+              : currentSummary
+                  .activeSuperAdmins,
+        };
+      },
+    );
+
+    window.alert(
+      response?.message ||
+        (nextStatus === "active"
+          ? "La cuenta administrativa se reactivó correctamente."
+          : "La cuenta administrativa se desactivó correctamente."),
+    );
+  } catch (serviceError) {
+    console.error(
+      "Error actualizando estado administrativo:",
+      serviceError,
+    );
+
+    window.alert(
+      serviceError?.message ||
+        "No fue posible actualizar el estado administrativo.",
+    );
+  } finally {
+    setActionLoading(false);
   }
+}
 
   return (
     <LayoutScreen
@@ -251,64 +609,159 @@ export default function AdministratorsScreen() {
       stickyHeader
     >
       <main style={styles.screen}>
-        <section style={styles.headerSection}>
-          <div style={styles.headingBlock}>
-            <h1 style={styles.title}>
+        <section
+          style={
+            styles.headerSection
+          }
+        >
+          <div
+            style={
+              styles.headingBlock
+            }
+          >
+            <h1
+              style={
+                styles.title
+              }
+            >
               Administradores
             </h1>
 
-            <p style={styles.subtitle}>
-              Gestión de cuentas con acceso al
-              panel administrativo
+            <p
+              style={
+                styles.subtitle
+              }
+            >
+              Gestión de cuentas
+              con acceso al panel
+              administrativo
             </p>
           </div>
 
           <AdminFilters
-            selectedFilter={selectedFilter}
-            onChange={setSelectedFilter}
+            selectedFilter={
+              selectedFilter
+            }
+            onChange={
+              setSelectedFilter
+            }
           />
         </section>
 
-        <section style={styles.summarySection}>
+        <section
+          style={
+            styles.summarySection
+          }
+        >
           <AdminSummaryCard
-            icon={UserRoundCog}
+            icon={
+              UserRoundCog
+            }
             label="Administradores activos"
-            value={activeAdminsCount}
+            value={
+              summary.active
+            }
             variant="blue"
           />
 
           <AdminSummaryCard
-            icon={ShieldCheck}
+            icon={
+              ShieldCheck
+            }
             label="Superadministradores"
-            value={superAdminsCount}
+            value={
+              summary.superAdmins
+            }
             variant="green"
           />
         </section>
 
-        <AdminTable
-          admins={filteredAdmins}
-          onViewDetails={handleOpenDetails}
-        />
+        {loading ? (
+          <div
+            style={
+              styles.resultMessage
+            }
+          >
+            <span>
+              Cargando administradores...
+            </span>
+          </div>
+        ) : null}
 
-        <div style={styles.resultMessage}>
-          <span style={styles.resultIcon}>
-            ✓
-          </span>
+        {!loading && error ? (
+          <div
+            style={{
+              ...styles.resultMessage,
+              color: "#d33b3b",
+            }}
+          >
+            <span>
+              {error}
+            </span>
 
-          <span>
-            {filteredAdmins.length > 0
-              ? "Se cargaron todos los administradores."
-              : "No existen administradores con este filtro."}
-          </span>
-        </div>
+            <button
+              type="button"
+              onClick={() =>
+                loadAdmins({
+                  filter:
+                    selectedFilter,
+                })
+              }
+            >
+              Reintentar
+            </button>
+          </div>
+        ) : null}
+
+        {!loading &&
+        !error ? (
+          <>
+            <AdminTable
+              admins={admins}
+              onViewDetails={
+                handleOpenDetails
+              }
+            />
+
+            <div
+              style={
+                styles.resultMessage
+              }
+            >
+              <span
+                style={
+                  styles.resultIcon
+                }
+              >
+                ✓
+              </span>
+
+              <span>
+                {admins.length >
+                0
+                  ? "Se cargaron todos los administradores."
+                  : "No existen administradores con este filtro."}
+              </span>
+            </div>
+          </>
+        ) : null}
 
         <AdminDetailModal
-          admin={selectedAdmin}
-          isOpen={Boolean(selectedAdmin)}
-          onClose={handleCloseDetails}
-          onChangeRole={handleChangeRole}
-          onToggleStatus={handleToggleStatus}
-          onViewAudit={handleViewAudit}
+          admin={
+            selectedAdmin
+          }
+          isOpen={Boolean(
+            selectedAdmin,
+          )}
+          onClose={
+            handleCloseDetails
+          }
+          onChangeRole={
+            handleChangeRole
+          }
+          onToggleStatus={
+            handleToggleStatus
+          }
         />
       </main>
     </LayoutScreen>

@@ -8,9 +8,9 @@ const styles = {
 
   name: {
     color: "#151515",
-    fontSize: 26,
+    fontSize: 44,
     fontWeight: 500,
-    maxWidth: 160,
+    maxWidth: 460,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -25,8 +25,8 @@ const styles = {
   },
 
   avatar: {
-    width: 68,
-    height: 68,
+    width: 88,
+    height: 88,
     borderRadius: "50%",
     border: "1px solid #DDD5C8",
     backgroundColor: "#F4EFE6",
@@ -54,7 +54,7 @@ const styles = {
     position: "absolute",
     top: 54,
     right: 0,
-    width: 240,
+    width: 300,
     backgroundColor: "#FFFFFF",
     border: "1px solid #E5E0D7",
     borderRadius: 18,
@@ -72,7 +72,7 @@ const styles = {
   dropdownName: {
     margin: 0,
     color: "#171717",
-    fontSize: 14,
+    fontSize: 30,
     fontWeight: 850,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -82,7 +82,7 @@ const styles = {
   dropdownEmail: {
     margin: "4px 0 0",
     color: "#7B746A",
-    fontSize: 12,
+    fontSize: 20,
     fontWeight: 600,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -97,7 +97,7 @@ const styles = {
     borderRadius: 12,
     padding: "10px 12px",
     cursor: "pointer",
-    fontSize: 13,
+    fontSize: 20,
     fontWeight: 800,
     textAlign: "left",
   },
@@ -118,7 +118,7 @@ const styles = {
   borderRadius: "8px",
 
   fontFamily: "inherit",
-  fontSize: "0.78rem",
+  fontSize: "1.2rem",
   fontWeight: 800,
   textAlign: "left",
 

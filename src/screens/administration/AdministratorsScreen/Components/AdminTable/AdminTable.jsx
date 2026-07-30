@@ -2,7 +2,7 @@ import React from "react";
 
 import {
   CalendarDays,
-  Eye,
+  ChevronRight,
 } from "lucide-react";
 
 import AdminRoleBadge from "../AdminRoleBadge";
@@ -15,12 +15,10 @@ function formatDate(dateValue) {
     return "Sin fecha";
   }
 
-  const date = new Date(
-    `${dateValue}T12:00:00`,
-  );
+  const date = new Date(dateValue);
 
   if (Number.isNaN(date.getTime())) {
-    return dateValue;
+    return "Sin fecha";
   }
 
   return new Intl.DateTimeFormat(
@@ -33,16 +31,77 @@ function formatDate(dateValue) {
   ).format(date);
 }
 
+function formatRelativeDate(dateValue) {
+  if (!dateValue) {
+    return "Sin actividad";
+  }
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Sin actividad";
+  }
+
+  const differenceMs =
+    Date.now() - date.getTime();
+
+  if (differenceMs < 0) {
+    return formatDate(dateValue);
+  }
+
+  const minutes = Math.floor(
+    differenceMs / 60000,
+  );
+
+  if (minutes < 1) {
+    return "Hace un momento";
+  }
+
+  if (minutes < 60) {
+    return minutes === 1
+      ? "Hace 1 min"
+      : `Hace ${minutes} min`;
+  }
+
+  const hours = Math.floor(
+    minutes / 60,
+  );
+
+  if (hours < 24) {
+    return hours === 1
+      ? "Hace 1 h"
+      : `Hace ${hours} h`;
+  }
+
+  const days = Math.floor(
+    hours / 24,
+  );
+
+  if (days < 30) {
+    return days === 1
+      ? "Hace 1 día"
+      : `Hace ${days} días`;
+  }
+
+  return formatDate(dateValue);
+}
+
 function AdminAvatar({
   admin,
   index,
 }) {
-  if (admin.avatarUrl) {
+  const avatarSource =
+    admin.photoURL ||
+    admin.avatarUrl ||
+    null;
+
+  if (avatarSource) {
     return (
       <img
-        src={admin.avatarUrl}
+        src={avatarSource}
         alt={admin.displayName}
         style={styles.avatarImage}
+        referrerPolicy="no-referrer"
       />
     );
   }
@@ -93,6 +152,19 @@ export default function AdminTable({
   admins,
   onViewDetails,
 }) {
+  function handleRowKeyDown(
+    event,
+    admin,
+  ) {
+    if (
+      event.key === "Enter" ||
+      event.key === " "
+    ) {
+      event.preventDefault();
+      onViewDetails(admin);
+    }
+  }
+
   return (
     <section style={styles.tableCard}>
       <div style={styles.tableScroller}>
@@ -123,109 +195,165 @@ export default function AdminTable({
                 ESTADO
               </th>
 
-              <th style={styles.actionHeader}>
-                ACCIONES
-              </th>
+              <th
+                aria-label="Abrir detalle"
+                style={styles.selectionHeader}
+              />
             </tr>
           </thead>
 
           <tbody>
-            {admins.map((admin, index) => (
-              <tr
-                key={admin.id}
-                style={styles.bodyRow}
-              >
-                <td style={styles.adminCell}>
-                  <div style={styles.adminProfile}>
-                    <AdminAvatar
-                      admin={admin}
-                      index={index}
-                    />
+            {admins.map(
+              (admin, index) => (
+                <tr
+                  key={admin.id}
+                  tabIndex={0}
+                  role="button"
+                  title={`Ver detalle de ${admin.displayName}`}
+                  aria-label={`Ver detalle de ${admin.displayName}`}
+                  onClick={() =>
+                    onViewDetails(admin)
+                  }
+                  onKeyDown={(event) =>
+                    handleRowKeyDown(
+                      event,
+                      admin,
+                    )
+                  }
+                  onMouseEnter={(event) => {
+  event.currentTarget.style.background =
+    "rgba(234, 244, 255, 0.78)";
+}}
 
-                    <div style={styles.adminText}>
-                      <div style={styles.nameLine}>
-                        <strong style={styles.adminName}>
-                          {admin.displayName}
-                        </strong>
+onMouseLeave={(event) => {
+  event.currentTarget.style.background =
+    "transparent";
+}}
 
-                        {admin.isCurrentAdmin && (
-                          <span style={styles.youBadge}>
-                            Tú
-                          </span>
-                        )}
+onFocus={(event) => {
+  event.currentTarget.style.background =
+    "rgba(234, 244, 255, 0.78)";
+
+  event.currentTarget.style.outline =
+    "2px solid rgba(38, 128, 236, 0.28)";
+
+  event.currentTarget.style.outlineOffset =
+    "-2px";
+}}
+
+onBlur={(event) => {
+  event.currentTarget.style.background =
+    "transparent";
+
+  event.currentTarget.style.outline =
+    "none";
+}}
+                  style={styles.selectableRow}
+                >
+                  <td style={styles.adminCell}>
+                    <div
+                      style={styles.adminProfile}
+                    >
+                      <AdminAvatar
+                        admin={admin}
+                        index={index}
+                      />
+
+                      <div
+                        style={styles.adminText}
+                      >
+                        <div
+                          style={styles.nameLine}
+                        >
+                          <strong
+                            style={styles.adminName}
+                          >
+                            {admin.displayName}
+                          </strong>
+
+                          {admin.isCurrentAdmin && (
+                            <span
+                              style={styles.youBadge}
+                            >
+                              Tú
+                            </span>
+                          )}
+                        </div>
+
+                        <span
+                          style={styles.adminEmail}
+                        >
+                          {admin.email}
+                        </span>
                       </div>
+                    </div>
+                  </td>
 
-                      <span style={styles.adminEmail}>
-                        {admin.email}
+                  <td style={styles.cell}>
+                    <AdminRoleBadge
+                      role={admin.role}
+                    />
+                  </td>
+
+                  <td style={styles.cell}>
+                    <div
+                      style={styles.dateValue}
+                    >
+                      <CalendarDays
+                        size={40}
+                        color="#2583f4"
+                        strokeWidth={2.2}
+                      />
+
+                      <span>
+                        {formatDate(
+                          admin.createdAt,
+                        )}
                       </span>
                     </div>
-                  </div>
-                </td>
+                  </td>
 
-                <td style={styles.cell}>
-                  <AdminRoleBadge
-                    role={admin.role}
-                  />
-                </td>
+                  <td style={styles.cell}>
+                    {admin.createdBy}
+                  </td>
 
-                <td style={styles.cell}>
-                  <div style={styles.dateValue}>
-                    <CalendarDays
-                      size={40}
-                      color="#2583f4"
-                      strokeWidth={2.2}
+                  <td style={styles.cell}>
+                    <div
+                      style={styles.dateValue}
+                    >
+                      <CalendarDays
+                        size={40}
+                        color="#2583f4"
+                        strokeWidth={2.2}
+                      />
+
+                      <span>
+                        {formatRelativeDate(
+                          admin.lastActivityAt,
+                        )}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td style={styles.cell}>
+                    <AdminStatusBadge
+                      status={admin.status}
                     />
+                  </td>
 
-                    <span>
-                      {formatDate(
-                        admin.createdAt,
-                      )}
-                    </span>
-                  </div>
-                </td>
-
-                <td style={styles.cell}>
-                  {admin.createdBy}
-                </td>
-
-                <td style={styles.cell}>
-                  <div style={styles.dateValue}>
-                    <CalendarDays
-                      size={40}
-                      color="#2583f4"
-                      strokeWidth={2.2}
-                    />
-
-                    <span>
-                      {admin.lastActivityAt}
-                    </span>
-                  </div>
-                </td>
-
-                <td style={styles.cell}>
-                  <AdminStatusBadge
-                    status={admin.status}
-                  />
-                </td>
-
-                <td style={styles.actionCell}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onViewDetails(admin)
+                  <td
+                    style={
+                      styles.selectionCell
                     }
-                    style={styles.detailButton}
                   >
-                    <Eye
-                      size={40}
-                      strokeWidth={2.2}
+                    <ChevronRight
+                      size={24}
+                      strokeWidth={2.4}
                     />
-
-                    Ver detalle
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              ),
+            )}
 
             {admins.length === 0 && (
               <tr>
@@ -233,8 +361,9 @@ export default function AdminTable({
                   colSpan={7}
                   style={styles.emptyCell}
                 >
-                  No se encontraron administradores
-                  con el filtro seleccionado.
+                  No se encontraron
+                  administradores con el filtro
+                  seleccionado.
                 </td>
               </tr>
             )}

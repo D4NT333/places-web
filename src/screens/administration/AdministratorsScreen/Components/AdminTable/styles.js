@@ -135,10 +135,10 @@ const styles = {
   },
 
   adminEmail: {
-    maxWidth: "210px",
+    maxWidth: "320px",
     overflow: "hidden",
     color: "#637b99",
-    fontSize: "0.78rem",
+    fontSize: "1.4rem",
     fontWeight: 550,
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -187,6 +187,25 @@ const styles = {
     fontWeight: 650,
     textAlign: "center",
   },
+  selectionHeader: {
+  width: "5%",
+  padding: "13px 12px",
+  borderBottom: "1px solid #d7e4f2",
+},
+
+selectableRow: {
+  borderBottom: "1px solid #dce7f2",
+  cursor: "pointer",
+  transition:
+    "background 160ms ease, transform 160ms ease",
+},
+
+selectionCell: {
+  padding: "14px 18px 14px 8px",
+  color: "#2680ec",
+  textAlign: "right",
+  verticalAlign: "middle",
+},
 };
 
 export default styles;
