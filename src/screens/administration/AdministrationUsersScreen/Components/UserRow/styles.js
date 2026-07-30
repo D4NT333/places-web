@@ -1,232 +1,328 @@
-const tableColumns = "2.3fr 1.2fr 1fr 1fr 1fr";
+const tableColumns =
+  "2.2fr 1.15fr 1fr 1.15fr 1fr";
 
 const styles = {
- row: {
-  width: "100%",
-  display: "grid",
-  gridTemplateColumns: tableColumns,
-  gap: "1rem",
-  alignItems: "center",
-  minHeight: 104,
-  padding: "0 1.25rem",
-  border: "none",
-  borderBottom: "1px solid #edf1f5",
-  backgroundColor: "#ffffff",
-  color: "#0f172a",
-  textAlign: "left",
-  cursor: "pointer",
-  boxSizing: "border-box",
-  transition:
-    "background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease",
-},
+  row: {
+    appearance: "none",
+    WebkitAppearance:
+      "none",
+
+    display: "grid",
+
+    gridTemplateColumns:
+      tableColumns,
+
+    alignItems: "center",
+
+    gap: "16px",
+
+    width: "100%",
+    minHeight: "82px",
+
+    padding: "9px 18px",
+    boxSizing: "border-box",
+
+    color: "#0f315a",
+    background:
+      "rgba(255, 255, 255, 0.86)",
+
+    border: "none",
+    borderBottom:
+      "1px solid #dce8f2",
+
+    fontFamily: "inherit",
+    textAlign: "left",
+
+    cursor: "pointer",
+
+    transition:
+      "background 160ms ease, box-shadow 160ms ease",
+  },
 
   rowHovered: {
-    backgroundColor: "#f8fafc",
-    transform: "translateY(-1px)",
-    boxShadow: "inset 4px 0 0 #0f172a",
+    background:
+      "linear-gradient(90deg, #f0f7ff 0%, #fbfdff 55%, #f3f9ff 100%)",
+
+    boxShadow:
+      "inset 4px 0 0 #2176e5",
   },
 
   userCell: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
-    gap: 16,
+    justifyContent:
+      "flex-start",
+
+    gap: "12px",
     minWidth: 0,
   },
 
   avatar: {
-    width: 58,
-    height: 58,
-    borderRadius: "50%",
-    backgroundColor: "#f8fafc",
-    border: "1px solid #cbd5e1",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent:
+      "center",
+
+    width: "104px",
+    height: "104px",
     flexShrink: 0,
+
     overflow: "hidden",
+
+    color: "#176fdc",
+
+    background:
+      "linear-gradient(145deg, #eaf4ff, #f8fbff)",
+
+    border:
+      "2px solid #ffffff",
+
+    borderRadius: "999px",
+
+    boxShadow:
+      "0 0 0 1px #c8ddf3, 0 6px 14px rgba(29, 69, 112, 0.12)",
+
     transition:
-      "border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, background-color 160ms ease",
+      "box-shadow 160ms ease, transform 160ms ease",
   },
 
   avatarHovered: {
-    borderColor: "#0f172a",
-    backgroundColor: "#eef2f7",
-    boxShadow: "0 8px 18px rgba(15, 23, 42, 0.14)",
-    transform: "scale(1.04)",
+    transform:
+      "scale(1.04)",
+
+    boxShadow:
+      "0 0 0 2px #80b8f4, 0 8px 18px rgba(29, 87, 151, 0.17)",
   },
 
   avatarImage: {
+    display: "block",
+
     width: "100%",
     height: "100%",
+
     objectFit: "cover",
-    display: "block",
   },
 
   avatarText: {
-    fontSize: 15,
-    fontWeight: 900,
-    color: "#334155",
+    color: "#176fdc",
+
+    fontSize: "1.8rem",
+    fontWeight: 950,
   },
 
   userInfo: {
     display: "flex",
     flexDirection: "column",
+
+    gap: "4px",
     minWidth: 0,
   },
 
   userName: {
-    fontSize: 15,
-    fontWeight: 900,
-    color: "#0f172a",
-    whiteSpace: "nowrap",
     overflow: "hidden",
-    textOverflow: "ellipsis",
-    transition: "color 160ms ease",
+
+    color: "#0b315f",
+
+    fontSize: "2rem",
+    fontWeight: 950,
+    lineHeight: 1.2,
+
+    textOverflow:
+      "ellipsis",
+    whiteSpace: "nowrap",
+
+    transition:
+      "color 160ms ease",
   },
 
   userNameHovered: {
-    color: "#020617",
+    color: "#176fdc",
   },
 
-  userEmail: {
-    marginTop: 5,
-    fontSize: 13,
-    fontWeight: 650,
-    color: "#475569",
-    whiteSpace: "nowrap",
+  userSecondary: {
+    display: "flex",
+    alignItems: "center",
+
+    gap: "4px",
+
     overflow: "hidden",
-    textOverflow: "ellipsis",
+
+    color: "#6b829c",
+
+    fontSize: "0.78rem",
+    fontWeight: 650,
+
+    textOverflow:
+      "ellipsis",
+    whiteSpace: "nowrap",
   },
 
   dateCell: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    fontSize: 14,
-    fontWeight: 750,
-    color: "#0f172a",
+    justifyContent:
+      "center",
+
+    gap: "7px",
     minWidth: 0,
+
+    color: "#2478de",
+
+    fontSize: "2rem",
+    fontWeight: 800,
     textAlign: "center",
   },
 
   profileCell: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    fontSize: 14,
-    fontWeight: 850,
-    color: "#0f172a",
+    justifyContent:
+      "center",
+
     minWidth: 0,
     textAlign: "center",
+  },
+
+  profileChip: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent:
+      "center",
+
+    gap: "6px",
+
+    minHeight: "31px",
+    maxWidth: "100%",
+
+    padding: "0 10px",
+
+    overflow: "hidden",
+
+    color: "#416587",
+    background: "#f3f8fc",
+
+    border:
+      "1px solid #d5e2ed",
+
+    borderRadius: "999px",
+
+    fontSize: "2rem",
+    fontWeight: 800,
+
+    textOverflow:
+      "ellipsis",
+    whiteSpace: "nowrap",
   },
 
   activityCell: {
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 5,
+    justifyContent:
+      "center",
+    flexDirection: "column",
+
+    gap: "3px",
     minWidth: 0,
+
     textAlign: "center",
   },
 
   activityMain: {
-    fontSize: 14,
-    fontWeight: 900,
-    color: "#0f172a",
+    display: "flex",
+    alignItems: "center",
+    justifyContent:
+      "center",
+
+    gap: "5px",
+
+    color: "#123b67",
+
+    fontSize: "2rem",
+    lineHeight: 1.2,
   },
 
   activitySecondary: {
-    fontSize: 13,
+    color: "#6a829c",
+
+    fontSize: "1.6rem",
     fontWeight: 650,
-    color: "#475569",
   },
 
   statusCell: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent:
+      "center",
+
+    gap: "7px",
     minWidth: 0,
+
     textAlign: "center",
   },
 
-  statusText: {
-    fontSize: 14,
+  statusChip: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent:
+      "center",
+
+    gap: "6px",
+
+    minWidth: "112px",
+    minHeight: "32px",
+
+    padding: "0 11px",
+
+    border:
+      "1px solid transparent",
+
+    borderRadius: "999px",
+
+    fontSize: "2rem",
     fontWeight: 900,
-    color: "#0f172a",
+    lineHeight: 1,
+
     whiteSpace: "nowrap",
   },
-  headerTopRow: {
-  display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  gap: 16,
-},
 
-filtersRow: {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  gap: 10,
-  flexWrap: "wrap",
-},
+  statusActive: {
+    color: "#078e4a",
+    background: "#eafaf2",
+    borderColor: "#b9e5ce",
+  },
 
-filterChip: {
-  height: 28,
-  padding: "0 16px",
-  borderRadius: 999,
-  border: "1px solid #cbd5e1",
-  backgroundColor: "#ffffff",
-  color: "#475569",
-  fontSize: 12,
-  fontWeight: 700,
-  cursor: "pointer",
-},
+  statusReview: {
+    color: "#b36d00",
+    background: "#fff7e7",
+    borderColor: "#efd18f",
+  },
 
-filterChipActive: {
-  backgroundColor: "#0f172a",
-  borderColor: "#0f172a",
-  color: "#ffffff",
-},
+  statusWarned: {
+    color: "#bf6711",
+    background: "#fff2e6",
+    borderColor: "#f2c49c",
+  },
 
-errorBox: {
-  marginTop: 12,
-  marginBottom: 12,
-  padding: "12px 14px",
-  borderRadius: 12,
-  backgroundColor: "#fff1f2",
-  border: "1px solid #fecdd3",
-  color: "#991b1b",
-  fontSize: 13,
-  fontWeight: 600,
-},
+  statusBlocked: {
+    color: "#d23f3f",
+    background: "#fff0f0",
+    borderColor: "#f5bebe",
+  },
 
-emptyState: {
-  padding: "28px 16px",
-  textAlign: "center",
-  color: "#64748b",
-  fontSize: 13,
-  fontWeight: 600,
-},
+  chevron: {
+    flexShrink: 0,
 
-loadingMore: {
-  padding: "16px",
-  textAlign: "center",
-  color: "#475569",
-  fontSize: 13,
-  fontWeight: 600,
-  borderTop: "1px solid #e5e7eb",
-},
+    color: "#82a1c0",
 
-endMessage: {
-  padding: "16px",
-  textAlign: "center",
-  color: "#94a3b8",
-  fontSize: 12,
-  fontWeight: 600,
-  borderTop: "1px solid #e5e7eb",
-},
+    transition:
+      "color 160ms ease, transform 160ms ease",
+  },
+
+  chevronHovered: {
+    color: "#2176e5",
+    transform:
+      "translateX(3px)",
+  },
 };
 
 export default styles;

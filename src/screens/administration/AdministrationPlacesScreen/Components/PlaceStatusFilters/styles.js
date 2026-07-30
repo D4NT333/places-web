@@ -1,12 +1,17 @@
 const styles = {
   container: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 28,
-    width: "100%",
-    maxWidth: 980,
-    marginLeft: "auto",
+
+    gridTemplateColumns:
+      "repeat(2, max-content)",
+
     alignItems: "start",
+    justifyContent: "end",
+
+    gap: "18px",
+
+    width: "auto",
+    marginLeft: "auto",
   },
 };
 
