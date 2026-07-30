@@ -1,121 +1,305 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  ArrowLeft,
+  CheckCircle2,
+  CircleX,
+  MapPinned,
+  ShieldCheck,
+} from "lucide-react";
+
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
 import LayoutScreen from "../../../../layout";
-import styles from "./styles";
+
 import CandidateMediaPanel from "./Components/CandidateMediaPanel";
 import CandidateReviewPanel from "./Components/CandidateReviewPanel";
 
-import { getCreateFiltersCatalogService } from "../../../../services/api/filtersCatalog.service";
-import { getGoogleCandidateDetailsService } from "../../../../services/api/googleCandidates.service";
+import {
+  getCreateFiltersCatalogService,
+} from "../../../../services/api/filtersCatalog.service";
 
-import { registerPlaceFromCandidateService } from "../../../../services/api/registerPlaceFromCandidate.service";
+import {
+  getGoogleCandidateDetailsService,
+} from "../../../../services/api/googleCandidates.service";
+
+import {
+  registerPlaceFromCandidateService,
+} from "../../../../services/api/registerPlaceFromCandidate.service";
+
+import styles from "./styles";
 
 const genericDescriptions = [
   {
     id: "generic_food",
     label: "Descripción gastronómica",
-    text: "Lugar ideal para disfrutar una experiencia gastronómica agradable, con una propuesta pensada para quienes buscan descubrir nuevos espacios dentro de la ciudad.",
+    text:
+      "Lugar ideal para disfrutar una experiencia gastronómica agradable, con una propuesta pensada para quienes buscan descubrir nuevos espacios dentro de la ciudad.",
   },
   {
     id: "generic_local",
     label: "Descripción local",
-    text: "Espacio local recomendado para quienes desean conocer opciones cercanas, explorar la zona y encontrar lugares con identidad propia.",
+    text:
+      "Espacio local recomendado para quienes desean conocer opciones cercanas, explorar la zona y encontrar lugares con identidad propia.",
   },
   {
     id: "generic_general",
     label: "Descripción general",
-    text: "Lugar ubicado dentro de la zona seleccionada, disponible para ser revisado y clasificado dentro de Lsearch según sus características principales.",
+    text:
+      "Lugar ubicado dentro de la zona seleccionada, disponible para ser revisado y clasificado dentro de Lsearch según sus características principales.",
   },
 ];
 
 function formatDate(value) {
-  if (!value) return "Sin fecha";
+  if (!value) {
+    return "Sin fecha";
+  }
 
   try {
-    return new Intl.DateTimeFormat("es-MX", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+    return new Intl.DateTimeFormat(
+      "es-MX",
+      {
+        dateStyle: "medium",
+        timeStyle: "short",
+      },
+    ).format(
+      new Date(value),
+    );
   } catch {
     return "Sin fecha";
   }
 }
 
-export default function PlaceDetailCandidatesScreen() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { candidateId } = useParams();
+function getStatusLabel(status) {
+  const labels = {
+    in_review: "Pendiente",
+    accepted: "Aceptado",
+    rejected: "Rechazado",
+  };
 
-  const candidateFromState = location.state?.candidate || null;
-  const hexId = location.state?.hexId || candidateFromState?.parentHexId || null;
+  return (
+    labels[status] ||
+    "Pendiente"
+  );
+}
+
+function getStatusStyles(status) {
+  const variants = {
+    in_review:
+      styles.statusPending,
+
+    accepted:
+      styles.statusAccepted,
+
+    rejected:
+      styles.statusRejected,
+  };
+
+  return (
+    variants[status] ||
+    styles.statusPending
+  );
+}
+
+function getStatusIcon(status) {
+  if (status === "accepted") {
+    return CheckCircle2;
+  }
+
+  if (status === "rejected") {
+    return CircleX;
+  }
+
+  return ShieldCheck;
+}
+
+export default function PlaceDetailCandidatesScreen() {
+  const navigate =
+    useNavigate();
+
+  const location =
+    useLocation();
+
+  const {
+    candidateId,
+  } = useParams();
+
+  const candidateFromState =
+    location.state?.candidate ||
+    null;
+
+  const hexId =
+    location.state?.hexId ||
+    candidateFromState?.parentHexId ||
+    null;
 
   const googlePlaceId =
     candidateFromState?.googlePlaceId ||
     candidateFromState?.id ||
     candidateId;
 
-  const [googleDetails, setGoogleDetails] = useState(null);
-  const [detailsLoading, setDetailsLoading] = useState(false);
-  const [detailsError, setDetailsError] = useState("");
+  const [
+    googleDetails,
+    setGoogleDetails,
+  ] = useState(null);
 
-  const candidate = useMemo(() => {
-    return {
-      id: candidateFromState?.id || googlePlaceId,
-      googlePlaceId,
+  const [
+    detailsLoading,
+    setDetailsLoading,
+  ] = useState(false);
 
-      name:
-        googleDetails?.name ||
-        candidateFromState?.name ||
-        "Sin nombre",
+  const [
+    detailsError,
+    setDetailsError,
+  ] = useState("");
 
-      address:
-        googleDetails?.address ||
-        candidateFromState?.address ||
-        "Sin dirección",
+  const candidate =
+    useMemo(
+      () => ({
+        id:
+          candidateFromState?.id ||
+          googlePlaceId,
 
-      googleMainType:
-        googleDetails?.googleMainType ||
-        candidateFromState?.googleMainType ||
-        "Sin tipo",
+        googlePlaceId,
 
-      types:
-        googleDetails?.types ||
-        candidateFromState?.types ||
-        [],
+        name:
+          googleDetails?.name ||
+          candidateFromState?.name ||
+          "Sin nombre",
 
-      status: candidateFromState?.status || "in_review",
+        address:
+          googleDetails?.address ||
+          candidateFromState?.address ||
+          "Sin dirección",
 
-      importedAt:
-        candidateFromState?.createdAt ||
-        candidateFromState?.importedAt ||
-        null,
+        googleMainType:
+          googleDetails?.googleMainType ||
+          candidateFromState?.googleMainType ||
+          "Sin tipo",
 
-      parentHexId: candidateFromState?.parentHexId || hexId,
+        types:
+          googleDetails?.types ||
+          candidateFromState?.types ||
+          [],
 
-      location: googleDetails?.location || candidateFromState?.location || null,
+        status:
+          candidateFromState?.status ||
+          "in_review",
 
-      rating: googleDetails?.rating ?? null,
-      userRatingCount: googleDetails?.userRatingCount ?? null,
-      priceLevel: googleDetails?.priceLevel || null,
-      googleMapsUri: googleDetails?.googleMapsUri || null,
-      openingHours: googleDetails?.openingHours || null,
-      photos: googleDetails?.photos || [],
-    };
-  }, [candidateFromState, googleDetails, googlePlaceId, hexId]);
+        importedAt:
+          candidateFromState?.createdAt ||
+          candidateFromState?.importedAt ||
+          null,
 
-  const [status, setStatus] = useState(candidate.status || "in_review");
-  const [name, setName] = useState(candidate.name || "");
-  const [description, setDescription] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
-  const [selectedSubtags, setSelectedSubtags] = useState([]);
-  const [selectedApproach, setSelectedApproach] = useState("");
-  const [selectedPrice, setSelectedPrice] = useState("");
-  const [selectedSchedule, setSelectedSchedule] = useState("");
+        parentHexId:
+          candidateFromState?.parentHexId ||
+          hexId,
 
-  const [catalogLoading, setCatalogLoading] = useState(false);
-  const [catalogError, setCatalogError] = useState("");
+        location:
+          googleDetails?.location ||
+          candidateFromState?.location ||
+          null,
 
-  const [catalog, setCatalog] = useState({
+        rating:
+          googleDetails?.rating ??
+          null,
+
+        userRatingCount:
+          googleDetails?.userRatingCount ??
+          null,
+
+        priceLevel:
+          googleDetails?.priceLevel ||
+          null,
+
+        googleMapsUri:
+          googleDetails?.googleMapsUri ||
+          null,
+
+        openingHours:
+          googleDetails?.openingHours ||
+          null,
+
+        photos:
+          googleDetails?.photos ||
+          [],
+      }),
+      [
+        candidateFromState,
+        googleDetails,
+        googlePlaceId,
+        hexId,
+      ],
+    );
+
+  const [
+    status,
+    setStatus,
+  ] = useState(
+    candidate.status ||
+      "in_review",
+  );
+
+  const [
+    name,
+    setName,
+  ] = useState(
+    candidate.name ||
+      "",
+  );
+
+  const [
+    description,
+    setDescription,
+  ] = useState("");
+
+  const [
+    selectedTag,
+    setSelectedTag,
+  ] = useState("");
+
+  const [
+    selectedSubtags,
+    setSelectedSubtags,
+  ] = useState([]);
+
+  const [
+    selectedApproach,
+    setSelectedApproach,
+  ] = useState("");
+
+  const [
+    selectedPrice,
+    setSelectedPrice,
+  ] = useState("");
+
+  const [
+    selectedSchedule,
+    setSelectedSchedule,
+  ] = useState("");
+
+  const [
+    catalogLoading,
+    setCatalogLoading,
+  ] = useState(false);
+
+  const [
+    catalogError,
+    setCatalogError,
+  ] = useState("");
+
+  const [
+    catalog,
+    setCatalog,
+  ] = useState({
     selectedTagId: null,
     selectedTag: null,
     tags: [],
@@ -124,14 +308,45 @@ export default function PlaceDetailCandidatesScreen() {
     priceConfig: null,
   });
 
-  const importedAtLabel = useMemo(() => {
-    return formatDate(candidate.importedAt);
-  }, [candidate.importedAt]);
+  const importedAtLabel =
+    useMemo(
+      () =>
+        formatDate(
+          candidate.importedAt,
+        ),
+      [
+        candidate.importedAt,
+      ],
+    );
+
+  const breadcrumbs =
+    useMemo(
+      () => [
+        {
+          label: "Inicio",
+          to: "/",
+        },
+        {
+          label:
+            "Candidatos de Google",
+          to:
+            "/management/place-registration/candidates",
+        },
+        {
+          label:
+            "Detalle del candidato",
+        },
+      ],
+      [],
+    );
 
   useEffect(() => {
-    const loadGoogleDetails = async () => {
+    async function loadGoogleDetails() {
       if (!googlePlaceId) {
-        setDetailsError("No se encontró el Google Place ID del candidato.");
+        setDetailsError(
+          "No se encontró el Google Place ID del candidato.",
+        );
+
         return;
       }
 
@@ -139,201 +354,437 @@ export default function PlaceDetailCandidatesScreen() {
         setDetailsLoading(true);
         setDetailsError("");
 
-        const data = await getGoogleCandidateDetailsService(googlePlaceId);
+        const data =
+          await getGoogleCandidateDetailsService(
+            googlePlaceId,
+          );
 
-        setGoogleDetails(data);
+        setGoogleDetails(
+          data,
+        );
       } catch (error) {
-        console.error("Error cargando detalles de Google:", error);
+        console.error(
+          "Error cargando detalles de Google:",
+          error,
+        );
+
         setDetailsError(
-          error.message || "No se pudieron cargar los detalles del candidato."
+          error.message ||
+            "No se pudieron cargar los detalles del candidato.",
         );
       } finally {
         setDetailsLoading(false);
       }
-    };
+    }
 
     loadGoogleDetails();
-  }, [googlePlaceId]);
+  }, [
+    googlePlaceId,
+  ]);
 
   useEffect(() => {
-    setStatus(candidate.status || "in_review");
-    setName(candidate.name || "");
-  }, [candidate.status, candidate.name]);
+    setStatus(
+      candidate.status ||
+        "in_review",
+    );
 
-  const loadFiltersCatalog = async (tagId = null) => {
+    setName(
+      candidate.name ||
+        "",
+    );
+  }, [
+    candidate.status,
+    candidate.name,
+  ]);
+
+  async function loadFiltersCatalog(
+    tagId = null,
+  ) {
     try {
       setCatalogLoading(true);
       setCatalogError("");
 
-      const data = await getCreateFiltersCatalogService(tagId);
+      const data =
+        await getCreateFiltersCatalogService(
+          tagId,
+        );
 
-      setCatalog(data);
+      setCatalog(
+        data,
+      );
 
-      if (data.selectedTagId) {
-        setSelectedTag(data.selectedTagId);
+      if (
+        data.selectedTagId
+      ) {
+        setSelectedTag(
+          data.selectedTagId,
+        );
       }
 
       setSelectedSubtags([]);
       setSelectedApproach("");
       setSelectedPrice("");
     } catch (error) {
-      console.error("Error cargando catálogo de filtros:", error);
-      setCatalogError(error.message || "No se pudo cargar el catálogo.");
+      console.error(
+        "Error cargando catálogo de filtros:",
+        error,
+      );
+
+      setCatalogError(
+        error.message ||
+          "No se pudo cargar el catálogo.",
+      );
     } finally {
       setCatalogLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
     loadFiltersCatalog();
   }, []);
 
-  const handleSelectDescription = (descriptionText) => {
-    setDescription(descriptionText);
-  };
-
-  const handleSelectTag = async (tagId) => {
-    await loadFiltersCatalog(tagId);
-  };
-
-  const handleToggleSubtag = (subtag) => {
-    setSelectedSubtags((prev) => {
-      if (prev.includes(subtag)) {
-        return prev.filter((item) => item !== subtag);
-      }
-
-      return [...prev, subtag];
-    });
-  };
-
-  const handleReject = () => {
-    setStatus("rejected");
-    console.log("Candidato rechazado:", candidateId);
-  };
-
-const handleAccept = async () => {
-  if (!candidateId) {
-    alert("No se encontró el ID del candidato.");
-    return;
+  function handleSelectDescription(
+    descriptionText,
+  ) {
+    setDescription(
+      descriptionText,
+    );
   }
 
-  if (!candidate.googlePlaceId) {
-    alert("No se encontró el Google Place ID.");
-    return;
+  async function handleSelectTag(
+    tagId,
+  ) {
+    await loadFiltersCatalog(
+      tagId,
+    );
   }
 
-  if (!name.trim()) {
-    alert("El nombre del lugar es obligatorio.");
-    return;
+  function handleToggleSubtag(
+    subtag,
+  ) {
+    setSelectedSubtags(
+      (previousSubtags) => {
+        if (
+          previousSubtags.includes(
+            subtag,
+          )
+        ) {
+          return previousSubtags.filter(
+            (item) =>
+              item !== subtag,
+          );
+        }
+
+        return [
+          ...previousSubtags,
+          subtag,
+        ];
+      },
+    );
   }
 
-  if (!description.trim()) {
-    alert("La descripción es obligatoria.");
-    return;
-  }
+  function handleReject() {
+    setStatus(
+      "rejected",
+    );
 
-  if (!selectedTag) {
-    alert("Selecciona una etiqueta principal.");
-    return;
-  }
-
-  if (!selectedSubtags.length) {
-    alert("Selecciona al menos una subetiqueta.");
-    return;
-  }
-
-  if (!selectedApproach) {
-    alert("Selecciona un enfoque.");
-    return;
-  }
-
-  if (!selectedPrice) {
-    alert("Selecciona un precio.");
-    return;
-  }
-
-  try {
-    setStatus("accepted");
-
-    const payload = {
+    console.log(
+      "Candidato rechazado:",
       candidateId,
-      googlePlaceId: candidate.googlePlaceId,
-
-      source: "google",
-      status: "published",
-
-      name: name.trim(),
-      description: description.trim(),
-      address: candidate.address || "",
-
-      location: candidate.location || null,
-
-      parentHexId: candidate.parentHexId || null,
-
-      tagId: selectedTag,
-      subtags: selectedSubtags,
-      approaches: selectedApproach ? [selectedApproach] : [],
-      price: selectedPrice,
-
-      schedule: selectedSchedule || null,
-
-      googleData: {
-        googleMainType: candidate.googleMainType || null,
-        types: candidate.types || [],
-        rating: candidate.rating ?? null,
-        userRatingCount: candidate.userRatingCount ?? null,
-        priceLevel: candidate.priceLevel || null,
-        googleMapsUri: candidate.googleMapsUri || null,
-        openingHours: candidate.openingHours || null,
-      },
-
-      photos: candidate.photos || [],
-    };
-
-    console.log("Payload enviado al backend:", payload);
-
-    const result = await registerPlaceFromCandidateService(payload);
-
-    console.log("Lugar creado:", result);
-
-    alert("Lugar registrado correctamente.");
-
-    navigate("/management/place-registration/candidates", {
-      state: {
-        hexId,
-      },
-    });
-  } catch (error) {
-    console.error("Error aceptando candidato:", error);
-    setStatus(candidate.status || "in_review");
-    alert(error.message || "No se pudo aceptar el candidato.");
+    );
   }
-};
 
-  const handleBack = () => {
-    navigate("/management/place-registration/candidates", {
-      state: {
-        hexId,
+  async function handleAccept() {
+    if (!candidateId) {
+      alert(
+        "No se encontró el ID del candidato.",
+      );
+
+      return;
+    }
+
+    if (
+      !candidate.googlePlaceId
+    ) {
+      alert(
+        "No se encontró el Google Place ID.",
+      );
+
+      return;
+    }
+
+    if (!name.trim()) {
+      alert(
+        "El nombre del lugar es obligatorio.",
+      );
+
+      return;
+    }
+
+    if (
+      !description.trim()
+    ) {
+      alert(
+        "La descripción es obligatoria.",
+      );
+
+      return;
+    }
+
+    if (!selectedTag) {
+      alert(
+        "Selecciona una etiqueta principal.",
+      );
+
+      return;
+    }
+
+    if (
+      !selectedSubtags.length
+    ) {
+      alert(
+        "Selecciona al menos una subetiqueta.",
+      );
+
+      return;
+    }
+
+    if (
+      !selectedApproach
+    ) {
+      alert(
+        "Selecciona un enfoque.",
+      );
+
+      return;
+    }
+
+    if (
+      !selectedPrice
+    ) {
+      alert(
+        "Selecciona un precio.",
+      );
+
+      return;
+    }
+
+    try {
+      setStatus(
+        "accepted",
+      );
+
+      const payload = {
+        candidateId,
+
+        googlePlaceId:
+          candidate.googlePlaceId,
+
+        source: "google",
+        status: "published",
+
+        name:
+          name.trim(),
+
+        description:
+          description.trim(),
+
+        address:
+          candidate.address ||
+          "",
+
+        location:
+          candidate.location ||
+          null,
+
+        parentHexId:
+          candidate.parentHexId ||
+          null,
+
+        tagId:
+          selectedTag,
+
+        subtags:
+          selectedSubtags,
+
+        approaches:
+          selectedApproach
+            ? [
+                selectedApproach,
+              ]
+            : [],
+
+        price:
+          selectedPrice,
+
+        schedule:
+          selectedSchedule ||
+          null,
+
+        googleData: {
+          googleMainType:
+            candidate.googleMainType ||
+            null,
+
+          types:
+            candidate.types ||
+            [],
+
+          rating:
+            candidate.rating ??
+            null,
+
+          userRatingCount:
+            candidate.userRatingCount ??
+            null,
+
+          priceLevel:
+            candidate.priceLevel ||
+            null,
+
+          googleMapsUri:
+            candidate.googleMapsUri ||
+            null,
+
+          openingHours:
+            candidate.openingHours ||
+            null,
+        },
+
+        photos:
+          candidate.photos ||
+          [],
+      };
+
+      console.log(
+        "Payload enviado al backend:",
+        payload,
+      );
+
+      const result =
+        await registerPlaceFromCandidateService(
+          payload,
+        );
+
+      console.log(
+        "Lugar creado:",
+        result,
+      );
+
+      alert(
+        "Lugar registrado correctamente.",
+      );
+
+      navigate(
+        "/management/place-registration/candidates",
+        {
+          state: {
+            hexId,
+          },
+        },
+      );
+    } catch (error) {
+      console.error(
+        "Error aceptando candidato:",
+        error,
+      );
+
+      setStatus(
+        candidate.status ||
+          "in_review",
+      );
+
+      alert(
+        error.message ||
+          "No se pudo aceptar el candidato.",
+      );
+    }
+  }
+
+  function handleBack() {
+    navigate(
+      "/management/place-registration/candidates",
+      {
+        state: {
+          hexId,
+        },
       },
-    });
-  };
+    );
+  }
+
+  const StatusIcon =
+    getStatusIcon(
+      status,
+    );
 
   return (
-    <LayoutScreen>
-      <div style={styles.container}>
-        <div style={styles.header}>
+    <LayoutScreen
+      breadcrumbs={breadcrumbs}
+      padding="0"
+      maxWidth="100%"
+      scroll
+      fullHeight
+      showHeader
+      showSidebar
+      showFooter
+      stickyHeader
+    >
+      <main style={styles.screen}>
+        <section style={styles.header}>
           <div style={styles.headerTextBlock}>
-            <h1 style={styles.title}>Detalle del candidato</h1>
+            <div style={styles.titleLine}>
+              <div style={styles.titleIcon}>
+                <MapPinned
+                  size={60}
+                  strokeWidth={2.15}
+                />
+              </div>
 
-            <p style={styles.subtitle}>
-              Revisa la información importada desde Google y completa los datos
-              necesarios para Lsearch.
-            </p>
+              <div>
+                <div style={styles.titleRow}>
+                  <h1 style={styles.title}>
+                    Detalle del candidato
+                  </h1>
+
+                  <span
+                    style={{
+                      ...styles.statusBadge,
+                      ...getStatusStyles(
+                        status,
+                      ),
+                    }}
+                  >
+                    <StatusIcon
+                      size={50}
+                      strokeWidth={2.3}
+                    />
+
+                    {getStatusLabel(
+                      status,
+                    )}
+                  </span>
+                </div>
+
+                <p style={styles.subtitle}>
+                  Revisa la información importada
+                  desde Google y completa los datos
+                  necesarios para registrar el lugar
+                  en Lsearch.
+                </p>
+              </div>
+            </div>
 
             {detailsError && (
-              <p style={{ margin: "6px 0 0", color: "#991b1b" }}>
-                {detailsError}
-              </p>
+              <div style={styles.errorBox}>
+                <CircleX
+                  size={50}
+                  strokeWidth={2.2}
+                />
+
+                <span>
+                  {detailsError}
+                </span>
+              </div>
             )}
           </div>
 
@@ -341,69 +792,128 @@ const handleAccept = async () => {
             <button
               type="button"
               style={styles.rejectButton}
-              onClick={handleReject}
+              onClick={
+                handleReject
+              }
             >
+              <CircleX
+                size={40}
+                strokeWidth={2.3}
+              />
+
               Rechazar
             </button>
 
             <button
               type="button"
               style={styles.acceptButton}
-              onClick={handleAccept}
+              onClick={
+                handleAccept
+              }
             >
-              Aceptar
+              <CheckCircle2
+                size={40}
+                strokeWidth={2.3}
+              />
+
+              Aceptar candidato
             </button>
           </div>
-        </div>
+        </section>
 
-        <div style={styles.mainContentOffset}>
-          <div style={styles.contentGrid}>
-            <CandidateMediaPanel
-              candidate={candidate}
-              details={googleDetails}
-              loadingDetails={detailsLoading}
-              importedAtLabel={importedAtLabel}
-            />
+        <section style={styles.contentGrid}>
+          <CandidateMediaPanel
+            candidate={candidate}
+            details={googleDetails}
+            loadingDetails={
+              detailsLoading
+            }
+            importedAtLabel={
+              importedAtLabel
+            }
+          />
 
-            <CandidateReviewPanel
-              candidate={candidate}
-              details={googleDetails}
-              loadingDetails={detailsLoading}
-              name={name}
-              setName={setName}
-              description={description}
-              setDescription={setDescription}
-              genericDescriptions={genericDescriptions}
-              onSelectDescription={handleSelectDescription}
-              selectedTag={selectedTag}
-              setSelectedTag={handleSelectTag}
-              selectedSubtags={selectedSubtags}
-              onToggleSubtag={handleToggleSubtag}
-              selectedApproach={selectedApproach}
-              setSelectedApproach={setSelectedApproach}
-              selectedPrice={selectedPrice}
-              setSelectedPrice={setSelectedPrice}
-              selectedSchedule={selectedSchedule}
-              setSelectedSchedule={setSelectedSchedule}
-              importedAtLabel={importedAtLabel}
-              status={status}
-              catalog={catalog}
-              catalogLoading={catalogLoading}
-              catalogError={catalogError}
-            />
-          </div>
-        </div>
+          <CandidateReviewPanel
+            candidate={candidate}
+            details={googleDetails}
+            loadingDetails={
+              detailsLoading
+            }
+            name={name}
+            setName={setName}
+            description={
+              description
+            }
+            setDescription={
+              setDescription
+            }
+            genericDescriptions={
+              genericDescriptions
+            }
+            onSelectDescription={
+              handleSelectDescription
+            }
+            selectedTag={
+              selectedTag
+            }
+            setSelectedTag={
+              handleSelectTag
+            }
+            selectedSubtags={
+              selectedSubtags
+            }
+            onToggleSubtag={
+              handleToggleSubtag
+            }
+            selectedApproach={
+              selectedApproach
+            }
+            setSelectedApproach={
+              setSelectedApproach
+            }
+            selectedPrice={
+              selectedPrice
+            }
+            setSelectedPrice={
+              setSelectedPrice
+            }
+            selectedSchedule={
+              selectedSchedule
+            }
+            setSelectedSchedule={
+              setSelectedSchedule
+            }
+            importedAtLabel={
+              importedAtLabel
+            }
+            status={status}
+            catalog={catalog}
+            catalogLoading={
+              catalogLoading
+            }
+            catalogError={
+              catalogError
+            }
+          />
+        </section>
 
         <div style={styles.footerActions}>
           <button
             type="button"
             style={styles.backButtonBottom}
-            onClick={handleBack}
+            onClick={
+              handleBack
+            }
           >
-            Volver
+            <ArrowLeft
+              size={50}
+              strokeWidth={2.3}
+            />
+
+            Volver a candidatos
           </button>
         </div>
-      </div>
+      </main>
     </LayoutScreen>
   );
 }
