@@ -1,45 +1,204 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  CheckCircle2,
+  CircleX,
+  Clock3,
+  Database,
+  Layers3,
+  ListFilter,
+  LoaderCircle,
+  MapPinned,
+  SearchX,
+} from "lucide-react";
+
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import LayoutScreen from "../../../../layout";
-import styles from "./styles";
+
+import {
+  getGoogleCandidatesService,
+} from "../../../../services/api/googleCandidates.service";
+
 import PlaceCandidateRow from "./Components/PlaceCandidateRow";
 
-import { getGoogleCandidatesService } from "../../../../services/api/googleCandidates.service";
+import styles from "./styles";
 
 const PAGE_LIMIT = 15;
 
-const statusFilters = [
+const STATUS_FILTERS = [
   {
-    label: "Todas",
+    label: "Todos",
     value: "all",
+    icon: Layers3,
+    variant: "all",
   },
   {
     label: "Pendientes",
     value: "in_review",
+    icon: Clock3,
+    variant: "pending",
   },
   {
-    label: "Aceptadas",
+    label: "Aceptados",
     value: "accepted",
+    icon: CheckCircle2,
+    variant: "accepted",
   },
   {
-    label: "Rechazadas",
+    label: "Rechazados",
     value: "rejected",
+    icon: CircleX,
+    variant: "rejected",
+  },
+];
+
+const BREADCRUMBS = [
+  {
+    label: "Inicio",
+    to: "/",
+  },
+  {
+    label: "Candidatos de Google",
   },
 ];
 
 function useQuery() {
-  return new URLSearchParams(useLocation().search);
+  return new URLSearchParams(
+    useLocation().search,
+  );
 }
 
 function getStatusTitle(status) {
-  const map = {
-    all: "Todos los candidatos encontrados",
-    in_review: "Candidatos pendientes de revisión",
-    accepted: "Candidatos aceptados",
-    rejected: "Candidatos rechazados",
+  const titles = {
+    all:
+      "Todos los candidatos encontrados",
+    in_review:
+      "Candidatos pendientes de revisión",
+    accepted:
+      "Candidatos aceptados",
+    rejected:
+      "Candidatos rechazados",
   };
 
-  return map[status] || "Todos los candidatos encontrados";
+  return (
+    titles[status] ||
+    "Todos los candidatos encontrados"
+  );
+}
+
+function getFilterStyle(
+  variant,
+  isActive,
+) {
+  if (!isActive) {
+    return {};
+  }
+
+  const variants = {
+    all: styles.filterChipAllActive,
+    pending:
+      styles.filterChipPendingActive,
+    accepted:
+      styles.filterChipAcceptedActive,
+    rejected:
+      styles.filterChipRejectedActive,
+  };
+
+  return variants[variant] || {};
+}
+
+function SummaryCard({
+  icon: Icon,
+  label,
+  value,
+  variant = "blue",
+}) {
+  const variantStyles = {
+    blue: {
+      card:
+        styles.summaryCardBlue,
+      icon:
+        styles.summaryIconBlue,
+      value:
+        styles.summaryValueBlue,
+    },
+
+    orange: {
+      card:
+        styles.summaryCardOrange,
+      icon:
+        styles.summaryIconOrange,
+      value:
+        styles.summaryValueOrange,
+    },
+
+    green: {
+      card:
+        styles.summaryCardGreen,
+      icon:
+        styles.summaryIconGreen,
+      value:
+        styles.summaryValueGreen,
+    },
+
+    red: {
+      card:
+        styles.summaryCardRed,
+      icon:
+        styles.summaryIconRed,
+      value:
+        styles.summaryValueRed,
+    },
+  };
+
+  const currentVariant =
+    variantStyles[variant] ||
+    variantStyles.blue;
+
+  return (
+    <article
+      style={{
+        ...styles.summaryCard,
+        ...currentVariant.card,
+      }}
+    >
+      <div
+        style={{
+          ...styles.summaryIcon,
+          ...currentVariant.icon,
+        }}
+      >
+        <Icon
+          size={42}
+          strokeWidth={2.2}
+        />
+      </div>
+
+      <div style={styles.summaryContent}>
+        <span style={styles.summaryLabel}>
+          {label}
+        </span>
+
+        <strong
+          style={{
+            ...styles.summaryValue,
+            ...currentVariant.value,
+          }}
+        >
+          {value}
+        </strong>
+      </div>
+    </article>
+  );
 }
 
 export default function PlaceCandidatesScreen() {
@@ -47,35 +206,107 @@ export default function PlaceCandidatesScreen() {
   const location = useLocation();
   const query = useQuery();
 
-  const currentStatus = query.get("status") || "all";
-  const discoverResponse = location.state?.discoverResponse || null;
-  const selectedHexId = location.state?.hexId || null;
+  const currentStatus =
+    query.get("status") || "all";
 
-  const [candidates, setCandidates] = useState([]);
-  const [nextCursor, setNextCursor] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
+  const discoverResponse =
+    location.state?.discoverResponse ||
+    null;
+
+  const selectedHexId =
+    location.state?.hexId || null;
+
+  const [
+    candidates,
+    setCandidates,
+  ] = useState([]);
+
+  const [
+    nextCursor,
+    setNextCursor,
+  ] = useState(null);
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+
+  const [
+    loadingMore,
+    setLoadingMore,
+  ] = useState(false);
+
+  const [
+    hasMore,
+    setHasMore,
+  ] = useState(true);
+
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState("");
 
   const loadMoreRef = useRef(null);
 
-  const isValidStatus = useMemo(() => {
-    return statusFilters.some((filter) => filter.value === currentStatus);
-  }, [currentStatus]);
+  const isValidStatus = useMemo(
+    () =>
+      STATUS_FILTERS.some(
+        (filter) =>
+          filter.value ===
+          currentStatus,
+      ),
+    [
+      currentStatus,
+    ],
+  );
 
-  const counters = useMemo(() => {
-    return {
-      total: candidates.length,
-      pending: candidates.filter((item) => item.status === "in_review").length,
-      accepted: candidates.filter((item) => item.status === "accepted").length,
-      rejected: candidates.filter((item) => item.status === "rejected").length,
-    };
-  }, [candidates]);
+  const counters = useMemo(
+    () => ({
+      total:
+        candidates.length,
 
-  const loadCandidates = async ({ reset = false } = {}) => {
-    if (loading || loadingMore) return;
-    if (!reset && !hasMore) return;
+      pending:
+        candidates.filter(
+          (item) =>
+            item.status ===
+            "in_review",
+        ).length,
+
+      accepted:
+        candidates.filter(
+          (item) =>
+            item.status ===
+            "accepted",
+        ).length,
+
+      rejected:
+        candidates.filter(
+          (item) =>
+            item.status ===
+            "rejected",
+        ).length,
+    }),
+    [
+      candidates,
+    ],
+  );
+
+  const loadCandidates = async ({
+    reset = false,
+  } = {}) => {
+    if (
+      loading ||
+      loadingMore
+    ) {
+      return;
+    }
+
+    if (
+      !reset &&
+      !hasMore
+    ) {
+      return;
+    }
 
     try {
       if (reset) {
@@ -86,33 +317,64 @@ export default function PlaceCandidatesScreen() {
 
       setErrorMessage("");
 
-      const data = await getGoogleCandidatesService({
-        status: currentStatus,
-        limit: PAGE_LIMIT,
-        cursor: reset ? null : nextCursor,
-      });
+      const data =
+        await getGoogleCandidatesService({
+          status:
+            currentStatus,
 
-      const newItems = data.items || [];
-      const newCursor = data.nextCursor || null;
+          limit:
+            PAGE_LIMIT,
 
-      setCandidates((prev) => {
-        if (reset) return newItems;
+          cursor:
+            reset
+              ? null
+              : nextCursor,
+        });
 
-        return [
-          ...prev,
-          ...newItems.filter(
-            (newItem) =>
-              !prev.some((currentItem) => currentItem.id === newItem.id)
-          ),
-        ];
-      });
+      const newItems =
+        data.items || [];
 
-      setNextCursor(newCursor);
-      setHasMore(Boolean(data.hasMore) && Boolean(newCursor));
+      const newCursor =
+        data.nextCursor || null;
+
+      setCandidates(
+        (previousCandidates) => {
+          if (reset) {
+            return newItems;
+          }
+
+          return [
+            ...previousCandidates,
+
+            ...newItems.filter(
+              (newItem) =>
+                !previousCandidates.some(
+                  (currentItem) =>
+                    currentItem.id ===
+                    newItem.id,
+                ),
+            ),
+          ];
+        },
+      );
+
+      setNextCursor(
+        newCursor,
+      );
+
+      setHasMore(
+        Boolean(data.hasMore) &&
+          Boolean(newCursor),
+      );
     } catch (error) {
-      console.error("Error cargando candidatos:", error);
+      console.error(
+        "Error cargando candidatos:",
+        error,
+      );
+
       setErrorMessage(
-        error.message || "No se pudieron cargar los candidatos."
+        error.message ||
+          "No se pudieron cargar los candidatos.",
       );
     } finally {
       setLoading(false);
@@ -122,13 +384,20 @@ export default function PlaceCandidatesScreen() {
 
   useEffect(() => {
     if (!isValidStatus) {
-      navigate("/management/place-registration/candidates?status=all", {
-        replace: true,
-        state: {
-          hexId: selectedHexId,
-          discoverResponse,
+      navigate(
+        "/management/place-registration/candidates?status=all",
+        {
+          replace: true,
+
+          state: {
+            hexId:
+              selectedHexId,
+
+            discoverResponse,
+          },
         },
-      });
+      );
+
       return;
     }
 
@@ -137,150 +406,364 @@ export default function PlaceCandidatesScreen() {
     setHasMore(true);
     setErrorMessage("");
 
-    loadCandidates({ reset: true });
-  }, [currentStatus, isValidStatus]);
+    loadCandidates({
+      reset: true,
+    });
+  }, [
+    currentStatus,
+    isValidStatus,
+  ]);
 
   useEffect(() => {
-    const target = loadMoreRef.current;
+    const target =
+      loadMoreRef.current;
 
-    if (!target) return;
+    if (!target) {
+      return undefined;
+    }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const firstEntry = entries[0];
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          const firstEntry =
+            entries[0];
 
-        if (firstEntry.isIntersecting && hasMore && !loading && !loadingMore) {
-          loadCandidates({ reset: false });
-        }
-      },
-      {
-        root: null,
-        rootMargin: "220px",
-        threshold: 0.1,
-      }
-    );
+          if (
+            firstEntry.isIntersecting &&
+            hasMore &&
+            !loading &&
+            !loadingMore
+          ) {
+            loadCandidates({
+              reset: false,
+            });
+          }
+        },
+        {
+          root: null,
+          rootMargin: "220px",
+          threshold: 0.1,
+        },
+      );
 
     observer.observe(target);
 
     return () => {
       observer.disconnect();
     };
-  }, [nextCursor, hasMore, loading, loadingMore, currentStatus]);
+  }, [
+    nextCursor,
+    hasMore,
+    loading,
+    loadingMore,
+    currentStatus,
+  ]);
 
-  const handleStatusChange = (statusValue) => {
-    navigate(`/management/place-registration/candidates?status=${statusValue}`, {
-      state: {
-        hexId: selectedHexId,
-        discoverResponse,
-      },
-    });
-  };
+  function handleStatusChange(
+    statusValue,
+  ) {
+    navigate(
+      `/management/place-registration/candidates?status=${statusValue}`,
+      {
+        state: {
+          hexId:
+            selectedHexId,
 
-  const handleOpenDetail = (candidate) => {
-    navigate(`/management/place-registration/candidates/${candidate.id}`, {
-      state: {
-        candidate,
-        hexId: candidate.parentHexId || selectedHexId,
-        discoverResponse,
+          discoverResponse,
+        },
       },
-    });
-  };
+    );
+  }
+
+  function handleOpenDetail(
+    candidate,
+  ) {
+    navigate(
+      `/management/place-registration/candidates/${candidate.id}`,
+      {
+        state: {
+          candidate,
+
+          hexId:
+            candidate.parentHexId ||
+            selectedHexId,
+
+          discoverResponse,
+        },
+      },
+    );
+  }
 
   return (
-    <LayoutScreen>
-      <div style={styles.container}>
-        <div style={styles.topBar}>
+    <LayoutScreen
+      breadcrumbs={BREADCRUMBS}
+      padding="0"
+      maxWidth="100%"
+      scroll
+      fullHeight
+      showHeader
+      showSidebar
+      showFooter
+      stickyHeader
+    >
+      <main style={styles.screen}>
+        <section style={styles.topBar}>
           <div style={styles.headerBlock}>
-            <h1 style={styles.title}>Candidatos de Google</h1>
-            <p style={styles.subtitle}>{getStatusTitle(currentStatus)}</p>
+            <div style={styles.titleLine}>
+              <div style={styles.titleIcon}>
+                <MapPinned
+                  size={60}
+                  strokeWidth={2.15}
+                />
+              </div>
 
-            <div style={styles.summaryBox}>
-              <span style={styles.summaryItem}>
-                <strong>Zona:</strong> {selectedHexId || "Sin zona"}
-              </span>
+              <div>
+                <h1 style={styles.title}>
+                  Candidatos de Google
+                </h1>
 
-              <span style={styles.summaryItem}>
-                <strong>Mostrando:</strong> {candidates.length}
-              </span>
-
-              <span style={styles.summaryItem}>
-                <strong>Pendientes:</strong> {counters.pending}
-              </span>
-
-              <span style={styles.summaryItem}>
-                <strong>Aceptados:</strong> {counters.accepted}
-              </span>
-
-              <span style={styles.summaryItem}>
-                <strong>Rechazados:</strong> {counters.rejected}
-              </span>
+                <p style={styles.subtitle}>
+                  {getStatusTitle(
+                    currentStatus,
+                  )}
+                </p>
+              </div>
             </div>
           </div>
 
           <div style={styles.filtersWrapper}>
-            {statusFilters.map((filter) => {
-              const isActive = currentStatus === filter.value;
+            {STATUS_FILTERS.map(
+              (filter) => {
+                const Icon =
+                  filter.icon;
 
-              return (
-                <button
-                  key={filter.value}
-                  type="button"
-                  style={{
-                    ...styles.filterChip,
-                    ...(isActive ? styles.filterChipActive : {}),
-                  }}
-                  onClick={() => handleStatusChange(filter.value)}
-                >
-                  {filter.label}
-                </button>
-              );
-            })}
+                const isActive =
+                  currentStatus ===
+                  filter.value;
+
+                return (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    style={{
+                      ...styles.filterChip,
+
+                      ...getFilterStyle(
+                        filter.variant,
+                        isActive,
+                      ),
+                    }}
+                    onClick={() =>
+                      handleStatusChange(
+                        filter.value,
+                      )
+                    }
+                  >
+                    <Icon
+                      size={38}
+                      strokeWidth={2.2}
+                    />
+
+                    {filter.label}
+                  </button>
+                );
+              },
+            )}
           </div>
-        </div>
+        </section>
 
-        <div style={styles.tableCard}>
+        <section style={styles.summarySection}>
+          <SummaryCard
+            icon={Database}
+            label="Mostrando"
+            value={counters.total}
+            variant="blue"
+          />
+
+          <SummaryCard
+            icon={Clock3}
+            label="Pendientes"
+            value={counters.pending}
+            variant="orange"
+          />
+
+          <SummaryCard
+            icon={CheckCircle2}
+            label="Aceptados"
+            value={counters.accepted}
+            variant="green"
+          />
+
+          <SummaryCard
+            icon={CircleX}
+            label="Rechazados"
+            value={counters.rejected}
+            variant="red"
+          />
+
+          <article style={styles.zoneCard}>
+            <div style={styles.zoneIcon}>
+              <MapPinned
+                size={42}
+                strokeWidth={2.2}
+              />
+            </div>
+
+            <div style={styles.zoneContent}>
+              <span style={styles.zoneLabel}>
+                Zona consultada
+              </span>
+
+              <strong style={styles.zoneValue}>
+                {selectedHexId ||
+                  "Sin zona disponible"}
+              </strong>
+            </div>
+          </article>
+        </section>
+
+        <section style={styles.tableCard}>
           <div style={styles.tableHeader}>
-            <div style={styles.headerName}>Nombre</div>
-            <div style={styles.headerAddress}>Dirección</div>
-            <div style={styles.headerType}>Tipo de Google</div>
-            <div style={styles.headerStatus}>Estado</div>
+            <div style={styles.headerName}>
+              NOMBRE
+            </div>
+
+            <div style={styles.headerAddress}>
+              DIRECCIÓN
+            </div>
+
+            <div style={styles.headerType}>
+              TIPO DE GOOGLE
+            </div>
+
+            <div style={styles.headerStatus}>
+              ESTADO
+            </div>
+
+            <div
+              aria-label="Abrir detalle"
+              style={styles.headerAction}
+            />
           </div>
 
           <div style={styles.rowsWrapper}>
             {loading ? (
-              <div style={styles.emptyState}>Cargando candidatos...</div>
+              <div style={styles.stateContainer}>
+                <div style={styles.loadingStateIcon}>
+                  <LoaderCircle
+                    size={48}
+                    strokeWidth={2.15}
+                  />
+                </div>
+
+                <strong style={styles.stateTitle}>
+                  Cargando candidatos
+                </strong>
+
+                <span style={styles.stateDescription}>
+                  Consultando los lugares disponibles
+                  para este filtro.
+                </span>
+              </div>
             ) : errorMessage ? (
-              <div style={styles.emptyState}>{errorMessage}</div>
+              <div style={styles.stateContainer}>
+                <div style={styles.errorStateIcon}>
+                  <CircleX
+                    size={48}
+                    strokeWidth={2.15}
+                  />
+                </div>
+
+                <strong style={styles.stateTitle}>
+                  No fue posible cargar los candidatos
+                </strong>
+
+                <span style={styles.stateDescription}>
+                  {errorMessage}
+                </span>
+
+                <button
+                  type="button"
+                  style={styles.retryButton}
+                  onClick={() =>
+                    loadCandidates({
+                      reset: true,
+                    })
+                  }
+                >
+                  Volver a intentar
+                </button>
+              </div>
             ) : candidates.length > 0 ? (
-              candidates.map((candidate) => (
-                <PlaceCandidateRow
-                  key={candidate.id}
-                  item={candidate}
-                  onClick={() => handleOpenDetail(candidate)}
-                />
-              ))
+              candidates.map(
+                (candidate) => (
+                  <PlaceCandidateRow
+                    key={candidate.id}
+                    item={candidate}
+                    onClick={() =>
+                      handleOpenDetail(
+                        candidate,
+                      )
+                    }
+                  />
+                ),
+              )
             ) : (
-              <div style={styles.emptyState}>
-                No hay candidatos para este estado.
+              <div style={styles.stateContainer}>
+                <div style={styles.emptyStateIcon}>
+                  <SearchX
+                    size={50}
+                    strokeWidth={2.15}
+                  />
+                </div>
+
+                <strong style={styles.stateTitle}>
+                  No hay candidatos
+                </strong>
+
+                <span style={styles.stateDescription}>
+                  No existen candidatos que coincidan
+                  con el estado seleccionado.
+                </span>
               </div>
             )}
           </div>
-        </div>
+        </section>
 
-        <div ref={loadMoreRef} style={styles.loadMoreTrap} />
+        <div
+          ref={loadMoreRef}
+          style={styles.loadMoreTrap}
+        />
 
         {loadingMore && (
           <div style={styles.paginationHint}>
-            Cargando más candidatos...
+            <LoaderCircle
+              size={27}
+              strokeWidth={2.2}
+            />
+
+            <span>
+              Cargando más candidatos...
+            </span>
           </div>
         )}
 
-        {!loading && !loadingMore && !hasMore && candidates.length > 0 && (
-          <div style={styles.paginationHint}>
-            No hay más candidatos.
-          </div>
-        )}
-      </div>
+        {!loading &&
+          !loadingMore &&
+          !hasMore &&
+          candidates.length > 0 && (
+            <div style={styles.completedMessage}>
+              <CheckCircle2
+                size={32}
+                strokeWidth={2.2}
+              />
+
+              <span>
+                Se cargaron todos los candidatos.
+              </span>
+            </div>
+          )}
+      </main>
     </LayoutScreen>
   );
 }
