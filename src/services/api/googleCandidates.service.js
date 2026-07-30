@@ -1,14 +1,65 @@
-import client from "./client";
+import client from "../api/client";
 
-export async function discoverGoogleCandidatesService(hexId) {
-  const response = await client.post(
-    "/api/places/admin/google-places/discover-by-h3",
-    {
-      hexId,
-    }
+import {
+  auth,
+} from "../../config/firebaseConfig";
+
+async function getAuthConfig() {
+  const currentUser =
+    auth.currentUser;
+
+  if (!currentUser) {
+    throw new Error(
+      "No existe una sesión administrativa activa.",
+    );
+  }
+
+  const token =
+    await currentUser.getIdToken();
+
+  return {
+    headers: {
+      Authorization:
+        `Bearer ${token}`,
+    },
+  };
+}
+
+function getErrorMessage(
+  error,
+  fallbackMessage,
+) {
+  return (
+    error?.response?.data?.message ||
+    fallbackMessage
   );
+}
 
-  return response.data.data;
+export async function discoverGoogleCandidatesService(
+  hexId,
+) {
+  try {
+    const config =
+      await getAuthConfig();
+
+    const response =
+      await client.post(
+        "/api/places/admin/google-places/discover-by-h3",
+        {
+          hexId,
+        },
+        config,
+      );
+
+    return response.data.data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(
+        error,
+        "No se pudieron importar candidatos desde Google.",
+      ),
+    );
+  }
 }
 
 export async function getGoogleCandidatesService({
@@ -16,32 +67,83 @@ export async function getGoogleCandidatesService({
   limit = 15,
   cursor = null,
 } = {}) {
-  const response = await client.get(
-    "/api/places/admin/google-places/candidates",
-    {
-      params: {
-        status,
-        limit,
-        cursor,
-      },
-    }
-  );
+  try {
+    const config =
+      await getAuthConfig();
 
-  return response.data.data;
+    const response =
+      await client.get(
+        "/api/places/admin/google-places/candidates",
+        {
+          ...config,
+
+          params: {
+            status,
+            limit,
+            ...(cursor
+              ? {
+                  cursor,
+                }
+              : {}),
+          },
+        },
+      );
+
+    return response.data.data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(
+        error,
+        "No se pudieron cargar los candidatos.",
+      ),
+    );
+  }
 }
 
 export async function getGoogleCandidatesSummaryService() {
-  const response = await client.get(
-    "/api/places/admin/google-places/candidates-summary"
-  );
+  try {
+    const config =
+      await getAuthConfig();
 
-  return response.data.data;
+    const response =
+      await client.get(
+        "/api/places/admin/google-places/candidates-summary",
+        config,
+      );
+
+    return response.data.data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(
+        error,
+        "No se pudo consultar el resumen de candidatos.",
+      ),
+    );
+  }
 }
 
-export async function getGoogleCandidateDetailsService(googlePlaceId) {
-  const response = await client.get(
-    `/api/places/admin/google-places/candidates/${googlePlaceId}/details`
-  );
+export async function getGoogleCandidateDetailsService(
+  googlePlaceId,
+) {
+  try {
+    const config =
+      await getAuthConfig();
 
-  return response.data.data;
+    const response =
+      await client.get(
+        `/api/places/admin/google-places/candidates/${encodeURIComponent(
+          googlePlaceId,
+        )}/details`,
+        config,
+      );
+
+    return response.data.data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(
+        error,
+        "No se pudieron cargar los detalles del candidato.",
+      ),
+    );
+  }
 }
