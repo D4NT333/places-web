@@ -1,30 +1,43 @@
 export const tableColumns =
-   "42% 10% 13% 20% 15%";
+  "40% 13% 17% 23% 7%";
 
 const styles = {
   tableWrapper: {
     width: "100%",
     overflowX: "auto",
-    border: "1px solid #e4e7ec",
-    borderRadius: "10px",
-    backgroundColor: "#ffffff",
+    background:
+      "linear-gradient(180deg, rgba(255,255,255,0.99), rgba(249,252,255,0.99))",
+    border: "1px solid #cbdced",
+    borderRadius: "17px",
+    boxShadow:
+      "0 15px 38px rgba(29, 70, 115, 0.13)",
   },
 
   table: {
-    minWidth: "1150px",
+    minWidth: "1180px",
   },
 
   header: {
     display: "grid",
-    gridTemplateColumns: tableColumns,
+    gridTemplateColumns:
+      tableColumns,
     alignItems: "center",
-    minHeight: "48px",
-    padding: "0 16px",
-    borderBottom: "1px solid #e4e7ec",
-    color: "#344054",
-    fontSize: "23px",
-    fontWeight: 700,
+    minHeight: "58px",
+    padding: "0 18px",
     boxSizing: "border-box",
+    color: "#0c2e5d",
+    background:
+      "linear-gradient(90deg, #f5faff, #eaf3ff)",
+    borderBottom: "1px solid #cfdeed",
+    fontSize: "2rem",
+    fontWeight: 950,
+  },
+
+  centeredHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
   },
 
   body: {
@@ -33,82 +46,90 @@ const styles = {
 
   stateContainer: {
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    minHeight: "280px",
-    padding: "32px",
-    border: "1px solid #e4e7ec",
-    borderRadius: "10px",
-    backgroundColor: "#ffffff",
-    textAlign: "center",
+    flexDirection: "column",
+    minHeight: "310px",
+    padding: "34px",
     boxSizing: "border-box",
+    background:
+      "linear-gradient(135deg, rgba(255,255,255,0.98), rgba(245,250,255,0.98))",
+    border: "1px solid #cbdced",
+    borderRadius: "17px",
+    boxShadow:
+      "0 15px 38px rgba(29, 70, 115, 0.11)",
+    textAlign: "center",
   },
 
-  spinner: {
-    width: "32px",
-    height: "32px",
-    marginBottom: "16px",
-    border: "3px solid #e4e7ec",
-    borderTopColor: "#475467",
-    borderRadius: "50%",
+  loadingIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "82px",
+    height: "82px",
+    marginBottom: "15px",
+    color: "#2176e5",
+    background: "#eaf4ff",
+    border: "1px solid #c9def8",
+    borderRadius: "999px",
   },
 
   emptyIcon: {
-    display: "grid",
-    placeItems: "center",
-    width: "44px",
-    height: "44px",
-    marginBottom: "14px",
-    borderRadius: "50%",
-    backgroundColor: "#ecfdf3",
-    color: "#027a48",
-    fontSize: "22px",
-    fontWeight: 700,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "82px",
+    height: "82px",
+    marginBottom: "15px",
+    color: "#07954e",
+    background: "#eafaf2",
+    border: "1px solid #bfe8d1",
+    borderRadius: "999px",
   },
 
   errorIcon: {
-    display: "grid",
-    placeItems: "center",
-    width: "44px",
-    height: "44px",
-    marginBottom: "14px",
-    borderRadius: "50%",
-    backgroundColor: "#fef3f2",
-    color: "#d92d20",
-    fontSize: "22px",
-    fontWeight: 700,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "82px",
+    height: "82px",
+    marginBottom: "15px",
+    color: "#dc3c3c",
+    background: "#fff0f0",
+    border: "1px solid #ffc3c3",
+    borderRadius: "999px",
   },
 
   stateTitle: {
     margin: 0,
-    color: "#101828",
-    fontSize: "18px",
-    fontWeight: 700,
+    color: "#0b315f",
+    fontSize: "2.1rem",
+    fontWeight: 950,
   },
 
   stateText: {
-    maxWidth: "440px",
+    maxWidth: "560px",
     margin: "8px 0 0",
-    color: "#667085",
-    fontSize: "14px",
+    color: "#607a98",
+    fontSize: "1.55rem",
+    fontWeight: 650,
     lineHeight: 1.5,
   },
 
   retryButton: {
+    minHeight: "43px",
     marginTop: "18px",
-    padding: "10px 16px",
-    border: "none",
-    borderRadius: "8px",
-    backgroundColor: "#172033",
+    padding: "0 17px",
     color: "#ffffff",
-    fontSize: "14px",
-    fontWeight: 600,
+    background:
+      "linear-gradient(135deg, #2176e5, #2e8af1)",
+    border: "1px solid #1e70dc",
+    borderRadius: "10px",
+    fontFamily: "inherit",
+    fontSize: "1.45rem",
+    fontWeight: 900,
     cursor: "pointer",
   },
-  centeredHeader: {
-  textAlign: "center",
-},
 };
 
 export default styles;

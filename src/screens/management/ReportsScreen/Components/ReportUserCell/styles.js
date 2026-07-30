@@ -2,21 +2,23 @@ const styles = {
   container: {
     display: "flex",
     alignItems: "center",
-    gap: 10,
-    minWidth: 160,
+    gap: "10px",
+    minWidth: 0,
   },
 
   avatar: {
-    width: 38,
-    height: 38,
-    borderRadius: "50%",
-    border: "1.5px solid #9ca3af",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    width: "90px",
+    height: "90px",
     flexShrink: 0,
     overflow: "hidden",
-    background: "#ffffff",
+    background: "#f2f7fc",
+    border: "1px solid #cbd9e7",
+    borderRadius: "999px",
+    boxShadow:
+      "0 5px 12px rgba(29, 64, 103, 0.11)",
   },
 
   avatarImage: {
@@ -25,16 +27,29 @@ const styles = {
     objectFit: "cover",
   },
 
+  avatarFallback: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "2px",
+    width: "100%",
+    height: "100%",
+    color: "#16708b",
+    background:
+      "linear-gradient(145deg, #e8f7fc, #f7fcff)",
+  },
+
   avatarText: {
-    color: "#374151",
-    fontSize: 14,
+    fontSize: "1.4rem",
     fontWeight: 900,
   },
 
   name: {
-    color: "#374151",
-    fontSize: 14,
-    fontWeight: 800,
+    overflow: "hidden",
+    color: "#17365e",
+    fontSize: "2rem",
+    fontWeight: 850,
+    textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
 };

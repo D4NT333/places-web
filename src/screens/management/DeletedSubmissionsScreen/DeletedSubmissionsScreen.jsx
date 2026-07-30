@@ -1,16 +1,22 @@
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
+
+import {
+  Layers3,
+  Trash2,
+} from "lucide-react";
 
 import LayoutScreen from "../../../layout";
 
 import DeletedSubmissionsTable from "./Components/DeletedSubmissionsTable";
-import SubmissionSummaryModal from "./Components/SubmissionSummaryModal";
 import DeleteSubmissionModal from "./Components/DeleteSubmissionModal";
 
 import getDeletedSubmissionsService from "../../../services/api/submissions/getDeletedSubmissions.service";
+
 import deleteDeletedSubmissionService from "../../../services/api/submissions/deleteDeletedSubmission.service";
 
 import styles from "./styles";
@@ -33,6 +39,18 @@ const breadcrumbs = [
   },
 ];
 
+function getSubmissionBatchId(
+  submission,
+) {
+  return (
+    submission?.deletionBatchId ||
+    submission?.batchId ||
+    submission?.deletedBatchId ||
+    submission?.requestBatchId ||
+    null
+  );
+}
+
 export default function DeletedSubmissionsScreen() {
   const [
     submissions,
@@ -43,13 +61,8 @@ export default function DeletedSubmissionsScreen() {
     pagination,
     setPagination,
   ] = useState(
-    EMPTY_PAGINATION
+    EMPTY_PAGINATION,
   );
-
-  const [
-    selectedSubmission,
-    setSelectedSubmission,
-  ] = useState(null);
 
   const [
     submissionToDelete,
@@ -76,6 +89,37 @@ export default function DeletedSubmissionsScreen() {
     setErrorMessage,
   ] = useState("");
 
+  const deletedSubmissionsCount =
+    submissions.length;
+
+  const deletedBatchesCount =
+    useMemo(() => {
+      if (
+        submissions.length === 0
+      ) {
+        return 0;
+      }
+
+      const batchIds =
+        submissions
+          .map(
+            getSubmissionBatchId,
+          )
+          .filter(Boolean);
+
+      if (
+        batchIds.length === 0
+      ) {
+        return 1;
+      }
+
+      return new Set(
+        batchIds,
+      ).size;
+    }, [
+      submissions,
+    ]);
+
   const loadSubmissions =
     useCallback(
       async ({
@@ -83,9 +127,13 @@ export default function DeletedSubmissionsScreen() {
         append = false,
       } = {}) => {
         if (append) {
-          setIsLoadingMore(true);
+          setIsLoadingMore(
+            true,
+          );
         } else {
-          setIsLoading(true);
+          setIsLoading(
+            true,
+          );
         }
 
         setErrorMessage("");
@@ -93,63 +141,79 @@ export default function DeletedSubmissionsScreen() {
         try {
           const result =
             await getDeletedSubmissionsService({
-              limit: PAGE_LIMIT,
+              limit:
+                PAGE_LIMIT,
               cursor,
             });
 
+          const nextItems =
+            Array.isArray(
+              result?.items,
+            )
+              ? result.items
+              : [];
+
           setSubmissions(
-            (currentSubmissions) =>
+            (
+              currentSubmissions,
+            ) =>
               append
                 ? [
                     ...currentSubmissions,
-                    ...result.items,
+                    ...nextItems.filter(
+                      (
+                        nextSubmission,
+                      ) =>
+                        !currentSubmissions.some(
+                          (
+                            currentSubmission,
+                          ) =>
+                            currentSubmission.id ===
+                            nextSubmission.id,
+                        ),
+                    ),
                   ]
-                : result.items
+                : nextItems,
           );
 
           setPagination(
-            result.pagination
+            result?.pagination ||
+              EMPTY_PAGINATION,
           );
         } catch (error) {
           console.error(
             "Error al cargar propuestas eliminadas:",
-            error
+            error,
           );
 
           setErrorMessage(
-            error?.response?.data?.message ||
+            error?.response?.data
+              ?.message ||
               error?.message ||
-              "No fue posible cargar las propuestas eliminadas."
+              "No fue posible cargar las propuestas eliminadas.",
           );
         } finally {
           setIsLoading(false);
-          setIsLoadingMore(false);
+
+          setIsLoadingMore(
+            false,
+          );
         }
       },
-      []
+      [],
     );
 
   useEffect(() => {
     loadSubmissions();
-  }, [loadSubmissions]);
-
-  function handleOpenSummary(
-    submission
-  ) {
-    setSelectedSubmission(
-      submission
-    );
-  }
-
-  function handleCloseSummary() {
-    setSelectedSubmission(null);
-  }
+  }, [
+    loadSubmissions,
+  ]);
 
   function handleRequestDelete(
-    submission
+    submission,
   ) {
     setSubmissionToDelete(
-      submission
+      submission,
     );
   }
 
@@ -158,7 +222,9 @@ export default function DeletedSubmissionsScreen() {
       return;
     }
 
-    setSubmissionToDelete(null);
+    setSubmissionToDelete(
+      null,
+    );
   }
 
   async function handleConfirmDelete() {
@@ -177,50 +243,40 @@ export default function DeletedSubmissionsScreen() {
 
     try {
       await deleteDeletedSubmissionService(
-        deletedSubmissionId
+        deletedSubmissionId,
       );
 
       setSubmissions(
-        (currentSubmissions) =>
+        (
+          currentSubmissions,
+        ) =>
           currentSubmissions.filter(
-            (submission) =>
+            (
+              submission,
+            ) =>
               submission.id !==
-              deletedSubmissionId
-          )
+              deletedSubmissionId,
+          ),
       );
 
-      if (
-        selectedSubmission?.id ===
-        deletedSubmissionId
-      ) {
-        setSelectedSubmission(null);
-      }
-
-      setSubmissionToDelete(null);
+      setSubmissionToDelete(
+        null,
+      );
     } catch (error) {
       console.error(
         "Error al eliminar definitivamente la propuesta:",
-        error
+        error,
       );
 
       setErrorMessage(
-        error?.response?.data?.message ||
+        error?.response?.data
+          ?.message ||
           error?.message ||
-          "No fue posible eliminar definitivamente la propuesta."
+          "No fue posible eliminar definitivamente la propuesta.",
       );
     } finally {
       setIsDeleting(false);
     }
-  }
-
-  function handleDeleteFromSummary(
-    submission
-  ) {
-    setSelectedSubmission(null);
-
-    setSubmissionToDelete(
-      submission
-    );
   }
 
   function handleLoadMore() {
@@ -235,45 +291,222 @@ export default function DeletedSubmissionsScreen() {
     loadSubmissions({
       cursor:
         pagination.nextCursor,
-
       append: true,
     });
   }
 
   function handleRetry() {
     setPagination(
-      EMPTY_PAGINATION
+      EMPTY_PAGINATION,
     );
 
     loadSubmissions();
   }
 
   return (
-    <LayoutScreen breadcrumbs={breadcrumbs}>
-      <main style={styles.container}>
-        <header style={styles.headerBlock}>
-          <h1 style={styles.title}>
-            Propuestas eliminadas
-          </h1>
+    <LayoutScreen
+      breadcrumbs={
+        breadcrumbs
+      }
+      padding="0"
+      maxWidth="100%"
+      scroll
+      fullHeight
+      showHeader
+      showSidebar
+      showFooter
+      stickyHeader
+    >
+      <main style={styles.screen}>
+        <section
+          style={
+            styles.headerSection
+          }
+        >
+          <div
+            style={
+              styles.headingBlock
+            }
+          >
+            <div
+              style={
+                styles.titleLine
+              }
+            >
+              <div
+                style={
+                  styles.titleIcon
+                }
+              >
+                <Trash2
+                  size={50}
+                  strokeWidth={
+                    2.15
+                  }
+                />
+              </div>
 
-          <p style={styles.subtitle}>
-            Propuestas eliminadas por los usuarios
-            pendientes de eliminación definitiva.
-          </p>
-        </header>
+              <div>
+                <h1
+                  style={
+                    styles.title
+                  }
+                >
+                  Propuestas
+                  eliminadas
+                </h1>
+
+                <p
+                  style={
+                    styles.subtitle
+                  }
+                >
+                  Gestiona las
+                  propuestas que los
+                  usuarios enviaron a
+                  eliminación y decide
+                  cuándo borrarlas
+                  definitivamente.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          style={
+            styles.summarySection
+          }
+        >
+          <article
+            style={
+              styles.summaryCard
+            }
+          >
+            <div
+              style={
+                styles.summaryIconBlue
+              }
+            >
+              <Trash2
+                size={50}
+                strokeWidth={
+                  2.15
+                }
+              />
+            </div>
+
+            <div
+              style={
+                styles.summaryContent
+              }
+            >
+              <span
+                style={
+                  styles.summaryLabel
+                }
+              >
+                Propuestas
+                eliminadas
+              </span>
+
+              <strong
+                style={
+                  styles.summaryValueBlue
+                }
+              >
+                {
+                  deletedSubmissionsCount
+                }
+              </strong>
+            </div>
+          </article>
+
+          <article
+            style={
+              styles.summaryCard
+            }
+          >
+            <div
+              style={
+                styles.summaryIconGreen
+              }
+            >
+              <Layers3
+                size={50}
+                strokeWidth={
+                  2.15
+                }
+              />
+            </div>
+
+            <div
+              style={
+                styles.summaryContent
+              }
+            >
+              <span
+                style={
+                  styles.summaryLabel
+                }
+              >
+                Lotes eliminados
+              </span>
+
+              <strong
+                style={
+                  styles.summaryValueGreen
+                }
+              >
+                {
+                  deletedBatchesCount
+                }
+              </strong>
+            </div>
+          </article>
+        </section>
 
         <DeletedSubmissionsTable
-          submissions={submissions}
-          isLoading={isLoading}
-          errorMessage={errorMessage}
-          onRetry={handleRetry}
-          onViewSummary={
-            handleOpenSummary
+          submissions={
+            submissions
+          }
+          isLoading={
+            isLoading
+          }
+          errorMessage={
+            errorMessage
+          }
+          onRetry={
+            handleRetry
           }
           onDelete={
             handleRequestDelete
           }
         />
+
+        {!isLoading &&
+          !errorMessage &&
+          submissions.length >
+            0 && (
+            <div
+              style={
+                styles.resultMessage
+              }
+            >
+              <span
+                style={
+                  styles.resultIcon
+                }
+              >
+                ✓
+              </span>
+
+              <span>
+                Se cargaron las
+                propuestas eliminadas.
+              </span>
+            </div>
+          )}
 
         {!isLoading &&
           !errorMessage &&
@@ -285,9 +518,13 @@ export default function DeletedSubmissionsScreen() {
             >
               <button
                 type="button"
-                style={
-                  styles.loadMoreButton
-                }
+                style={{
+                  ...styles.loadMoreButton,
+
+                  ...(isLoadingMore
+                    ? styles.loadMoreButtonDisabled
+                    : {}),
+                }}
                 disabled={
                   isLoadingMore
                 }
@@ -296,37 +533,27 @@ export default function DeletedSubmissionsScreen() {
                 }
               >
                 {isLoadingMore
-                  ? "Cargando..."
+                  ? "Cargando propuestas..."
                   : "Cargar más propuestas"}
               </button>
             </div>
           )}
+
+        <DeleteSubmissionModal
+          submission={
+            submissionToDelete
+          }
+          onCancel={
+            handleCancelDelete
+          }
+          onConfirm={
+            handleConfirmDelete
+          }
+          isDeleting={
+            isDeleting
+          }
+        />
       </main>
-
-      <SubmissionSummaryModal
-        submission={
-          selectedSubmission
-        }
-        onClose={
-          handleCloseSummary
-        }
-        onDelete={
-          handleDeleteFromSummary
-        }
-      />
-
-      <DeleteSubmissionModal
-        submission={
-          submissionToDelete
-        }
-        onCancel={
-          handleCancelDelete
-        }
-        onConfirm={
-          handleConfirmDelete
-        }
-        isDeleting={isDeleting}
-      />
     </LayoutScreen>
   );
 }

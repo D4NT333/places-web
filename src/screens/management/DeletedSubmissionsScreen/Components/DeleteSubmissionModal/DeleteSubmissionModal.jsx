@@ -1,6 +1,30 @@
 import React from "react";
 
+import {
+  AlertTriangle,
+  CalendarDays,
+  FileImage,
+  FilePenLine,
+  MapPinned,
+  ShieldAlert,
+  Trash2,
+  UserRound,
+  X,
+} from "lucide-react";
+
 import styles from "./styles";
+
+function getSubmissionTypeIcon(type) {
+  if (type === "photo") {
+    return FileImage;
+  }
+
+  if (type === "description") {
+    return FilePenLine;
+  }
+
+  return MapPinned;
+}
 
 export default function DeleteSubmissionModal({
   submission,
@@ -12,11 +36,45 @@ export default function DeleteSubmissionModal({
     return null;
   }
 
+  const SubmissionTypeIcon =
+    getSubmissionTypeIcon(
+      submission.type,
+    );
+
+  const proposalType =
+    submission.typeLabel ||
+    submission.type ||
+    "Propuesta";
+
+  const proposalTitle =
+    submission.proposal ||
+    submission.title ||
+    "Propuesta eliminada";
+
+  const userName =
+    submission.userName ||
+    submission.user?.name ||
+    "Usuario";
+
+  const deletedAt =
+    submission.deletedAt ||
+    submission.requestedAt ||
+    "No disponible";
+
+  const previousStatus =
+    submission.previousStatusLabel ||
+    submission.previousStatus ||
+    "No disponible";
+
   return (
     <div
       style={styles.backdrop}
       role="presentation"
-      onMouseDown={isDeleting ? undefined : onCancel}
+      onMouseDown={
+        isDeleting
+          ? undefined
+          : onCancel
+      }
     >
       <div
         style={styles.modal}
@@ -27,151 +85,333 @@ export default function DeleteSubmissionModal({
           event.stopPropagation()
         }
       >
-        <div style={styles.header}>
-          <div>
-            <h2
-              id="delete-submission-title"
-              style={styles.title}
-            >
-              Eliminar propuesta definitivamente
-            </h2>
+        <div
+          aria-hidden="true"
+          style={styles.topAccent}
+        />
 
-            <p style={styles.subtitle}>
-              Esta acción eliminará la propuesta del sistema de forma permanente.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            style={styles.closeButton}
-            onClick={onCancel}
-            aria-label="Cerrar"
-            disabled={isDeleting}
-          >
-            ×
-          </button>
-        </div>
-
-        <div style={styles.content}>
-          <div style={styles.proposalHeader}>
-            {submission.previewImageUrl ? (
-              <img
-                src={submission.previewImageUrl}
-                alt=""
-                style={styles.previewImage}
+        <header style={styles.header}>
+          <div style={styles.headerContent}>
+            <div style={styles.headerIcon}>
+              <Trash2
+                size={44}
+                strokeWidth={2.2}
               />
-            ) : (
-              <div style={styles.previewFallback}>
-                {submission.type === "photo"
-                  ? "F"
-                  : submission.type === "description"
-                    ? "D"
-                    : "L"}
-              </div>
-            )}
+            </div>
 
-            <div>
-              <span style={styles.proposalType}>
-                {submission.typeLabel ||
-                  submission.type ||
-                  "Propuesta"}
-              </span>
+            <div style={styles.headerText}>
+              <h2
+                id="delete-submission-title"
+                style={styles.title}
+              >
+                Eliminar propuesta
+                definitivamente
+              </h2>
 
-              <h3 style={styles.proposalTitle}>
-                {submission.proposal ||
-                  submission.title ||
-                  "Propuesta eliminada"}
-              </h3>
+              <p style={styles.subtitle}>
+                Esta acción eliminará la
+                propuesta del sistema de
+                forma permanente.
+              </p>
             </div>
           </div>
-
-          <div style={styles.warningBox}>
-            <strong>
-              ¿Seguro que quieres eliminarla?
-            </strong>
-
-            <p>
-              Una vez eliminada, esta propuesta ya no aparecerá en el panel
-              administrativo ni podrá recuperarse desde esta sección.
-            </p>
-          </div>
-
-          <div style={styles.dataGrid}>
-            <div style={styles.dataRow}>
-              <span style={styles.label}>
-                Usuario
-              </span>
-
-              <span style={styles.value}>
-                {submission.userName ||
-                  "Usuario"}
-              </span>
-            </div>
-
-            <div style={styles.dataRow}>
-              <span style={styles.label}>
-                Eliminada el
-              </span>
-
-              <span style={styles.value}>
-                {submission.deletedAt ||
-                  submission.requestedAt ||
-                  "No disponible"}
-              </span>
-            </div>
-
-            <div style={styles.dataRow}>
-              <span style={styles.label}>
-                Estado anterior
-              </span>
-
-              <span style={styles.value}>
-                {submission.previousStatusLabel ||
-                  submission.previousStatus ||
-                  "No disponible"}
-              </span>
-            </div>
-
-            <div style={styles.dataRow}>
-              <span style={styles.label}>
-                Tipo
-              </span>
-
-              <span style={styles.value}>
-                {submission.typeLabel ||
-                  submission.type ||
-                  "No disponible"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div style={styles.footer}>
-          <button
-            type="button"
-            style={styles.cancelButton}
-            onClick={onCancel}
-            disabled={isDeleting}
-          >
-            Cancelar
-          </button>
 
           <button
             type="button"
             style={{
-              ...styles.deleteButton,
+              ...styles.closeButton,
+
               ...(isDeleting
-                ? styles.deleteButtonDisabled
+                ? styles.disabledControl
                 : {}),
             }}
-            onClick={onConfirm}
+            onClick={onCancel}
+            aria-label="Cerrar"
+            title="Cerrar"
             disabled={isDeleting}
           >
-            {isDeleting
-              ? "Eliminando..."
-              : "Eliminar definitivamente"}
+            <X
+              size={40}
+              strokeWidth={2.4}
+            />
           </button>
+        </header>
+
+        <div style={styles.content}>
+          <section
+            style={styles.proposalCard}
+          >
+            <div
+              style={
+                styles.previewContainer
+              }
+            >
+              {submission.previewImageUrl ? (
+                <img
+                  src={
+                    submission.previewImageUrl
+                  }
+                  alt=""
+                  style={
+                    styles.previewImage
+                  }
+                />
+              ) : (
+                <div
+                  style={
+                    styles.previewFallback
+                  }
+                >
+                  <SubmissionTypeIcon
+                    size={40}
+                    strokeWidth={2.1}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div
+              style={
+                styles.proposalContent
+              }
+            >
+              <span
+                style={
+                  styles.proposalType
+                }
+              >
+                <SubmissionTypeIcon
+                  size={40}
+                  strokeWidth={2.2}
+                />
+
+                {proposalType}
+              </span>
+
+              <h3
+                style={
+                  styles.proposalTitle
+                }
+              >
+                {proposalTitle}
+              </h3>
+
+              <span
+                style={
+                  styles.proposalStatus
+                }
+              >
+                Pendiente de eliminación
+                definitiva
+              </span>
+            </div>
+          </section>
+
+          <section style={styles.warningBox}>
+            <div style={styles.warningIcon}>
+              <ShieldAlert
+                size={40}
+                strokeWidth={2.2}
+              />
+            </div>
+
+            <div
+              style={
+                styles.warningContent
+              }
+            >
+              <strong
+                style={
+                  styles.warningTitle
+                }
+              >
+                ¿Seguro que deseas
+                eliminarla?
+              </strong>
+
+              <p
+                style={
+                  styles.warningText
+                }
+              >
+                Una vez eliminada, esta
+                propuesta dejará de aparecer
+                en el panel administrativo y
+                no podrá recuperarse desde
+                esta sección.
+              </p>
+            </div>
+          </section>
+
+          <section
+            style={
+              styles.informationSection
+            }
+          >
+            <div
+              style={
+                styles.informationHeader
+              }
+            >
+              <AlertTriangle
+                size={40}
+                strokeWidth={2.2}
+              />
+
+              <h3
+                style={
+                  styles.informationTitle
+                }
+              >
+                Información de la propuesta
+              </h3>
+            </div>
+
+            <div style={styles.dataGrid}>
+              <article style={styles.dataCard}>
+                <div style={styles.dataIcon}>
+                  <UserRound
+                    size={40}
+                    strokeWidth={2.2}
+                  />
+                </div>
+
+                <div
+                  style={styles.dataContent}
+                >
+                  <span style={styles.label}>
+                    Usuario
+                  </span>
+
+                  <strong style={styles.value}>
+                    {userName}
+                  </strong>
+                </div>
+              </article>
+
+              <article style={styles.dataCard}>
+                <div style={styles.dataIcon}>
+                  <CalendarDays
+                    size={40}
+                    strokeWidth={2.2}
+                  />
+                </div>
+
+                <div
+                  style={styles.dataContent}
+                >
+                  <span style={styles.label}>
+                    Eliminada el
+                  </span>
+
+                  <strong style={styles.value}>
+                    {deletedAt}
+                  </strong>
+                </div>
+              </article>
+
+              <article style={styles.dataCard}>
+                <div style={styles.dataIcon}>
+                  <AlertTriangle
+                    size={40}
+                    strokeWidth={2.2}
+                  />
+                </div>
+
+                <div
+                  style={styles.dataContent}
+                >
+                  <span style={styles.label}>
+                    Estado anterior
+                  </span>
+
+                  <strong style={styles.value}>
+                    {previousStatus}
+                  </strong>
+                </div>
+              </article>
+
+              <article style={styles.dataCard}>
+                <div style={styles.dataIcon}>
+                  <SubmissionTypeIcon
+                    size={40}
+                    strokeWidth={2.2}
+                  />
+                </div>
+
+                <div
+                  style={styles.dataContent}
+                >
+                  <span style={styles.label}>
+                    Tipo
+                  </span>
+
+                  <strong style={styles.value}>
+                    {proposalType}
+                  </strong>
+                </div>
+              </article>
+            </div>
+          </section>
         </div>
+
+        <footer style={styles.footer}>
+          <div style={styles.footerNotice}>
+            <AlertTriangle
+              size={40}
+              strokeWidth={2.2}
+            />
+
+            <span>
+              Esta operación no se puede
+              deshacer.
+            </span>
+          </div>
+
+          <div style={styles.footerActions}>
+            <button
+              type="button"
+              style={{
+                ...styles.cancelButton,
+
+                ...(isDeleting
+                  ? styles.disabledControl
+                  : {}),
+              }}
+              onClick={onCancel}
+              disabled={isDeleting}
+            >
+              <X
+                size={40}
+                strokeWidth={2.3}
+              />
+
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              style={{
+                ...styles.deleteButton,
+
+                ...(isDeleting
+                  ? styles.deleteButtonDisabled
+                  : {}),
+              }}
+              onClick={onConfirm}
+              disabled={isDeleting}
+            >
+              <Trash2
+                size={50}
+                strokeWidth={2.3}
+              />
+
+              {isDeleting
+                ? "Eliminando..."
+                : "Eliminar definitivamente"}
+            </button>
+          </div>
+        </footer>
       </div>
     </div>
   );

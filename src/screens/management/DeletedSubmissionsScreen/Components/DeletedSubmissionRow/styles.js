@@ -2,169 +2,173 @@ const styles = {
   row: {
     display: "grid",
     alignItems: "center",
-    minHeight: "76px",
-    padding: "10px 16px",
-    borderBottom: "1px solid #eaecf0",
+    minHeight: "92px",
+    padding: "0 18px",
     boxSizing: "border-box",
+    background:
+      "rgba(255, 255, 255, 0.82)",
+    borderBottom: "1px solid #dbe6f1",
   },
 
   proposalCell: {
     display: "flex",
     alignItems: "center",
+    gap: "13px",
     minWidth: 0,
-    gap: "12px",
+    padding: "10px 0",
   },
 
   previewImage: {
-    width: "84px",
-    height: "84px",
+    width: "68px",
+    height: "68px",
     flexShrink: 0,
-    borderRadius: "8px",
     objectFit: "cover",
+    border: "1px solid #cbd9e7",
+    borderRadius: "13px",
+    boxShadow:
+      "0 6px 14px rgba(26, 61, 99, 0.12)",
   },
 
   previewFallback: {
-    display: "grid",
-    placeItems: "center",
-    width: "84px",
-    height: "84px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "68px",
+    height: "68px",
     flexShrink: 0,
-    borderRadius: "8px",
-    backgroundColor: "#f2f4f7",
-    color: "#475467",
-    fontSize: "14px",
-    fontWeight: 700,
+    color: "#2176e5",
+    background:
+      "linear-gradient(145deg, #eaf4ff, #f8fbff)",
+    border: "1px solid #cadff7",
+    borderRadius: "13px",
   },
 
   proposalContent: {
     display: "flex",
     flexDirection: "column",
-    minWidth: 0,
     gap: "4px",
+    minWidth: 0,
   },
 
   proposalName: {
     overflow: "hidden",
-    color: "#101828",
-    fontSize: "24px",
-    fontWeight: 600,
+    color: "#0c2e5d",
+    fontSize: "2.2rem",
+    fontWeight: 900,
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
 
-  submissionId: {
-    overflow: "hidden",
-    maxWidth: "260px",
-    color: "#98a2b3",
-    fontSize: "11px",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
+  proposalHint: {
+    color: "#6a829c",
+    fontSize: "1.6rem",
+    fontWeight: 650,
+  },
+
+  centeredCell: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 0,
+    textAlign: "center",
   },
 
   typeBadge: {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "5px 9px",
+    gap: "6px",
+    minHeight: "34px",
+    padding: "0 11px",
+    color: "#176fdc",
+    background: "#eef6ff",
+    border: "1px solid #b8d6fa",
     borderRadius: "999px",
-    backgroundColor: "#f2f4f7",
-    color: "#475467",
-    fontSize: "18px",
-    fontWeight: 600,
+    fontSize: "2rem",
+    fontWeight: 850,
   },
 
-  date: {
-    color: "#475467",
-    fontSize: "18px",
+  dateValue: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    color: "#274b73",
+    fontSize: "2rem",
+    fontWeight: 750,
   },
 
   userCell: {
     display: "flex",
     alignItems: "center",
+    gap: "11px",
     minWidth: 0,
-    gap: "10px",
   },
 
   avatar: {
-    width: "84px",
-    height: "84px",
+    width: "94px",
+    height: "94px",
     flexShrink: 0,
-    borderRadius: "50%",
     objectFit: "cover",
+    border: "1px solid #cbd9e7",
+    borderRadius: "999px",
+    boxShadow:
+      "0 5px 12px rgba(29, 64, 103, 0.11)",
   },
 
   avatarFallback: {
-    display: "grid",
-    placeItems: "center",
-    width: "84px",
-    height: "84px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "54px",
+    height: "54px",
     flexShrink: 0,
-    borderRadius: "50%",
-    backgroundColor: "#eaecf0",
-    color: "#475467",
-    fontSize: "12px",
-    fontWeight: 700,
+    color: "#16708b",
+    background:
+      "linear-gradient(145deg, #e8f7fc, #f7fcff)",
+    border: "1px solid #c8e3ec",
+    borderRadius: "999px",
+    fontSize: "1.8rem",
+    fontWeight: 900,
   },
 
   userContent: {
     display: "flex",
     flexDirection: "column",
     minWidth: 0,
-    gap: "2px",
   },
 
   userName: {
-    color: "#344054",
-    fontSize: "23px",
-    fontWeight: 500,
-  },
-
-  userId: {
     overflow: "hidden",
-    maxWidth: "150px",
-    color: "#98a2b3",
-    fontSize: "10px",
+    color: "#15365f",
+    fontSize: "2.2rem",
+    fontWeight: 850,
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
 
-actions: {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  width: "100%",
-},
-
-  summaryButton: {
-    padding: 0,
-    border: "none",
-    backgroundColor: "transparent",
-    color: "#344054",
-    fontSize: "18px",
-    fontWeight: 600,
-    cursor: "pointer",
-  },
-
-  divider: {
-    color: "#000000",
+  actions: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   deleteButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "46px",
+    height: "46px",
     padding: 0,
-    border: "none",
-    backgroundColor: "transparent",
-    color: "#d92d20",
-    fontSize: "18px",
-    fontWeight: 600,
+    color: "#dc3f3f",
+    background:
+      "linear-gradient(135deg, #fff0f0, #fff8f8)",
+    border: "1px solid #ffbcbc",
+    borderRadius: "11px",
+    boxShadow:
+      "0 5px 12px rgba(212, 54, 54, 0.1)",
     cursor: "pointer",
   },
-  centeredCell: {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "100%",
-},
 };
 
 export default styles;

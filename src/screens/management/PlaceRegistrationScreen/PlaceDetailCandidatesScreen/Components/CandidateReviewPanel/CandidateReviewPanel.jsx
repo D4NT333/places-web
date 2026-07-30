@@ -52,7 +52,7 @@ function formatGooglePriceLevel(
   priceLevel,
 ) {
   if (!priceLevel) {
-    return "No consultado";
+    return "No proporcionado por Google";
   }
 
   const labels = {
@@ -108,7 +108,249 @@ function formatRating(
   return `${userRatingCount} reviews`;
 }
 
-function getScheduleOptions(
+const SCHEDULE_DAYS = [
+  {
+    key: "monday",
+    label: "Lunes",
+    googleDay: 1,
+  },
+  {
+    key: "tuesday",
+    label: "Martes",
+    googleDay: 2,
+  },
+  {
+    key: "wednesday",
+    label: "Miércoles",
+    googleDay: 3,
+  },
+  {
+    key: "thursday",
+    label: "Jueves",
+    googleDay: 4,
+  },
+  {
+    key: "friday",
+    label: "Viernes",
+    googleDay: 5,
+  },
+  {
+    key: "saturday",
+    label: "Sábado",
+    googleDay: 6,
+  },
+  {
+    key: "sunday",
+    label: "Domingo",
+    googleDay: 0,
+  },
+];
+
+function createEmptySchedule() {
+  return {
+    type: "custom",
+    source: "manual",
+    isOpen24Hours: false,
+
+    days:
+      SCHEDULE_DAYS.reduce(
+        (
+          accumulator,
+          day,
+        ) => ({
+          ...accumulator,
+
+          [day.key]: {
+            enabled: false,
+            open: "09:00",
+            close: "18:00",
+            closesNextDay: false,
+          },
+        }),
+        {},
+      ),
+  };
+}
+
+function ensureSchedule(
+  schedule,
+) {
+  if (
+    schedule &&
+    typeof schedule ===
+      "object" &&
+    schedule.days
+  ) {
+    return schedule;
+  }
+
+  return createEmptySchedule();
+}
+
+function formatTimePart(
+  value,
+) {
+  return String(
+    value ?? 0,
+  ).padStart(
+    2,
+    "0",
+  );
+}
+
+function closesOnNextDay(
+  open,
+  close,
+) {
+  if (
+    !open ||
+    !close
+  ) {
+    return false;
+  }
+
+  return close <= open;
+}
+
+function mapGoogleSchedule(
+  details,
+) {
+  const schedule =
+    createEmptySchedule();
+
+  const periods =
+    details?.openingHours
+      ?.periods;
+
+  if (
+    !Array.isArray(
+      periods,
+    ) ||
+    periods.length === 0
+  ) {
+    return schedule;
+  }
+
+  const hasOpenPeriodWithoutClose =
+    periods.some(
+      (period) =>
+        period?.open &&
+        !period?.close,
+    );
+
+  if (
+    hasOpenPeriodWithoutClose
+  ) {
+    return {
+      ...schedule,
+
+      source: "google",
+      isOpen24Hours: true,
+
+      days:
+        SCHEDULE_DAYS.reduce(
+          (
+            accumulator,
+            day,
+          ) => ({
+            ...accumulator,
+
+            [day.key]: {
+              enabled: true,
+              open: "00:00",
+              close: "23:59",
+              closesNextDay:
+                false,
+            },
+          }),
+          {},
+        ),
+    };
+  }
+
+  const nextDays = {
+    ...schedule.days,
+  };
+
+  periods.forEach(
+    (period) => {
+      const open =
+        period?.open;
+
+      const close =
+        period?.close;
+
+      if (
+        !open ||
+        !Number.isInteger(
+          open.day,
+        )
+      ) {
+        return;
+      }
+
+      const day =
+        SCHEDULE_DAYS.find(
+          (item) =>
+            item.googleDay ===
+            open.day,
+        );
+
+      if (!day) {
+        return;
+      }
+
+      const openTime =
+        `${formatTimePart(
+          open.hour,
+        )}:${formatTimePart(
+          open.minute,
+        )}`;
+
+      const closeTime =
+        close
+          ? `${formatTimePart(
+              close.hour,
+            )}:${formatTimePart(
+              close.minute,
+            )}`
+          : "23:59";
+
+      nextDays[
+        day.key
+      ] = {
+        enabled: true,
+        open: openTime,
+        close: closeTime,
+
+        closesNextDay:
+          close
+            ? (
+                Number.isInteger(
+                  close.day,
+                )
+                  ? close.day !==
+                    open.day
+                  : closesOnNextDay(
+                      openTime,
+                      closeTime,
+                    )
+              )
+            : false,
+      };
+    },
+  );
+
+  return {
+    ...schedule,
+
+    source: "google",
+    isOpen24Hours: false,
+    days: nextDays,
+  };
+}
+
+function getGoogleScheduleDescriptions(
   details,
 ) {
   const weekdayDescriptions =
@@ -118,36 +360,12 @@ function getScheduleOptions(
   if (
     !Array.isArray(
       weekdayDescriptions,
-    ) ||
-    weekdayDescriptions.length ===
-      0
+    )
   ) {
     return [];
   }
 
   return weekdayDescriptions;
-}
-
-function getGoogleSchedulePreview(
-  details,
-) {
-  const weekdayDescriptions =
-    details?.openingHours
-      ?.weekdayDescriptions;
-
-  if (
-    !Array.isArray(
-      weekdayDescriptions,
-    ) ||
-    weekdayDescriptions.length ===
-      0
-  ) {
-    return "Horario proporcionado: no disponible";
-  }
-
-  return (
-    weekdayDescriptions[0]
-  );
 }
 
 function InformationCard({
@@ -160,6 +378,7 @@ function InformationCard({
     blue: {
       icon:
         styles.infoIconBlue,
+
       value:
         styles.infoValueBlue,
     },
@@ -167,6 +386,7 @@ function InformationCard({
     cyan: {
       icon:
         styles.infoIconCyan,
+
       value:
         styles.infoValueCyan,
     },
@@ -174,6 +394,7 @@ function InformationCard({
     orange: {
       icon:
         styles.infoIconOrange,
+
       value:
         styles.infoValueOrange,
     },
@@ -184,7 +405,11 @@ function InformationCard({
     variants.blue;
 
   return (
-    <article style={styles.infoCard}>
+    <article
+      style={
+        styles.infoCard
+      }
+    >
       <div
         style={{
           ...styles.infoIcon,
@@ -197,8 +422,16 @@ function InformationCard({
         />
       </div>
 
-      <div style={styles.infoContent}>
-        <span style={styles.infoLabel}>
+      <div
+        style={
+          styles.infoContent
+        }
+      >
+        <span
+          style={
+            styles.infoLabel
+          }
+        >
           {label}
         </span>
 
@@ -271,12 +504,15 @@ export default function CandidateReviewPanel({
 
   const hasFreeOption =
     Boolean(
-      priceConfig?.hasFreeOption,
+      priceConfig
+        ?.hasFreeOption,
     );
 
   const googleType =
-    details?.googleMainType ||
-    candidate?.googleMainType ||
+    details
+      ?.googleMainType ||
+    candidate
+      ?.googleMainType ||
     "Sin tipo";
 
   const googlePriceLabel =
@@ -289,10 +525,10 @@ export default function CandidateReviewPanel({
       details,
     );
 
-  const googleScheduleOptions =
+  const googleScheduleDescriptions =
     useMemo(
       () =>
-        getScheduleOptions(
+        getGoogleScheduleDescriptions(
           details,
         ),
       [
@@ -300,46 +536,251 @@ export default function CandidateReviewPanel({
       ],
     );
 
-  const googleSchedulePreview =
+  const googleSchedule =
     useMemo(
       () =>
-        getGoogleSchedulePreview(
+        mapGoogleSchedule(
           details,
         ),
       [
         details,
       ],
+    );
+
+  const currentSchedule =
+    ensureSchedule(
+      selectedSchedule,
     );
 
   const hasGoogleSchedule =
-    googleScheduleOptions.length >
-    0;
+    googleScheduleDescriptions
+      .length > 0 ||
+    Boolean(
+      details
+        ?.openingHours
+        ?.periods
+        ?.length,
+    );
+
+  function updateScheduleDay(
+    dayKey,
+    changes,
+  ) {
+    setSelectedSchedule(
+      (
+        previousSchedule,
+      ) => {
+        const schedule =
+          ensureSchedule(
+            previousSchedule,
+          );
+
+        return {
+          ...schedule,
+
+          source: "manual",
+          isOpen24Hours:
+            false,
+
+          days: {
+            ...schedule.days,
+
+            [dayKey]: {
+              ...schedule
+                .days[
+                dayKey
+              ],
+
+              ...changes,
+            },
+          },
+        };
+      },
+    );
+  }
+
+  function handleApplyGoogleSchedule() {
+    if (
+      !hasGoogleSchedule
+    ) {
+      return;
+    }
+
+    setSelectedSchedule(
+      googleSchedule,
+    );
+  }
+
+  function handleToggleOpen24Hours() {
+    setSelectedSchedule(
+      (
+        previousSchedule,
+      ) => {
+        const schedule =
+          ensureSchedule(
+            previousSchedule,
+          );
+
+        const nextValue =
+          !schedule
+            .isOpen24Hours;
+
+        return {
+          ...schedule,
+
+          source: "manual",
+
+          isOpen24Hours:
+            nextValue,
+
+          days:
+            SCHEDULE_DAYS.reduce(
+              (
+                accumulator,
+                day,
+              ) => ({
+                ...accumulator,
+
+                [day.key]:
+                  nextValue
+                    ? {
+                        enabled:
+                          true,
+
+                        open:
+                          "00:00",
+
+                        close:
+                          "23:59",
+
+                        closesNextDay:
+                          false,
+                      }
+                    : {
+                        ...schedule
+                          .days[
+                          day.key
+                        ],
+
+                        enabled:
+                          false,
+                      },
+              }),
+              {},
+            ),
+        };
+      },
+    );
+  }
+
+  function handleToggleDay(
+    dayKey,
+    enabled,
+  ) {
+    updateScheduleDay(
+      dayKey,
+      {
+        enabled:
+          !enabled,
+      },
+    );
+  }
+
+  function handleOpenTimeChange(
+    dayKey,
+    currentClose,
+    nextOpen,
+  ) {
+    updateScheduleDay(
+      dayKey,
+      {
+        open:
+          nextOpen,
+
+        closesNextDay:
+          closesOnNextDay(
+            nextOpen,
+            currentClose,
+          ),
+      },
+    );
+  }
+
+  function handleCloseTimeChange(
+    dayKey,
+    currentOpen,
+    nextClose,
+  ) {
+    updateScheduleDay(
+      dayKey,
+      {
+        close:
+          nextClose,
+
+        closesNextDay:
+          closesOnNextDay(
+            currentOpen,
+            nextClose,
+          ),
+      },
+    );
+  }
 
   return (
-    <section style={styles.reviewCard}>
-      <div style={styles.panelHeader}>
-        <div style={styles.panelTitleIcon}>
+    <section
+      style={
+        styles.reviewCard
+      }
+    >
+      <div
+        style={
+          styles.panelHeader
+        }
+      >
+        <div
+          style={
+            styles.panelTitleIcon
+          }
+        >
           <ListChecks
             size={44}
             strokeWidth={2.2}
           />
         </div>
 
-        <div style={styles.panelHeading}>
-          <h2 style={styles.panelTitle}>
+        <div
+          style={
+            styles.panelHeading
+          }
+        >
+          <h2
+            style={
+              styles.panelTitle
+            }
+          >
             Información para Lsearch
           </h2>
 
-          <p style={styles.panelSubtitle}>
+          <p
+            style={
+              styles.panelSubtitle
+            }
+          >
             Completa y valida los datos que
             serán publicados en la aplicación.
           </p>
         </div>
       </div>
 
-      <div style={styles.reviewTopGrid}>
+      <div
+        style={
+          styles.reviewTopGrid
+        }
+      >
         <InformationCard
-          icon={CalendarDays}
+          icon={
+            CalendarDays
+          }
           label="Importado el"
           value={
             importedAtLabel
@@ -348,28 +789,52 @@ export default function CandidateReviewPanel({
         />
 
         <InformationCard
-          icon={Shapes}
+          icon={
+            Shapes
+          }
           label="Tipo de Google"
-          value={formatGoogleType(
-            googleType,
-          )}
+          value={
+            formatGoogleType(
+              googleType,
+            )
+          }
           variant="cyan"
         />
 
         <InformationCard
-          icon={Clock3}
+          icon={
+            Clock3
+          }
           label="Estado"
-          value={getStatusLabel(
-            status,
-          )}
+          value={
+            getStatusLabel(
+              status,
+            )
+          }
           variant="orange"
         />
       </div>
 
-      <section style={styles.formSection}>
-        <div style={styles.sectionTitleRow}>
-          <div style={styles.sectionTitleGroup}>
-            <div style={styles.blueSectionIcon}>
+      <section
+        style={
+          styles.formSection
+        }
+      >
+        <div
+          style={
+            styles.sectionTitleRow
+          }
+        >
+          <div
+            style={
+              styles.sectionTitleGroup
+            }
+          >
+            <div
+              style={
+                styles.blueSectionIcon
+              }
+            >
               <FilePenLine
                 size={40}
                 strokeWidth={2.2}
@@ -377,11 +842,19 @@ export default function CandidateReviewPanel({
             </div>
 
             <div>
-              <h3 style={styles.sectionTitle}>
+              <h3
+                style={
+                  styles.sectionTitle
+                }
+              >
                 Información principal
               </h3>
 
-              <p style={styles.sectionDescription}>
+              <p
+                style={
+                  styles.sectionDescription
+                }
+              >
                 Define el nombre y la descripción
                 que verá el usuario.
               </p>
@@ -390,7 +863,9 @@ export default function CandidateReviewPanel({
 
           <button
             type="button"
-            style={styles.secondaryButton}
+            style={
+              styles.secondaryButton
+            }
             onClick={() =>
               setShowDescriptions(
                 (
@@ -414,42 +889,72 @@ export default function CandidateReviewPanel({
           </button>
         </div>
 
-        <label style={styles.fieldLabel}>
+        <label
+          style={
+            styles.fieldLabel
+          }
+        >
           Nombre del lugar
         </label>
 
         <input
-          value={name}
-          onChange={(event) =>
+          value={
+            name
+          }
+          onChange={(
+            event,
+          ) =>
             setName(
-              event.target.value,
+              event.target
+                .value,
             )
           }
-          style={styles.input}
+          style={
+            styles.input
+          }
           placeholder="Nombre del lugar"
         />
 
-        <label style={styles.fieldLabel}>
+        <label
+          style={
+            styles.fieldLabel
+          }
+        >
           Descripción
         </label>
 
         <textarea
-          value={description}
-          onChange={(event) =>
+          value={
+            description
+          }
+          onChange={(
+            event,
+          ) =>
             setDescription(
-              event.target.value,
+              event.target
+                .value,
             )
           }
-          style={styles.textarea}
+          style={
+            styles.textarea
+          }
           placeholder="Descripción que verá el usuario..."
         />
 
         {showDescriptions && (
-          <div style={styles.descriptionOptions}>
+          <div
+            style={
+              styles.descriptionOptions
+            }
+          >
             {genericDescriptions.map(
-              (option) => (
+              (
+                option,
+              ) => (
                 <button
-                  key={option.id}
+                  key={
+                    option.id
+                  }
                   type="button"
                   style={
                     styles.descriptionOption
@@ -465,11 +970,15 @@ export default function CandidateReviewPanel({
                   }}
                 >
                   <strong>
-                    {option.label}
+                    {
+                      option.label
+                    }
                   </strong>
 
                   <span>
-                    {option.text}
+                    {
+                      option.text
+                    }
                   </span>
                 </button>
               ),
@@ -478,9 +987,21 @@ export default function CandidateReviewPanel({
         )}
       </section>
 
-      <section style={styles.formSection}>
-        <div style={styles.sectionTitleGroup}>
-          <div style={styles.greenSectionIcon}>
+      <section
+        style={
+          styles.formSection
+        }
+      >
+        <div
+          style={
+            styles.sectionTitleGroup
+          }
+        >
+          <div
+            style={
+              styles.greenSectionIcon
+            }
+          >
             <Tag
               size={40}
               strokeWidth={2.2}
@@ -488,45 +1009,75 @@ export default function CandidateReviewPanel({
           </div>
 
           <div>
-            <h3 style={styles.sectionTitle}>
+            <h3
+              style={
+                styles.sectionTitle
+              }
+            >
               Clasificación
             </h3>
 
-            <p style={styles.sectionDescription}>
+            <p
+              style={
+                styles.sectionDescription
+              }
+            >
               Selecciona la etiqueta,
               subcategorías y enfoque del lugar.
             </p>
           </div>
         </div>
 
-        <label style={styles.fieldLabel}>
+        <label
+          style={
+            styles.fieldLabel
+          }
+        >
           Etiqueta principal
         </label>
 
         {catalogLoading ? (
-          <div style={styles.loadingBox}>
+          <div
+            style={
+              styles.loadingBox
+            }
+          >
             Cargando etiquetas...
           </div>
         ) : catalogError ? (
-          <div style={styles.errorBox}>
+          <div
+            style={
+              styles.errorBox
+            }
+          >
             <Info
               size={40}
               strokeWidth={2.2}
             />
 
-            {catalogError}
+            {
+              catalogError
+            }
           </div>
         ) : (
-          <div style={styles.chipGroup}>
+          <div
+            style={
+              styles.chipGroup
+            }
+          >
             {tags.map(
-              (tag) => {
+              (
+                tag,
+              ) => {
                 const isActive =
                   selectedTag ===
                   tag.id;
 
                 return (
                   <button
-                    key={tag.id}
+                    key={
+                      tag.id
+                    }
                     type="button"
                     style={{
                       ...styles.choiceChip,
@@ -548,7 +1099,9 @@ export default function CandidateReviewPanel({
                       />
                     )}
 
-                    {tag.label}
+                    {
+                      tag.label
+                    }
                   </button>
                 );
               },
@@ -559,7 +1112,11 @@ export default function CandidateReviewPanel({
         {subtags.length >
           0 && (
           <>
-            <label style={styles.smallLabel}>
+            <label
+              style={
+                styles.smallLabel
+              }
+            >
               <Layers3
                 size={40}
                 strokeWidth={2.2}
@@ -568,9 +1125,15 @@ export default function CandidateReviewPanel({
               Subcategorías
             </label>
 
-            <div style={styles.chipGroup}>
+            <div
+              style={
+                styles.chipGroup
+              }
+            >
               {subtags.map(
-                (subtag) => {
+                (
+                  subtag,
+                ) => {
                   const isActive =
                     selectedSubtags.includes(
                       subtag.id,
@@ -602,7 +1165,9 @@ export default function CandidateReviewPanel({
                         />
                       )}
 
-                      {subtag.label}
+                      {
+                        subtag.label
+                      }
                     </button>
                   );
                 },
@@ -614,7 +1179,11 @@ export default function CandidateReviewPanel({
         {approaches.length >
           0 && (
           <>
-            <label style={styles.smallLabel}>
+            <label
+              style={
+                styles.smallLabel
+              }
+            >
               <MapPinned
                 size={40}
                 strokeWidth={2.2}
@@ -623,9 +1192,15 @@ export default function CandidateReviewPanel({
               Enfoque
             </label>
 
-            <div style={styles.chipGroup}>
+            <div
+              style={
+                styles.chipGroup
+              }
+            >
               {approaches.map(
-                (approach) => {
+                (
+                  approach,
+                ) => {
                   const isActive =
                     selectedApproach ===
                     approach.id;
@@ -656,7 +1231,9 @@ export default function CandidateReviewPanel({
                         />
                       )}
 
-                      {approach.label}
+                      {
+                        approach.label
+                      }
                     </button>
                   );
                 },
@@ -666,10 +1243,26 @@ export default function CandidateReviewPanel({
         )}
       </section>
 
-      <div style={styles.twoColumnSection}>
-        <section style={styles.formSection}>
-          <div style={styles.sectionTitleGroup}>
-            <div style={styles.orangeSectionIcon}>
+      <div
+        style={
+          styles.twoColumnSection
+        }
+      >
+        <section
+          style={
+            styles.formSection
+          }
+        >
+          <div
+            style={
+              styles.sectionTitleGroup
+            }
+          >
+            <div
+              style={
+                styles.orangeSectionIcon
+              }
+            >
               <CircleDollarSign
                 size={40}
                 strokeWidth={2.2}
@@ -677,23 +1270,39 @@ export default function CandidateReviewPanel({
             </div>
 
             <div>
-              <h3 style={styles.sectionTitle}>
+              <h3
+                style={
+                  styles.sectionTitle
+                }
+              >
                 Precio
               </h3>
 
-              <p style={styles.sectionDescription}>
+              <p
+                style={
+                  styles.sectionDescription
+                }
+              >
                 Selecciona el rango aplicable.
               </p>
             </div>
           </div>
 
-          <div style={styles.readonlyMini}>
+          <div
+            style={
+              styles.readonlyMini
+            }
+          >
             {loadingDetails
               ? "Consultando rango proporcionado..."
               : `Rango proporcionado: ${googlePriceLabel}`}
           </div>
 
-          <div style={styles.chipGroup}>
+          <div
+            style={
+              styles.chipGroup
+            }
+          >
             {hasFreeOption && (
               <button
                 type="button"
@@ -716,14 +1325,18 @@ export default function CandidateReviewPanel({
             )}
 
             {priceRanges.map(
-              (range) => {
+              (
+                range,
+              ) => {
                 const isActive =
                   selectedPrice ===
                   range.id;
 
                 return (
                   <button
-                    key={range.id}
+                    key={
+                      range.id
+                    }
                     type="button"
                     style={{
                       ...styles.choiceChip,
@@ -738,7 +1351,9 @@ export default function CandidateReviewPanel({
                       )
                     }
                   >
-                    {range.label}
+                    {
+                      range.label
+                    }
                   </button>
                 );
               },
@@ -746,9 +1361,21 @@ export default function CandidateReviewPanel({
           </div>
         </section>
 
-        <section style={styles.formSection}>
-          <div style={styles.sectionTitleGroup}>
-            <div style={styles.cyanSectionIcon}>
+        <section
+          style={
+            styles.formSection
+          }
+        >
+          <div
+            style={
+              styles.sectionTitleGroup
+            }
+          >
+            <div
+              style={
+                styles.cyanSectionIcon
+              }
+            >
               <Clock3
                 size={40}
                 strokeWidth={2.2}
@@ -756,64 +1383,301 @@ export default function CandidateReviewPanel({
             </div>
 
             <div>
-              <h3 style={styles.sectionTitle}>
+              <h3
+                style={
+                  styles.sectionTitle
+                }
+              >
                 Horario
               </h3>
 
-              <p style={styles.sectionDescription}>
-                Selecciona el horario del lugar.
+              <p
+                style={
+                  styles.sectionDescription
+                }
+              >
+                Define cuándo puede recomendarse
+                el lugar en Lsearch.
               </p>
             </div>
           </div>
 
-          <div style={styles.readonlyMini}>
-            {loadingDetails
-              ? "Consultando horario proporcionado..."
-              : googleSchedulePreview}
+          <div
+            style={
+              styles.scheduleSuggestionBox
+            }
+          >
+            <div
+              style={
+                styles.scheduleSuggestionHeader
+              }
+            >
+              <p
+                style={
+                  styles.scheduleSuggestionTitle
+                }
+              >
+                Sugerencia de Google
+              </p>
+
+              <div
+                style={
+                  styles.scheduleSuggestionActions
+                }
+              >
+                <button
+                  type="button"
+                  style={{
+                    ...styles.scheduleActionButton,
+
+                    ...(!hasGoogleSchedule
+                      ? styles.scheduleActionButtonDisabled
+                      : {}),
+                  }}
+                  onClick={
+                    handleApplyGoogleSchedule
+                  }
+                  disabled={
+                    !hasGoogleSchedule
+                  }
+                >
+                  Aplicar sugerencia
+                </button>
+
+                <button
+                  type="button"
+                  style={{
+                    ...styles.scheduleActionButton,
+
+                    ...(currentSchedule
+                      .isOpen24Hours
+                      ? styles.scheduleActionButtonActive
+                      : {}),
+                  }}
+                  onClick={
+                    handleToggleOpen24Hours
+                  }
+                >
+                  24 horas
+                </button>
+              </div>
+            </div>
+
+            {loadingDetails ? (
+              <p
+                style={
+                  styles.googleScheduleEmpty
+                }
+              >
+                Consultando horario proporcionado...
+              </p>
+            ) : googleScheduleDescriptions
+              .length > 0 ? (
+              <div
+                style={
+                  styles.googleScheduleList
+                }
+              >
+                {googleScheduleDescriptions.map(
+                  (
+                    descriptionLine,
+                  ) => (
+                    <p
+                      key={
+                        descriptionLine
+                      }
+                      style={
+                        styles.googleScheduleLine
+                      }
+                    >
+                      {
+                        descriptionLine
+                      }
+                    </p>
+                  ),
+                )}
+              </div>
+            ) : (
+              <p
+                style={
+                  styles.googleScheduleEmpty
+                }
+              >
+                Google no proporcionó un horario
+                para este lugar.
+              </p>
+            )}
           </div>
 
-          <select
-            value={selectedSchedule}
-            onChange={(event) =>
-              setSelectedSchedule(
-                event.target.value,
-              )
+          <div
+            style={
+              styles.scheduleEditor
             }
-            style={styles.select}
           >
-            <option value="">
-              Seleccionar horario
-            </option>
+            <div
+              style={
+                styles.scheduleHeader
+              }
+            >
+              <span>
+                Día
+              </span>
 
-            {hasGoogleSchedule && (
-              <option value="google_schedule_full">
-                Usar horario completo de Google
-              </option>
-            )}
+              <span>
+                Abierto
+              </span>
 
-            {googleScheduleOptions.map(
-              (schedule) => (
-                <option
-                  key={schedule}
-                  value={schedule}
-                >
-                  {schedule}
-                </option>
-              ),
+              <span>
+                Abre
+              </span>
+
+              <span>
+                Cierra
+              </span>
+            </div>
+
+            {SCHEDULE_DAYS.map(
+              (
+                day,
+              ) => {
+                const daySchedule =
+                  currentSchedule
+                    .days[
+                    day.key
+                  ];
+
+                return (
+                  <div
+                    key={
+                      day.key
+                    }
+                    style={
+                      styles.scheduleRow
+                    }
+                  >
+                    <span
+                      style={
+                        styles.scheduleDayLabel
+                      }
+                    >
+                      {
+                        day.label
+                      }
+                    </span>
+
+                    <button
+                      type="button"
+                      aria-label={`${
+                        daySchedule.enabled
+                          ? "Cerrar"
+                          : "Abrir"
+                      } ${day.label}`}
+                      aria-pressed={
+                        daySchedule.enabled
+                      }
+                      style={{
+                        ...styles.scheduleToggleButton,
+
+                        ...(daySchedule.enabled
+                          ? styles.scheduleToggleButtonActive
+                          : {}),
+                      }}
+                      onClick={() =>
+                        handleToggleDay(
+                          day.key,
+                          daySchedule.enabled,
+                        )
+                      }
+                    >
+                      <span
+                        style={{
+                          ...styles.scheduleToggleKnob,
+
+                          ...(daySchedule.enabled
+                            ? styles.scheduleToggleKnobActive
+                            : {}),
+                        }}
+                      />
+                    </button>
+
+                    {daySchedule.enabled ? (
+                      <>
+                        <input
+                          type="time"
+                          value={
+                            daySchedule.open
+                          }
+                          style={
+                            styles.scheduleTimeInput
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            handleOpenTimeChange(
+                              day.key,
+                              daySchedule.close,
+                              event.target.value,
+                            )
+                          }
+                        />
+
+                        <input
+                          type="time"
+                          value={
+                            daySchedule.close
+                          }
+                          style={
+                            styles.scheduleTimeInput
+                          }
+                          onChange={(
+                            event,
+                          ) =>
+                            handleCloseTimeChange(
+                              day.key,
+                              daySchedule.open,
+                              event.target.value,
+                            )
+                          }
+                        />
+                      </>
+                    ) : (
+                      <div
+                        style={
+                          styles.scheduleClosedValue
+                        }
+                      >
+                        Cerrado
+                      </div>
+                    )}
+                  </div>
+                );
+              },
             )}
-          </select>
+          </div>
         </section>
       </div>
 
-      <div style={styles.googleStatsBox}>
-        <div style={styles.ratingIcon}>
+      <div
+        style={
+          styles.googleStatsBox
+        }
+      >
+        <div
+          style={
+            styles.ratingIcon
+          }
+        >
           <Star
             size={40}
             strokeWidth={2.2}
           />
         </div>
 
-        <div style={styles.ratingText}>
+        <div
+          style={
+            styles.ratingText
+          }
+        >
           <span>
             Calificación en Google
           </span>

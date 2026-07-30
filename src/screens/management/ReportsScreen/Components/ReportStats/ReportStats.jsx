@@ -1,3 +1,8 @@
+import {
+  FileWarning,
+  Layers3,
+} from "lucide-react";
+
 import styles from "./styles";
 
 export default function ReportStats({
@@ -5,18 +10,44 @@ export default function ReportStats({
   batchesCount,
 }) {
   return (
-    <div style={styles.summaryChips}>
-      <div style={styles.summaryChip}>
-        Reportes cargados{" "}
-        <strong>{reportsCount}</strong>
-      </div>
+    <section style={styles.container}>
+      <article style={styles.card}>
+        <div style={styles.blueIcon}>
+          <FileWarning
+            size={40}
+            strokeWidth={2.15}
+          />
+        </div>
 
-      <div style={styles.summaryChip}>
-        <strong>{batchesCount}</strong>{" "}
-        {batchesCount === 1
-          ? "lote cargado"
-          : "lotes cargados"}
-      </div>
-    </div>
+        <div style={styles.content}>
+          <span style={styles.label}>
+            Reportes cargados
+          </span>
+
+          <strong style={styles.blueValue}>
+            {reportsCount}
+          </strong>
+        </div>
+      </article>
+
+      <article style={styles.card}>
+        <div style={styles.greenIcon}>
+          <Layers3
+            size={40}
+            strokeWidth={2.15}
+          />
+        </div>
+
+        <div style={styles.content}>
+          <span style={styles.label}>
+            Lotes cargados
+          </span>
+
+          <strong style={styles.greenValue}>
+            {batchesCount}
+          </strong>
+        </div>
+      </article>
+    </section>
   );
 }

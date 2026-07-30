@@ -12,6 +12,13 @@ import {
   ReportDetailModal,
 } from "./Components";
 
+import {
+  AlertCircle,
+  FileWarning,
+  LoaderCircle,
+  RefreshCw,
+} from "lucide-react";
+
 import { REPORT_STATUS_FILTERS } from "./data";
 
 import getReportsService from "../../../services/api/reports/read/getReports.service";
@@ -620,22 +627,40 @@ function handleOpenReporter(reporterId) {
     return "";
   }, [loading, errorMessage, reports.length]);
 
-  return (
-    <LayoutScreen breadcrumbs={breadcrumbs}>
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.title}>Reportes</h1>
+   return (
+    <LayoutScreen
+      breadcrumbs={breadcrumbs}
+      padding="0"
+      maxWidth="100%"
+      scroll
+      fullHeight
+      showHeader
+      showSidebar
+      showFooter
+      stickyHeader
+    >
+      <main style={styles.screen}>
+        <section style={styles.headerSection}>
+          <div style={styles.headingBlock}>
+            <div style={styles.titleLine}>
+              <div style={styles.titleIcon}>
+                <FileWarning
+                  size={50}
+                  strokeWidth={2.15}
+                />
+              </div>
 
-            <p style={styles.subtitle}>
-              Gestiona reportes enviados por usuarios sobre el sistema,
-              lugares y perfiles.
-            </p>
+              <div>
+                <h1 style={styles.title}>
+                  Reportes
+                </h1>
 
-            <ReportStats
-              reportsCount={reportsCount}
-              batchesCount={loadedBatches}
-            />
+                <p style={styles.subtitle}>
+                  Gestiona los reportes enviados por los usuarios
+                  sobre el sistema, los lugares y los perfiles.
+                </p>
+              </div>
+            </div>
           </div>
 
           <ReportFilters
@@ -643,56 +668,161 @@ function handleOpenReporter(reporterId) {
             selectedStatus={selectedStatus}
             onChangeStatus={handleChangeStatus}
           />
-        </div>
+        </section>
 
-        {tableMessage ? (
-          <div style={styles.stateBox}>
-            <p style={styles.stateText}>{tableMessage}</p>
+        <ReportStats
+          reportsCount={reportsCount}
+          batchesCount={loadedBatches}
+        />
 
-            {errorMessage ? (
-              <button
-                type="button"
-                style={styles.retryButton}
-                onClick={() => fetchReports({ reset: true })}
-              >
-                Reintentar
-              </button>
-            ) : null}
-          </div>
-        ) : (
-          <ReportsTable
-            reports={reports}
-            onOpenReport={handleOpenReport}
-          />
-        )}
+        {loading ? (
+          <section style={styles.stateBox}>
+            <div style={styles.loadingIcon}>
+              <LoaderCircle
+                size={50}
+                strokeWidth={2.1}
+              />
+            </div>
 
-        {reports.length > 0 && hasMore ? (
+            <h2 style={styles.stateTitle}>
+              Cargando reportes
+            </h2>
+
+            <p style={styles.stateText}>
+              Estamos obteniendo los reportes correspondientes
+              al estado seleccionado.
+            </p>
+          </section>
+        ) : null}
+
+        {!loading && errorMessage ? (
+          <section style={styles.stateBox}>
+            <div style={styles.errorIcon}>
+              <AlertCircle
+                size={50}
+                strokeWidth={2.1}
+              />
+            </div>
+
+            <h2 style={styles.stateTitle}>
+              No fue posible cargar los reportes
+            </h2>
+
+            <p style={styles.stateText}>
+              {errorMessage}
+            </p>
+
+            <button
+              type="button"
+              style={styles.retryButton}
+              onClick={() =>
+                fetchReports({
+                  reset: true,
+                })
+              }
+            >
+              <RefreshCw
+                size={44}
+                strokeWidth={2.2}
+              />
+
+              Reintentar
+            </button>
+          </section>
+        ) : null}
+
+        {!loading &&
+        !errorMessage &&
+        reports.length === 0 ? (
+          <section style={styles.stateBox}>
+            <div style={styles.emptyIcon}>
+              <FileWarning
+                size={50}
+                strokeWidth={2.1}
+              />
+            </div>
+
+            <h2 style={styles.stateTitle}>
+              No hay reportes
+            </h2>
+
+            <p style={styles.stateText}>
+              No existen reportes que coincidan con el estado
+              seleccionado.
+            </p>
+          </section>
+        ) : null}
+
+        {!loading &&
+        !errorMessage &&
+        reports.length > 0 ? (
+          <>
+            <ReportsTable
+              reports={reports}
+              onOpenReport={handleOpenReport}
+            />
+
+            <div style={styles.resultMessage}>
+              <span style={styles.resultIcon}>
+                ✓
+              </span>
+
+              <span>
+                Se cargaron los reportes correctamente.
+              </span>
+            </div>
+          </>
+        ) : null}
+
+        {!loading &&
+        !errorMessage &&
+        reports.length > 0 &&
+        hasMore ? (
           <div style={styles.loadMoreWrapper}>
             <button
               type="button"
-              style={styles.loadMoreButton}
+              style={{
+                ...styles.loadMoreButton,
+
+                ...(loadingMore
+                  ? styles.loadMoreButtonDisabled
+                  : {}),
+              }}
               onClick={handleLoadMore}
               disabled={loadingMore}
             >
-              {loadingMore ? "Cargando..." : "Cargar más reportes"}
+              {loadingMore ? (
+                <LoaderCircle
+                  size={44}
+                  strokeWidth={2.2}
+                />
+              ) : (
+                <RefreshCw
+                  size={44}
+                  strokeWidth={2.2}
+                />
+              )}
+
+              {loadingMore
+                ? "Cargando reportes..."
+                : "Cargar más reportes"}
             </button>
           </div>
         ) : null}
-      </div>
-  <ReportDetailModal
-  isOpen={Boolean(selectedReport)}
-  report={selectedReport}
-  loading={false}
-  isSubmitting={isResolvingReport}
+      </main>
 
-  submitError={reportResolutionError}
-
-  onClose={handleCloseReportModal}
-  onValidate={handleValidateReport}
-  onDiscard={handleDiscardReport}
-  onOpenRelated={handleOpenRelated}
-  onOpenReporter={handleOpenReporter}
-/>
+      <ReportDetailModal
+        isOpen={Boolean(selectedReport)}
+        report={selectedReport}
+        loading={false}
+        isSubmitting={isResolvingReport}
+        submitError={reportResolutionError}
+        onClose={handleCloseReportModal}
+        onValidate={handleValidateReport}
+        onDiscard={handleDiscardReport}
+        onOpenRelated={handleOpenRelated}
+        onOpenReporter={handleOpenReporter}
+      />
     </LayoutScreen>
   );
 }

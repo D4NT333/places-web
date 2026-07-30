@@ -1,208 +1,354 @@
 const styles = {
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    zIndex: 2000,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: "rgba(15, 23, 42, 0.55)",
-    backdropFilter: "blur(3px)",
-    boxSizing: "border-box",
-  },
+overlay: {
+  position: "fixed",
+  top: "98px",
+  right: 0,
+  bottom: 0,
+  left: 0,
+  zIndex: 9999,
 
-  modal: {
-    width: "min(980px, 96vw)",
-    maxHeight: "92vh",
-    display: "grid",
-    gridTemplateRows: "auto minmax(0, 1fr) auto",
-    border: "1.5px solid #111827",
-    borderRadius: 18,
-    backgroundColor: "#ffffff",
-    boxShadow: "0 30px 80px rgba(15, 23, 42, 0.28)",
-    overflow: "hidden",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+
+  padding: "16px 24px",
+  boxSizing: "border-box",
+
+  background: "rgba(30, 57, 87, 0.56)",
+  backdropFilter: "blur(8px)",
+},
+
+modal: {
+  position: "relative",
+
+  width: "min(1450px, calc(100vw - 48px))",
+
+  maxHeight: "calc(100dvh - 130px)",
+
+  display: "flex",
+  flexDirection: "column",
+
+  overflowY: "auto",
+  overflowX: "hidden",
+
+  background:
+    "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+
+  border: "1px solid rgba(211, 224, 239, 0.98)",
+  borderRadius: "19px",
+
+  boxShadow:
+    "0 30px 80px rgba(17, 42, 71, 0.34)",
+},
+
+  topAccent: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    left: 0,
+    height: "5px",
+    background:
+      "linear-gradient(90deg, #2176e5, #62a8f2, #e4a229)",
   },
 
   header: {
-    minHeight: 92,
-    padding: "20px 24px",
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: 20,
-    borderBottom: "1px solid #e5e7eb",
-    boxSizing: "border-box",
+    gap: "20px",
+    padding: "14px 20px 11px",
+    background:
+      "linear-gradient(135deg, #f7fbff, #ffffff 58%, #fffaf0)",
+    borderBottom: "1px solid #dce7f2",
   },
 
-  headerTopRow: {
+  headerContent: {
     display: "flex",
     alignItems: "center",
-    gap: 12,
+    gap: "15px",
+    minWidth: 0,
+  },
+
+  headerIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "58px",
+    height: "58px",
+    flexShrink: 0,
+    color: "#d7850d",
+    background:
+      "linear-gradient(145deg, #fff3dc, #fffaf1)",
+    border: "1px solid #efd096",
+    borderRadius: "15px",
+    boxShadow:
+      "0 7px 18px rgba(194, 121, 12, 0.13)",
+  },
+
+  headerText: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "5px",
+    minWidth: 0,
+  },
+
+  headerTitleRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
     flexWrap: "wrap",
   },
 
   title: {
     margin: 0,
-    fontSize: 25,
-    fontWeight: 900,
-    color: "#111827",
+    color: "#092b5c",
+    fontSize: "2.5rem",
+    fontWeight: 950,
+    letterSpacing: "-0.025em",
   },
 
   subtitle: {
-    margin: "6px 0 0",
-    fontSize: 14,
+    margin: 0,
+    color: "#607a98",
+    fontSize: "1.6rem",
     fontWeight: 600,
-    color: "#64748b",
+    lineHeight: 1.45,
   },
 
   closeButton: {
-    width: 38,
-    height: 38,
-    flexShrink: 0,
-    border: "1px solid #d1d5db",
-    borderRadius: "50%",
-    backgroundColor: "#ffffff",
-    color: "#111827",
-    fontSize: 26,
-    lineHeight: 1,
-    cursor: "pointer",
-  },
-
-  body: {
-    minHeight: 0,
-    padding: 24,
-    display: "flex",
-    flexDirection: "column",
-    gap: 18,
-    overflowY: "auto",
-    boxSizing: "border-box",
-  },
-
-  loadingState: {
-    minHeight: 360,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 16,
-    fontWeight: 800,
-    color: "#64748b",
+    width: "48px",
+    height: "48px",
+    flexShrink: 0,
+    padding: 0,
+    color: "#17375f",
+    background: "#ffffff",
+    border: "1px solid #d3e0ed",
+    borderRadius: "11px",
+    boxShadow:
+      "0 5px 13px rgba(33, 68, 107, 0.1)",
+    cursor: "pointer",
   },
 
+body: {
+  display: "flex",
+  flexDirection: "column",
+  gap: "15px",
+
+  padding: "19px 27px",
+  boxSizing: "border-box",
+},
+
   summaryCard: {
-    padding: 18,
-    border: "1px solid #e2e8f0",
-    borderRadius: 14,
-    backgroundColor: "#f8fafc",
+    overflow: "hidden",
+    background: "#ffffff",
+    border: "1px solid #bad8ff",
+    borderRadius: "14px",
+    boxShadow:
+      "0 7px 18px rgba(31, 75, 122, 0.06)",
   },
 
   summaryHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 16,
-    marginBottom: 18,
+    gap: "14px",
+    padding: "13px 15px",
+    background:
+      "linear-gradient(90deg, #eaf4ff, #f7fbff)",
+    borderBottom: "1px solid #c9e0fb",
+  },
+
+  sectionHeading: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    color: "#176fdc",
   },
 
   sectionTitle: {
     margin: 0,
-    fontSize: 17,
+    color: "inherit",
+    fontSize: "1.75rem",
     fontWeight: 900,
-    color: "#111827",
+  },
+
+  targetChip: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    minHeight: "32px",
+    padding: "0 11px",
+    border: "1px solid transparent",
+    borderRadius: "999px",
+    fontSize: "1.4rem",
+    fontWeight: 900,
+  },
+
+  targetPlace: {
+    color: "#176fdc",
+    background: "#eef6ff",
+    borderColor: "#b7d6fa",
+  },
+
+  targetUser: {
+    color: "#b83274",
+    background: "#fff1f7",
+    borderColor: "#f4bfd7",
+  },
+
+  targetGeneral: {
+    color: "#5c7189",
+    background: "#f1f5f9",
+    borderColor: "#d0dbe6",
+  },
+
+  statusChip: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    minHeight: "32px",
+    padding: "0 11px",
+    border: "1px solid transparent",
+    borderRadius: "999px",
+    fontSize: "1.4rem",
+    fontWeight: 900,
+  },
+
+  statusPending: {
+    color: "#a96800",
+    background: "#fff7e6",
+    borderColor: "#efca7f",
+  },
+
+  statusResolved: {
+    color: "#078e4a",
+    background: "#eafaf2",
+    borderColor: "#bce8d0",
+  },
+
+  statusDiscarded: {
+    color: "#d23f3f",
+    background: "#fff0f0",
+    borderColor: "#ffc2c2",
   },
 
   infoGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-    gap: 16,
+    gridTemplateColumns:
+      "repeat(4, minmax(0, 1fr))",
+    gap: "10px",
+    padding: "14px",
   },
 
-  infoItem: {
+  infoCard: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
     minWidth: 0,
+    minHeight: "76px",
+    padding: "10px 11px",
+    boxSizing: "border-box",
+    background:
+      "linear-gradient(135deg, #f8fbff, #ffffff)",
+    border: "1px solid #d8e5f1",
+    borderRadius: "11px",
+  },
+
+  infoIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "44px",
+    height: "44px",
+    flexShrink: 0,
+    color: "#247cf0",
+    background: "#eef6ff",
+    border: "1px solid #cfe2fb",
+    borderRadius: "10px",
+  },
+
+  infoContent: {
     display: "flex",
     flexDirection: "column",
-    gap: 5,
+    gap: "3px",
+    minWidth: 0,
   },
 
   infoLabel: {
-    fontSize: 12,
-    fontWeight: 800,
-    color: "#64748b",
-    textTransform: "uppercase",
-    letterSpacing: "0.04em",
+    color: "#657d98",
+    fontSize: "1.8rem",
+    fontWeight: 750,
   },
 
   infoValue: {
-    fontSize: 14,
-    fontWeight: 800,
-    color: "#111827",
+    color: "#12335e",
+    fontSize: "1.6rem",
+    fontWeight: 850,
+    lineHeight: 1.35,
     overflowWrap: "anywhere",
   },
 
   twoColumnGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: 18,
+    gridTemplateColumns:
+      "repeat(2, minmax(0, 1fr))",
+    gap: "13px",
   },
 
   entityCard: {
-    minWidth: 0,
-    padding: 18,
-    border: "1px solid #e2e8f0",
-    borderRadius: 14,
-    backgroundColor: "#ffffff",
+    overflow: "hidden",
+    background:
+      "linear-gradient(135deg, #ffffff, #f9fcff)",
+    border: "1px solid #d4e2ef",
+    borderRadius: "14px",
+    boxShadow:
+      "0 7px 17px rgba(31, 74, 119, 0.06)",
   },
 
-  entityHeader: {
+  entityCardHeader: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: 14,
+    gap: "8px",
+    padding: "11px 14px",
+    color: "#176fdc",
+    background:
+      "linear-gradient(90deg, #eef6ff, #f8fbff)",
+    borderBottom: "1px solid #d6e5f3",
   },
 
-  eyebrow: {
-    display: "block",
-    marginBottom: 6,
-    fontSize: 12,
-    fontWeight: 800,
-    color: "#64748b",
-    textTransform: "uppercase",
-    letterSpacing: "0.04em",
-  },
-
-  entityName: {
-    margin: 0,
-    fontSize: 17,
+  entityCardTitle: {
+    fontSize: "1.8rem",
     fontWeight: 900,
-    color: "#111827",
-    overflowWrap: "anywhere",
-  },
-
-  entityDescription: {
-    margin: "12px 0 0",
-    fontSize: 13,
-    fontWeight: 600,
-    lineHeight: 1.5,
-    color: "#64748b",
   },
 
   reporterRow: {
     display: "flex",
     alignItems: "center",
-    gap: 12,
+    gap: "11px",
+    minHeight: "82px",
+    padding: "13px 14px",
   },
 
   avatar: {
-    width: 44,
-    height: 44,
-    flexShrink: 0,
-    borderRadius: "50%",
-    border: "1px solid #d1d5db",
-    overflow: "hidden",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f1f5f9",
+    width: "54px",
+    height: "54px",
+    flexShrink: 0,
+    overflow: "hidden",
+    color: "#176fdc",
+    background:
+      "linear-gradient(145deg, #eaf4ff, #f8fbff)",
+    border: "1px solid #c8ddf6",
+    borderRadius: "999px",
+    boxShadow:
+      "0 5px 13px rgba(31, 71, 114, 0.11)",
   },
 
   avatarImage: {
@@ -212,262 +358,422 @@ const styles = {
   },
 
   avatarText: {
-    fontSize: 13,
-    fontWeight: 900,
-    color: "#334155",
+    fontSize: "1.25rem",
+    fontWeight: 950,
   },
 
   reporterText: {
-    minWidth: 0,
-    flex: 1,
     display: "flex",
     flexDirection: "column",
-    gap: 3,
+    gap: "3px",
+    minWidth: 0,
+    flex: 1,
   },
 
   reporterName: {
-    fontSize: 14,
+    overflow: "hidden",
+    color: "#12335e",
+    fontSize: "2rem",
     fontWeight: 900,
-    color: "#111827",
-    overflowWrap: "anywhere",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 
   reporterEmail: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: "#64748b",
-    overflowWrap: "anywhere",
+    overflow: "hidden",
+    color: "#667f9b",
+    fontSize: "1.15rem",
+    fontWeight: 650,
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 
   secondaryButton: {
-    minHeight: 34,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    minHeight: "39px",
+    padding: "0 12px",
     flexShrink: 0,
-    padding: "0 14px",
-    border: "1.5px solid #111827",
-    borderRadius: 999,
-    backgroundColor: "#ffffff",
-    color: "#111827",
-    fontSize: 13,
-    fontWeight: 800,
+    color: "#176fdc",
+    background: "#ffffff",
+    border: "1px solid #bad6f7",
+    borderRadius: "9px",
+    boxShadow:
+      "0 4px 10px rgba(35, 83, 137, 0.07)",
+    fontFamily: "inherit",
+    fontSize: "2rem",
+    fontWeight: 850,
     cursor: "pointer",
   },
 
+  relatedPlaceContent: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "14px",
+    minHeight: "82px",
+    padding: "13px 14px",
+  },
+
+  relatedPlaceText: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    minWidth: 0,
+  },
+
+  entityName: {
+    overflow: "hidden",
+    color: "#12335e",
+    fontSize: "2rem",
+    fontWeight: 900,
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+
+  entityDescription: {
+    margin: 0,
+    color: "#657e99",
+    fontSize: "1.4rem",
+    fontWeight: 650,
+    lineHeight: 1.4,
+  },
+
   messageCard: {
-    padding: 18,
-    border: "1px solid #e2e8f0",
-    borderRadius: 14,
-    backgroundColor: "#ffffff",
+    overflow: "hidden",
+    background: "#ffffff",
+    border: "1px solid #d2e1ef",
+    borderRadius: "14px",
+  },
+
+  messageHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    padding: "12px 15px",
+    color: "#d17d08",
+    background:
+      "linear-gradient(90deg, #fff6e6, #fffaf2)",
+    borderBottom: "1px solid #efd39f",
   },
 
   messageText: {
-    minHeight: 68,
-    margin: "14px 0 0",
-    padding: 14,
-    borderRadius: 10,
-    backgroundColor: "#f8fafc",
-    color: "#334155",
-    fontSize: 14,
-    fontWeight: 600,
-    lineHeight: 1.65,
-    whiteSpace: "pre-wrap",
+    minHeight: "72px",
+    margin: "14px",
+    padding: "14px",
+    boxSizing: "border-box",
+    color: "#25476d",
+    background:
+      "linear-gradient(135deg, #f8fbff, #ffffff)",
+    border: "1px solid #dbe7f2",
+    borderRadius: "10px",
+    fontSize: "1.6rem",
+    fontWeight: 650,
+    lineHeight: 1.55,
     overflowWrap: "anywhere",
   },
 
   resolutionCard: {
-    padding: 18,
-    border: "1px solid #cbd5e1",
-    borderRadius: 14,
-    backgroundColor: "#f8fafc",
+    overflow: "hidden",
+    background: "#fbfffd",
+    border: "1px solid #bfe8d2",
+    borderRadius: "14px",
+  },
+
+  resolutionHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    padding: "12px 15px",
+    color: "#078e4a",
+    background:
+      "linear-gradient(90deg, #eafaf2, #f6fcf9)",
+    borderBottom: "1px solid #c7ead7",
   },
 
   resolutionGrid: {
-    marginTop: 16,
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: 16,
+    gridTemplateColumns:
+      "repeat(2, minmax(0, 1fr))",
+    gap: "10px",
+    padding: "14px 14px 8px",
+  },
+
+  resolutionInfo: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "3px",
+    padding: "10px 12px",
+    background: "#ffffff",
+    border: "1px solid #d4eadf",
+    borderRadius: "10px",
   },
 
   resolutionNote: {
-    margin: "16px 0 0",
-    padding: 14,
-    borderRadius: 10,
-    backgroundColor: "#ffffff",
-    color: "#334155",
-    fontSize: 14,
-    fontWeight: 600,
-    lineHeight: 1.55,
+    margin: "6px 14px 14px",
+    padding: "13px",
+    color: "#315c4a",
+    background: "#f5fcf8",
+    border: "1px solid #cee9da",
+    borderRadius: "10px",
+    fontSize: "2rem",
+    fontWeight: 650,
+    lineHeight: 1.5,
   },
 
   actionCard: {
-    padding: 18,
-    border: "1px solid #cbd5e1",
-    borderRadius: 14,
-    backgroundColor: "#f8fafc",
+    overflow: "hidden",
+    background: "#fdfbff",
+    border: "1px solid #decef7",
+    borderRadius: "14px",
+  },
+
+  actionHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "13px 15px",
+    color: "#7441d6",
+    background:
+      "linear-gradient(90deg, #f4edff, #fbf8ff)",
+    borderBottom: "1px solid #e0d2f6",
+  },
+
+  actionDescription: {
+    margin: "3px 0 0",
+    color: "#76678f",
+    fontSize: "1.6rem",
+    fontWeight: 650,
   },
 
   actionOptions: {
-    marginTop: 16,
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: 12,
+    gridTemplateColumns:
+      "repeat(2, minmax(0, 1fr))",
+    gap: "10px",
+    padding: "14px 14px 10px",
   },
 
   actionOption: {
-    minHeight: 42,
-    border: "1.5px solid #cbd5e1",
-    borderRadius: 10,
-    backgroundColor: "#ffffff",
-    color: "#334155",
-    fontSize: 14,
-    fontWeight: 800,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: "11px",
+    minHeight: "68px",
+    padding: "10px 14px",
+    border: "1px solid",
+    borderRadius: "11px",
+    fontFamily: "inherit",
+    textAlign: "left",
     cursor: "pointer",
   },
 
-  actionOptionSelected: {
-    borderColor: "#111827",
-    backgroundColor: "#111827",
-    color: "#ffffff",
+  discardOption: {
+    color: "#d23f3f",
+    background: "#fff7f7",
+    borderColor: "#ffc8c8",
+  },
+
+  discardOptionSelected: {
+    background:
+      "linear-gradient(135deg, #ffe8e8, #fff5f5)",
+    borderColor: "#ed6262",
+    boxShadow:
+      "0 0 0 2px rgba(224, 65, 65, 0.11)",
+  },
+
+  validateOption: {
+    color: "#078e4a",
+    background: "#f5fdf9",
+    borderColor: "#bee8d1",
+  },
+
+  validateOptionSelected: {
+    background:
+      "linear-gradient(135deg, #e4f8ee, #f4fcf8)",
+    borderColor: "#39ae74",
+    boxShadow:
+      "0 0 0 2px rgba(22, 151, 83, 0.1)",
+  },
+
+  actionOptionText: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "3px",
+    fontSize: "1.6rem",
   },
 
   noteLabel: {
-    marginTop: 16,
     display: "flex",
     flexDirection: "column",
-    gap: 8,
-    fontSize: 13,
-    fontWeight: 800,
-    color: "#334155",
+    gap: "7px",
+    padding: "0 14px",
+  },
+
+  noteLabelText: {
+    color: "#4e3c70",
+    fontSize: "1.6rem",
+    fontWeight: 850,
   },
 
   textarea: {
     width: "100%",
-    minHeight: 100,
+    minHeight: "105px",
     resize: "vertical",
-    padding: 12,
-    border: "1.5px solid #cbd5e1",
-    borderRadius: 10,
-    backgroundColor: "#ffffff",
-    color: "#111827",
-    fontFamily: "inherit",
-    fontSize: 14,
-    lineHeight: 1.5,
-    outline: "none",
+    padding: "12px 13px",
     boxSizing: "border-box",
+    color: "#17375f",
+    background: "#ffffff",
+    border: "1px solid #cfc0eb",
+    borderRadius: "10px",
+    outline: "none",
+    fontFamily: "inherit",
+    fontSize: "1.6rem",
+    fontWeight: 600,
+    lineHeight: 1.5,
   },
 
   noteFooter: {
-    minHeight: 20,
-    marginTop: 7,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
+    gap: "12px",
+    padding: "8px 14px 14px",
   },
 
   counter: {
-    fontSize: 12,
-    fontWeight: 700,
-    color: "#64748b",
+    color: "#71839a",
+    fontSize: "1.6rem",
+    fontWeight: 750,
+  },
+
+  helperText: {
+    color: "#71839a",
+    fontSize: "1.4rem",
+    fontWeight: 650,
   },
 
   errorText: {
-    fontSize: 12,
+    color: "#d43f3f",
+    fontSize: "1.4rem",
     fontWeight: 800,
-    color: "#dc2626",
+    textAlign: "right",
   },
 
   footer: {
-    minHeight: 76,
-    padding: "16px 24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "16px",
+    padding: "14px 27px",
+    background:
+      "linear-gradient(180deg, #fbfdff, #f7faff)",
+    borderTop: "1px solid #dce7f2",
+  },
+
+  footerNotice: {
+    display: "flex",
+    alignItems: "center",
+    gap: "7px",
+    color: "#617994",
+    fontSize: "1.6rem",
+    fontWeight: 700,
+  },
+
+  footerActions: {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",
-    gap: 12,
-    borderTop: "1px solid #e5e7eb",
-    backgroundColor: "#ffffff",
-    boxSizing: "border-box",
+    gap: "10px",
   },
 
   cancelButton: {
-    minWidth: 120,
-    height: 40,
-    border: "1.5px solid #111827",
-    borderRadius: 999,
-    backgroundColor: "#ffffff",
-    color: "#111827",
-    fontSize: 14,
-    fontWeight: 900,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "7px",
+    minHeight: "43px",
+    padding: "0 15px",
+    color: "#285477",
+    background: "#ffffff",
+    border: "1px solid #c7d8e8",
+    borderRadius: "10px",
+    boxShadow:
+      "0 4px 10px rgba(35, 76, 119, 0.07)",
+    fontFamily: "inherit",
+    fontSize: "2rem",
+    fontWeight: 850,
     cursor: "pointer",
   },
 
   submitButton: {
-    minWidth: 170,
-    height: 40,
-    border: "1.5px solid #111827",
-    borderRadius: 999,
-    backgroundColor: "#111827",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    minHeight: "43px",
+    padding: "0 17px",
     color: "#ffffff",
-    fontSize: 14,
+    background:
+      "linear-gradient(135deg, #2176e5, #2e8af1)",
+    border: "1px solid #1e70dc",
+    borderRadius: "10px",
+    boxShadow:
+      "0 7px 16px rgba(33, 118, 229, 0.21)",
+    fontFamily: "inherit",
+    fontSize: "1.6rem",
     fontWeight: 900,
     cursor: "pointer",
   },
 
-  targetChip: {
-    minHeight: 28,
-    padding: "0 12px",
-    borderRadius: 999,
-    display: "inline-flex",
+  submitButtonDisabled: {
+    opacity: 0.58,
+    boxShadow: "none",
+    cursor: "not-allowed",
+  },
+
+  disabledControl: {
+    opacity: 0.5,
+    cursor: "not-allowed",
+  },
+
+  loadingState: {
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 12,
-    fontWeight: 900,
+    flexDirection: "column",
+    minHeight: "360px",
+    padding: "35px",
+    textAlign: "center",
   },
 
-  targetUser: {
-    border: "1px solid #f9a8d4",
-    backgroundColor: "#fdf2f8",
-    color: "#be185d",
-  },
-
-  targetPlace: {
-    border: "1px solid #93c5fd",
-    backgroundColor: "#eff6ff",
-    color: "#1d4ed8",
-  },
-
-  targetGeneral: {
-    border: "1px solid #cbd5e1",
-    backgroundColor: "#f8fafc",
-    color: "#334155",
-  },
-
-  statusChip: {
-    minHeight: 28,
-    padding: "0 12px",
-    borderRadius: 999,
-    display: "inline-flex",
+  loadingIcon: {
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 12,
-    fontWeight: 900,
+    width: "82px",
+    height: "82px",
+    marginBottom: "12px",
+    color: "#2176e5",
+    background: "#eaf4ff",
+    border: "1px solid #c9def8",
+    borderRadius: "999px",
   },
 
-  statusPending: {
-    border: "1px solid #fdba74",
-    backgroundColor: "#fff7ed",
-    color: "#c2410c",
+  loadingTitle: {
+    margin: 0,
+    color: "#0b315f",
+    fontSize: "2rem",
+    fontWeight: 950,
   },
 
-  statusResolved: {
-    border: "1px solid #86efac",
-    backgroundColor: "#f0fdf4",
-    color: "#15803d",
-  },
-
-  statusDiscarded: {
-    border: "1px solid #fca5a5",
-    backgroundColor: "#fef2f2",
-    color: "#b91c1c",
+  loadingText: {
+    margin: "6px 0 0",
+    color: "#607a98",
+    fontSize: "1.4rem",
+    fontWeight: 650,
   },
 };
 

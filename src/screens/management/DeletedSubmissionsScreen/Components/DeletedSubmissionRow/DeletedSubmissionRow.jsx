@@ -1,6 +1,14 @@
 import React from "react";
 
 import {
+  CalendarDays,
+  FileImage,
+  FilePenLine,
+  MapPinned,
+  Trash2,
+} from "lucide-react";
+
+import {
   tableColumns,
 } from "../DeletedSubmissionsTable/styles";
 
@@ -19,9 +27,24 @@ function getInitial(name) {
     : "U";
 }
 
+function getTypeIcon(type) {
+  if (
+    type === "photo"
+  ) {
+    return FileImage;
+  }
+
+  if (
+    type === "description"
+  ) {
+    return FilePenLine;
+  }
+
+  return MapPinned;
+}
+
 export default function DeletedSubmissionRow({
   submission,
-  onViewSummary,
   onDelete,
 }) {
   const userName =
@@ -33,6 +56,11 @@ export default function DeletedSubmissionRow({
     submission.user?.photoURL ||
     "";
 
+  const TypeIcon =
+    getTypeIcon(
+      submission.type,
+    );
+
   return (
     <div
       style={{
@@ -41,7 +69,11 @@ export default function DeletedSubmissionRow({
           tableColumns,
       }}
     >
-      <div style={styles.proposalCell}>
+      <div
+        style={
+          styles.proposalCell
+        }
+      >
         {submission.previewImageUrl ? (
           <img
             src={
@@ -58,13 +90,10 @@ export default function DeletedSubmissionRow({
               styles.previewFallback
             }
           >
-            {submission.type ===
-            "photo"
-              ? "F"
-              : submission.type ===
-                  "description"
-                ? "D"
-                : "L"}
+            <TypeIcon
+              size={40}
+              strokeWidth={2.1}
+            />
           </div>
         )}
 
@@ -83,30 +112,75 @@ export default function DeletedSubmissionRow({
           >
             {submission.proposal}
           </span>
+
+          <span
+            style={
+              styles.proposalHint
+            }
+          >
+            Pendiente de eliminación
+            definitiva
+          </span>
         </div>
       </div>
 
-      <div style={styles.centeredCell}>
-  <span style={styles.typeBadge}>
-    {submission.typeLabel}
-  </span>
-</div>
+      <div
+        style={
+          styles.centeredCell
+        }
+      >
+        <span
+          style={
+            styles.typeBadge
+          }
+        >
+          <TypeIcon
+            size={44}
+            strokeWidth={2.2}
+          />
 
-    <span
-  style={{
-    ...styles.date,
-    ...styles.centeredCell,
-  }}
->
-  {submission.deletedAt}
-</span>
+          {
+            submission.typeLabel
+          }
+        </span>
+      </div>
 
-      <div style={styles.userCell}>
+      <div
+        style={
+          styles.centeredCell
+        }
+      >
+        <div
+          style={
+            styles.dateValue
+          }
+        >
+          <CalendarDays
+            size={44}
+            strokeWidth={2.2}
+          />
+
+          <span>
+            {
+              submission.deletedAt
+            }
+          </span>
+        </div>
+      </div>
+
+      <div
+        style={
+          styles.userCell
+        }
+      >
         {photoURL ? (
           <img
             src={photoURL}
             alt={`Foto de ${userName}`}
-            style={styles.avatar}
+            style={
+              styles.avatar
+            }
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div
@@ -114,50 +188,49 @@ export default function DeletedSubmissionRow({
               styles.avatarFallback
             }
           >
-            {getInitial(userName)}
+            {getInitial(
+              userName,
+            )}
           </div>
         )}
 
         <div
-          style={styles.userContent}
+          style={
+            styles.userContent
+          }
         >
           <span
-            style={styles.userName}
+            style={
+              styles.userName
+            }
           >
             {userName}
           </span>
         </div>
       </div>
 
-      <div style={styles.actions}>
-        <button
-          type="button"
-          style={
-            styles.summaryButton
-          }
-          onClick={() =>
-            onViewSummary(
-              submission
-            )
-          }
-        >
-          Ver resumen
-        </button>
-
-        <span style={styles.divider}>
-          |
-        </span>
-
+      <div
+        style={
+          styles.actions
+        }
+      >
         <button
           type="button"
           style={
             styles.deleteButton
           }
+          title="Eliminar definitivamente"
+          aria-label={`Eliminar definitivamente ${submission.proposal}`}
           onClick={() =>
-            onDelete(submission)
+            onDelete(
+              submission,
+            )
           }
         >
-          Eliminar
+          <Trash2
+            size={40}
+            strokeWidth={2.25}
+          />
         </button>
       </div>
     </div>

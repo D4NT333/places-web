@@ -284,7 +284,7 @@ export default function PlaceDetailCandidatesScreen() {
   const [
     selectedSchedule,
     setSelectedSchedule,
-  ] = useState("");
+  ] = useState(null);
 
   const [
     catalogLoading,

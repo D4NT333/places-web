@@ -452,6 +452,205 @@ const styles = {
     fontSize: "1.6rem",
     fontWeight: 750,
   },
+  scheduleSuggestionBox: {
+  display: "grid",
+  gap: "10px",
+  padding: "14px",
+  marginTop: "12px",
+
+  border:
+    "1px solid rgba(33, 118, 229, 0.22)",
+
+  borderRadius: "12px",
+
+  background:
+    "linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(247, 251, 255, 0.98))",
+},
+
+scheduleSuggestionHeader: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent:
+    "space-between",
+  gap: "12px",
+  flexWrap: "wrap",
+},
+
+scheduleSuggestionTitle: {
+  margin: 0,
+  color: "#1766c2",
+  fontSize: "36px",
+  fontWeight: 800,
+},
+
+scheduleSuggestionActions: {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  flexWrap: "wrap",
+},
+
+scheduleActionButton: {
+  minHeight: "16px",
+  padding: "7px 12px",
+  border:
+    "1px solid rgba(33, 118, 229, 0.28)",
+  borderRadius: "10px",
+  background: "#ffffff",
+  color: "#1766c2",
+  fontWeight: 800,
+  cursor: "pointer",
+},
+
+scheduleActionButtonActive: {
+  background: "#2176e5",
+  color: "#ffffff",
+  borderColor: "#2176e5",
+},
+
+scheduleActionButtonDisabled: {
+  opacity: 0.5,
+  cursor: "not-allowed",
+},
+
+googleScheduleList: {
+  display: "grid",
+  gap: "4px",
+},
+
+googleScheduleLine: {
+  margin: 0,
+  color: "#4c6787",
+  fontSize: "23px",
+  fontWeight: 700,
+},
+
+googleScheduleEmpty: {
+  margin: 0,
+  color: "#6f8299",
+  fontSize: "20px",
+  fontWeight: 700,
+},
+
+scheduleEditor: {
+  display: "grid",
+  gap: "7px",
+  marginTop: "12px",
+},
+
+scheduleHeader: {
+  display: "grid",
+
+  gridTemplateColumns:
+    "minmax(92px, 1fr) 106px minmax(105px, 0.8fr) minmax(105px, 0.8fr)",
+
+  gap: "8px",
+  padding: "0 10px",
+
+  color: "#4d6682",
+  fontSize: "20px",
+  fontWeight: 800,
+},
+
+scheduleRow: {
+  display: "grid",
+
+  gridTemplateColumns:
+    "minmax(92px, 1fr) 56px minmax(105px, 0.8fr) minmax(105px, 0.8fr)",
+
+  alignItems: "center",
+  gap: "8px",
+  minHeight: "44px",
+  padding: "7px 10px",
+
+  border:
+    "1px solid rgba(91, 128, 170, 0.2)",
+
+  borderRadius: "10px",
+
+  background:
+    "rgba(255, 255, 255, 0.82)",
+},
+
+scheduleDayLabel: {
+  color: "#17375f",
+  fontSize: "24px",
+  fontWeight: 800,
+},
+
+scheduleToggleButton: {
+  position: "relative",
+  width: "42px",
+  height: "24px",
+  padding: 0,
+  border: 0,
+  borderRadius: "999px",
+  background: "#c9d3df",
+  cursor: "pointer",
+},
+
+scheduleToggleButtonActive: {
+  background: "#2176e5",
+},
+
+scheduleToggleKnob: {
+  position: "absolute",
+  top: "3px",
+  left: "3px",
+  width: "18px",
+  height: "18px",
+  borderRadius: "50%",
+  background: "#ffffff",
+
+  boxShadow:
+    "0 1px 4px rgba(16, 42, 71, 0.22)",
+
+  transition:
+    "transform 160ms ease",
+},
+
+scheduleToggleKnobActive: {
+  transform:
+    "translateX(18px)",
+},
+
+scheduleTimeInput: {
+  width: "100%",
+  minWidth: 0,
+  height: "34px",
+  padding: "5px 8px",
+
+  border:
+    "1px solid rgba(91, 128, 170, 0.28)",
+
+  borderRadius: "8px",
+  background: "#ffffff",
+  color: "#17375f",
+  fontWeight: 700,
+  boxSizing: "border-box",
+},
+
+scheduleClosedValue: {
+  gridColumn: "3 / 5",
+  minHeight: "34px",
+
+  display: "flex",
+  alignItems: "center",
+
+  padding: "5px 10px",
+
+  border:
+    "1px solid rgba(91, 128, 170, 0.16)",
+
+  borderRadius: "8px",
+
+  background:
+    "rgba(235, 241, 247, 0.72)",
+
+  color: "#71849a",
+  fontSize: "20px",
+  fontWeight: 800,
+},
 };
 
 export default styles;

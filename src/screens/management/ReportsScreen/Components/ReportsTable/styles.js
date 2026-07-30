@@ -1,50 +1,60 @@
 const styles = {
   tableWrapper: {
     width: "100%",
+    overflow: "hidden",
+    background:
+      "linear-gradient(180deg, rgba(255,255,255,0.99), rgba(249,252,255,0.99))",
+    border: "1px solid #cbdced",
+    borderRadius: "17px",
+    boxShadow:
+      "0 15px 38px rgba(29, 70, 115, 0.13)",
+  },
+
+  tableScroller: {
+    width: "100%",
     overflowX: "auto",
-    border: "1px solid #d9dee7",
-    borderRadius: 16,
-    background: "#ffffff",
-    boxShadow: "0 10px 30px rgba(15, 23, 42, 0.04)",
   },
 
   table: {
     width: "100%",
-    minWidth: 1050,
+    minWidth: "1350px",
     borderCollapse: "collapse",
     tableLayout: "fixed",
   },
 
   headerRow: {
-    height: 54,
-    background: "#ffffff",
+    height: "58px",
+    background:
+      "linear-gradient(90deg, #f5faff, #eaf3ff)",
   },
 
   headerCell: {
     padding: "0 18px",
-    borderBottom: "1px solid #d9dee7",
-    color: "#0f172a",
-    fontSize: 13,
-    fontWeight: 800,
+    color: "#0c2e5d",
+    borderBottom: "1px solid #cfdeed",
+    fontSize: "2rem",
+    fontWeight: 950,
     textAlign: "left",
     whiteSpace: "nowrap",
   },
 
   bodyRow: {
-    height: 104,
-    background: "#ffffff",
+    height: "92px",
+    background:
+      "rgba(255, 255, 255, 0.84)",
     cursor: "pointer",
+    outline: "none",
     transition:
-      "background 160ms ease, transform 160ms ease, box-shadow 160ms ease",
+      "background 160ms ease, box-shadow 160ms ease",
   },
 
   bodyCell: {
-    padding: "18px",
-    color: "#0f172a",
-    fontSize: 14,
-    fontWeight: 700,
+    padding: "14px 18px",
+    color: "#17365e",
+    borderBottom: "1px solid #dbe6f1",
+    fontSize: "2rem",
+    fontWeight: 750,
     verticalAlign: "middle",
-    borderBottom: "1px solid #e8ecf2",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -55,11 +65,11 @@ const styles = {
   },
 
   reasonCell: {
-    width: "21%",
+    width: "20%",
   },
 
   relatedCell: {
-    width: "25%",
+    width: "24%",
   },
 
   dateCell: {
@@ -71,45 +81,103 @@ const styles = {
   },
 
   statusCell: {
-    width: "10%",
+    width: "9%",
+  },
+
+  selectionHeader: {
+    width: "3%",
+    padding: 0,
+    borderBottom: "1px solid #cfdeed",
+  },
+
+  selectionCell: {
+    width: "3%",
+    padding: "0 11px 0 0",
+    color: "#2176e5",
+    borderBottom: "1px solid #dbe6f1",
+    textAlign: "center",
+    verticalAlign: "middle",
+  },
+
+  reasonValue: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    minWidth: 0,
+    color: "#d7830e",
   },
 
   strongText: {
-    color: "#0f172a",
-    fontWeight: 800,
+    overflow: "hidden",
+    color: "#0d315f",
+    fontWeight: 900,
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+
+  relatedValue: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    minWidth: 0,
+    color: "#2176e5",
   },
 
   relatedText: {
-    color: "#0f172a",
+    overflow: "hidden",
+    color: "#294f77",
     fontWeight: 800,
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+
+  dateValue: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    color: "#2583f4",
   },
 
   emptyState: {
-    minHeight: 280,
-    border: "1px solid #d9dee7",
-    borderRadius: 16,
-    background: "#ffffff",
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    textAlign: "center",
-    padding: 24,
+    flexDirection: "column",
+    minHeight: "300px",
+    padding: "30px",
     boxSizing: "border-box",
+    background:
+      "linear-gradient(135deg, #ffffff, #f6faff)",
+    border: "1px solid #cbdced",
+    borderRadius: "17px",
+    textAlign: "center",
+  },
+
+  emptyIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "80px",
+    height: "80px",
+    marginBottom: "14px",
+    color: "#7389a2",
+    background: "#eef4fa",
+    border: "1px solid #d1deeb",
+    borderRadius: "999px",
   },
 
   emptyTitle: {
     margin: 0,
-    color: "#111827",
-    fontSize: 18,
-    fontWeight: 800,
+    color: "#0b315f",
+    fontSize: "2.1rem",
+    fontWeight: 950,
   },
 
   emptyText: {
     margin: "8px 0 0",
-    color: "#6b7280",
-    fontSize: 14,
-    fontWeight: 600,
+    color: "#607a98",
+    fontSize: "1.55rem",
+    fontWeight: 650,
   },
 };
 

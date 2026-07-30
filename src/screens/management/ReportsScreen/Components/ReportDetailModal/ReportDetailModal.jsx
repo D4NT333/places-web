@@ -1,4 +1,24 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  AlertCircle,
+  CalendarDays,
+  CheckCircle2,
+  CircleX,
+  Clock3,
+  FileWarning,
+  Flag,
+  MapPinned,
+  MessageSquareWarning,
+  Send,
+  ShieldAlert,
+  UserRound,
+  X,
+} from "lucide-react";
 
 import styles from "./styles";
 
@@ -14,7 +34,6 @@ const STATUS_LABELS = {
   resolved: "Resuelto",
   dismissed: "Descartado",
 };
-
 
 const PRIORITY_LABELS = {
   low: "Baja",
@@ -56,13 +75,16 @@ function formatDate(value) {
     return "Sin fecha";
   }
 
-  return new Intl.DateTimeFormat("es-MX", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  return new Intl.DateTimeFormat(
+    "es-MX",
+    {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    },
+  ).format(date);
 }
 
 function getTargetType(report) {
@@ -75,7 +97,10 @@ function getTargetType(report) {
   );
 }
 
-function getRelatedEntity(report, targetType) {
+function getRelatedEntity(
+  report,
+  targetType,
+) {
   if (targetType === "user") {
     return {
       id:
@@ -98,7 +123,8 @@ function getRelatedEntity(report, targetType) {
         report?.reportedUser?.photoURL ||
         null,
 
-      actionLabel: "Ver usuario",
+      actionLabel:
+        "Ver usuario",
     };
   }
 
@@ -174,7 +200,32 @@ function getInitials(name = "") {
       .toUpperCase();
   }
 
-  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+  return `${words[0][0]}${words[1][0]}`
+    .toUpperCase();
+}
+
+function getTargetIcon(targetType) {
+  if (targetType === "place") {
+    return MapPinned;
+  }
+
+  if (targetType === "user") {
+    return UserRound;
+  }
+
+  return FileWarning;
+}
+
+function getStatusIcon(status) {
+  if (status === "resolved") {
+    return CheckCircle2;
+  }
+
+  if (status === "dismissed") {
+    return CircleX;
+  }
+
+  return Clock3;
 }
 
 export default function ReportDetailModal({
@@ -182,45 +233,69 @@ export default function ReportDetailModal({
   report,
   loading = false,
   isSubmitting = false,
-
   submitError = "",
-
   onClose,
   onValidate,
   onDiscard,
   onOpenRelated,
   onOpenReporter,
 }) {
-  const [selectedAction, setSelectedAction] =
-    useState(null);
+  const [
+    selectedAction,
+    setSelectedAction,
+  ] = useState(null);
 
-  const [resolutionNote, setResolutionNote] =
-    useState("");
+  const [
+    resolutionNote,
+    setResolutionNote,
+  ] = useState("");
 
-  const [errorMessage, setErrorMessage] =
-    useState("");
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState("");
 
   const targetType = useMemo(
-    () => getTargetType(report),
-    [report]
+    () =>
+      getTargetType(report),
+    [report],
   );
 
   const relatedEntity = useMemo(
-    () => getRelatedEntity(report, targetType),
-    [report, targetType]
+    () =>
+      getRelatedEntity(
+        report,
+        targetType,
+      ),
+    [
+      report,
+      targetType,
+    ],
   );
 
   const reporter = useMemo(
-    () => getReporter(report),
-    [report]
+    () =>
+      getReporter(report),
+    [report],
   );
 
   const status =
-    report?.status || "pending";
+    report?.status ||
+    "pending";
 
   const canResolveReport =
-  status === "pending" ||
-  status === "in_review";
+    status === "pending" ||
+    status === "in_review";
+
+  const TargetIcon =
+    getTargetIcon(
+      targetType,
+    );
+
+  const StatusIcon =
+    getStatusIcon(
+      status,
+    );
 
   useEffect(() => {
     if (!isOpen) {
@@ -238,20 +313,21 @@ export default function ReportDetailModal({
     const previousOverflow =
       document.body.style.overflow;
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+      "hidden";
 
-    const handleKeyDown = (event) => {
+    function handleKeyDown(event) {
       if (
         event.key === "Escape" &&
         !isSubmitting
       ) {
         onClose?.();
       }
-    };
+    }
 
     window.addEventListener(
       "keydown",
-      handleKeyDown
+      handleKeyDown,
     );
 
     return () => {
@@ -260,7 +336,7 @@ export default function ReportDetailModal({
 
       window.removeEventListener(
         "keydown",
-        handleKeyDown
+        handleKeyDown,
       );
     };
   }, [
@@ -273,27 +349,28 @@ export default function ReportDetailModal({
     return null;
   }
 
-  const handleOverlayClick = (event) => {
+  function handleOverlayClick(event) {
     if (
-      event.target === event.currentTarget &&
+      event.target ===
+        event.currentTarget &&
       !isSubmitting
     ) {
       onClose?.();
     }
-  };
+  }
 
-  const handleSelectAction = (action) => {
+  function handleSelectAction(action) {
     setSelectedAction(action);
     setErrorMessage("");
-  };
+  }
 
-  const handleSubmit = () => {
+  function handleSubmit() {
     const cleanNote =
       resolutionNote.trim();
 
     if (!selectedAction) {
       setErrorMessage(
-        "Selecciona una acción para el reporte."
+        "Selecciona una acción para el reporte.",
       );
 
       return;
@@ -301,7 +378,7 @@ export default function ReportDetailModal({
 
     if (cleanNote.length < 10) {
       setErrorMessage(
-        "La nota de resolución debe tener al menos 10 caracteres."
+        "La nota de resolución debe tener al menos 10 caracteres.",
       );
 
       return;
@@ -312,30 +389,44 @@ export default function ReportDetailModal({
         report?.reportId ||
         report?.id,
 
-      resolutionNote: cleanNote,
+      resolutionNote:
+        cleanNote,
     };
 
-    if (selectedAction === "resolved") {
-  onValidate?.(payload);
-  return;
-}
+    if (
+      selectedAction ===
+      "resolved"
+    ) {
+      onValidate?.(
+        payload,
+      );
 
-if (selectedAction === "dismissed") {
-  onDiscard?.(payload);
-}
-  };
+      return;
+    }
+
+    if (
+      selectedAction ===
+      "dismissed"
+    ) {
+      onDiscard?.(
+        payload,
+      );
+    }
+  }
 
   const statusStyle = {
-  ...styles.statusChip,
-  ...(status === "resolved"
-    ? styles.statusResolved
-    : status === "dismissed"
-      ? styles.statusDiscarded
-      : styles.statusPending),
-};
+    ...styles.statusChip,
+
+    ...(status === "resolved"
+      ? styles.statusResolved
+      : status === "dismissed"
+        ? styles.statusDiscarded
+        : styles.statusPending),
+  };
 
   const targetStyle = {
     ...styles.targetChip,
+
     ...(targetType === "user"
       ? styles.targetUser
       : targetType === "place"
@@ -346,7 +437,9 @@ if (selectedAction === "dismissed") {
   return (
     <div
       style={styles.overlay}
-      onMouseDown={handleOverlayClick}
+      onMouseDown={
+        handleOverlayClick
+      }
     >
       <section
         style={styles.modal}
@@ -354,248 +447,522 @@ if (selectedAction === "dismissed") {
         aria-modal="true"
         aria-labelledby="report-detail-title"
       >
-        <header style={styles.header}>
-          <div>
-            <div style={styles.headerTopRow}>
-              <h2
-                id="report-detail-title"
-                style={styles.title}
-              >
-                Detalle del reporte
-              </h2>
+        <div
+          aria-hidden="true"
+          style={styles.topAccent}
+        />
 
-              <span style={targetStyle}>
-                {TARGET_LABELS[targetType] ||
-                  "General"}
-              </span>
+        <header style={styles.header}>
+          <div style={styles.headerContent}>
+            <div style={styles.headerIcon}>
+              <MessageSquareWarning
+                size={40}
+                strokeWidth={2.15}
+              />
             </div>
 
-            <p style={styles.subtitle}>
-              Revisa la información antes de tomar
-              una decisión.
-            </p>
+            <div style={styles.headerText}>
+              <div
+                style={
+                  styles.headerTitleRow
+                }
+              >
+                <h2
+                  id="report-detail-title"
+                  style={styles.title}
+                >
+                  Detalle del reporte
+                </h2>
+
+                <span style={targetStyle}>
+                  <TargetIcon
+                    size={40}
+                    strokeWidth={2.2}
+                  />
+
+                  {TARGET_LABELS[
+                    targetType
+                  ] || "General"}
+                </span>
+              </div>
+
+              <p style={styles.subtitle}>
+                Revisa la información antes
+                de tomar una decisión.
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
-            style={styles.closeButton}
+            style={{
+              ...styles.closeButton,
+
+              ...(isSubmitting
+                ? styles.disabledControl
+                : {}),
+            }}
             onClick={onClose}
-            disabled={isSubmitting}
+            disabled={
+              isSubmitting
+            }
             aria-label="Cerrar modal"
           >
-            ×
+            <X
+              size={40}
+              strokeWidth={2.4}
+            />
           </button>
         </header>
 
         {loading ? (
           <div style={styles.loadingState}>
-            Cargando detalle del reporte...
+            <div style={styles.loadingIcon}>
+              <Clock3
+                size={48}
+                strokeWidth={2.1}
+              />
+            </div>
+
+            <h3 style={styles.loadingTitle}>
+              Cargando reporte
+            </h3>
+
+            <p style={styles.loadingText}>
+              Obteniendo la información
+              completa del reporte.
+            </p>
           </div>
         ) : (
           <>
             <div style={styles.body}>
-              <section style={styles.summaryCard}>
-                <div style={styles.summaryHeader}>
-                  <h3 style={styles.sectionTitle}>
-                    Información general
-                  </h3>
+              <section
+                style={
+                  styles.summaryCard
+                }
+              >
+                <div
+                  style={
+                    styles.summaryHeader
+                  }
+                >
+                  <div
+                    style={
+                      styles.sectionHeading
+                    }
+                  >
+                    <FileWarning
+                      size={40}
+                      strokeWidth={2.2}
+                    />
+
+                    <h3
+                      style={
+                        styles.sectionTitle
+                      }
+                    >
+                      Información general
+                    </h3>
+                  </div>
 
                   <span style={statusStyle}>
-                    {STATUS_LABELS[status] ||
-                      "Pendiente"}
+                    <StatusIcon
+                      size={40}
+                      strokeWidth={2.2}
+                    />
+
+                    {STATUS_LABELS[
+                      status
+                    ] || "Pendiente"}
                   </span>
                 </div>
 
                 <div style={styles.infoGrid}>
-                  <div style={styles.infoItem}>
-  <span style={styles.infoLabel}>
-    Motivo
-  </span>
+                  <article
+                    style={styles.infoCard}
+                  >
+                    <div style={styles.infoIcon}>
+                      <Flag
+                        size={40}
+                        strokeWidth={2.2}
+                      />
+                    </div>
 
-  <strong style={styles.infoValue}>
-    {report?.reasonLabel ||
-      report?.reason ||
-      "Sin motivo"}
-  </strong>
-</div>
+                    <div style={styles.infoContent}>
+                      <span
+                        style={styles.infoLabel}
+                      >
+                        Motivo
+                      </span>
 
-                  <div style={styles.infoItem}>
-                    <span style={styles.infoLabel}>
-                      Prioridad
-                    </span>
+                      <strong
+                        style={styles.infoValue}
+                      >
+                        {report?.reasonLabel ||
+                          report?.reason ||
+                          "Sin motivo"}
+                      </strong>
+                    </div>
+                  </article>
 
-                    <strong style={styles.infoValue}>
-                      {PRIORITY_LABELS[
-                        report?.priority
-                      ] ||
-                        report?.priority ||
-                        "Sin prioridad"}
-                    </strong>
-                  </div>
+                  <article
+                    style={styles.infoCard}
+                  >
+                    <div style={styles.infoIcon}>
+                      <ShieldAlert
+                        size={40}
+                        strokeWidth={2.2}
+                      />
+                    </div>
 
-                  <div style={styles.infoItem}>
-                    <span style={styles.infoLabel}>
-                      Fecha
-                    </span>
+                    <div style={styles.infoContent}>
+                      <span
+                        style={styles.infoLabel}
+                      >
+                        Prioridad
+                      </span>
 
-                    <strong style={styles.infoValue}>
-                      {formatDate(
-                        report?.createdAt ||
-                          report?.date
-                      )}
-                    </strong>
-                  </div>
+                      <strong
+                        style={styles.infoValue}
+                      >
+                        {PRIORITY_LABELS[
+                          report?.priority
+                        ] ||
+                          report?.priority ||
+                          "Sin prioridad"}
+                      </strong>
+                    </div>
+                  </article>
 
-                  <div style={styles.infoItem}>
-                    <span style={styles.infoLabel}>
-                      Origen
-                    </span>
+                  <article
+                    style={styles.infoCard}
+                  >
+                    <div style={styles.infoIcon}>
+                      <CalendarDays
+                        size={40}
+                        strokeWidth={2.2}
+                      />
+                    </div>
 
-                    <strong style={styles.infoValue}>
-  {getSourceLabel(report)}
-</strong>
-                  </div>
+                    <div style={styles.infoContent}>
+                      <span
+                        style={styles.infoLabel}
+                      >
+                        Fecha
+                      </span>
+
+                      <strong
+                        style={styles.infoValue}
+                      >
+                        {formatDate(
+                          report?.createdAt ||
+                            report?.date,
+                        )}
+                      </strong>
+                    </div>
+                  </article>
+
+                  <article
+                    style={styles.infoCard}
+                  >
+                    <div style={styles.infoIcon}>
+                      <TargetIcon
+                        size={40}
+                        strokeWidth={2.2}
+                      />
+                    </div>
+
+                    <div style={styles.infoContent}>
+                      <span
+                        style={styles.infoLabel}
+                      >
+                        Origen
+                      </span>
+
+                      <strong
+                        style={styles.infoValue}
+                      >
+                        {getSourceLabel(
+                          report,
+                        )}
+                      </strong>
+                    </div>
+                  </article>
                 </div>
               </section>
 
-              <div style={styles.twoColumnGrid}>
-                <section style={styles.entityCard}>
-  <span style={styles.eyebrow}>
-    Relacionado con
-  </span>
+              <div
+                style={
+                  styles.twoColumnGrid
+                }
+              >
+                <section
+                  style={
+                    styles.entityCard
+                  }
+                >
+                  <div
+                    style={
+                      styles.entityCardHeader
+                    }
+                  >
+                    <TargetIcon
+                      size={40}
+                      strokeWidth={2.2}
+                    />
 
-  {targetType === "user" ? (
-    <div style={styles.reporterRow}>
-      <div style={styles.avatar}>
-        {relatedEntity.photoURL ? (
-          <img
-            src={relatedEntity.photoURL}
-            alt={relatedEntity.name}
-            style={styles.avatarImage}
-          />
-        ) : (
-          <span style={styles.avatarText}>
-            {getInitials(relatedEntity.name)}
-          </span>
-        )}
-      </div>
+                    <span
+                      style={
+                        styles.entityCardTitle
+                      }
+                    >
+                      Relacionado con
+                    </span>
+                  </div>
 
-      <div style={styles.reporterText}>
-        <strong style={styles.reporterName}>
-          {relatedEntity.name}
-        </strong>
+                  {targetType ===
+                  "user" ? (
+                    <div
+                      style={
+                        styles.reporterRow
+                      }
+                    >
+                      <div
+                        style={
+                          styles.avatar
+                        }
+                      >
+                        {relatedEntity.photoURL ? (
+                          <img
+                            src={
+                              relatedEntity.photoURL
+                            }
+                            alt={
+                              relatedEntity.name
+                            }
+                            style={
+                              styles.avatarImage
+                            }
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <span
+                            style={
+                              styles.avatarText
+                            }
+                          >
+                            {getInitials(
+                              relatedEntity.name,
+                            )}
+                          </span>
+                        )}
+                      </div>
 
-        {relatedEntity.email ? (
-          <span style={styles.reporterEmail}>
-            {relatedEntity.email}
-          </span>
-        ) : (
-          <span style={styles.reporterEmail}>
-            Usuario señalado
-          </span>
-        )}
-      </div>
+                      <div
+                        style={
+                          styles.reporterText
+                        }
+                      >
+                        <strong
+                          style={
+                            styles.reporterName
+                          }
+                        >
+                          {
+                            relatedEntity.name
+                          }
+                        </strong>
 
-      {relatedEntity.id ? (
-        <button
-          type="button"
-          style={styles.secondaryButton}
-          onClick={() =>
-            onOpenRelated?.({
-              targetType,
-              id: relatedEntity.id,
-              report,
-            })
-          }
-        >
-          Ver usuario
-        </button>
-      ) : null}
-    </div>
-  ) : (
-    <>
-      <div style={styles.entityHeader}>
-        <div>
-          <h3 style={styles.entityName}>
-            {relatedEntity.name}
-          </h3>
-        </div>
+                        <span
+                          style={
+                            styles.reporterEmail
+                          }
+                        >
+                          {relatedEntity.email ||
+                            "Usuario señalado"}
+                        </span>
+                      </div>
 
-        {relatedEntity.id &&
-        relatedEntity.actionLabel ? (
-          <button
-            type="button"
-            style={styles.secondaryButton}
-            onClick={() =>
-              onOpenRelated?.({
-                targetType,
-                id: relatedEntity.id,
-                report,
-              })
-            }
-          >
-            {relatedEntity.actionLabel}
-          </button>
-        ) : null}
-      </div>
+                      {relatedEntity.id ? (
+                        <button
+                          type="button"
+                          style={
+                            styles.secondaryButton
+                          }
+                          onClick={() =>
+                            onOpenRelated?.({
+                              targetType,
+                              id:
+                                relatedEntity.id,
+                              report,
+                            })
+                          }
+                        >
+                          <UserRound
+                            size={40}
+                            strokeWidth={2.2}
+                          />
 
-      <p style={styles.entityDescription}>
-        {targetType === "place"
-          ? "Lugar relacionado con el reporte."
-          : "El reporte está relacionado con el funcionamiento general del sistema."}
-      </p>
-    </>
-  )}
-</section>
+                          Ver usuario
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div
+                      style={
+                        styles.relatedPlaceContent
+                      }
+                    >
+                      <div
+                        style={
+                          styles.relatedPlaceText
+                        }
+                      >
+                        <strong
+                          style={
+                            styles.entityName
+                          }
+                        >
+                          {
+                            relatedEntity.name
+                          }
+                        </strong>
 
-                <section style={styles.entityCard}>
-                  <span style={styles.eyebrow}>
-                    Realizado por
-                  </span>
+                        <span
+                          style={
+                            styles.entityDescription
+                          }
+                        >
+                          {targetType ===
+                          "place"
+                            ? "Lugar relacionado con el reporte."
+                            : "Reporte relacionado con el funcionamiento general del sistema."}
+                        </span>
+                      </div>
 
-                  <div style={styles.reporterRow}>
-                    <div style={styles.avatar}>
+                      {relatedEntity.id &&
+                      relatedEntity.actionLabel ? (
+                        <button
+                          type="button"
+                          style={
+                            styles.secondaryButton
+                          }
+                          onClick={() =>
+                            onOpenRelated?.({
+                              targetType,
+                              id:
+                                relatedEntity.id,
+                              report,
+                            })
+                          }
+                        >
+                          <MapPinned
+                            size={22}
+                            strokeWidth={2.2}
+                          />
+
+                          {
+                            relatedEntity.actionLabel
+                          }
+                        </button>
+                      ) : null}
+                    </div>
+                  )}
+                </section>
+
+                <section
+                  style={
+                    styles.entityCard
+                  }
+                >
+                  <div
+                    style={
+                      styles.entityCardHeader
+                    }
+                  >
+                    <UserRound
+                      size={26}
+                      strokeWidth={2.2}
+                    />
+
+                    <span
+                      style={
+                        styles.entityCardTitle
+                      }
+                    >
+                      Realizado por
+                    </span>
+                  </div>
+
+                  <div
+                    style={
+                      styles.reporterRow
+                    }
+                  >
+                    <div
+                      style={
+                        styles.avatar
+                      }
+                    >
                       {reporter.photoURL ? (
                         <img
-                          src={reporter.photoURL}
-                          alt={reporter.name}
-                          style={styles.avatarImage}
+                          src={
+                            reporter.photoURL
+                          }
+                          alt={
+                            reporter.name
+                          }
+                          style={
+                            styles.avatarImage
+                          }
+                          referrerPolicy="no-referrer"
                         />
                       ) : (
-                        <span style={styles.avatarText}>
+                        <span
+                          style={
+                            styles.avatarText
+                          }
+                        >
                           {getInitials(
-                            reporter.name
+                            reporter.name,
                           )}
                         </span>
                       )}
                     </div>
 
-                    <div style={styles.reporterText}>
+                    <div
+                      style={
+                        styles.reporterText
+                      }
+                    >
                       <strong
-                        style={styles.reporterName}
+                        style={
+                          styles.reporterName
+                        }
                       >
                         {reporter.name}
                       </strong>
 
-                      {reporter.email ? (
-                        <span
-                          style={styles.reporterEmail}
-                        >
-                          {reporter.email}
-                        </span>
-                      ) : null}
+          
                     </div>
 
                     {reporter.id ? (
                       <button
                         type="button"
-                        style={styles.secondaryButton}
+                        style={
+                          styles.secondaryButton
+                        }
                         onClick={() =>
                           onOpenReporter?.(
-                            reporter.id
+                            reporter.id,
                           )
                         }
                       >
+                        <UserRound
+                          size={40}
+                          strokeWidth={2.2}
+                        />
+
                         Ver perfil
                       </button>
                     ) : null}
@@ -603,53 +970,128 @@ if (selectedAction === "dismissed") {
                 </section>
               </div>
 
-              <section style={styles.messageCard}>
-                <h3 style={styles.sectionTitle}>
-                  Mensaje del reporte
-                </h3>
+              <section
+                style={
+                  styles.messageCard
+                }
+              >
+                <div
+                  style={
+                    styles.messageHeader
+                  }
+                >
+                  <MessageSquareWarning
+                    size={40}
+                    strokeWidth={2.2}
+                  />
 
-                <p style={styles.messageText}>
+                  <h3
+                    style={
+                      styles.sectionTitle
+                    }
+                  >
+                    Mensaje del reporte
+                  </h3>
+                </div>
+
+                <p
+                  style={
+                    styles.messageText
+                  }
+                >
                   {report?.message ||
                     "El usuario no agregó una descripción."}
                 </p>
               </section>
 
-             {(
-  status === "resolved" ||
-  status === "dismissed"
-) ? (
-  <section style={styles.resolutionCard}>
-                  <h3 style={styles.sectionTitle}>
-                    Resolución
-                  </h3>
+              {(
+                status === "resolved" ||
+                status === "dismissed"
+              ) ? (
+                <section
+                  style={
+                    styles.resolutionCard
+                  }
+                >
+                  <div
+                    style={
+                      styles.resolutionHeader
+                    }
+                  >
+                    <CheckCircle2
+                      size={40}
+                      strokeWidth={2.2}
+                    />
 
-                  <div style={styles.resolutionGrid}>
-                    <div style={styles.infoItem}>
-                      <span style={styles.infoLabel}>
+                    <h3
+                      style={
+                        styles.sectionTitle
+                      }
+                    >
+                      Resolución
+                    </h3>
+                  </div>
+
+                  <div
+                    style={
+                      styles.resolutionGrid
+                    }
+                  >
+                    <article
+                      style={
+                        styles.resolutionInfo
+                      }
+                    >
+                      <span
+                        style={
+                          styles.infoLabel
+                        }
+                      >
                         Resuelto por
                       </span>
 
-                      <strong style={styles.infoValue}>
-                        {report?.resolvedBy?.name ||
+                      <strong
+                        style={
+                          styles.infoValue
+                        }
+                      >
+                        {report?.resolvedBy
+                          ?.name ||
                           report?.resolvedBy ||
                           "Sin información"}
                       </strong>
-                    </div>
+                    </article>
 
-                    <div style={styles.infoItem}>
-                      <span style={styles.infoLabel}>
+                    <article
+                      style={
+                        styles.resolutionInfo
+                      }
+                    >
+                      <span
+                        style={
+                          styles.infoLabel
+                        }
+                      >
                         Fecha de resolución
                       </span>
 
-                      <strong style={styles.infoValue}>
+                      <strong
+                        style={
+                          styles.infoValue
+                        }
+                      >
                         {formatDate(
-                          report?.resolvedAt
+                          report?.resolvedAt,
                         )}
                       </strong>
-                    </div>
+                    </article>
                   </div>
 
-                  <p style={styles.resolutionNote}>
+                  <p
+                    style={
+                      styles.resolutionNote
+                    }
+                  >
                     {report?.resolutionNote ||
                       "No se registró una nota de resolución."}
                   </p>
@@ -657,58 +1099,150 @@ if (selectedAction === "dismissed") {
               ) : null}
 
               {canResolveReport ? (
-                <section style={styles.actionCard}>
-                  <h3 style={styles.sectionTitle}>
-                    Resolución del reporte
-                  </h3>
+                <section
+                  style={
+                    styles.actionCard
+                  }
+                >
+                  <div
+                    style={
+                      styles.actionHeader
+                    }
+                  >
+                    <ShieldAlert
+                      size={40}
+                      strokeWidth={2.2}
+                    />
 
-                  <div style={styles.actionOptions}>
-          <button
-  type="button"
-  style={{
-    ...styles.actionOption,
-    ...(selectedAction === "dismissed"
-      ? styles.actionOptionSelected
-      : {}),
-  }}
-  onClick={() =>
-    handleSelectAction("dismissed")
-  }
->
-  Descartar reporte
-</button>
+                    <div>
+                      <h3
+                        style={
+                          styles.sectionTitle
+                        }
+                      >
+                        Resolución del reporte
+                      </h3>
+
+                      <p
+                        style={
+                          styles.actionDescription
+                        }
+                      >
+                        Selecciona una decisión y
+                        registra una nota para el
+                        historial.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    style={
+                      styles.actionOptions
+                    }
+                  >
+                    <button
+                      type="button"
+                      style={{
+                        ...styles.actionOption,
+                        ...styles.discardOption,
+
+                        ...(selectedAction ===
+                        "dismissed"
+                          ? styles.discardOptionSelected
+                          : {}),
+                      }}
+                      onClick={() =>
+                        handleSelectAction(
+                          "dismissed",
+                        )
+                      }
+                    >
+                      <CircleX
+                        size={40}
+                        strokeWidth={2.2}
+                      />
+
+                      <span
+                        style={
+                          styles.actionOptionText
+                        }
+                      >
+                        <strong>
+                          Descartar reporte
+                        </strong>
+
+                        <small>
+                          No procede la denuncia.
+                        </small>
+                      </span>
+                    </button>
 
                     <button
                       type="button"
                       style={{
                         ...styles.actionOption,
+                        ...styles.validateOption,
+
                         ...(selectedAction ===
                         "resolved"
-                          ? styles.actionOptionSelected
+                          ? styles.validateOptionSelected
                           : {}),
                       }}
                       onClick={() =>
                         handleSelectAction(
-                          "resolved"
+                          "resolved",
                         )
                       }
                     >
-                      Validar reporte
+                      <CheckCircle2
+                        size={40}
+                        strokeWidth={2.2}
+                      />
+
+                      <span
+                        style={
+                          styles.actionOptionText
+                        }
+                      >
+                        <strong>
+                          Validar reporte
+                        </strong>
+
+                        <small>
+                          El reporte es procedente.
+                        </small>
+                      </span>
                     </button>
                   </div>
 
-                  <label style={styles.noteLabel}>
-                    Nota de resolución
+                  <label
+                    style={
+                      styles.noteLabel
+                    }
+                  >
+                    <span
+                      style={
+                        styles.noteLabelText
+                      }
+                    >
+                      Nota de resolución
+                    </span>
 
                     <textarea
-                      value={resolutionNote}
-                      style={styles.textarea}
+                      value={
+                        resolutionNote
+                      }
+                      style={
+                        styles.textarea
+                      }
                       placeholder="Explica brevemente la decisión tomada..."
                       maxLength={500}
-                      disabled={isSubmitting}
+                      disabled={
+                        isSubmitting
+                      }
                       onChange={(event) => {
                         setResolutionNote(
-                          event.target.value
+                          event.target.value,
                         );
 
                         if (errorMessage) {
@@ -718,43 +1252,129 @@ if (selectedAction === "dismissed") {
                     />
                   </label>
 
-                  <div style={styles.noteFooter}>
-                    <span style={styles.counter}>
-                      {resolutionNote.length}/500
+                  <div
+                    style={
+                      styles.noteFooter
+                    }
+                  >
+                    <span
+                      style={
+                        styles.counter
+                      }
+                    >
+                      {
+                        resolutionNote.length
+                      }
+                      /500
                     </span>
 
-                   {errorMessage || submitError ? (
-  <span style={styles.errorText}>
-    {errorMessage || submitError}
-  </span>
-) : null}
+                    {errorMessage ||
+                    submitError ? (
+                      <span
+                        style={
+                          styles.errorText
+                        }
+                      >
+                        {errorMessage ||
+                          submitError}
+                      </span>
+                    ) : (
+                      <span
+                        style={
+                          styles.helperText
+                        }
+                      >
+                        Mínimo 10 caracteres.
+                      </span>
+                    )}
                   </div>
                 </section>
               ) : null}
             </div>
 
             <footer style={styles.footer}>
-              <button
-                type="button"
-                style={styles.cancelButton}
-                onClick={onClose}
-                disabled={isSubmitting}
-              >
-                Cerrar
-              </button>
+              <div style={styles.footerNotice}>
+                {canResolveReport ? (
+                  <>
+                    <AlertCircle
+                      size={40}
+                      strokeWidth={2.2}
+                    />
 
-              {canResolveReport ? (
+                    <span>
+                      La decisión quedará registrada
+                      en el reporte.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2
+                      size={40}
+                      strokeWidth={2.2}
+                    />
+
+                    <span>
+                      Este reporte ya fue procesado.
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <div
+                style={
+                  styles.footerActions
+                }
+              >
                 <button
                   type="button"
-                  style={styles.submitButton}
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  style={{
+                    ...styles.cancelButton,
+
+                    ...(isSubmitting
+                      ? styles.disabledControl
+                      : {}),
+                  }}
+                  onClick={onClose}
+                  disabled={
+                    isSubmitting
+                  }
                 >
-                  {isSubmitting
-                    ? "Guardando..."
-                    : "Confirmar decisión"}
+                  <X
+                    size={40}
+                    strokeWidth={2.3}
+                  />
+
+                  Cerrar
                 </button>
-              ) : null}
+
+                {canResolveReport ? (
+                  <button
+                    type="button"
+                    style={{
+                      ...styles.submitButton,
+
+                      ...(isSubmitting
+                        ? styles.submitButtonDisabled
+                        : {}),
+                    }}
+                    onClick={
+                      handleSubmit
+                    }
+                    disabled={
+                      isSubmitting
+                    }
+                  >
+                    <Send
+                      size={40}
+                      strokeWidth={2.3}
+                    />
+
+                    {isSubmitting
+                      ? "Guardando..."
+                      : "Confirmar decisión"}
+                  </button>
+                ) : null}
+              </div>
             </footer>
           </>
         )}

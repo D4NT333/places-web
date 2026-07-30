@@ -1,3 +1,10 @@
+import {
+  CalendarDays,
+  ChevronRight,
+  FileWarning,
+  Link2,
+} from "lucide-react";
+
 import styles from "./styles";
 
 import {
@@ -7,7 +14,9 @@ import {
 } from "../index";
 
 function formatDate(value) {
-  if (!value) return "Sin fecha";
+  if (!value) {
+    return "Sin fecha";
+  }
 
   const date = new Date(value);
 
@@ -15,11 +24,14 @@ function formatDate(value) {
     return "Sin fecha";
   }
 
-  return date.toLocaleDateString("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return date.toLocaleDateString(
+    "es-MX",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    },
+  );
 }
 
 function getReasonLabel(report) {
@@ -44,15 +56,16 @@ function getRelatedLabel(report) {
 function getCreatedAtLabel(report) {
   return (
     report?.createdAtLabel ||
-    formatDate(report?.createdAt)
+    formatDate(
+      report?.createdAt,
+    )
   );
 }
 
 function getReporter(report) {
   return (
     report?.reporter ||
-    report?.user ||
-    {
+    report?.user || {
       name: "Usuario",
       photoURL: "",
     }
@@ -63,15 +76,38 @@ export default function ReportsTable({
   reports = [],
   onOpenReport,
 }) {
+  function handleRowKeyDown(
+    event,
+    report,
+  ) {
+    if (
+      event.key === "Enter" ||
+      event.key === " "
+    ) {
+      event.preventDefault();
+
+      onOpenReport?.(
+        report,
+      );
+    }
+  }
+
   if (!reports.length) {
     return (
       <div style={styles.emptyState}>
+        <div style={styles.emptyIcon}>
+          <FileWarning
+            size={48}
+            strokeWidth={2.1}
+          />
+        </div>
+
         <h3 style={styles.emptyTitle}>
           No hay reportes para mostrar
         </h3>
 
         <p style={styles.emptyText}>
-          Cuando existan reportes con este filtro
+          Cuando existan reportes con este filtro,
           aparecerán en esta tabla.
         </p>
       </div>
@@ -79,145 +115,218 @@ export default function ReportsTable({
   }
 
   return (
-    <div style={styles.tableWrapper}>
-      <table style={styles.table}>
-        <thead>
-          <tr style={styles.headerRow}>
-            <th
-              style={{
-                ...styles.headerCell,
-                ...styles.typeCell,
-              }}
-            >
-              Tipo
-            </th>
-
-            <th
-              style={{
-                ...styles.headerCell,
-                ...styles.reasonCell,
-              }}
-            >
-              Motivo
-            </th>
-
-            <th
-              style={{
-                ...styles.headerCell,
-                ...styles.relatedCell,
-              }}
-            >
-              Relacionado con
-            </th>
-
-            <th
-              style={{
-                ...styles.headerCell,
-                ...styles.dateCell,
-              }}
-            >
-              Fecha
-            </th>
-
-            <th
-              style={{
-                ...styles.headerCell,
-                ...styles.userCell,
-              }}
-            >
-              Realizado por
-            </th>
-
-            <th
-              style={{
-                ...styles.headerCell,
-                ...styles.statusCell,
-              }}
-            >
-              Estado
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {reports.map((report) => (
-            <tr
-              key={report.id || report.reportId}
-              style={styles.bodyRow}
-              onClick={() => onOpenReport?.(report)}
-              title="Abrir detalle del reporte"
-              onMouseEnter={(event) => {
-                event.currentTarget.style.background = "#f8fafc";
-                event.currentTarget.style.transform = "translateY(-1px)";
-                event.currentTarget.style.boxShadow = "inset 4px 0 0 #111827";
-              }}
-              onMouseLeave={(event) => {
-                event.currentTarget.style.background = "#ffffff";
-                event.currentTarget.style.transform = "translateY(0)";
-                event.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              <td
+    <section style={styles.tableWrapper}>
+      <div style={styles.tableScroller}>
+        <table style={styles.table}>
+          <thead>
+            <tr style={styles.headerRow}>
+              <th
                 style={{
-                  ...styles.bodyCell,
+                  ...styles.headerCell,
                   ...styles.typeCell,
                 }}
               >
-                <ReportTypePill type={report.type} />
-              </td>
+                TIPO
+              </th>
 
-              <td
+              <th
                 style={{
-                  ...styles.bodyCell,
+                  ...styles.headerCell,
                   ...styles.reasonCell,
                 }}
               >
-                <span style={styles.strongText}>
-                  {getReasonLabel(report)}
-                </span>
-              </td>
+                MOTIVO
+              </th>
 
-              <td
+              <th
                 style={{
-                  ...styles.bodyCell,
+                  ...styles.headerCell,
                   ...styles.relatedCell,
                 }}
               >
-                <span style={styles.relatedText}>
-                  {getRelatedLabel(report)}
-                </span>
-              </td>
+                RELACIONADO CON
+              </th>
 
-              <td
+              <th
                 style={{
-                  ...styles.bodyCell,
+                  ...styles.headerCell,
                   ...styles.dateCell,
                 }}
               >
-                {getCreatedAtLabel(report)}
-              </td>
+                FECHA
+              </th>
 
-              <td
+              <th
                 style={{
-                  ...styles.bodyCell,
+                  ...styles.headerCell,
                   ...styles.userCell,
                 }}
               >
-                <ReportUserCell user={getReporter(report)} />
-              </td>
+                REALIZADO POR
+              </th>
 
-              <td
+              <th
                 style={{
-                  ...styles.bodyCell,
+                  ...styles.headerCell,
                   ...styles.statusCell,
                 }}
               >
-                <ReportStatusPill status={report.status} />
-              </td>
+                ESTADO
+              </th>
+
+              <th
+                aria-label="Abrir detalle"
+                style={styles.selectionHeader}
+              />
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+
+          <tbody>
+            {reports.map((report) => (
+              <tr
+                key={
+                  report.id ||
+                  report.reportId
+                }
+                tabIndex={0}
+                role="button"
+                style={styles.bodyRow}
+                title="Abrir detalle del reporte"
+                aria-label={`Abrir reporte: ${getReasonLabel(
+                  report,
+                )}`}
+                onClick={() =>
+                  onOpenReport?.(
+                    report,
+                  )
+                }
+                onKeyDown={(event) =>
+                  handleRowKeyDown(
+                    event,
+                    report,
+                  )
+                }
+                onMouseEnter={(event) => {
+                  event.currentTarget.style.background =
+                    "#f5f9ff";
+
+                  event.currentTarget.style.boxShadow =
+                    "inset 5px 0 0 #2176e5";
+                }}
+                onMouseLeave={(event) => {
+                  event.currentTarget.style.background =
+                    "rgba(255, 255, 255, 0.84)";
+
+                  event.currentTarget.style.boxShadow =
+                    "none";
+                }}
+              >
+                <td
+                  style={{
+                    ...styles.bodyCell,
+                    ...styles.typeCell,
+                  }}
+                >
+                  <ReportTypePill
+                    type={report.type}
+                  />
+                </td>
+
+                <td
+                  style={{
+                    ...styles.bodyCell,
+                    ...styles.reasonCell,
+                  }}
+                >
+                  <div style={styles.reasonValue}>
+                    <FileWarning
+                      size={40}
+                      strokeWidth={2.15}
+                    />
+
+                    <span style={styles.strongText}>
+                      {getReasonLabel(
+                        report,
+                      )}
+                    </span>
+                  </div>
+                </td>
+
+                <td
+                  style={{
+                    ...styles.bodyCell,
+                    ...styles.relatedCell,
+                  }}
+                >
+                  <div style={styles.relatedValue}>
+                    <Link2
+                      size={40}
+                      strokeWidth={2.15}
+                    />
+
+                    <span style={styles.relatedText}>
+                      {getRelatedLabel(
+                        report,
+                      )}
+                    </span>
+                  </div>
+                </td>
+
+                <td
+                  style={{
+                    ...styles.bodyCell,
+                    ...styles.dateCell,
+                  }}
+                >
+                  <div style={styles.dateValue}>
+                    <CalendarDays
+                      size={36}
+                      strokeWidth={2.15}
+                    />
+
+                    <span>
+                      {getCreatedAtLabel(
+                        report,
+                      )}
+                    </span>
+                  </div>
+                </td>
+
+                <td
+                  style={{
+                    ...styles.bodyCell,
+                    ...styles.userCell,
+                  }}
+                >
+                  <ReportUserCell
+                    user={getReporter(
+                      report,
+                    )}
+                  />
+                </td>
+
+                <td
+                  style={{
+                    ...styles.bodyCell,
+                    ...styles.statusCell,
+                  }}
+                >
+                  <ReportStatusPill
+                    status={report.status}
+                  />
+                </td>
+
+                <td style={styles.selectionCell}>
+                  <ChevronRight
+                    size={29}
+                    strokeWidth={2.35}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
