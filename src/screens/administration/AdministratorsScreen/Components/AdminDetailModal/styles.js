@@ -13,7 +13,7 @@ const styles = {
   },
 
   modal: {
-    width: "min(720px, 100%)",
+    width: "min(1800px, 100%)",
     maxHeight: "calc(100vh - 48px)",
     overflow: "hidden",
     background:
@@ -63,7 +63,7 @@ const styles = {
   title: {
     margin: 0,
     color: "#0a2856",
-    fontSize: "1.55rem",
+    fontSize: "2.4rem",
     fontWeight: 900,
     letterSpacing: "-0.025em",
   },
@@ -71,7 +71,7 @@ const styles = {
   subtitle: {
     margin: 0,
     color: "#627b99",
-    fontSize: "0.88rem",
+    fontSize: "1.6rem",
     fontWeight: 550,
     lineHeight: 1.45,
   },
@@ -80,8 +80,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "34px",
-    height: "34px",
+    width: "54px",
+    height: "54px",
     flexShrink: 0,
     color: "#18365d",
     background: "#ffffff",
@@ -157,7 +157,7 @@ const styles = {
   sectionTitle: {
     margin: 0,
     color: "inherit",
-    fontSize: "0.98rem",
+    fontSize: "2rem",
     fontWeight: 900,
   },
 
@@ -199,13 +199,13 @@ const styles = {
 
   infoLabel: {
     color: "#607896",
-    fontSize: "0.72rem",
+    fontSize: "1.8rem",
     fontWeight: 700,
   },
 
   infoValue: {
     color: "#102d57",
-    fontSize: "0.84rem",
+    fontSize: "1.6rem",
     fontWeight: 800,
     overflowWrap: "anywhere",
   },
@@ -250,14 +250,14 @@ const styles = {
 
   activityLabel: {
     color: "#537168",
-    fontSize: "0.64rem",
+    fontSize: "1.8rem",
     fontWeight: 650,
     lineHeight: 1.2,
   },
 
   activityValue: {
     color: "#078e4a",
-    fontSize: "0.79rem",
+    fontSize: "2rem",
     fontWeight: 900,
   },
 
@@ -285,7 +285,7 @@ const styles = {
     border: "1px solid",
     borderRadius: "9px",
     fontFamily: "inherit",
-    fontSize: "0.76rem",
+    fontSize: "2rem",
     fontWeight: 850,
     cursor: "pointer",
   },
@@ -328,7 +328,7 @@ const styles = {
     background: "#fff9eb",
     border: "1px solid #f3d28d",
     borderRadius: "8px",
-    fontSize: "0.72rem",
+    fontSize: "1.6rem",
     fontWeight: 650,
   },
 
@@ -341,7 +341,7 @@ const styles = {
     background: "#f6f9fd",
     border: "1px solid #dbe5f0",
     borderRadius: "8px",
-    fontSize: "0.72rem",
+    fontSize: "1.72rem",
     fontWeight: 650,
   },
 
@@ -366,7 +366,7 @@ const styles = {
     borderRadius: "9px",
     boxShadow: "0 4px 10px rgba(40, 89, 145, 0.08)",
     fontFamily: "inherit",
-    fontSize: "0.8rem",
+    fontSize: "2rem",
     fontWeight: 850,
     cursor: "pointer",
   },

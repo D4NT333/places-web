@@ -26,7 +26,7 @@ export default function AdminRoleBadge({
           : styles.adminBadge),
       }}
     >
-      <Icon size={14} strokeWidth={2.2} />
+      <Icon size={30} strokeWidth={2.2} />
 
       {isSuperAdmin
         ? "Superadministrador"

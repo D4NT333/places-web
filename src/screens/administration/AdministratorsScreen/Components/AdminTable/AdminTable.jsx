@@ -171,7 +171,7 @@ export default function AdminTable({
                 <td style={styles.cell}>
                   <div style={styles.dateValue}>
                     <CalendarDays
-                      size={16}
+                      size={40}
                       color="#2583f4"
                       strokeWidth={2.2}
                     />
@@ -191,7 +191,7 @@ export default function AdminTable({
                 <td style={styles.cell}>
                   <div style={styles.dateValue}>
                     <CalendarDays
-                      size={16}
+                      size={40}
                       color="#2583f4"
                       strokeWidth={2.2}
                     />
@@ -217,7 +217,7 @@ export default function AdminTable({
                     style={styles.detailButton}
                   >
                     <Eye
-                      size={15}
+                      size={40}
                       strokeWidth={2.2}
                     />
 

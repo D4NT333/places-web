@@ -9,7 +9,7 @@ const styles = {
     boxSizing: "border-box",
     border: "1px solid",
     borderRadius: "999px",
-    fontSize: "0.76rem",
+    fontSize: "1.8rem",
     fontWeight: 800,
     whiteSpace: "nowrap",
   },

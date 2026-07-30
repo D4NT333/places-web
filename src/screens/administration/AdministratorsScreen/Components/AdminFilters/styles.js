@@ -22,7 +22,7 @@ const styles = {
     padding: "0 13px",
     borderRadius: "10px",
     fontFamily: "inherit",
-    fontSize: "0.78rem",
+    fontSize: "1.8rem",
     fontWeight: 750,
     cursor: "pointer",
     transition:

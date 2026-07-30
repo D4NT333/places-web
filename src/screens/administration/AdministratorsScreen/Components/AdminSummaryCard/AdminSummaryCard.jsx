@@ -36,7 +36,7 @@ export default function AdminSummaryCard({
           color: palette.iconColor,
         }}
       >
-        <Icon size={22} strokeWidth={2.2} />
+        <Icon size={50} strokeWidth={2.2} />
       </div>
 
       <div style={styles.content}>

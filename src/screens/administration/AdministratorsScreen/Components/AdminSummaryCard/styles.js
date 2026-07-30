@@ -18,8 +18,8 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    width: "40px",
-    height: "40px",
+    width: "60px",
+    height: "60px",
     border: "1px solid",
     borderRadius: "11px",
   },
@@ -32,12 +32,12 @@ const styles = {
 
   label: {
     color: "#3e587a",
-    fontSize: "0.93rem",
+    fontSize: "2rem",
     fontWeight: 650,
   },
 
   value: {
-    fontSize: "1.1rem",
+    fontSize: "2.4rem",
     fontWeight: 900,
     lineHeight: 1,
   },

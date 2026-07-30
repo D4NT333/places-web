@@ -4,14 +4,11 @@ import React, {
 
 import {
   BarChart3,
-  Building2,
-  CalendarDays,
   CircleAlert,
   CircleCheck,
   Clock3,
   FileCheck2,
   Flag,
-  History,
   Mail,
   MapPinCheck,
   ShieldCheck,
@@ -27,29 +24,6 @@ import AdminStatusBadge from "../AdminStatusBadge";
 
 import styles from "./styles";
 
-function formatDate(dateValue) {
-  if (!dateValue) {
-    return "Sin fecha";
-  }
-
-  const date = new Date(
-    `${dateValue}T12:00:00`,
-  );
-
-  if (Number.isNaN(date.getTime())) {
-    return dateValue;
-  }
-
-  return new Intl.DateTimeFormat(
-    "es-MX",
-    {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    },
-  ).format(date);
-}
-
 function InfoItem({
   icon: Icon,
   label,
@@ -58,7 +32,7 @@ function InfoItem({
   return (
     <div style={styles.infoItem}>
       <div style={styles.infoIcon}>
-        <Icon size={17} strokeWidth={2.15} />
+        <Icon size={40} strokeWidth={2.15} />
       </div>
 
       <div style={styles.infoText}>
@@ -82,7 +56,7 @@ function ActivityCard({
   return (
     <article style={styles.activityCard}>
       <div style={styles.activityIcon}>
-        <Icon size={18} strokeWidth={2.1} />
+        <Icon size={40} strokeWidth={2.1} />
       </div>
 
       <div style={styles.activityContent}>
@@ -104,7 +78,6 @@ export default function AdminDetailModal({
   onClose,
   onChangeRole,
   onToggleStatus,
-  onViewAudit,
 }) {
   useEffect(() => {
     if (!isOpen) {
@@ -165,7 +138,7 @@ export default function AdminDetailModal({
           <div style={styles.titleGroup}>
             <div style={styles.titleIcon}>
               <UserRoundCog
-                size={24}
+                size={40}
                 strokeWidth={2.15}
               />
             </div>
@@ -191,7 +164,7 @@ export default function AdminDetailModal({
             onClick={onClose}
             style={styles.closeIconButton}
           >
-            <X size={22} strokeWidth={2.3} />
+            <X size={40} strokeWidth={2.3} />
           </button>
         </header>
 
@@ -199,7 +172,7 @@ export default function AdminDetailModal({
           <section style={styles.infoSection}>
             <div style={styles.blueSectionHeader}>
               <UserRound
-                size={19}
+                size={40}
                 strokeWidth={2.15}
               />
 
@@ -240,27 +213,13 @@ export default function AdminDetailModal({
                   status={admin.status}
                 />
               </InfoItem>
-
-              <InfoItem
-                icon={CalendarDays}
-                label="Fecha de alta"
-              >
-                {formatDate(admin.createdAt)}
-              </InfoItem>
-
-              <InfoItem
-                icon={Building2}
-                label="Creado por"
-              >
-                {admin.createdBy}
-              </InfoItem>
             </div>
           </section>
 
           <section style={styles.activitySection}>
             <div style={styles.greenSectionHeader}>
               <BarChart3
-                size={19}
+                size={40}
                 strokeWidth={2.15}
               />
 
@@ -312,7 +271,7 @@ export default function AdminDetailModal({
           <section style={styles.actionsSection}>
             <div style={styles.purpleSectionHeader}>
               <Wrench
-                size={19}
+                size={40}
                 strokeWidth={2.15}
               />
 
@@ -338,7 +297,7 @@ export default function AdminDetailModal({
                   }}
                 >
                   <UsersRound
-                    size={17}
+                    size={40}
                     strokeWidth={2.1}
                   />
 
@@ -363,12 +322,12 @@ export default function AdminDetailModal({
                 >
                   {isDisabled ? (
                     <CircleCheck
-                      size={17}
+                      size={40}
                       strokeWidth={2.1}
                     />
                   ) : (
                     <CircleAlert
-                      size={17}
+                      size={40}
                       strokeWidth={2.1}
                     />
                   )}
@@ -377,30 +336,12 @@ export default function AdminDetailModal({
                     ? "Reactivar cuenta"
                     : "Desactivar cuenta"}
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    onViewAudit(admin)
-                  }
-                  style={{
-                    ...styles.actionButton,
-                    ...styles.auditButton,
-                  }}
-                >
-                  <History
-                    size={17}
-                    strokeWidth={2.1}
-                  />
-
-                  Ver auditoría
-                </button>
               </div>
 
               {admin.isCurrentAdmin && (
                 <div style={styles.warningNote}>
                   <CircleAlert
-                    size={16}
+                    size={40}
                     strokeWidth={2.1}
                   />
 
@@ -414,7 +355,7 @@ export default function AdminDetailModal({
               {!admin.isCurrentAdmin && (
                 <div style={styles.helperNote}>
                   <FileCheck2
-                    size={16}
+                    size={40}
                     strokeWidth={2.1}
                   />
 
@@ -434,7 +375,7 @@ export default function AdminDetailModal({
             onClick={onClose}
             style={styles.closeButton}
           >
-            <X size={17} strokeWidth={2.2} />
+            <X size={40} strokeWidth={2.2} />
 
             Cerrar
           </button>

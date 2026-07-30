@@ -24,7 +24,7 @@ const styles = {
   title: {
     margin: 0,
     color: "#092554",
-    fontSize: "clamp(2rem, 3vw, 3rem)",
+    fontSize: "clamp(2rem, 3vw, 4rem)",
     fontWeight: 900,
     letterSpacing: "-0.045em",
     lineHeight: 1,
@@ -33,7 +33,7 @@ const styles = {
   subtitle: {
     margin: 0,
     color: "#557093",
-    fontSize: "1rem",
+    fontSize: "2rem",
     fontWeight: 500,
   },
 
@@ -52,7 +52,7 @@ const styles = {
     gap: "9px",
     marginTop: "19px",
     color: "#079341",
-    fontSize: "1rem",
+    fontSize: "1.6rem",
     fontWeight: 800,
   },
 
@@ -64,7 +64,7 @@ const styles = {
     height: "25px",
     border: "3px solid #079341",
     borderRadius: "999px",
-    fontSize: "0.9rem",
+    fontSize: "1.2rem",
     lineHeight: 1,
   },
 };

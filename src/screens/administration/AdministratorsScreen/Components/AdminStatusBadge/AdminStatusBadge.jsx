@@ -25,7 +25,7 @@ export default function AdminStatusBadge({
           : styles.disabledBadge),
       }}
     >
-      <Icon size={14} strokeWidth={2.3} />
+      <Icon size={40} strokeWidth={2.3} />
 
       {isActive
         ? "Activo"

@@ -71,7 +71,7 @@ export default function AdminFilters({
             }}
           >
             <Icon
-              size={16}
+              size={34}
               strokeWidth={2.2}
               color={
                 isActive
