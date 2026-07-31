@@ -122,8 +122,8 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
 
-    width: "42px",
-    height: "42px",
+    width: "32px",
+    height: "32px",
 
     color: "#2176e5",
 

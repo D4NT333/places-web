@@ -215,7 +215,7 @@ const styles = {
     display: "grid",
 
     gridTemplateColumns:
-      "0.7fr minmax(180px, 1.6fr) 0.9fr 0.95fr 60px",
+      "0.7fr minmax(180px, 1.9fr) 0.9fr 0.95fr 60px",
 
     alignItems: "center",
     justifyItems: "center",
@@ -249,7 +249,7 @@ const styles = {
     display: "grid",
 
     gridTemplateColumns:
-      "1.05fr minmax(180px, 1.6fr) 0.9fr 0.95fr 60px",
+      "1.05fr minmax(180px, 1.2fr) 0.9fr 0.95fr 60px",
 
     alignItems: "center",
 

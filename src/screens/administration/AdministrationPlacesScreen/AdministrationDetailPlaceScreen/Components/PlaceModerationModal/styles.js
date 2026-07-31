@@ -1,53 +1,57 @@
 const styles = {
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    zIndex: 9999,
+ overlay: {
+  position: "fixed",
+  inset: 0,
+  zIndex: 99999,
 
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+  display: "flex",
+  alignItems: "stretch",
+  justifyContent: "center",
 
-    minHeight: 0,
+  width: "100%",
+  height: "100%",
 
-    padding: "24px",
-    boxSizing: "border-box",
+  padding: "16px",
+  boxSizing: "border-box",
 
-    overflow: "hidden",
+  overflow: "hidden",
 
-    background:
-      "rgba(26, 52, 82, 0.58)",
+  background:
+    "rgba(26, 52, 82, 0.58)",
 
-    backdropFilter:
-      "blur(8px)",
-  },
+  backdropFilter:
+    "blur(8px)",
+},
 
   modal: {
-    position: "relative",
+  position: "relative",
 
-    display: "flex",
-    flexDirection: "column",
+  display: "grid",
+  gridTemplateRows:
+    "auto minmax(0, 1fr) auto",
 
-    width:
-      "min(980px, calc(100vw - 48px))",
+  width:
+    "min(1580px, 100%)",
 
-    maxHeight:
-      "calc(100dvh - 48px)",
-    minHeight: 0,
+  height: "100%",
+  maxHeight: "760px",
+  minHeight: 0,
 
-    overflow: "hidden",
+  margin: "auto",
 
-    background:
-      "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+  overflow: "hidden",
 
-    border:
-      "1px solid rgba(205, 221, 238, 0.98)",
+  background:
+    "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
 
-    borderRadius: "20px",
+  border:
+    "1px solid rgba(205, 221, 238, 0.98)",
 
-    boxShadow:
-      "0 30px 85px rgba(15, 39, 67, 0.34)",
-  },
+  borderRadius: "20px",
+
+  boxShadow:
+    "0 30px 85px rgba(15, 39, 67, 0.34)",
+},
 
   topAccent: {
     position: "absolute",
@@ -62,22 +66,25 @@ const styles = {
       "linear-gradient(90deg, #2176e5, #f0a12b, #e34d59)",
   },
 
-  header: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
+ header: {
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
 
-    flexShrink: 0,
+  minWidth: 0,
 
-    gap: "20px",
-    padding: "18px 21px 15px",
+  gap: "20px",
+  padding: "18px 21px 15px",
+  boxSizing: "border-box",
 
-    background:
-      "linear-gradient(135deg, #f4f9ff, #ffffff 56%, #fff8eb)",
+  overflow: "hidden",
 
-    borderBottom:
-      "1px solid #d8e6f2",
-  },
+  background:
+    "linear-gradient(135deg, #f4f9ff, #ffffff 56%, #fff8eb)",
+
+  borderBottom:
+    "1px solid #d8e6f2",
+},
 
   headerContent: {
     display: "flex",
@@ -131,7 +138,7 @@ const styles = {
 
     color: "#092f61",
 
-    fontSize: "2rem",
+    fontSize: "2.4rem",
     fontWeight: 950,
     lineHeight: 1.1,
     letterSpacing: "-0.025em",
@@ -142,7 +149,7 @@ const styles = {
 
     color: "#617b98",
 
-    fontSize: "0.95rem",
+    fontSize: "1.6rem",
     fontWeight: 650,
     lineHeight: 1.45,
   },
@@ -187,7 +194,7 @@ const styles = {
 
     borderRadius: "999px",
 
-    fontSize: "0.78rem",
+    fontSize: "1.9rem",
     fontWeight: 900,
 
     whiteSpace: "nowrap",
@@ -217,27 +224,33 @@ const styles = {
     color: "#d23f3f",
   },
 
-  body: {
-    display: "flex",
-    flexDirection: "column",
+body: {
+  display: "flex",
+  flexDirection: "column",
 
-    flex: "1 1 auto",
-    minHeight: 0,
+  width: "100%",
+  height: "100%",
 
-    gap: "14px",
+  minWidth: 0,
+  minHeight: 0,
 
-    padding: "17px 19px",
-    boxSizing: "border-box",
+  gap: "14px",
 
-    overflowY: "auto",
-    overflowX: "hidden",
+  padding: "17px 19px",
+  boxSizing: "border-box",
 
-    overscrollBehavior:
-      "contain",
+  overflowY: "scroll",
+  overflowX: "hidden",
 
-    scrollbarGutter:
-      "stable",
-  },
+  overscrollBehavior:
+    "contain",
+
+  scrollbarGutter:
+    "stable both-edges",
+
+  WebkitOverflowScrolling:
+    "touch",
+},
 
   placeCard: {
     display: "flex",
@@ -336,7 +349,7 @@ const styles = {
   sectionEyebrow: {
     color: "inherit",
 
-    fontSize: "0.68rem",
+    fontSize: "2rem",
     fontWeight: 900,
     textTransform: "uppercase",
     letterSpacing: "0.055em",
@@ -347,7 +360,7 @@ const styles = {
 
     color: "#0d315d",
 
-    fontSize: "1.15rem",
+    fontSize: "1.9rem",
     fontWeight: 950,
 
     textOverflow: "ellipsis",
@@ -357,7 +370,7 @@ const styles = {
   placeDescription: {
     color: "#667e98",
 
-    fontSize: "0.8rem",
+    fontSize: "1.8rem",
     fontWeight: 650,
   },
 
@@ -409,14 +422,14 @@ const styles = {
   reportCounterLabel: {
     color: "#9d6516",
 
-    fontSize: "0.68rem",
+    fontSize: "1.8rem",
     fontWeight: 850,
   },
 
   reportCounterValue: {
     color: "#b97008",
 
-    fontSize: "1.35rem",
+    fontSize: "2.3rem",
     fontWeight: 950,
     lineHeight: 1,
   },
@@ -500,7 +513,7 @@ const styles = {
 
     color: "#0b315f",
 
-    fontSize: "1.05rem",
+    fontSize: "2rem",
     fontWeight: 950,
   },
 
@@ -509,7 +522,7 @@ const styles = {
 
     color: "#687f98",
 
-    fontSize: "0.78rem",
+    fontSize: "1.7rem",
     fontWeight: 650,
     lineHeight: 1.4,
   },
@@ -622,14 +635,14 @@ const styles = {
   actionButtonLabel: {
     color: "inherit",
 
-    fontSize: "0.92rem",
+    fontSize: "2rem",
     fontWeight: 950,
   },
 
   actionButtonDescription: {
     color: "#667f98",
 
-    fontSize: "0.72rem",
+    fontSize: "1.6rem",
     lineHeight: 1.4,
     fontWeight: 650,
   },
@@ -669,7 +682,7 @@ const styles = {
     background: "#eff6ff",
     color: "#1e3a8a",
 
-    fontSize: "0.76rem",
+    fontSize: "1.76rem",
     lineHeight: 1.45,
     fontWeight: 650,
   },
@@ -738,7 +751,7 @@ const styles = {
 
     color: "#17375f",
 
-    fontSize: "0.78rem",
+    fontSize: "1.8rem",
     fontWeight: 900,
   },
 
@@ -753,7 +766,7 @@ const styles = {
   characterCount: {
     color: "#647e98",
 
-    fontSize: "0.72rem",
+    fontSize: "1.8rem",
     fontWeight: 750,
   },
 
@@ -776,7 +789,7 @@ const styles = {
     outline: "none",
 
     fontFamily: "inherit",
-    fontSize: "0.82rem",
+    fontSize: "1.7rem",
     lineHeight: 1.5,
     fontWeight: 650,
 
@@ -795,7 +808,7 @@ const styles = {
 
     color: "#b91c1c",
 
-    fontSize: "0.72rem",
+    fontSize: "1.72rem",
     fontWeight: 750,
   },
 
@@ -811,14 +824,14 @@ const styles = {
   noteHelp: {
     color: "#647e98",
 
-    fontSize: "0.7rem",
+    fontSize: "1.4rem",
     fontWeight: 650,
   },
 
   inlineFieldError: {
     color: "#b91c1c",
 
-    fontSize: "0.7rem",
+    fontSize: "1.7rem",
     fontWeight: 750,
   },
 
@@ -878,14 +891,14 @@ const styles = {
   dangerConfirmationTitle: {
     color: "#a82d36",
 
-    fontSize: "0.9rem",
+    fontSize: "1.8rem",
     fontWeight: 950,
   },
 
   dangerConfirmationText: {
     color: "#bc454d",
 
-    fontSize: "0.74rem",
+    fontSize: "1.74rem",
     fontWeight: 650,
   },
 
@@ -897,7 +910,7 @@ const styles = {
 
     color: "#8c2830",
 
-    fontSize: "0.76rem",
+    fontSize: "1.76rem",
     lineHeight: 1.45,
     fontWeight: 750,
 
@@ -928,27 +941,30 @@ const styles = {
 
     borderRadius: "10px",
 
-    fontSize: "0.76rem",
+    fontSize: "1.76rem",
     fontWeight: 750,
   },
 
   footer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
 
-    flexShrink: 0,
+  minWidth: 0,
 
-    gap: "16px",
+  gap: "16px",
 
-    padding: "14px 19px",
+  padding: "14px 19px",
+  boxSizing: "border-box",
 
-    background:
-      "linear-gradient(180deg, #fbfdff, #f5f9fd)",
+  overflow: "hidden",
 
-    borderTop:
-      "1px solid #d8e6f2",
-  },
+  background:
+    "linear-gradient(180deg, #fbfdff, #f5f9fd)",
+
+  borderTop:
+    "1px solid #d8e6f2",
+},
 
   footerNotice: {
     display: "flex",
@@ -958,7 +974,7 @@ const styles = {
 
     color: "#637c97",
 
-    fontSize: "0.74rem",
+    fontSize: "1.6rem",
     fontWeight: 700,
   },
 
@@ -992,7 +1008,7 @@ const styles = {
       "0 4px 10px rgba(35, 76, 119, 0.07)",
 
     fontFamily: "inherit",
-    fontSize: "0.82rem",
+    fontSize: "1.82rem",
     fontWeight: 900,
 
     cursor: "pointer",
@@ -1024,7 +1040,7 @@ const styles = {
       "0 7px 16px rgba(209, 125, 8, 0.2)",
 
     fontFamily: "inherit",
-    fontSize: "0.82rem",
+    fontSize: "1.6rem",
     fontWeight: 900,
 
     cursor: "pointer",

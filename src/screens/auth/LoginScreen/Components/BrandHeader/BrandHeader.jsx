@@ -1,15 +1,46 @@
 import React from "react";
+
+import {
+  MapPinned,
+  ShieldCheck,
+} from "lucide-react";
+
 import styles from "./styles";
 
 export default function BrandHeader() {
   return (
-    <div style={styles.brandRow}>
-      <div style={styles.logoCircle}>L</div>
+    <header style={styles.brandRow}>
+      <div style={styles.logoWrapper}>
+        <div style={styles.logoCircle}>
+          <MapPinned
+            size={48}
+            strokeWidth={2.25}
+          />
+        </div>
 
-      <div>
-        <h1 style={styles.brandName}>Lsearch</h1>
-        <p style={styles.brandSubtitle}>Panel administrativo</p>
+        <span style={styles.logoStatus}>
+          <ShieldCheck
+            size={40}
+            strokeWidth={2.4}
+          />
+        </span>
       </div>
-    </div>
+
+      <div style={styles.brandText}>
+        <h1 style={styles.brandName}>
+          Lsearch
+        </h1>
+
+        <div style={styles.subtitleRow}>
+          <span style={styles.brandSubtitle}>
+            Panel administrativo
+          </span>
+
+          <span style={styles.securePill}>
+            Acceso seguro
+          </span>
+        </div>
+      </div>
+    </header>
   );
 }

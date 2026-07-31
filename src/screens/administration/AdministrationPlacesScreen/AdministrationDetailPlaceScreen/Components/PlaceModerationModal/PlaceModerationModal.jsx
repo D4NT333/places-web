@@ -355,7 +355,7 @@ export default function PlaceModerationModal({
                   )}
                 >
                   <CheckCircle2
-                    size={22}
+                    size={40}
                     strokeWidth={2.25}
                   />
 
@@ -422,7 +422,7 @@ export default function PlaceModerationModal({
               <div style={styles.placeText}>
                 <div style={styles.placeEyebrowRow}>
                   <MapPinned
-                    size={24}
+                    size={40}
                     strokeWidth={2.15}
                   />
 
@@ -458,7 +458,7 @@ export default function PlaceModerationModal({
             <div style={styles.reportCounter}>
               <div style={styles.reportCounterIcon}>
                 <Flag
-                  size={38}
+                  size={40}
                   strokeWidth={2.15}
                 />
               </div>
@@ -597,7 +597,7 @@ export default function PlaceModerationModal({
                         }}
                       >
                         <CheckCircle2
-                          size={24}
+                          size={50}
                           strokeWidth={2.25}
                         />
                       </span>
@@ -639,12 +639,12 @@ export default function PlaceModerationModal({
                   {selectedAction ===
                   "hidden" ? (
                     <EyeOff
-                      size={34}
+                      size={40}
                       strokeWidth={2.2}
                     />
                   ) : (
                     <AlertTriangle
-                      size={34}
+                      size={40}
                       strokeWidth={2.2}
                     />
                   )}
@@ -840,7 +840,7 @@ export default function PlaceModerationModal({
           {errorMessage ? (
             <div style={styles.errorBox}>
               <AlertTriangle
-                size={32}
+                size={40}
                 strokeWidth={2.2}
               />
 
@@ -854,7 +854,7 @@ export default function PlaceModerationModal({
         <footer style={styles.footer}>
           <div style={styles.footerNotice}>
             <ShieldAlert
-              size={30}
+              size={80}
               strokeWidth={2.15}
             />
 
@@ -878,7 +878,7 @@ export default function PlaceModerationModal({
               onClick={handleClose}
             >
               <X
-                size={30}
+                size={40}
                 strokeWidth={2.3}
               />
 
@@ -921,12 +921,12 @@ export default function PlaceModerationModal({
               {selectedAction ===
               "hidden" ? (
                 <EyeOff
-                  size={30}
+                  size={40}
                   strokeWidth={2.25}
                 />
               ) : (
                 <ShieldAlert
-                  size={30}
+                  size={40}
                   strokeWidth={2.25}
                 />
               )}
