@@ -8,46 +8,113 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
 
-    padding: 24,
+    minHeight: 0,
 
-    backgroundColor:
-      "rgba(15, 23, 42, 0.58)",
-
-    backdropFilter: "blur(3px)",
+    padding: "24px",
     boxSizing: "border-box",
+
+    overflow: "hidden",
+
+    background:
+      "rgba(26, 52, 82, 0.58)",
+
+    backdropFilter:
+      "blur(8px)",
   },
 
   modal: {
-    width: "min(760px, 100%)",
-    maxHeight: "calc(100vh - 48px)",
+    position: "relative",
 
     display: "flex",
     flexDirection: "column",
 
-    border: "1px solid #CBD5E1",
-    borderRadius: 18,
+    width:
+      "min(980px, calc(100vw - 48px))",
 
-    backgroundColor: "#FFFFFF",
-
-    boxShadow:
-      "0 28px 80px rgba(15, 23, 42, 0.28)",
+    maxHeight:
+      "calc(100dvh - 48px)",
+    minHeight: 0,
 
     overflow: "hidden",
+
+    background:
+      "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+
+    border:
+      "1px solid rgba(205, 221, 238, 0.98)",
+
+    borderRadius: "20px",
+
+    boxShadow:
+      "0 30px 85px rgba(15, 39, 67, 0.34)",
+  },
+
+  topAccent: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    left: 0,
+    zIndex: 3,
+
+    height: "5px",
+
+    background:
+      "linear-gradient(90deg, #2176e5, #f0a12b, #e34d59)",
   },
 
   header: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: 20,
 
-    padding: "20px 22px",
+    flexShrink: 0,
+
+    gap: "20px",
+    padding: "18px 21px 15px",
+
+    background:
+      "linear-gradient(135deg, #f4f9ff, #ffffff 56%, #fff8eb)",
 
     borderBottom:
-      "1px solid #E2E8F0",
+      "1px solid #d8e6f2",
   },
 
   headerContent: {
+    display: "flex",
+    alignItems: "center",
+
+    gap: "14px",
+    minWidth: 0,
+  },
+
+  headerIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "64px",
+    height: "64px",
+    flexShrink: 0,
+
+    color: "#d17d08",
+
+    background:
+      "linear-gradient(145deg, #fff2d9, #fffaf1)",
+
+    border:
+      "1px solid #efd09a",
+
+    borderRadius: "16px",
+
+    boxShadow:
+      "0 8px 20px rgba(194, 121, 12, 0.14)",
+  },
+
+  headerText: {
+    display: "flex",
+    flexDirection: "column",
+
+    gap: "5px",
     minWidth: 0,
   },
 
@@ -55,47 +122,52 @@ const styles = {
     display: "flex",
     alignItems: "center",
     flexWrap: "wrap",
-    gap: 10,
+
+    gap: "10px",
   },
 
   title: {
     margin: 0,
 
-    color: "#0F172A",
+    color: "#092f61",
 
-    fontSize: 22,
-    lineHeight: 1.2,
-    fontWeight: 900,
+    fontSize: "2rem",
+    fontWeight: 950,
+    lineHeight: 1.1,
+    letterSpacing: "-0.025em",
   },
 
   subtitle: {
-    margin: "7px 0 0",
+    margin: 0,
 
-    color: "#64748B",
+    color: "#617b98",
 
-    fontSize: 13,
-    lineHeight: 1.5,
-    fontWeight: 600,
+    fontSize: "0.95rem",
+    fontWeight: 650,
+    lineHeight: 1.45,
   },
 
   closeButton: {
-    width: 36,
-    height: 36,
-    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
 
-    display: "grid",
-    placeItems: "center",
+    width: "46px",
+    height: "46px",
+    flexShrink: 0,
 
     padding: 0,
 
-    border: "1px solid #CBD5E1",
-    borderRadius: "50%",
+    color: "#17375f",
+    background: "#ffffff",
 
-    backgroundColor: "#FFFFFF",
-    color: "#334155",
+    border:
+      "1px solid #ceddea",
 
-    fontSize: 22,
-    lineHeight: 1,
+    borderRadius: "12px",
+
+    boxShadow:
+      "0 5px 13px rgba(33, 68, 107, 0.1)",
 
     cursor: "pointer",
   },
@@ -105,372 +177,615 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
 
-    minHeight: 25,
-    padding: "3px 10px",
+    gap: "5px",
 
-    border: "1px solid",
-    borderRadius: 999,
+    minHeight: "30px",
+    padding: "0 10px",
 
-    fontSize: 11,
-    fontWeight: 800,
+    border:
+      "1px solid",
+
+    borderRadius: "999px",
+
+    fontSize: "0.78rem",
+    fontWeight: 900,
+
+    whiteSpace: "nowrap",
   },
 
   statusChipPublished: {
-    borderColor: "#86EFAC",
-    backgroundColor: "#F0FDF4",
-    color: "#166534",
+    borderColor: "#b9e5ce",
+    backgroundColor: "#eafaf2",
+    color: "#078e4a",
   },
 
   statusChipReview: {
-    borderColor: "#93C5FD",
-    backgroundColor: "#EFF6FF",
-    color: "#1D4ED8",
+    borderColor: "#b7d6fa",
+    backgroundColor: "#eef6ff",
+    color: "#176fdc",
   },
 
   statusChipWarned: {
-    borderColor: "#FCD34D",
-    backgroundColor: "#FFFBEB",
-    color: "#92400E",
+    borderColor: "#efd18f",
+    backgroundColor: "#fff7e7",
+    color: "#ad6900",
   },
 
   statusChipHidden: {
-    borderColor: "#FDA4AF",
-    backgroundColor: "#FFF1F2",
-    color: "#9F1239",
+    borderColor: "#f5bebe",
+    backgroundColor: "#fff0f0",
+    color: "#d23f3f",
   },
 
   body: {
-    display: "grid",
-    gap: 14,
+    display: "flex",
+    flexDirection: "column",
 
-    padding: 18,
+    flex: "1 1 auto",
+    minHeight: 0,
+
+    gap: "14px",
+
+    padding: "17px 19px",
+    boxSizing: "border-box",
 
     overflowY: "auto",
+    overflowX: "hidden",
+
+    overscrollBehavior:
+      "contain",
+
+    scrollbarGutter:
+      "stable",
   },
 
   placeCard: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 18,
 
-    padding: 14,
+    flexShrink: 0,
 
-    border: "1px solid #CBD5E1",
-    borderRadius: 14,
+    gap: "18px",
 
-    backgroundColor: "#F8FAFC",
+    padding: "13px",
+
+    background:
+      "linear-gradient(135deg, #f1f7fd, #ffffff)",
+
+    border:
+      "1px solid #cfdfed",
+
+    borderRadius: "14px",
+
+    boxShadow:
+      "0 6px 16px rgba(31, 73, 116, 0.06)",
   },
 
   placeInfo: {
-    minWidth: 0,
-
     display: "flex",
     alignItems: "center",
-    gap: 12,
+
+    gap: "12px",
+    minWidth: 0,
+  },
+
+  placeImageWrapper: {
+    width: "66px",
+    height: "66px",
+    flexShrink: 0,
+
+    padding: "3px",
+    boxSizing: "border-box",
+
+    background: "#ffffff",
+
+    border:
+      "1px solid #c8dceb",
+
+    borderRadius: "14px",
+
+    boxShadow:
+      "0 6px 15px rgba(31, 72, 112, 0.12)",
   },
 
   placeImage: {
-    width: 54,
-    height: 54,
-    flexShrink: 0,
+    display: "block",
 
-    border: "1px solid #CBD5E1",
-    borderRadius: 12,
+    width: "100%",
+    height: "100%",
+
+    borderRadius: "10px",
 
     objectFit: "cover",
   },
 
   placeImageFallback: {
-    width: 54,
-    height: 54,
-    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
 
-    display: "grid",
-    placeItems: "center",
+    width: "100%",
+    height: "100%",
 
-    border: "1px solid #CBD5E1",
-    borderRadius: 12,
+    color: "#2176e5",
 
-    backgroundColor: "#E2E8F0",
-    color: "#334155",
+    background:
+      "linear-gradient(145deg, #eaf4ff, #f8fbff)",
 
-    fontSize: 16,
-    fontWeight: 900,
+    borderRadius: "10px",
   },
 
   placeText: {
-    minWidth: 0,
+    display: "flex",
+    flexDirection: "column",
 
-    display: "grid",
-    gap: 3,
+    gap: "3px",
+    minWidth: 0,
+  },
+
+  placeEyebrowRow: {
+    display: "flex",
+    alignItems: "center",
+
+    gap: "5px",
+
+    color: "#2176e5",
   },
 
   sectionEyebrow: {
-    color: "#64748B",
+    color: "inherit",
 
-    fontSize: 10,
-    fontWeight: 800,
+    fontSize: "0.68rem",
+    fontWeight: 900,
     textTransform: "uppercase",
-    letterSpacing: "0.06em",
+    letterSpacing: "0.055em",
   },
 
   placeName: {
-    color: "#0F172A",
-
-    fontSize: 15,
-    fontWeight: 900,
-
-    whiteSpace: "nowrap",
     overflow: "hidden",
+
+    color: "#0d315d",
+
+    fontSize: "1.15rem",
+    fontWeight: 950,
+
     textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 
   placeDescription: {
-    color: "#64748B",
+    color: "#667e98",
 
-    fontSize: 12,
-    fontWeight: 600,
+    fontSize: "0.8rem",
+    fontWeight: 650,
   },
 
   reportCounter: {
-    minWidth: 76,
+    display: "flex",
+    alignItems: "center",
+
+    gap: "9px",
+
+    minWidth: "132px",
     flexShrink: 0,
 
-    display: "grid",
-    justifyItems: "center",
-    gap: 2,
+    padding: "9px 11px",
 
-    padding: "8px 12px",
+    color: "#d17d08",
+    background:
+      "linear-gradient(135deg, #fff7e7, #fffaf2)",
 
-    border: "1px solid #CBD5E1",
-    borderRadius: 10,
+    border:
+      "1px solid #efd29a",
 
-    backgroundColor: "#FFFFFF",
+    borderRadius: "11px",
+  },
+
+  reportCounterIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "44px",
+    height: "44px",
+    flexShrink: 0,
+
+    background: "#ffffff",
+
+    border:
+      "1px solid #efd7aa",
+
+    borderRadius: "10px",
+  },
+
+  reportCounterText: {
+    display: "flex",
+    flexDirection: "column",
+
+    gap: "1px",
   },
 
   reportCounterLabel: {
-    color: "#64748B",
+    color: "#9d6516",
 
-    fontSize: 10,
-    fontWeight: 800,
+    fontSize: "0.68rem",
+    fontWeight: 850,
   },
 
   reportCounterValue: {
-    color: "#0F172A",
+    color: "#b97008",
 
-    fontSize: 20,
-    fontWeight: 900,
+    fontSize: "1.35rem",
+    fontWeight: 950,
+    lineHeight: 1,
   },
 
   formSection: {
-    padding: 14,
+    display: "flex",
+    flexDirection: "column",
 
-    border: "1px solid #CBD5E1",
-    borderRadius: 14,
+    flexShrink: 0,
 
-    backgroundColor: "#FFFFFF",
+    gap: "12px",
+
+    padding: "14px",
+
+    background:
+      "rgba(255, 255, 255, 0.9)",
+
+    border:
+      "1px solid #d2e1ef",
+
+    borderRadius: "14px",
+
+    boxShadow:
+      "0 6px 16px rgba(31, 73, 116, 0.05)",
   },
 
   sectionHeader: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: 14,
 
-    marginBottom: 12,
+    gap: "14px",
+  },
+
+  sectionHeadingGroup: {
+    display: "flex",
+    alignItems: "center",
+
+    gap: "10px",
+    minWidth: 0,
+  },
+
+  sectionIconBlue: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "48px",
+    height: "48px",
+    flexShrink: 0,
+
+    color: "#2176e5",
+    background: "#eef6ff",
+
+    border:
+      "1px solid #c7def9",
+
+    borderRadius: "11px",
+  },
+
+  sectionIconViolet: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "48px",
+    height: "48px",
+    flexShrink: 0,
+
+    color: "#7441d6",
+    background: "#f5efff",
+
+    border:
+      "1px solid #d9c8f7",
+
+    borderRadius: "11px",
   },
 
   sectionTitle: {
     margin: 0,
 
-    color: "#0F172A",
+    color: "#0b315f",
 
-    fontSize: 15,
-    fontWeight: 900,
+    fontSize: "1.05rem",
+    fontWeight: 950,
   },
 
   sectionDescription: {
-    margin: "4px 0 0",
+    margin: "3px 0 0",
 
-    color: "#64748B",
+    color: "#687f98",
 
-    fontSize: 12,
-    lineHeight: 1.5,
-    fontWeight: 600,
+    fontSize: "0.78rem",
+    fontWeight: 650,
+    lineHeight: 1.4,
   },
 
   actionsGrid: {
     display: "grid",
+
     gridTemplateColumns:
       "repeat(2, minmax(0, 1fr))",
-    gap: 10,
+
+    gap: "10px",
   },
 
   actionButton: {
+    position: "relative",
+
+    display: "flex",
+    alignItems: "center",
+
+    gap: "11px",
+
     minWidth: 0,
-    minHeight: 78,
+    minHeight: "94px",
 
-    display: "grid",
-    alignContent: "center",
-    gap: 5,
+    padding: "11px 42px 11px 12px",
 
-    padding: 12,
+    color: "#17375f",
+    background:
+      "linear-gradient(135deg, #f8fbff, #ffffff)",
 
-    border: "1px solid #CBD5E1",
-    borderRadius: 11,
+    border:
+      "1px solid #d1e0ed",
 
-    backgroundColor: "#FFFFFF",
-    color: "#0F172A",
+    borderRadius: "12px",
 
+    fontFamily: "inherit",
     textAlign: "left",
 
     cursor: "pointer",
   },
 
-  actionButtonSelectedPublished: {
-    borderColor: "#22C55E",
-    backgroundColor: "#F0FDF4",
-    boxShadow:
-      "0 0 0 2px rgba(34, 197, 94, 0.12)",
-  },
-
-  actionButtonSelectedReview: {
-    borderColor: "#3B82F6",
-    backgroundColor: "#EFF6FF",
-    boxShadow:
-      "0 0 0 2px rgba(59, 130, 246, 0.12)",
-  },
-
   actionButtonSelectedWarning: {
-    borderColor: "#F59E0B",
-    backgroundColor: "#FFFBEB",
+    color: "#9f650b",
+
+    background:
+      "linear-gradient(135deg, #fff3dc, #fffaf1)",
+
+    borderColor: "#e8b95f",
+
     boxShadow:
-      "0 0 0 2px rgba(245, 158, 11, 0.12)",
+      "0 0 0 2px rgba(229, 160, 37, 0.12)",
   },
 
   actionButtonSelectedDanger: {
-    borderColor: "#E11D48",
-    backgroundColor: "#FFF1F2",
+    color: "#bd3b43",
+
+    background:
+      "linear-gradient(135deg, #ffe9eb, #fff6f6)",
+
+    borderColor: "#eb747c",
+
     boxShadow:
-      "0 0 0 2px rgba(225, 29, 72, 0.12)",
+      "0 0 0 2px rgba(218, 67, 77, 0.11)",
+  },
+
+  actionIconWarning: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "54px",
+    height: "54px",
+    flexShrink: 0,
+
+    color: "#d17d08",
+    background: "#fff5e2",
+
+    border:
+      "1px solid #efd09a",
+
+    borderRadius: "12px",
+  },
+
+  actionIconDanger: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "54px",
+    height: "54px",
+    flexShrink: 0,
+
+    color: "#d23f3f",
+    background: "#fff0f0",
+
+    border:
+      "1px solid #f2bfc2",
+
+    borderRadius: "12px",
+  },
+
+  actionButtonContent: {
+    display: "flex",
+    flexDirection: "column",
+
+    gap: "4px",
+    minWidth: 0,
   },
 
   actionButtonLabel: {
-    fontSize: 13,
-    fontWeight: 900,
+    color: "inherit",
+
+    fontSize: "0.92rem",
+    fontWeight: 950,
   },
 
   actionButtonDescription: {
-    color: "#64748B",
+    color: "#667f98",
 
-    fontSize: 11,
+    fontSize: "0.72rem",
     lineHeight: 1.4,
-    fontWeight: 600,
+    fontWeight: 650,
+  },
+
+  selectionIndicator: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    color: "#9eb1c4",
+
+    opacity: 0.45,
+  },
+
+  selectionIndicatorActive: {
+    color: "currentColor",
+    opacity: 1,
   },
 
   effectNotice: {
-    display: "grid",
-    gap: 3,
+    display: "flex",
+    alignItems: "center",
 
-    marginTop: 12,
+    gap: "10px",
+
     padding: "10px 12px",
 
-    border: "1px solid #BFDBFE",
-    borderRadius: 10,
+    border:
+      "1px solid #bfdbfe",
 
-    backgroundColor: "#EFF6FF",
-    color: "#1E3A8A",
+    borderRadius: "11px",
 
-    fontSize: 12,
+    background: "#eff6ff",
+    color: "#1e3a8a",
+
+    fontSize: "0.76rem",
     lineHeight: 1.45,
-    fontWeight: 600,
+    fontWeight: 650,
   },
 
   effectNoticeWarning: {
-    borderColor: "#FDE68A",
-    backgroundColor: "#FFFBEB",
-    color: "#92400E",
+    borderColor: "#f1d08b",
+    background: "#fff7e7",
+    color: "#92400e",
   },
 
   effectNoticeDanger: {
-    borderColor: "#FECDD3",
-    backgroundColor: "#FFF1F2",
-    color: "#9F1239",
+    borderColor: "#f0bcc1",
+    background: "#fff0f0",
+    color: "#a82e37",
+  },
+
+  effectIconWarning: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "42px",
+    height: "42px",
+    flexShrink: 0,
+
+    color: "#d17d08",
+    background: "#ffffff",
+
+    border:
+      "1px solid #efd29a",
+
+    borderRadius: "10px",
+  },
+
+  effectIconDanger: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "42px",
+    height: "42px",
+    flexShrink: 0,
+
+    color: "#d23f3f",
+    background: "#ffffff",
+
+    border:
+      "1px solid #f1c0c3",
+
+    borderRadius: "10px",
+  },
+
+  effectNoticeText: {
+    display: "flex",
+    flexDirection: "column",
+
+    gap: "2px",
   },
 
   effectNoticeTitle: {
-    fontWeight: 900,
+    fontWeight: 950,
   },
 
   fieldLabel: {
     display: "block",
 
-    marginBottom: 7,
+    color: "#17375f",
 
-    color: "#0F172A",
-
-    fontSize: 12,
+    fontSize: "0.78rem",
     fontWeight: 900,
-  },
-
-  select: {
-    width: "100%",
-    minHeight: 42,
-
-    padding: "0 12px",
-
-    border: "1px solid #CBD5E1",
-    borderRadius: 9,
-
-    backgroundColor: "#FFFFFF",
-    color: "#0F172A",
-
-    fontSize: 13,
-    fontWeight: 600,
-
-    outline: "none",
-    boxSizing: "border-box",
   },
 
   textareaHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 14,
+
+    gap: "14px",
   },
 
   characterCount: {
-    color: "#64748B",
+    color: "#647e98",
 
-    fontSize: 11,
-    fontWeight: 700,
+    fontSize: "0.72rem",
+    fontWeight: 750,
   },
 
   textarea: {
     width: "100%",
-    minHeight: 100,
+    minHeight: "112px",
 
-    padding: 12,
+    padding: "12px 13px",
+    boxSizing: "border-box",
 
-    border: "1px solid #CBD5E1",
-    borderRadius: 9,
+    color: "#17375f",
 
-    backgroundColor: "#FFFFFF",
-    color: "#0F172A",
+    background:
+      "linear-gradient(135deg, #f1f7fd, #ffffff)",
+
+    border:
+      "1px solid #cbddeb",
+
+    borderRadius: "10px",
+    outline: "none",
 
     fontFamily: "inherit",
-    fontSize: 13,
+    fontSize: "0.82rem",
     lineHeight: 1.5,
-    fontWeight: 600,
+    fontWeight: 650,
 
     resize: "vertical",
-    outline: "none",
-    boxSizing: "border-box",
   },
 
   fieldWithError: {
-    borderColor: "#EF4444",
+    borderColor: "#ef6868",
+
     boxShadow:
       "0 0 0 2px rgba(239, 68, 68, 0.1)",
   },
@@ -478,10 +793,10 @@ const styles = {
   fieldError: {
     margin: "7px 0 0",
 
-    color: "#B91C1C",
+    color: "#b91c1c",
 
-    fontSize: 11,
-    fontWeight: 700,
+    fontSize: "0.72rem",
+    fontWeight: 750,
   },
 
   noteFooter: {
@@ -489,148 +804,250 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-between",
     flexWrap: "wrap",
-    gap: 8,
 
-    marginTop: 6,
+    gap: "8px",
   },
 
   noteHelp: {
-    color: "#64748B",
+    color: "#647e98",
 
-    fontSize: 10,
-    fontWeight: 600,
+    fontSize: "0.7rem",
+    fontWeight: 650,
   },
 
   inlineFieldError: {
-    color: "#B91C1C",
+    color: "#b91c1c",
 
-    fontSize: 10,
-    fontWeight: 700,
+    fontSize: "0.7rem",
+    fontWeight: 750,
   },
 
   dangerConfirmation: {
-    display: "grid",
-    gap: 12,
+    display: "flex",
+    alignItems: "flex-start",
 
-    padding: 14,
+    flexShrink: 0,
 
-    border: "1px solid #FDA4AF",
-    borderRadius: 14,
+    gap: "11px",
 
-    backgroundColor: "#FFF1F2",
+    padding: "13px",
+
+    color: "#a72f38",
+    background:
+      "linear-gradient(135deg, #fff0f0, #fff8f8)",
+
+    border:
+      "1px solid #f0b9bd",
+
+    borderRadius: "14px",
+  },
+
+  dangerConfirmationIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "56px",
+    height: "56px",
+    flexShrink: 0,
+
+    color: "#d23f3f",
+    background: "#ffffff",
+
+    border:
+      "1px solid #efbfc2",
+
+    borderRadius: "12px",
+  },
+
+  dangerConfirmationContent: {
+    display: "flex",
+    flexDirection: "column",
+
+    gap: "10px",
+    minWidth: 0,
   },
 
   dangerConfirmationHeader: {
-    display: "grid",
-    gap: 3,
+    display: "flex",
+    flexDirection: "column",
+
+    gap: "3px",
   },
 
   dangerConfirmationTitle: {
-    color: "#9F1239",
+    color: "#a82d36",
 
-    fontSize: 13,
-    fontWeight: 900,
+    fontSize: "0.9rem",
+    fontWeight: 950,
   },
 
   dangerConfirmationText: {
-    color: "#BE123C",
+    color: "#bc454d",
 
-    fontSize: 11,
-    fontWeight: 600,
+    fontSize: "0.74rem",
+    fontWeight: 650,
   },
 
   checkboxLabel: {
     display: "flex",
     alignItems: "flex-start",
-    gap: 9,
 
-    color: "#881337",
+    gap: "9px",
 
-    fontSize: 12,
+    color: "#8c2830",
+
+    fontSize: "0.76rem",
     lineHeight: 1.45,
-    fontWeight: 700,
+    fontWeight: 750,
 
     cursor: "pointer",
   },
 
   checkbox: {
-    width: 16,
-    height: 16,
+    width: "17px",
+    height: "17px",
     flexShrink: 0,
 
-    marginTop: 1,
+    marginTop: "1px",
   },
 
   errorBox: {
+    display: "flex",
+    alignItems: "center",
+
+    gap: "9px",
+
     padding: "10px 12px",
 
-    border: "1px solid #FCA5A5",
-    borderRadius: 10,
+    color: "#991b1b",
+    background: "#fef2f2",
 
-    backgroundColor: "#FEF2F2",
-    color: "#991B1B",
+    border:
+      "1px solid #f5b8b8",
 
-    fontSize: 12,
-    fontWeight: 700,
+    borderRadius: "10px",
+
+    fontSize: "0.76rem",
+    fontWeight: 750,
   },
 
   footer: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 10,
+    justifyContent: "space-between",
 
-    padding: "16px 20px",
+    flexShrink: 0,
+
+    gap: "16px",
+
+    padding: "14px 19px",
+
+    background:
+      "linear-gradient(180deg, #fbfdff, #f5f9fd)",
 
     borderTop:
-      "1px solid #E2E8F0",
+      "1px solid #d8e6f2",
+  },
 
-    backgroundColor: "#FFFFFF",
+  footerNotice: {
+    display: "flex",
+    alignItems: "center",
+
+    gap: "7px",
+
+    color: "#637c97",
+
+    fontSize: "0.74rem",
+    fontWeight: 700,
+  },
+
+  footerActions: {
+    display: "flex",
+    alignItems: "center",
+
+    gap: "9px",
   },
 
   cancelButton: {
-    minWidth: 108,
-    minHeight: 40,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
 
-    padding: "0 16px",
+    gap: "6px",
 
-    border: "1px solid #334155",
-    borderRadius: 999,
+    minHeight: "42px",
 
-    backgroundColor: "#FFFFFF",
-    color: "#0F172A",
+    padding: "0 15px",
 
-    fontSize: 12,
+    color: "#285477",
+    background: "#ffffff",
+
+    border:
+      "1px solid #c5d7e7",
+
+    borderRadius: "10px",
+
+    boxShadow:
+      "0 4px 10px rgba(35, 76, 119, 0.07)",
+
+    fontFamily: "inherit",
+    fontSize: "0.82rem",
     fontWeight: 900,
 
     cursor: "pointer",
   },
 
   submitButton: {
-    minWidth: 150,
-    minHeight: 40,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
 
-    padding: "0 18px",
+    gap: "7px",
 
-    border: "1px solid #0F172A",
-    borderRadius: 999,
+    minWidth: "160px",
+    minHeight: "42px",
 
-    backgroundColor: "#0F172A",
-    color: "#FFFFFF",
+    padding: "0 17px",
 
-    fontSize: 12,
+    color: "#ffffff",
+
+    background:
+      "linear-gradient(135deg, #d88a12, #e69a23)",
+
+    border:
+      "1px solid #c97d0c",
+
+    borderRadius: "10px",
+
+    boxShadow:
+      "0 7px 16px rgba(209, 125, 8, 0.2)",
+
+    fontFamily: "inherit",
+    fontSize: "0.82rem",
     fontWeight: 900,
 
     cursor: "pointer",
   },
 
   submitButtonDanger: {
-    borderColor: "#BE123C",
-    backgroundColor: "#BE123C",
+    background:
+      "linear-gradient(135deg, #d43f48, #e6545c)",
+
+    borderColor: "#c7353e",
+
+    boxShadow:
+      "0 7px 16px rgba(210, 63, 63, 0.2)",
   },
 
   disabledButton: {
     opacity: 0.45,
+    boxShadow: "none",
+    cursor: "not-allowed",
+  },
+
+  disabledControl: {
+    opacity: 0.5,
     cursor: "not-allowed",
   },
 };

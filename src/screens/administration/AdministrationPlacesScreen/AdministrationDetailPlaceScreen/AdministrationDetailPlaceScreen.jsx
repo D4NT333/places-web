@@ -11,6 +11,10 @@ import {
   useParams,
 } from "react-router-dom";
 
+import {
+  MapPinned,
+} from "lucide-react";
+
 import LayoutScreen from "../../../../layout";
 
 import {
@@ -2528,12 +2532,21 @@ const handleOpenPlaceGallery = async (
     <LayoutScreen breadcrumbs={breadcrumbs}>
       <main style={styles.container}>
         <header style={styles.headerBlock}>
-          <h1 style={styles.title}>Detalle del lugar</h1>
+          <div style={styles.headerIcon}>
+            <MapPinned
+              size={60}
+              strokeWidth={2.15}
+            />
+          </div>
 
-          <p style={styles.subtitle}>
-            Revisa información, validación, reportes, actividad y
-            propuestas relacionadas con este lugar.
-          </p>
+          <div style={styles.headerText}>
+            <h1 style={styles.title}>Detalle del lugar</h1>
+
+            <p style={styles.subtitle}>
+              Revisa información, validación, reportes, actividad y
+              propuestas relacionadas con este lugar.
+            </p>
+          </div>
         </header>
 
         {errorMessage && (

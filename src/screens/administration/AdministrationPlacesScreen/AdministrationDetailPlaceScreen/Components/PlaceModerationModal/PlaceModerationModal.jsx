@@ -4,6 +4,18 @@ import React, {
   useState,
 } from "react";
 
+import {
+  AlertTriangle,
+  CheckCircle2,
+  EyeOff,
+  FileWarning,
+  Flag,
+  MapPinned,
+  MessageSquareText,
+  ShieldAlert,
+  X,
+} from "lucide-react";
+
 import styles from "./styles";
 
 const MAX_NOTE_LENGTH = 500;
@@ -70,7 +82,7 @@ function getStatusStyle(status) {
 
 function getActionButtonStyle(
   actionId,
-  selectedAction
+  selectedAction,
 ) {
   const isSelected =
     actionId === selectedAction;
@@ -108,9 +120,9 @@ function getReportsCount(place) {
   return (
     Number(
       place?.moderation?.validReportsCount ??
-      place?.metrics?.validReportsCount ??
-      place?.metrics?.reportsCount ??
-      place?.reportCount
+        place?.metrics?.validReportsCount ??
+        place?.metrics?.reportsCount ??
+        place?.reportCount,
     ) || 0
   );
 }
@@ -176,7 +188,7 @@ export default function PlaceModerationModal({
         MODERATION_ACTIONS.find(
           (action) =>
             action.id ===
-            selectedAction
+            selectedAction,
         ) || null
       );
     }, [selectedAction]);
@@ -235,7 +247,7 @@ export default function PlaceModerationModal({
   }
 
   const handleOverlayClick = (
-    event
+    event,
   ) => {
     if (
       event.target ===
@@ -255,7 +267,7 @@ export default function PlaceModerationModal({
   };
 
   const handleSelectAction = (
-    actionId
+    actionId,
   ) => {
     setSelectedAction(actionId);
 
@@ -265,7 +277,7 @@ export default function PlaceModerationModal({
   };
 
   const handleNoteChange = (
-    event
+    event,
   ) => {
     setNote(event.target.value);
 
@@ -317,77 +329,111 @@ export default function PlaceModerationModal({
         aria-labelledby="place-moderation-title"
         style={styles.modal}
       >
+        <div style={styles.topAccent} />
+
         <header style={styles.header}>
           <div style={styles.headerContent}>
-            <div style={styles.titleRow}>
-              <h2
-                id="place-moderation-title"
-                style={styles.title}
-              >
-                Moderar lugar
-              </h2>
-
-              <span
-                style={getStatusStyle(
-                  currentStatus
-                )}
-              >
-                {getStatusLabel(
-                  currentStatus
-                )}
-              </span>
+            <div style={styles.headerIcon}>
+              <ShieldAlert
+                size={50}
+                strokeWidth={2.15}
+              />
             </div>
 
-            <p style={styles.subtitle}>
-              Aplica una medida administrativa directamente sobre este lugar.
-            </p>
+            <div style={styles.headerText}>
+              <div style={styles.titleRow}>
+                <h2
+                  id="place-moderation-title"
+                  style={styles.title}
+                >
+                  Moderar lugar
+                </h2>
+
+                <span
+                  style={getStatusStyle(
+                    currentStatus,
+                  )}
+                >
+                  <CheckCircle2
+                    size={22}
+                    strokeWidth={2.25}
+                  />
+
+                  {getStatusLabel(
+                    currentStatus,
+                  )}
+                </span>
+              </div>
+
+              <p style={styles.subtitle}>
+                Aplica una medida administrativa
+                directamente sobre este lugar.
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
             aria-label="Cerrar modal"
-            style={styles.closeButton}
+            style={{
+              ...styles.closeButton,
+
+              ...(loading
+                ? styles.disabledControl
+                : {}),
+            }}
             disabled={loading}
             onClick={handleClose}
           >
-            ×
+            <X
+              size={40}
+              strokeWidth={2.35}
+            />
           </button>
         </header>
 
         <div style={styles.body}>
           <section style={styles.placeCard}>
             <div style={styles.placeInfo}>
-              {mainPhotoUrl ? (
-                <img
-                  src={mainPhotoUrl}
-                  alt={
-                    place?.name ||
-                    "Lugar"
-                  }
-                  style={styles.placeImage}
-                />
-              ) : (
-                <div
-                  style={
-                    styles.placeImageFallback
-                  }
-                >
-                  {String(
-                    place?.name || "LG"
-                  )
-                    .slice(0, 2)
-                    .toUpperCase()}
-                </div>
-              )}
+              <div style={styles.placeImageWrapper}>
+                {mainPhotoUrl ? (
+                  <img
+                    src={mainPhotoUrl}
+                    alt={
+                      place?.name ||
+                      "Lugar"
+                    }
+                    style={styles.placeImage}
+                  />
+                ) : (
+                  <div
+                    style={
+                      styles.placeImageFallback
+                    }
+                  >
+                    <MapPinned
+                      size={44}
+                      strokeWidth={2.1}
+                    />
+                  </div>
+                )}
+              </div>
 
               <div style={styles.placeText}>
-                <span
-                  style={
-                    styles.sectionEyebrow
-                  }
-                >
-                  Lugar seleccionado
-                </span>
+                <div style={styles.placeEyebrowRow}>
+                  <MapPinned
+                    size={24}
+                    strokeWidth={2.15}
+                  />
+
+                  <span
+                    style={
+                      styles.sectionEyebrow
+                    }
+                  >
+                    Lugar seleccionado
+                  </span>
+                </div>
 
                 <strong
                   style={styles.placeName}
@@ -403,49 +449,68 @@ export default function PlaceModerationModal({
                 >
                   Estado actual:{" "}
                   {getStatusLabel(
-                    currentStatus
+                    currentStatus,
                   )}
                 </span>
               </div>
             </div>
 
             <div style={styles.reportCounter}>
-              <span
-                style={
-                  styles.reportCounterLabel
-                }
-              >
-                Reportes
-              </span>
+              <div style={styles.reportCounterIcon}>
+                <Flag
+                  size={38}
+                  strokeWidth={2.15}
+                />
+              </div>
 
-              <strong
-                style={
-                  styles.reportCounterValue
-                }
-              >
-                {reportsCount}
-              </strong>
+              <div style={styles.reportCounterText}>
+                <span
+                  style={
+                    styles.reportCounterLabel
+                  }
+                >
+                  Reportes válidos
+                </span>
+
+                <strong
+                  style={
+                    styles.reportCounterValue
+                  }
+                >
+                  {reportsCount}
+                </strong>
+              </div>
             </div>
           </section>
 
           <section style={styles.formSection}>
             <div style={styles.sectionHeader}>
-              <div>
-                <h3
-                  style={
-                    styles.sectionTitle
-                  }
-                >
-                  Medida administrativa
-                </h3>
+              <div style={styles.sectionHeadingGroup}>
+                <div style={styles.sectionIconBlue}>
+                  <ShieldAlert
+                    size={40}
+                    strokeWidth={2.15}
+                  />
+                </div>
 
-                <p
-                  style={
-                    styles.sectionDescription
-                  }
-                >
-                  Selecciona la acción que se aplicará al lugar.
-                </p>
+                <div>
+                  <h3
+                    style={
+                      styles.sectionTitle
+                    }
+                  >
+                    Medida administrativa
+                  </h3>
+
+                  <p
+                    style={
+                      styles.sectionDescription
+                    }
+                  >
+                    Selecciona la acción que se
+                    aplicará al lugar.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -456,6 +521,11 @@ export default function PlaceModerationModal({
                     selectedAction ===
                     action.id;
 
+                  const ActionIcon =
+                    action.id === "hidden"
+                      ? EyeOff
+                      : AlertTriangle;
+
                   return (
                     <button
                       key={action.id}
@@ -464,36 +534,76 @@ export default function PlaceModerationModal({
                       aria-pressed={
                         isSelected
                       }
-                      style={getActionButtonStyle(
-                        action.id,
-                        selectedAction
-                      )}
+                      style={{
+                        ...getActionButtonStyle(
+                          action.id,
+                          selectedAction,
+                        ),
+
+                        ...(loading
+                          ? styles.disabledControl
+                          : {}),
+                      }}
                       onClick={() =>
                         handleSelectAction(
-                          action.id
+                          action.id,
                         )
                       }
                     >
-                      <span
+                      <div
                         style={
-                          styles.actionButtonLabel
+                          action.id === "hidden"
+                            ? styles.actionIconDanger
+                            : styles.actionIconWarning
                         }
                       >
-                        {action.label}
-                      </span>
+                        <ActionIcon
+                          size={44}
+                          strokeWidth={2.15}
+                        />
+                      </div>
 
                       <span
                         style={
-                          styles.actionButtonDescription
+                          styles.actionButtonContent
                         }
                       >
-                        {
-                          action.description
-                        }
+                        <strong
+                          style={
+                            styles.actionButtonLabel
+                          }
+                        >
+                          {action.label}
+                        </strong>
+
+                        <span
+                          style={
+                            styles.actionButtonDescription
+                          }
+                        >
+                          {
+                            action.description
+                          }
+                        </span>
+                      </span>
+
+                      <span
+                        style={{
+                          ...styles.selectionIndicator,
+
+                          ...(isSelected
+                            ? styles.selectionIndicatorActive
+                            : {}),
+                        }}
+                      >
+                        <CheckCircle2
+                          size={24}
+                          strokeWidth={2.25}
+                        />
                       </span>
                     </button>
                   );
-                }
+                },
               )}
             </div>
 
@@ -518,30 +628,74 @@ export default function PlaceModerationModal({
                       }
                 }
               >
-                <strong
+                <div
                   style={
-                    styles.effectNoticeTitle
+                    selectedAction ===
+                    "hidden"
+                      ? styles.effectIconDanger
+                      : styles.effectIconWarning
                   }
                 >
-                  Efecto de la medida
-                </strong>
+                  {selectedAction ===
+                  "hidden" ? (
+                    <EyeOff
+                      size={34}
+                      strokeWidth={2.2}
+                    />
+                  ) : (
+                    <AlertTriangle
+                      size={34}
+                      strokeWidth={2.2}
+                    />
+                  )}
+                </div>
 
-                <span>
-                  {
-                    selectedActionData.effect
-                  }
-                </span>
+                <div style={styles.effectNoticeText}>
+                  <strong
+                    style={
+                      styles.effectNoticeTitle
+                    }
+                  >
+                    Efecto de la medida
+                  </strong>
+
+                  <span>
+                    {
+                      selectedActionData.effect
+                    }
+                  </span>
+                </div>
               </div>
             ) : null}
           </section>
 
           <section style={styles.formSection}>
+            <div style={styles.sectionHeadingGroup}>
+              <div style={styles.sectionIconViolet}>
+                <MessageSquareText
+                  size={40}
+                  strokeWidth={2.15}
+                />
+              </div>
+
+              <div>
+                <h3 style={styles.sectionTitle}>
+                  Nota administrativa
+                </h3>
+
+                <p style={styles.sectionDescription}>
+                  Explica la razón de la medida para
+                  dejar evidencia en el historial.
+                </p>
+              </div>
+            </div>
+
             <div style={styles.textareaHeader}>
               <label
                 htmlFor="moderation-note"
                 style={styles.fieldLabel}
               >
-                Nota administrativa
+                Motivo de la moderación
               </label>
 
               <span
@@ -602,120 +756,186 @@ export default function PlaceModerationModal({
             >
               <div
                 style={
-                  styles.dangerConfirmationHeader
+                  styles.dangerConfirmationIcon
                 }
               >
-                <strong
-                  style={
-                    styles.dangerConfirmationTitle
-                  }
-                >
-                  Confirmación requerida
-                </strong>
-
-                <span
-                  style={
-                    styles.dangerConfirmationText
-                  }
-                >
-                  Esta acción retirará públicamente el lugar de la aplicación.
-                </span>
+                <FileWarning
+                  size={46}
+                  strokeWidth={2.15}
+                />
               </div>
 
-              <label
+              <div
                 style={
-                  styles.checkboxLabel
+                  styles.dangerConfirmationContent
                 }
               >
-                <input
-                  type="checkbox"
-                  checked={confirmHidden}
-                  disabled={loading}
-                  style={styles.checkbox}
-                  onChange={(event) => {
-                    setConfirmHidden(
-                      event.target.checked
-                    );
-
-                    if (
-                      submitAttempted
-                    ) {
-                      setSubmitAttempted(
-                        false
-                      );
-                    }
-                  }}
-                />
-
-                <span>
-                  Confirmo que revisé la información y deseo ocultar este lugar.
-                </span>
-              </label>
-
-              {confirmationError ? (
-                <p
+                <div
                   style={
-                    styles.fieldError
+                    styles.dangerConfirmationHeader
                   }
                 >
-                  {confirmationError}
-                </p>
-              ) : null}
+                  <strong
+                    style={
+                      styles.dangerConfirmationTitle
+                    }
+                  >
+                    Confirmación requerida
+                  </strong>
+
+                  <span
+                    style={
+                      styles.dangerConfirmationText
+                    }
+                  >
+                    Esta acción retirará públicamente
+                    el lugar de la aplicación.
+                  </span>
+                </div>
+
+                <label
+                  style={
+                    styles.checkboxLabel
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    checked={confirmHidden}
+                    disabled={loading}
+                    style={styles.checkbox}
+                    onChange={(event) => {
+                      setConfirmHidden(
+                        event.target.checked,
+                      );
+
+                      if (
+                        submitAttempted
+                      ) {
+                        setSubmitAttempted(
+                          false,
+                        );
+                      }
+                    }}
+                  />
+
+                  <span>
+                    Confirmo que revisé la información
+                    y deseo ocultar este lugar.
+                  </span>
+                </label>
+
+                {confirmationError ? (
+                  <p
+                    style={
+                      styles.fieldError
+                    }
+                  >
+                    {confirmationError}
+                  </p>
+                ) : null}
+              </div>
             </section>
           ) : null}
 
           {errorMessage ? (
             <div style={styles.errorBox}>
-              {errorMessage}
+              <AlertTriangle
+                size={32}
+                strokeWidth={2.2}
+              />
+
+              <span>
+                {errorMessage}
+              </span>
             </div>
           ) : null}
         </div>
 
         <footer style={styles.footer}>
-          <button
-            type="button"
-            style={styles.cancelButton}
-            disabled={loading}
-            onClick={handleClose}
-          >
-            Cancelar
-          </button>
+          <div style={styles.footerNotice}>
+            <ShieldAlert
+              size={30}
+              strokeWidth={2.15}
+            />
 
-          <button
-            type="button"
-            disabled={
-              loading ||
-              !formIsValid
-            }
-            style={
-              selectedAction ===
-              "hidden"
-                ? {
-                    ...styles.submitButton,
-                    ...styles.submitButtonDanger,
-                    ...(
-                      loading ||
-                      !formIsValid
-                        ? styles.disabledButton
-                        : {}
-                    ),
-                  }
-                : {
-                    ...styles.submitButton,
-                    ...(
-                      loading ||
-                      !formIsValid
-                        ? styles.disabledButton
-                        : {}
-                    ),
-                  }
-            }
-            onClick={handleSubmit}
-          >
-            {loading
-              ? "Aplicando..."
-              : submitLabel}
-          </button>
+            <span>
+              La decisión quedará registrada en el
+              historial administrativo del lugar.
+            </span>
+          </div>
+
+          <div style={styles.footerActions}>
+            <button
+              type="button"
+              style={{
+                ...styles.cancelButton,
+
+                ...(loading
+                  ? styles.disabledControl
+                  : {}),
+              }}
+              disabled={loading}
+              onClick={handleClose}
+            >
+              <X
+                size={30}
+                strokeWidth={2.3}
+              />
+
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              disabled={
+                loading ||
+                !formIsValid
+              }
+              style={
+                selectedAction ===
+                "hidden"
+                  ? {
+                      ...styles.submitButton,
+                      ...styles.submitButtonDanger,
+
+                      ...(
+                        loading ||
+                        !formIsValid
+                          ? styles.disabledButton
+                          : {}
+                      ),
+                    }
+                  : {
+                      ...styles.submitButton,
+
+                      ...(
+                        loading ||
+                        !formIsValid
+                          ? styles.disabledButton
+                          : {}
+                      ),
+                    }
+              }
+              onClick={handleSubmit}
+            >
+              {selectedAction ===
+              "hidden" ? (
+                <EyeOff
+                  size={30}
+                  strokeWidth={2.25}
+                />
+              ) : (
+                <ShieldAlert
+                  size={30}
+                  strokeWidth={2.25}
+                />
+              )}
+
+              {loading
+                ? "Aplicando..."
+                : submitLabel}
+            </button>
+          </div>
         </footer>
       </section>
     </div>

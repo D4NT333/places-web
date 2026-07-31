@@ -1,4 +1,16 @@
 import React from "react";
+
+import {
+  CalendarDays,
+  CheckCircle2,
+  ChevronRight,
+  EyeOff,
+  LoaderCircle,
+  MessageSquareText,
+  Star,
+  UserRound,
+} from "lucide-react";
+
 import styles from "./styles";
 
 export default function CommentsHistoryCard({
@@ -9,8 +21,14 @@ export default function CommentsHistoryCard({
   onLoadMore,
   onSelectComment,
 }) {
-  const handleRowKeyDown = (event, comment) => {
-    if (event.key === "Enter" || event.key === " ") {
+  const handleRowKeyDown = (
+    event,
+    comment,
+  ) => {
+    if (
+      event.key === "Enter" ||
+      event.key === " "
+    ) {
       event.preventDefault();
       onSelectComment?.(comment);
     }
@@ -18,210 +36,316 @@ export default function CommentsHistoryCard({
 
   return (
     <section style={styles.card}>
-     <header style={styles.header}>
-  <h2 style={styles.title}>
-    Historial de comentarios
-  </h2>
+      <header style={styles.header}>
+        <div style={styles.titleGroup}>
+          <div style={styles.titleIcon}>
+            <MessageSquareText
+              size={50}
+              strokeWidth={2.15}
+            />
+          </div>
 
-  <div style={styles.countersRow}>
-    <span style={styles.counter}>
-      Comentarios cargados: {comments.length}
-    </span>
+          <div style={styles.titleText}>
+            <h2 style={styles.title}>
+              Historial de comentarios
+            </h2>
 
-    <span style={styles.counter}>
-      Lotes cargados: {loadedBatches}
-    </span>
-  </div>
-</header>
+            <p style={styles.subtitle}>
+              Consulta las reseñas publicadas por los
+              usuarios sobre este lugar.
+            </p>
+          </div>
+        </div>
 
-      <div style={styles.tableWrapper}>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Usuario</th>
-             <th
-  style={{
-    ...styles.th,
-    textAlign: "center",
-  }}
->
-  Fecha de publicación
-</th>
+        <div style={styles.countersRow}>
+          <span style={styles.counterBlue}>
+            <MessageSquareText
+              size={40}
+              strokeWidth={2.2}
+            />
 
-<th
-  style={{
-    ...styles.th,
-    textAlign: "center",
-  }}
->
-  Valoración
-</th>
+            {comments.length} comentarios
+          </span>
 
-<th
-  style={{
-    ...styles.th,
-    textAlign: "center",
-  }}
->
-  Estado
-</th>
-            </tr>
-          </thead>
+          <span style={styles.counterViolet}>
+            <LoaderCircle
+              size={40}
+              strokeWidth={2.2}
+            />
 
-          <tbody>
-            {comments.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={4}
-                  style={{
-                    ...styles.td,
-                    textAlign: "center",
-                    padding: "24px",
-                  }}
-                >
-                  Este lugar todavía no tiene comentarios.
-                </td>
-              </tr>
-            ) : (
-              comments.map((comment) => (
-                <tr
-                  key={comment.id}
-                  tabIndex={0}
-                  role="button"
-                  onClick={() => onSelectComment?.(comment)}
-                  onKeyDown={(event) =>
-                    handleRowKeyDown(event, comment)
-                  }
-                  style={{
-                    ...styles.tableRow,
-                    cursor: "pointer",
-                    outline: "none",
-                  }}
-                  onMouseEnter={(event) => {
-                    event.currentTarget.style.backgroundColor = "#F9FAFB";
-                  }}
-                  onMouseLeave={(event) => {
-                    event.currentTarget.style.backgroundColor = "transparent";
-                  }}
-                  onFocus={(event) => {
-                    event.currentTarget.style.backgroundColor = "#F9FAFB";
-                  }}
-                  onBlur={(event) => {
-                    event.currentTarget.style.backgroundColor = "transparent";
-                  }}
-                >
-                  <td style={styles.td}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      {comment.userPhoto ? (
-                        <img
-                          src={comment.userPhoto}
-                          alt={`Foto de ${comment.user}`}
-                          style={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                          }}
+            {loadedBatches} lotes
+          </span>
+        </div>
+      </header>
+
+      <div style={styles.tableContainer}>
+        <div style={styles.tableWrapper}>
+          <table style={styles.table}>
+            <thead>
+  <tr>
+    <th style={styles.th}>
+      Usuario
+    </th>
+
+    <th
+      style={{
+        ...styles.th,
+        textAlign: "center",
+      }}
+    >
+      Fecha de publicación
+    </th>
+
+    <th
+      style={{
+        ...styles.th,
+        textAlign: "center",
+      }}
+    >
+      Valoración
+    </th>
+
+    <th
+      style={{
+        ...styles.th,
+        textAlign: "center",
+      }}
+    >
+      Estado
+    </th>
+
+    <th
+      style={{
+        ...styles.th,
+        ...styles.actionHeader,
+      }}
+    >
+      Detalle
+    </th>
+  </tr>
+</thead>
+
+            <tbody>
+              {comments.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    style={styles.emptyCell}
+                  >
+                    <div style={styles.emptyState}>
+                      <div style={styles.emptyIcon}>
+                        <MessageSquareText
+                          size={50}
+                          strokeWidth={2}
                         />
-                      ) : (
-                        <div
-                          style={{
-                            width: 28,
-                            height: 28,
-                            display: "grid",
-                            placeItems: "center",
-                            borderRadius: "50%",
-                            backgroundColor: "#E2E8F0",
-                            color: "#334155",
-                            fontSize: 12,
-                            fontWeight: 800,
-                          }}
-                        >
-                          {(comment.user || "U")
-                            .charAt(0)
-                            .toUpperCase()}
-                        </div>
-                      )}
+                      </div>
 
-                      <span>{comment.user}</span>
+                      <strong
+                        style={styles.emptyTitle}
+                      >
+                        Sin comentarios
+                      </strong>
+
+                      <span
+                        style={styles.emptyText}
+                      >
+                        Este lugar todavía no tiene
+                        comentarios publicados.
+                      </span>
                     </div>
                   </td>
-
-           <td
-  style={{
-    ...styles.td,
-    textAlign: "center",
-  }}
->
-  {comment.date}
-</td>
-
-<td
-  style={{
-    ...styles.td,
-    textAlign: "center",
-  }}
->
-  {comment.rating}
-</td>
-
-<td
-  style={{
-    ...styles.td,
-    textAlign: "center",
-  }}
->
-  <span
-  style={{
-    ...styles.statusPill,
-    ...(comment.status === "hidden"
-      ? styles.statusPillHidden
-      : styles.statusPillPublished),
-  }}
->
-  {comment.statusLabel}
-</span>
-</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                comments.map((comment) => (
+                  <tr
+                    key={comment.id}
+                    tabIndex={0}
+                    role="button"
+                    onClick={() =>
+                      onSelectComment?.(comment)
+                    }
+                    onKeyDown={(event) =>
+                      handleRowKeyDown(
+                        event,
+                        comment,
+                      )
+                    }
+                    style={styles.tableRow}
+                    onMouseEnter={(event) => {
+                      event.currentTarget.style.background =
+                        "linear-gradient(90deg, #f0f7ff 0%, #fbfdff 58%, #f3f9ff 100%)";
 
-      {hasMore && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            paddingTop: "14px",
-          }}
-        >
-          <button
-            type="button"
-            onClick={onLoadMore}
-            disabled={loadingMore}
-            style={{
-              padding: "8px 18px",
-              border: "1px solid #CBD5E1",
-              borderRadius: "999px",
-              backgroundColor: "#FFFFFF",
-              cursor: loadingMore ? "not-allowed" : "pointer",
-              fontWeight: 700,
-            }}
-          >
-            {loadingMore
-              ? "Cargando..."
-              : "Cargar más comentarios"}
-          </button>
+                      event.currentTarget.style.boxShadow =
+                        "inset 4px 0 0 #2176e5";
+                    }}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.style.background =
+                        "transparent";
+
+                      event.currentTarget.style.boxShadow =
+                        "none";
+                    }}
+                    onFocus={(event) => {
+                      event.currentTarget.style.background =
+                        "linear-gradient(90deg, #f0f7ff 0%, #fbfdff 58%, #f3f9ff 100%)";
+
+                      event.currentTarget.style.boxShadow =
+                        "inset 4px 0 0 #2176e5";
+                    }}
+                    onBlur={(event) => {
+                      event.currentTarget.style.background =
+                        "transparent";
+
+                      event.currentTarget.style.boxShadow =
+                        "none";
+                    }}
+                  >
+                    <td style={styles.td}>
+                      <div style={styles.userCell}>
+                        {comment.userPhoto ? (
+                          <img
+                            src={comment.userPhoto}
+                            alt={`Foto de ${comment.user}`}
+                            style={styles.avatarImage}
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div
+                            style={
+                              styles.avatarFallback
+                            }
+                          >
+                            {(comment.user || "U")
+                              .charAt(0)
+                              .toUpperCase()}
+                          </div>
+                        )}
+
+                        <div style={styles.userText}>
+                          <strong
+                            style={styles.userName}
+                          >
+                            {comment.user}
+                          </strong>
+
+              
+                        </div>
+                      </div>
+                    </td>
+
+                    <td
+                      style={{
+                        ...styles.td,
+                        textAlign: "center",
+                      }}
+                    >
+                      <span style={styles.dateValue}>
+                        <CalendarDays
+                          size={40}
+                          strokeWidth={2.15}
+                        />
+
+                        {comment.date}
+                      </span>
+                    </td>
+
+                    <td
+                      style={{
+                        ...styles.td,
+                        textAlign: "center",
+                      }}
+                    >
+                      <span style={styles.ratingPill}>
+                        <Star
+                          size={40}
+                          strokeWidth={2.15}
+                        />
+
+                        {comment.rating}
+                      </span>
+                    </td>
+
+                    <td
+                      style={{
+                        ...styles.td,
+                        textAlign: "center",
+                      }}
+                    >
+                      <span
+                        style={{
+                          ...styles.statusPill,
+
+                          ...(comment.status ===
+                          "hidden"
+                            ? styles.statusPillHidden
+                            : styles.statusPillPublished),
+                        }}
+                      >
+                        {comment.status ===
+                        "hidden" ? (
+                          <EyeOff
+                            size={40}
+                            strokeWidth={2.2}
+                          />
+                        ) : (
+                          <CheckCircle2
+                            size={40}
+                            strokeWidth={2.2}
+                          />
+                        )}
+
+                        {comment.statusLabel}
+                      </span>
+                    </td>
+
+                    <td style={styles.actionCell}>
+                      <ChevronRight
+                        size={40}
+                        strokeWidth={2.25}
+                      />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+
+        {hasMore ? (
+          <div style={styles.loadMoreContainer}>
+            <button
+              type="button"
+              onClick={onLoadMore}
+              disabled={loadingMore}
+              style={{
+                ...styles.loadMoreButton,
+
+                ...(loadingMore
+                  ? styles.disabledButton
+                  : {}),
+              }}
+            >
+              <LoaderCircle
+                size={30}
+                strokeWidth={2.2}
+              />
+
+              {loadingMore
+                ? "Cargando..."
+                : "Cargar más comentarios"}
+            </button>
+          </div>
+        ) : comments.length > 0 ? (
+          <div style={styles.endMessage}>
+            <CheckCircle2
+              size={40}
+              strokeWidth={2.2}
+            />
+
+            Se cargaron todos los comentarios.
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }
