@@ -12,6 +12,13 @@ const styles = {
     flexShrink: 0,
   },
 
+  logo: {
+  width: "112px",
+  height: "112px",
+  objectFit: "contain",
+  display: "block",
+},
+
   logoCircle: {
     width: "62px",
     height: "62px",

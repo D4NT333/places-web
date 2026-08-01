@@ -5,18 +5,19 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import { icons } from "../../../../../../assets/icons";
+
 import styles from "./styles";
 
 export default function BrandHeader() {
   return (
     <header style={styles.brandRow}>
       <div style={styles.logoWrapper}>
-        <div style={styles.logoCircle}>
-          <MapPinned
-            size={48}
-            strokeWidth={2.25}
-          />
-        </div>
+        <img
+          src={icons.lsearch}
+          alt="Lsearch"
+          style={styles.logo}
+        />
 
         <span style={styles.logoStatus}>
           <ShieldCheck
