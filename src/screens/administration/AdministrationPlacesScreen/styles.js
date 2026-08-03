@@ -427,7 +427,7 @@ const styles = {
     borderTop:
       "1px solid #d1eadc",
 
-    fontSize: "0.95rem",
+    fontSize: "1.6rem",
     fontWeight: 800,
   },
 };

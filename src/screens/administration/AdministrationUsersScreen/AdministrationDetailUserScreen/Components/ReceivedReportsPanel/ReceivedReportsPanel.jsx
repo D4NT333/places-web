@@ -1,42 +1,145 @@
-import React, { useState } from "react";
+import React, {
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  CheckCircle2,
+  ChevronRight,
+  ClipboardList,
+  Clock3,
+  FileWarning,
+  Inbox,
+  XCircle,
+} from "lucide-react";
 
 import styles from "./styles";
 
+const STATUS_STYLES = {
+  pending: styles.statusPending,
+
+  resolved: styles.statusResolved,
+
+  dismissed: styles.statusDismissed,
+};
+
 export default function ReceivedReportsPanel({
   reports = [],
-  emptyMessage = "Este usuario no tiene reportes recibidos.",
+  emptyMessage =
+    "Este usuario no tiene reportes recibidos.",
   loading = false,
   loadingMore = false,
   hasMore = false,
   onLoadMore,
   onOpenReport,
 }) {
-  const [hoveredId, setHoveredId] = useState(null);
+  const [
+    hoveredReportId,
+    setHoveredReportId,
+  ] = useState(null);
 
-  const activeReports = reports.length;
+  const totals = useMemo(() => {
+    return reports.reduce(
+      (result, report) => {
+        const status =
+          String(
+            report.status ||
+              "pending",
+          )
+            .trim()
+            .toLowerCase();
 
-  const handleListScroll = (event) => {
-    const target = event.currentTarget;
+        if (status === "resolved") {
+          result.resolved += 1;
+        } else if (
+          status === "dismissed"
+        ) {
+          result.dismissed += 1;
+        } else {
+          result.pending += 1;
+        }
 
-    const scrollTop = target.scrollTop;
-    const scrollHeight = target.scrollHeight;
-    const clientHeight = target.clientHeight;
+        return result;
+      },
+      {
+        pending: 0,
+        resolved: 0,
+        dismissed: 0,
+      },
+    );
+  }, [reports]);
 
-    if (scrollHeight <= clientHeight) return;
+  function handleListScroll(event) {
+    const target =
+      event.currentTarget;
 
-    const scrollPercentage =
-      (scrollTop + clientHeight) / scrollHeight;
+    const distanceFromBottom =
+      target.scrollHeight -
+      target.scrollTop -
+      target.clientHeight;
 
-    if (scrollPercentage >= 0.8) {
+    if (
+      distanceFromBottom < 120 &&
+      hasMore &&
+      !loadingMore
+    ) {
       onLoadMore?.();
     }
-  };
+  }
+
+  const summaryItems = [
+    {
+      key: "pending",
+      label: "Pendientes",
+      value: totals.pending,
+      icon: Clock3,
+      style: styles.summaryPending,
+    },
+
+    {
+      key: "resolved",
+      label: "Resueltos",
+      value: totals.resolved,
+      icon: CheckCircle2,
+      style: styles.summaryResolved,
+    },
+
+    {
+      key: "dismissed",
+      label: "Descartados",
+      value: totals.dismissed,
+      icon: XCircle,
+      style: styles.summaryDismissed,
+    },
+  ];
 
   return (
-    <div style={styles.panel}>
-      <p style={styles.totalText}>
-        Reportes recibidos: {activeReports}
-      </p>
+    <section style={styles.card}>
+      <header style={styles.header}>
+        <div style={styles.heading}>
+          <div style={styles.headerIcon}>
+            <ClipboardList
+              size={60}
+              strokeWidth={2.1}
+            />
+          </div>
+
+          <div>
+            <h2 style={styles.title}>
+              Reportes recibidos
+            </h2>
+
+            <p style={styles.subtitle}>
+              Incidencias registradas contra
+              este usuario.
+            </p>
+          </div>
+        </div>
+
+        <span style={styles.totalPill}>
+          {reports.length} reportes
+        </span>
+      </header>
 
       <div
         style={styles.list}
@@ -48,59 +151,134 @@ export default function ReceivedReportsPanel({
           </div>
         ) : null}
 
-        {!loading && activeReports > 0 ? (
-          <>
-            {reports.map((report) => {
-              const isHovered = hoveredId === report.id;
+        {!loading &&
+        reports.length > 0
+          ? reports.map((report) => {
+              const reportId =
+                report.id;
+
+              const normalizedStatus =
+                String(
+                  report.status ||
+                    "pending",
+                )
+                  .trim()
+                  .toLowerCase();
+
+              const isHovered =
+                hoveredReportId ===
+                reportId;
 
               return (
                 <button
-                  key={report.id}
+                  key={reportId}
                   type="button"
                   style={{
                     ...styles.reportItem,
-                    ...(isHovered ? styles.reportItemHovered : {}),
-                  }}
-                  onMouseEnter={() => setHoveredId(report.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  onClick={() => onOpenReport?.(report.id)}
-                >
-                  <div style={styles.reasonRow}>
-                    <span style={styles.dot} />
 
-                    <span style={styles.reason}>
-                      {report.reason}
+                    ...(isHovered
+                      ? styles.reportItemHovered
+                      : {}),
+                  }}
+                  onMouseEnter={() =>
+                    setHoveredReportId(
+                      reportId,
+                    )
+                  }
+                  onMouseLeave={() =>
+                    setHoveredReportId(
+                      null,
+                    )
+                  }
+                  onClick={() =>
+                    onOpenReport?.(
+                      reportId,
+                    )
+                  }
+                >
+                  <div style={styles.reportIcon}>
+                    <FileWarning
+                      size={40}
+                      strokeWidth={2.1}
+                    />
+                  </div>
+
+                  <div style={styles.reportContent}>
+                    <strong style={styles.reason}>
+                      {report.reason ||
+                        "Reporte recibido"}
+                    </strong>
+
+                    <span style={styles.reportDate}>
+                      {report.date ||
+                        "Sin fecha"}
                     </span>
                   </div>
 
-                  <div style={styles.reportMeta}>
-                    <span>{report.date}</span>
-                    <span>{report.statusLabel}</span>
-                  </div>
+                  <span
+                    style={{
+                      ...styles.statusPill,
+
+                      ...(STATUS_STYLES[
+                        normalizedStatus
+                      ] ||
+                        styles.statusPending),
+                    }}
+                  >
+                    {report.statusLabel ||
+                      report.status ||
+                      "Pendiente"}
+                  </span>
+
+                  <ChevronRight
+                    size={22}
+                    color="#78a0c8"
+                  />
                 </button>
               );
-            })}
+            })
+          : null}
 
-            {loadingMore ? (
-              <div style={styles.loadingMore}>
-                Cargando más reportes...
-              </div>
-            ) : null}
+        {!loading &&
+        reports.length === 0 ? (
+          <div style={styles.emptyState}>
+            <div style={styles.emptyIcon}>
+              <Inbox
+                size={58}
+                strokeWidth={1.65}
+              />
+            </div>
 
-            {!loadingMore && !hasMore ? (
-              <div style={styles.endMessage}>
-                No hay más reportes.
-              </div>
-            ) : null}
-          </>
+            <strong style={styles.emptyTitle}>
+              Sin reportes recientes
+            </strong>
+
+            <span style={styles.emptyText}>
+              {emptyMessage}
+            </span>
+          </div>
         ) : null}
 
-        {!loading && activeReports === 0 ? (
-          <div style={styles.emptyState}>
-            {emptyMessage}
+        {loadingMore ? (
+          <div style={styles.loadingMore}>
+            Cargando más reportes...
+          </div>
+        ) : null}
+
+        {!loading &&
+        !loadingMore &&
+        reports.length > 0 &&
+        !hasMore ? (
+          <div style={styles.endMessage}>
+            <CheckCircle2
+              size={40}
+              strokeWidth={2.3}
+            />
+
+            Lista completa
           </div>
         ) : null}
       </div>
-    </div>
+    </section>
   );
 }

@@ -672,6 +672,21 @@ const [
       return;
     }
 
+    const selectedTagData =
+  catalog.tags.find(
+    (tag) =>
+      (
+        tag?.tagId ||
+        tag?.id
+      ) === selectedTag,
+  );
+
+const selectedTagLabel =
+  selectedTagData?.tagLabel ||
+  selectedTagData?.label ||
+  selectedTagData?.name ||
+  "";
+
   try {
   setAccepting(true);
 
@@ -704,6 +719,9 @@ const [
 
         tagId:
           selectedTag,
+
+          tagLabel:
+        selectedTagLabel,
 
         subtags:
           selectedSubtags,

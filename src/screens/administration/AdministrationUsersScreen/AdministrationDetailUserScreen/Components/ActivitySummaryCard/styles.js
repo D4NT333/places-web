@@ -1,147 +1,394 @@
 const styles = {
   card: {
-    height: "100%",
-    minHeight: 0,
-    border: "1.5px solid #111827",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    padding: "18px 22px",
+    width: "100%",
+
+    display: "flex",
+    flexDirection: "column",
+
+    padding: "24px",
+
     boxSizing: "border-box",
-    display: "grid",
-    gridTemplateRows: "auto auto 1fr auto",
-    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.08)",
+
+    background:
+      "rgba(255, 255, 255, 0.96)",
+
+    border:
+      "1px solid rgba(184, 213, 242, 0.96)",
+
+    borderRadius: "24px",
+
+    boxShadow:
+      "0 18px 44px rgba(31, 73, 116, 0.12)",
+
     overflow: "hidden",
+  },
+
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent:
+      "space-between",
+
+    gap: "20px",
+
+    marginBottom: "19px",
+  },
+
+  heading: {
+    minWidth: 0,
+
+    display: "flex",
+    alignItems: "center",
+
+    gap: "14px",
+  },
+
+  headerIcon: {
+    width: "64px",
+    height: "64px",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    flexShrink: 0,
+
+    color: "#2176e5",
+
+    background:
+      "linear-gradient(145deg, #e5f2ff, #f3f9ff)",
+
+    border:
+      "1px solid #c1dcf7",
+
+    borderRadius: "17px",
+
+    boxShadow:
+      "0 9px 20px rgba(33, 118, 229, 0.12)",
+  },
+
+  headerText: {
+    minWidth: 0,
   },
 
   title: {
     margin: 0,
-    fontSize: 25,
-    fontWeight: 900,
-    color: "#111827",
+
+    color: "#082b59",
+
+    fontSize: "2.2rem",
+
+    fontWeight: 950,
+
+    lineHeight: 1.12,
+
+    letterSpacing: "-0.03em",
   },
 
   total: {
-    margin: "6px 0 14px",
-    fontSize: 17,
-    fontWeight: 800,
-    color: "#374151",
+    margin: "6px 0 0",
+
+    color: "#7186a0",
+
+    fontSize: "1.6rem",
+
+    fontWeight: 750,
   },
 
-  chipsRow: {
+  weekControl: {
+    minWidth: "290px",
+    height: "46px",
+
     display: "flex",
-    flexWrap: "wrap",
-    gap: 20,
-    alignContent: "flex-start",
-  },
-  chartWrapper: {
-  width: "100%",
-  height: "100%",
-},
+    alignItems: "center",
 
-  chip: {
-    minHeight: 38,
-    padding: "6px 16px",
-    borderRadius: 8,
-    border: "1.5px solid #111827",
-    display: "inline-flex",
+    gap: "9px",
+
+    padding: "0 13px",
+
+    boxSizing: "border-box",
+
+    color: "#2176e5",
+
+    background:
+      "linear-gradient(145deg, #ffffff, #f5f9fd)",
+
+    border:
+      "1px solid #b9d4ef",
+
+    borderRadius: "14px",
+
+    boxShadow:
+      "0 8px 19px rgba(31, 73, 116, 0.08)",
+  },
+
+  weekSelect: {
+    minWidth: 0,
+    height: "100%",
+
+    flex: 1,
+
+    padding: "0 4px",
+
+    color: "#143b67",
+
+    background: "transparent",
+
+    border: "none",
+
+    outline: "none",
+
+    fontFamily: "inherit",
+
+    fontSize: "1.8rem",
+
+    fontWeight: 850,
+
+    cursor: "pointer",
+  },
+
+  metricsGrid: {
+    display: "grid",
+
+    gridTemplateColumns:
+      "repeat(4, minmax(0, 1fr))",
+
+    gap: "12px",
+
+    marginBottom: "19px",
+  },
+
+  metricCard: {
+    minWidth: 0,
+
+    display: "flex",
+    alignItems: "center",
+
+    gap: "11px",
+
+    padding: "13px 14px",
+
+    border:
+      "1px solid transparent",
+
+    borderRadius: "17px",
+  },
+
+  metricBlue: {
+    background:
+      "linear-gradient(145deg, #edf6ff, #e4f2ff)",
+
+    borderColor: "#c3ddf7",
+  },
+
+  metricGreen: {
+    background:
+      "linear-gradient(145deg, #eafaf2, #e1f7ec)",
+
+    borderColor: "#b9e5cf",
+  },
+
+  metricPurple: {
+    background:
+      "linear-gradient(145deg, #f5efff, #eee5ff)",
+
+    borderColor: "#d9c9f5",
+  },
+
+  metricOrange: {
+    background:
+      "linear-gradient(145deg, #fff7ea, #fff0dc)",
+
+    borderColor: "#efd09b",
+  },
+
+  metricIcon: {
+    width: "56px",
+    height: "56px",
+
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 20,
-    fontWeight: 800,
-    color: "#374151",
-    backgroundColor: "#ffffff",
+
+    flexShrink: 0,
+
+    borderRadius: "14px",
   },
 
-  statusRow: {
-    alignSelf: "end",
-    display: "grid",
-    gridTemplateColumns: "repeat(3, max-content)",
-    columnGap: 70,
+  metricIconBlue: {
+    color: "#2176e5",
+
+    background:
+      "rgba(214, 234, 255, 0.9)",
   },
 
-  statusText: {
-    fontSize: 17,
-    fontWeight: 800,
-    color: "#374151",
+  metricIconGreen: {
+    color: "#0fa16a",
+
+    background:
+      "rgba(210, 243, 228, 0.95)",
+  },
+
+  metricIconPurple: {
+    color: "#9256dd",
+
+    background:
+      "rgba(231, 218, 255, 0.95)",
+  },
+
+  metricIconOrange: {
+    color: "#d9790b",
+
+    background:
+      "rgba(255, 230, 194, 0.95)",
+  },
+
+  metricContent: {
+    minWidth: 0,
+
+    display: "flex",
+    flexDirection: "column",
+
+    gap: "3px",
+  },
+
+  metricValue: {
+    color: "#082b59",
+
+    fontSize: "2.2rem",
+
+    fontWeight: 950,
+
+    lineHeight: 1,
+  },
+
+  metricLabel: {
+    overflow: "hidden",
+
+    color: "#59728f",
+
+    fontSize: "1.8rem",
+
+    fontWeight: 850,
+
+    textOverflow: "ellipsis",
+
     whiteSpace: "nowrap",
   },
+
   chartBox: {
-  width: "100%",
-  height: 210,
-  padding: "12px 1px",
-  border: "1px solid #e5e7eb",
-  borderRadius: 14,
-  backgroundColor: "#f9fafb",
-  boxSizing: "border-box",
-  marginTop: 12,
-  marginBottom: 12,
-},
-metricsRow: {
-  display: "flex",
-  alignItems: "center",
-  gap: "0.6rem",
-  flexWrap: "wrap",
-  marginTop: "0.85rem",
-},
+    width: "100%",
+    height: "500px",
 
-metricChip: {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "0.35rem",
-  padding: "0.45rem 0.7rem",
-  borderRadius: 999,
-  border: "1px solid #e5e7eb",
-  backgroundColor: "#f9fafb",
-  color: "#374151",
-  fontSize: "0.82rem",
-  fontWeight: 700,
-},
+    display: "flex",
+    flexDirection: "column",
 
-statusRow: {
-  display: "flex",
-  alignItems: "center",
-  gap: "0.75rem",
-  flexWrap: "wrap",
-  marginTop: "0.75rem",
-  marginBottom: "1rem",
-},
+    padding: "17px 17px 11px",
 
-statusItem: {
-  color: "#475569",
-  fontSize: "0.82rem",
-  fontWeight: 700,
-},
-header: {
-  display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  gap: 20,
-},
+    boxSizing: "border-box",
 
-weekSelect: {
-  minWidth: 230,
-  height: 38,
-  padding: "0 14px",
-  borderRadius: 10,
-  border: "1.5px solid #111827",
-  backgroundColor: "#ffffff",
-  color: "#111827",
-  fontSize: 14,
-  fontWeight: 800,
-  cursor: "pointer",
-  outline: "none",
-},
+    background:
+      "linear-gradient(180deg, #fbfdff, #f4f9fe)",
 
-loadingState: {
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "#64748b",
-  fontSize: 15,
-  fontWeight: 800,
-},
+    border:
+      "1px solid #d7e7f5",
+
+    borderRadius: "20px",
+
+    overflow: "hidden",
+  },
+
+  chartHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent:
+      "space-between",
+
+    gap: "16px",
+
+    marginBottom: "8px",
+  },
+
+  chartEyebrow: {
+    display: "block",
+
+    marginBottom: "3px",
+
+    color: "#2176e5",
+
+    fontSize: "2.2rem",
+
+    fontWeight: 950,
+
+    textTransform: "uppercase",
+
+    letterSpacing: "0.07em",
+  },
+
+  chartTitle: {
+    margin: 0,
+
+    color: "#143b67",
+
+    fontSize: "1.8rem",
+
+    fontWeight: 900,
+  },
+
+  chartLegend: {
+    display: "inline-flex",
+    alignItems: "center",
+
+    gap: "7px",
+
+    color: "#5f7894",
+
+    fontSize: "2rem",
+
+    fontWeight: 850,
+  },
+
+  legendDot: {
+    width: "20px",
+    height: "20px",
+
+    background: "#2176e5",
+
+    border:
+      "2px solid #ffffff",
+
+    borderRadius: "50%",
+
+    boxShadow:
+      "0 0 0 1px #2176e5",
+  },
+
+  chartWrapper: {
+    width: "100%",
+    minHeight: 0,
+
+    flex: 1,
+  },
+
+  loadingState: {
+    width: "100%",
+    minHeight: 0,
+
+    flex: 1,
+
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+
+    gap: "10px",
+
+    color: "#647d98",
+
+    fontSize: "1.8rem",
+
+    fontWeight: 850,
+  },
 };
 
 export default styles;

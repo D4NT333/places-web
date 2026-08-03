@@ -1,162 +1,160 @@
 import React from "react";
 
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler,
-} from "chart.js";
-
-import { Line } from "react-chartjs-2";
+  Activity,
+  Camera,
+  FileText,
+  Flag,
+  MapPin,
+} from "lucide-react";
 
 import styles from "./styles";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler
-);
-
-export default function UserActivityCard() {
-  const activityStats = {
-    total: 12,
-    places: 3,
-    descriptions: 3,
-    photos: 3,
-    reports: 3,
-    pending: 3,
-    approved: 8,
-    rejected: 4,
-  };
-
-  const chartData = {
-    labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
-    datasets: [
-      {
-        label: "Actividad",
-        data: [1, 2, 1, 3, 2, 1, 2],
-        fill: true,
-        tension: 0.35,
-        borderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 5,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        displayColors: false,
-      },
+export default function UserActivityCard({
+  activity,
+}) {
+  const activityItems = [
+    {
+      key: "places",
+      label: "Lugares",
+      description:
+        "Propuestas de lugares enviadas",
+      value:
+        activity?.placesSent || 0,
+      icon: MapPin,
+      cardStyle:
+        styles.activityBlue,
+      iconStyle:
+        styles.iconBlue,
     },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          font: {
-            size: 11,
-            weight: 700,
-          },
-        },
-      },
-      y: {
-        beginAtZero: true,
-        ticks: {
-          precision: 0,
-          font: {
-            size: 11,
-            weight: 700,
-          },
-        },
-      },
+    {
+      key: "descriptions",
+      label: "Descripciones",
+      description:
+        "Descripciones propuestas",
+      value:
+        activity
+          ?.descriptionsSent || 0,
+      icon: FileText,
+      cardStyle:
+        styles.activityGreen,
+      iconStyle:
+        styles.iconGreen,
     },
-  };
+    {
+      key: "photos",
+      label: "Fotografías",
+      description:
+        "Fotografías compartidas",
+      value:
+        activity?.photosSent || 0,
+      icon: Camera,
+      cardStyle:
+        styles.activityPurple,
+      iconStyle:
+        styles.iconPurple,
+    },
+    {
+      key: "reports",
+      label: "Reportes",
+      description:
+        "Reportes enviados",
+      value:
+        activity?.reportsSent || 0,
+      icon: Flag,
+      cardStyle:
+        styles.activityOrange,
+      iconStyle:
+        styles.iconOrange,
+    },
+  ];
 
   return (
     <section style={styles.card}>
-      <div style={styles.header}>
-        <div>
-          <h2 style={styles.title}>Actividad</h2>
-
-          <p style={styles.totalText}>
-            Actividad total:{" "}
-            <strong>{activityStats.total}</strong>
-          </p>
-        </div>
-      </div>
-
-      <div style={styles.contentGrid}>
-        <div style={styles.metricsColumn}>
-          <div style={styles.metricChip}>
-            Lugares enviados:
-            <strong>{activityStats.places}</strong>
-          </div>
-
-          <div style={styles.metricChip}>
-            Descripciones enviadas:
-            <strong>{activityStats.descriptions}</strong>
-          </div>
-
-          <div style={styles.metricChip}>
-            Fotografías enviadas:
-            <strong>{activityStats.photos}</strong>
-          </div>
-
-          <div style={styles.metricChip}>
-            Reportes enviados:
-            <strong>{activityStats.reports}</strong>
-          </div>
-        </div>
-
-        <div style={styles.chartBox}>
-          <div style={styles.chartHeader}>
-            <h3 style={styles.chartTitle}>
-              Actividad semanal
-            </h3>
-
-            <span style={styles.chartHint}>
-              Prueba
-            </span>
-          </div>
-
-          <div style={styles.chartWrapper}>
-            <Line
-              data={chartData}
-              options={chartOptions}
+      <header style={styles.header}>
+        <div style={styles.heading}>
+          <div style={styles.headerIcon}>
+            <Activity
+              size={32}
+              strokeWidth={2.1}
             />
           </div>
+
+          <div style={styles.headerText}>
+            <h2 style={styles.title}>
+              Resumen de actividad
+            </h2>
+
+            <p style={styles.subtitle}>
+              Distribución general de los
+              aportes realizados por el
+              usuario.
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div style={styles.statusRow}>
-        <span style={styles.statusItem}>
-          Pendientes:{" "}
-          <strong>{activityStats.pending}</strong>
-        </span>
+        <div style={styles.totalBox}>
+          <span style={styles.totalLabel}>
+            Total
+          </span>
 
-        <span style={styles.statusItem}>
-          Aprobados:{" "}
-          <strong>{activityStats.approved}</strong>
-        </span>
+          <strong style={styles.totalValue}>
+            {activity?.total || 0}
+          </strong>
+        </div>
+      </header>
 
-        <span style={styles.statusItem}>
-          Rechazados:{" "}
-          <strong>{activityStats.rejected}</strong>
-        </span>
+      <div style={styles.activityGrid}>
+        {activityItems.map(
+          (item) => {
+            const ItemIcon =
+              item.icon;
+
+            return (
+              <article
+                key={item.key}
+                style={{
+                  ...styles.activityItem,
+                  ...item.cardStyle,
+                }}
+              >
+                <div
+                  style={{
+                    ...styles.itemIcon,
+                    ...item.iconStyle,
+                  }}
+                >
+                  <ItemIcon
+                    size={30}
+                    strokeWidth={2.15}
+                  />
+                </div>
+
+                <div style={styles.itemContent}>
+                  <strong
+                    style={styles.itemValue}
+                  >
+                    {item.value}
+                  </strong>
+
+                  <span
+                    style={styles.itemLabel}
+                  >
+                    {item.label}
+                  </span>
+
+                  <span
+                    style={
+                      styles.itemDescription
+                    }
+                  >
+                    {item.description}
+                  </span>
+                </div>
+              </article>
+            );
+          },
+        )}
       </div>
     </section>
   );

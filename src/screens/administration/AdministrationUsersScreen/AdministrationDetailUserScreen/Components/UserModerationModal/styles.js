@@ -11,121 +11,159 @@ const styles = {
 
     padding: "24px",
 
-    background:
-      "rgba(15, 23, 42, 0.58)",
+    boxSizing: "border-box",
 
-    backdropFilter: "blur(2px)",
+    background:
+      "rgba(7, 34, 67, 0.64)",
+
+    backdropFilter:
+      "blur(8px)",
   },
 
   modal: {
-    width: "min(680px, 100%)",
-    maxHeight: "calc(100vh - 48px)",
+    width: "min(760px, 100%)",
+    maxHeight:
+      "calc(100vh - 48px)",
 
     display: "flex",
     flexDirection: "column",
 
     overflow: "hidden",
 
-    background: "#ffffff",
+    background:
+      "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
 
     border:
-      "1px solid #cbd5e1",
+      "1px solid rgba(174, 207, 238, 0.98)",
 
-    borderRadius: "16px",
+    borderRadius: "25px",
 
     boxShadow:
-      "0 24px 70px rgba(15, 23, 42, 0.26)",
+      "0 32px 95px rgba(5, 30, 59, 0.34)",
   },
 
   header: {
     display: "flex",
     alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: "20px",
+    justifyContent:
+      "space-between",
 
-    padding: "20px 22px",
+    gap: "22px",
+
+    padding: "23px 25px",
+
+    background:
+      "linear-gradient(135deg, #eff7ff 0%, #f9fcff 54%, #f5efff 100%)",
 
     borderBottom:
-      "1px solid #e2e8f0",
+      "1px solid #d5e6f5",
   },
 
   headerLabel: {
     display: "block",
 
-    marginBottom: "4px",
+    marginBottom: "5px",
 
-    color: "#64748b",
+    color: "#2176e5",
 
-    fontSize: "12px",
-    fontWeight: 700,
+    fontSize: "0.72rem",
+
+    fontWeight: 950,
+
+    textTransform: "uppercase",
+
+    letterSpacing: "0.075em",
   },
 
   title: {
     margin: 0,
 
-    color: "#0f172a",
+    color: "#082b59",
 
-    fontSize: "22px",
-    lineHeight: 1.25,
+    fontSize: "1.62rem",
+
+    fontWeight: 950,
+
+    lineHeight: 1.18,
+
+    letterSpacing: "-0.03em",
   },
 
   userInformation: {
     display: "flex",
     alignItems: "center",
     flexWrap: "wrap",
-    gap: "8px",
 
-    marginTop: "8px",
+    gap: "9px",
+
+    marginTop: "11px",
   },
 
   userName: {
-    color: "#334155",
+    color: "#315778",
 
-    fontSize: "13px",
+    fontSize: "0.88rem",
+
+    fontWeight: 900,
   },
 
   statusChip: {
+    minHeight: "26px",
+
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-
-    minHeight: "22px",
 
     padding: "2px 9px",
 
     borderRadius: "999px",
 
-    fontSize: "11px",
-    fontWeight: 700,
+    fontSize: "0.72rem",
+
+    fontWeight: 900,
+
+    whiteSpace: "nowrap",
   },
 
   activeStatusChip: {
-    color: "#15803d",
-    background: "#f0fdf4",
-    border: "1px solid #86efac",
+    color: "#078251",
+
+    background: "#eafaf2",
+
+    border:
+      "1px solid #9edcbe",
   },
 
   warnedStatusChip: {
-    color: "#a16207",
-    background: "#fefce8",
-    border: "1px solid #fde047",
+    color: "#b96c08",
+
+    background: "#fff7e8",
+
+    border:
+      "1px solid #f0c97b",
   },
 
   blockedStatusChip: {
-    color: "#b91c1c",
-    background: "#fef2f2",
-    border: "1px solid #fca5a5",
+    color: "#c6333f",
+
+    background: "#fff0f1",
+
+    border:
+      "1px solid #f0aeb4",
   },
 
   pendingStatusChip: {
-    color: "#1d4ed8",
-    background: "#eff6ff",
-    border: "1px solid #93c5fd",
+    color: "#1764c7",
+
+    background: "#edf5ff",
+
+    border:
+      "1px solid #abcff5",
   },
 
   closeButton: {
-    width: "34px",
-    height: "34px",
+    width: "42px",
+    height: "42px",
 
     flexShrink: 0,
 
@@ -135,16 +173,29 @@ const styles = {
 
     padding: 0,
 
-    color: "#334155",
-    background: "#f8fafc",
+    color: "#315778",
 
-    border: "1px solid #cbd5e1",
-    borderRadius: "9px",
+    background:
+      "rgba(255, 255, 255, 0.92)",
 
-    fontSize: "21px",
+    border:
+      "1px solid #b9d3ec",
+
+    borderRadius: "13px",
+
+    boxShadow:
+      "0 8px 19px rgba(31, 73, 116, 0.11)",
+
+    fontSize: "1.5rem",
+
+    fontWeight: 500,
+
     lineHeight: 1,
 
     cursor: "pointer",
+
+    transition:
+      "transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease",
   },
 
   form: {
@@ -157,184 +208,266 @@ const styles = {
   body: {
     display: "flex",
     flexDirection: "column",
-    gap: "20px",
 
-    padding: "22px",
+    gap: "21px",
+
+    padding: "24px 25px",
 
     overflowY: "auto",
+
+    scrollbarWidth: "thin",
+
+    scrollbarColor:
+      "#b8d4ee transparent",
   },
 
   section: {
     display: "flex",
     flexDirection: "column",
+
     gap: "9px",
   },
 
   sectionTitle: {
     margin: 0,
 
-    color: "#1e293b",
+    color: "#163d68",
 
-    fontSize: "14px",
-    fontWeight: 800,
+    fontSize: "0.95rem",
+
+    fontWeight: 950,
   },
 
   sanctionTypeGrid: {
     display: "grid",
+
     gridTemplateColumns:
       "repeat(2, minmax(0, 1fr))",
 
-    gap: "12px",
+    gap: "13px",
   },
 
   sanctionTypeButton: {
-    minHeight: "104px",
+    minHeight: "118px",
 
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-    gap: "8px",
+    justifyContent: "center",
 
-    padding: "15px",
+    gap: "9px",
 
-    color: "#334155",
-    background: "#ffffff",
+    padding: "17px",
 
-    border: "1px solid #cbd5e1",
-    borderRadius: "11px",
+    color: "#315778",
+
+    background:
+      "linear-gradient(145deg, #ffffff, #f8fbff)",
+
+    border:
+      "1px solid #cbddee",
+
+    borderRadius: "17px",
+
+    boxShadow:
+      "0 8px 20px rgba(31, 73, 116, 0.065)",
+
+    fontFamily: "inherit",
 
     textAlign: "left",
 
     cursor: "pointer",
+
+    transition:
+      "transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease, background 150ms ease",
   },
 
   warningButtonActive: {
-    color: "#1e3a8a",
+    color: "#155fb8",
 
-    background: "#eff6ff",
+    background:
+      "linear-gradient(145deg, #edf6ff, #e6f2ff)",
 
-    border: "2px solid #2563eb",
+    border:
+      "2px solid #2176e5",
 
     boxShadow:
-      "0 0 0 3px rgba(37, 99, 235, 0.08)",
+      "0 0 0 4px rgba(33, 118, 229, 0.09), 0 12px 24px rgba(33, 118, 229, 0.12)",
   },
 
   permanentButtonActive: {
-    color: "#991b1b",
+    color: "#b72d3a",
 
-    background: "#fef2f2",
+    background:
+      "linear-gradient(145deg, #fff1f2, #ffe9eb)",
 
-    border: "2px solid #dc2626",
+    border:
+      "2px solid #dc4a57",
 
     boxShadow:
-      "0 0 0 3px rgba(220, 38, 38, 0.08)",
+      "0 0 0 4px rgba(220, 74, 87, 0.09), 0 12px 24px rgba(220, 74, 87, 0.12)",
   },
 
   sanctionTypeName: {
-    fontSize: "14px",
-    fontWeight: 800,
+    color: "inherit",
+
+    fontSize: "0.97rem",
+
+    fontWeight: 950,
   },
 
   sanctionTypeDescription: {
-    color: "#64748b",
+    color: "#647c97",
 
-    fontSize: "12px",
-    lineHeight: 1.45,
+    fontSize: "0.8rem",
+
+    fontWeight: 700,
+
+    lineHeight: 1.48,
   },
 
   label: {
-    color: "#334155",
+    color: "#315778",
 
-    fontSize: "13px",
-    fontWeight: 700,
+    fontSize: "0.86rem",
+
+    fontWeight: 900,
   },
 
   select: {
     width: "100%",
-    minHeight: "42px",
+    minHeight: "47px",
 
-    padding: "0 12px",
+    padding: "0 13px",
 
-    color: "#0f172a",
+    boxSizing: "border-box",
+
+    color: "#153b66",
+
     background: "#ffffff",
 
-    border: "1px solid #cbd5e1",
-    borderRadius: "9px",
+    border:
+      "1px solid #bdd5ec",
+
+    borderRadius: "13px",
+
+    boxShadow:
+      "0 5px 14px rgba(31, 73, 116, 0.05)",
 
     outline: "none",
+
+    fontFamily: "inherit",
+
+    fontSize: "0.84rem",
+
+    fontWeight: 800,
+
+    cursor: "pointer",
   },
 
   textarea: {
     width: "100%",
-    minHeight: "116px",
+    minHeight: "135px",
 
     boxSizing: "border-box",
 
     resize: "vertical",
 
-    padding: "12px",
+    padding: "14px",
 
-    color: "#0f172a",
+    color: "#153b66",
+
     background: "#ffffff",
 
-    border: "1px solid #cbd5e1",
-    borderRadius: "9px",
+    border:
+      "1px solid #bdd5ec",
+
+    borderRadius: "13px",
+
+    boxShadow:
+      "0 5px 14px rgba(31, 73, 116, 0.05)",
 
     fontFamily: "inherit",
-    fontSize: "13px",
-    lineHeight: 1.5,
+
+    fontSize: "0.84rem",
+
+    fontWeight: 650,
+
+    lineHeight: 1.55,
 
     outline: "none",
   },
 
   inputError: {
-    border: "1px solid #dc2626",
+    border:
+      "1px solid #dc4a57",
+
     boxShadow:
-      "0 0 0 2px rgba(220, 38, 38, 0.08)",
+      "0 0 0 3px rgba(220, 74, 87, 0.09)",
   },
 
   textareaFooter: {
-    minHeight: "18px",
+    minHeight: "19px",
 
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
+
     gap: "12px",
   },
 
   characterCount: {
     marginLeft: "auto",
 
-    color: "#64748b",
+    color: "#7186a0",
 
-    fontSize: "11px",
+    fontSize: "0.72rem",
+
+    fontWeight: 800,
   },
 
   errorMessage: {
     margin: 0,
 
-    color: "#b91c1c",
+    color: "#b72d3a",
 
-    fontSize: "12px",
+    fontSize: "0.77rem",
+
+    fontWeight: 750,
+
     lineHeight: 1.4,
   },
 
   permanentWarningBox: {
-    padding: "14px 16px",
+    padding: "16px 18px",
 
-    color: "#991b1b",
-    background: "#fef2f2",
+    color: "#b72d3a",
 
-    border: "1px solid #fca5a5",
-    borderRadius: "10px",
+    background:
+      "linear-gradient(145deg, #fff1f2, #fff7f7)",
 
-    fontSize: "13px",
+    border:
+      "1px solid #f0aeb4",
+
+    borderRadius: "15px",
+
+    boxShadow:
+      "0 8px 18px rgba(220, 74, 87, 0.07)",
+
+    fontSize: "0.85rem",
+
+    fontWeight: 900,
   },
 
   warningText: {
-    margin: "6px 0 0",
+    margin: "7px 0 0",
 
-    color: "#b91c1c",
+    color: "#c13a46",
+
+    fontSize: "0.8rem",
+
+    fontWeight: 700,
 
     lineHeight: 1.5,
   },
@@ -342,91 +475,133 @@ const styles = {
   confirmationSection: {
     display: "flex",
     flexDirection: "column",
-    gap: "8px",
 
-    padding: "14px",
+    gap: "9px",
 
-    background: "#f8fafc",
+    padding: "15px 16px",
 
-    border: "1px solid #e2e8f0",
-    borderRadius: "10px",
+    background:
+      "linear-gradient(145deg, #f2f8ff, #f8fbff)",
+
+    border:
+      "1px solid #d4e5f6",
+
+    borderRadius: "14px",
   },
 
   checkboxLabel: {
     display: "flex",
     alignItems: "flex-start",
-    gap: "9px",
 
-    color: "#475569",
+    gap: "10px",
 
-    fontSize: "12px",
-    lineHeight: 1.45,
+    color: "#536f8d",
+
+    fontSize: "0.8rem",
+
+    fontWeight: 750,
+
+    lineHeight: 1.5,
 
     cursor: "pointer",
   },
 
   submitErrorBox: {
-    padding: "11px 13px",
+    padding: "12px 14px",
 
-    color: "#b91c1c",
-    background: "#fef2f2",
+    color: "#b72d3a",
 
-    border: "1px solid #fecaca",
-    borderRadius: "9px",
+    background: "#fff1f2",
 
-    fontSize: "12px",
+    border:
+      "1px solid #f0aeb4",
+
+    borderRadius: "12px",
+
+    fontSize: "0.8rem",
+
+    fontWeight: 800,
+
+    lineHeight: 1.45,
   },
 
   footer: {
     display: "flex",
     justifyContent: "flex-end",
-    gap: "10px",
 
-    padding: "16px 22px",
+    gap: "11px",
 
-    background: "#ffffff",
+    padding: "17px 25px",
+
+    background:
+      "rgba(255, 255, 255, 0.98)",
 
     borderTop:
-      "1px solid #e2e8f0",
+      "1px solid #d8e8f7",
   },
 
   cancelButton: {
-    minWidth: "112px",
-    minHeight: "40px",
+    minWidth: "118px",
+    minHeight: "44px",
 
     padding: "0 18px",
 
-    color: "#0f172a",
+    color: "#153b66",
+
     background: "#ffffff",
 
-    border: "1px solid #94a3b8",
-    borderRadius: "9px",
+    border:
+      "1px solid #9ebbd8",
 
-    fontWeight: 700,
+    borderRadius: "12px",
+
+    boxShadow:
+      "0 7px 16px rgba(31, 73, 116, 0.07)",
+
+    fontFamily: "inherit",
+
+    fontSize: "0.84rem",
+
+    fontWeight: 900,
 
     cursor: "pointer",
   },
 
   submitButton: {
-    minWidth: "190px",
-    minHeight: "40px",
+    minWidth: "205px",
+    minHeight: "44px",
 
     padding: "0 20px",
 
     color: "#ffffff",
-    background: "#0f172a",
 
-    border: "1px solid #0f172a",
-    borderRadius: "9px",
+    background:
+      "linear-gradient(135deg, #2176e5, #1764c7)",
 
-    fontWeight: 800,
+    border: "none",
+
+    borderRadius: "12px",
+
+    boxShadow:
+      "0 11px 24px rgba(33, 118, 229, 0.23)",
+
+    fontFamily: "inherit",
+
+    fontSize: "0.84rem",
+
+    fontWeight: 900,
 
     cursor: "pointer",
   },
 
   permanentSubmitButton: {
-    background: "#b91c1c",
-    border: "1px solid #b91c1c",
+    background:
+      "linear-gradient(135deg, #dc4a57, #bd2f3c)",
+
+    border: "none",
+
+    boxShadow:
+      "0 11px 24px rgba(220, 74, 87, 0.23)",
   },
 };
 

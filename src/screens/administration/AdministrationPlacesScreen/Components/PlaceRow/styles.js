@@ -327,6 +327,28 @@ const styles = {
     transform:
       "translateX(3px)",
   },
+  personAvatar: {
+  width:
+    "90px",
+
+  height:
+    "90px",
+
+  flexShrink:
+    0,
+
+  objectFit:
+    "cover",
+
+  border:
+    "2px solid #d8e9f8",
+
+  borderRadius:
+    "50%",
+
+  boxShadow:
+    "0 3px 10px rgba(24, 72, 115, 0.14)",
+},
 };
 
 export default styles;

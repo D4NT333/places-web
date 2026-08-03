@@ -5,6 +5,11 @@ import {
   useParams,
 } from "react-router-dom";
 
+import {
+  UserRound,
+  ArrowLeft,
+} from "lucide-react";
+
 import LayoutScreen from "../../../../layout";
 
 import UserOverviewCard from "./Components/UserOverviewCard";
@@ -820,92 +825,166 @@ const handleWeekChange = async (weekStart) => {
   });
 };
 
-  return (
-    <LayoutScreen breadcrumbs={breadcrumbs}>
-      <main style={styles.container}>
-        {loadingDetail ? (
-          <div style={styles.stateBox}>
-            Cargando detalle del usuario...
+return (
+  <LayoutScreen breadcrumbs={breadcrumbs}>
+    <main style={styles.container}>
+
+      {loadingDetail ? (
+        <div style={styles.stateBox}>
+          Cargando detalle del usuario...
+        </div>
+      ) : null}
+
+      {!loadingDetail &&
+      errorMessage ? (
+        <div style={styles.errorBox}>
+          {errorMessage}
+        </div>
+      ) : null}
+
+      {!loadingDetail &&
+      !errorMessage &&
+      user ? (
+        <section style={styles.dashboardGrid}>
+          <div style={styles.userArea}>
+            <UserOverviewCard
+              user={user}
+              activity={activity}
+              onModerate={
+                handleModerateUser
+              }
+            />
           </div>
-        ) : null}
 
-        {!loadingDetail && errorMessage ? (
-          <div style={styles.errorBox}>
-            {errorMessage}
+          <div style={styles.reportsArea}>
+            <ReceivedReportsPanel
+              reports={receivedReports}
+              emptyMessage={
+                reportsEmptyMessage
+              }
+              loading={loadingReports}
+              loadingMore={
+                loadingMoreReports
+              }
+              hasMore={reportsHasMore}
+              onLoadMore={
+                handleLoadMoreReports
+              }
+              onOpenReport={
+                handleOpenReport
+              }
+            />
           </div>
-        ) : null}
 
-        {!loadingDetail && !errorMessage && user ? (
-          <>
-            <section style={styles.contentGrid}>
-              <div style={styles.leftColumn}>
-                <UserOverviewCard
-                  user={user}
-                  onModerate={handleModerateUser}
-                >
-                 <ReceivedReportsPanel
-  reports={receivedReports}
-  emptyMessage={reportsEmptyMessage}
-  loading={loadingReports}
-  loadingMore={loadingMoreReports}
-  hasMore={reportsHasMore}
-  onLoadMore={handleLoadMoreReports}
-  onOpenReport={handleOpenReport}
-/>
-                </UserOverviewCard>
+          <div style={styles.activityArea}>
+            <ActivitySummaryCard
+              activity={activity}
+              selectedWeekStart={
+                selectedWeekStart
+              }
+              loading={loadingActivity}
+              onWeekChange={
+                handleWeekChange
+              }
+            />
+          </div>
 
-                <ActivitySummaryCard
-  activity={activity}
-  selectedWeekStart={selectedWeekStart}
-  loading={loadingActivity}
-  onWeekChange={handleWeekChange}
-/>
-              </div>
+      <div style={styles.historyArea}>
+  <UserHistoryPanel
+    history={history}
+    loading={loadingHistory}
+    loadingMore={
+      loadingMoreHistory
+    }
+    hasMore={historyHasMore}
+    onLoadMore={
+      handleLoadMoreHistory
+    }
+    onOpenItem={
+      handleOpenHistoryItem
+    }
+  />
 
-             <UserHistoryPanel
-  history={history}
-  loading={loadingHistory}
-  loadingMore={loadingMoreHistory}
-  hasMore={historyHasMore}
-  onLoadMore={handleLoadMoreHistory}
-  onOpenItem={handleOpenHistoryItem}
-/>
-            </section>
+  <div style={styles.historyActions}>
+    <button
+      type="button"
+      style={styles.backButton}
+      onClick={handleBack}
+      onMouseEnter={(event) => {
+        event.currentTarget.style.transform =
+          "translateY(-2px)";
 
-            <div style={styles.actionsRow}>
-              <button
-                type="button"
-                style={styles.backButton}
-                onClick={handleBack}
-              >
-                Volver
-              </button>
-            </div>
-          </>
-        ) : null}
-      </main>
+        event.currentTarget.style.boxShadow =
+          "0 12px 26px rgba(31, 73, 116, 0.17)";
+      }}
+      onMouseLeave={(event) => {
+        event.currentTarget.style.transform =
+          "translateY(0)";
 
- <UserModerationModal
-  isOpen={isModerationPanelOpen}
-  user={user}
-  isSubmitting={isModerating}
-  submitError={moderationSubmitError}
-  onClose={handleCloseModerationPanel}
-  onSubmit={handleSubmitModeration}
-/>
+        event.currentTarget.style.boxShadow =
+          "0 8px 20px rgba(31, 73, 116, 0.12)";
+      }}
+    >
+      <ArrowLeft
+        size={60}
+        strokeWidth={2.4}
+      />
 
-<ReportDetailModal
-  isOpen={Boolean(selectedReport)}
-  report={selectedReport}
-  loading={loadingReportDetail}
-  isSubmitting={isResolvingReport}
-  submitError={reportDetailError}
-  onClose={handleCloseReportModal}
-  onValidate={handleValidateReport}
-  onDiscard={handleDiscardReport}
-  onOpenRelated={handleOpenRelated}
-  onOpenReporter={handleOpenReporter}
-/>
-    </LayoutScreen>
-  );
+      Volver
+    </button>
+  </div>
+</div>
+        </section>
+      ) : null}
+    </main>
+
+    <UserModerationModal
+      isOpen={
+        isModerationPanelOpen
+      }
+      user={user}
+      isSubmitting={isModerating}
+      submitError={
+        moderationSubmitError
+      }
+      onClose={
+        handleCloseModerationPanel
+      }
+      onSubmit={
+        handleSubmitModeration
+      }
+    />
+
+    <ReportDetailModal
+      isOpen={
+        Boolean(selectedReport)
+      }
+      report={selectedReport}
+      loading={
+        loadingReportDetail
+      }
+      isSubmitting={
+        isResolvingReport
+      }
+      submitError={
+        reportDetailError
+      }
+      onClose={
+        handleCloseReportModal
+      }
+      onValidate={
+        handleValidateReport
+      }
+      onDiscard={
+        handleDiscardReport
+      }
+      onOpenRelated={
+        handleOpenRelated
+      }
+      onOpenReporter={
+        handleOpenReporter
+      }
+    />
+  </LayoutScreen>
+);
 }

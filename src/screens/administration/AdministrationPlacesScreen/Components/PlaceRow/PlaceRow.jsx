@@ -333,38 +333,76 @@ export default function PlaceRow({
       </div>
 
       <div
-        style={
-          styles.personCell
-        }
-      >
-        <UserRound
-          size={50}
-          strokeWidth={2.1}
-        />
+  style={
+    styles.personCell
+  }
+>
+  {place.createdBy
+    ?.photoURL ? (
+    <img
+      src={
+        place.createdBy
+          .photoURL
+      }
+      alt={
+        place.createdBy
+          .name ||
+        "Usuario"
+      }
+      style={
+        styles.personAvatar
+      }
+      referrerPolicy="no-referrer"
+    />
+  ) : (
+    <UserRound
+      size={50}
+      strokeWidth={2.1}
+    />
+  )}
 
-        <span>
-          {place.createdBy
-            ?.name ||
-            "Sin usuario"}
-        </span>
-      </div>
+  <span>
+    {place.createdBy
+      ?.name ||
+      "Sin usuario"}
+  </span>
+</div>
 
-      <div
-        style={
-          styles.personCell
-        }
-      >
-        <CheckCircle2
-          size={50}
-          strokeWidth={2.1}
-        />
+     <div
+  style={
+    styles.personCell
+  }
+>
+  {place.approvedBy
+    ?.photoURL ? (
+    <img
+      src={
+        place.approvedBy
+          .photoURL
+      }
+      alt={
+        place.approvedBy
+          .name ||
+        "Administrador"
+      }
+      style={
+        styles.personAvatar
+      }
+      referrerPolicy="no-referrer"
+    />
+  ) : (
+    <CheckCircle2
+      size={50}
+      strokeWidth={2.1}
+    />
+  )}
 
-        <span>
-          {place.approvedBy
-            ?.name ||
-            "Sin aceptar"}
-        </span>
-      </div>
+  <span>
+    {place.approvedBy
+      ?.name ||
+      "Sin aceptar"}
+  </span>
+</div>
 
       <div
         style={
