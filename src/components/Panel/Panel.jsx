@@ -399,33 +399,6 @@ export default function Panel({
             ))}
           </div>
         </nav>
-
-        <div style={styles.userArea}>
-          <div style={styles.userCard}>
-            <div style={styles.userAvatar}>
-              <UserRound
-                size={24}
-                strokeWidth={2}
-              />
-            </div>
-
-            <div style={styles.userInfo}>
-              <strong style={styles.userName}>
-                Dante
-              </strong>
-
-              <span style={styles.userRole}>
-                Administrador
-              </span>
-            </div>
-
-            <ChevronRight
-              size={39}
-              strokeWidth={2}
-              style={styles.userChevron}
-            />
-          </div>
-        </div>
       </div>
     </aside>
   );

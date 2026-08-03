@@ -15,9 +15,14 @@ function formatDate(dateValue) {
     return "Sin fecha";
   }
 
-  const date = new Date(dateValue);
+  const date =
+    new Date(dateValue);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime(),
+    )
+  ) {
     return "Sin fecha";
   }
 
@@ -31,27 +36,39 @@ function formatDate(dateValue) {
   ).format(date);
 }
 
-function formatRelativeDate(dateValue) {
+function formatRelativeDate(
+  dateValue,
+) {
   if (!dateValue) {
     return "Sin actividad";
   }
 
-  const date = new Date(dateValue);
+  const date =
+    new Date(dateValue);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime(),
+    )
+  ) {
     return "Sin actividad";
   }
 
   const differenceMs =
-    Date.now() - date.getTime();
+    Date.now() -
+    date.getTime();
 
   if (differenceMs < 0) {
-    return formatDate(dateValue);
+    return formatDate(
+      dateValue,
+    );
   }
 
-  const minutes = Math.floor(
-    differenceMs / 60000,
-  );
+  const minutes =
+    Math.floor(
+      differenceMs /
+        60000,
+    );
 
   if (minutes < 1) {
     return "Hace un momento";
@@ -63,9 +80,11 @@ function formatRelativeDate(dateValue) {
       : `Hace ${minutes} min`;
   }
 
-  const hours = Math.floor(
-    minutes / 60,
-  );
+  const hours =
+    Math.floor(
+      minutes /
+        60,
+    );
 
   if (hours < 24) {
     return hours === 1
@@ -73,9 +92,11 @@ function formatRelativeDate(dateValue) {
       : `Hace ${hours} h`;
   }
 
-  const days = Math.floor(
-    hours / 24,
-  );
+  const days =
+    Math.floor(
+      hours /
+        24,
+    );
 
   if (days < 30) {
     return days === 1
@@ -83,7 +104,9 @@ function formatRelativeDate(dateValue) {
       : `Hace ${days} días`;
   }
 
-  return formatDate(dateValue);
+  return formatDate(
+    dateValue,
+  );
 }
 
 function AdminAvatar({
@@ -99,8 +122,12 @@ function AdminAvatar({
     return (
       <img
         src={avatarSource}
-        alt={admin.displayName}
-        style={styles.avatarImage}
+        alt={
+          admin.displayName
+        }
+        style={
+          styles.avatarImage
+        }
         referrerPolicy="no-referrer"
       />
     );
@@ -110,39 +137,53 @@ function AdminAvatar({
     {
       background:
         "linear-gradient(145deg, #e8f6ff, #f4fbff)",
-      color: "#0d819c",
+      color:
+        "#0d819c",
     },
     {
       background:
         "linear-gradient(145deg, #f0edff, #faf8ff)",
-      color: "#6040bf",
+      color:
+        "#6040bf",
     },
     {
       background:
         "linear-gradient(145deg, #eaf3ff, #f8fbff)",
-      color: "#2673d8",
+      color:
+        "#2673d8",
     },
     {
       background:
         "linear-gradient(145deg, #eef4fa, #fbfdff)",
-      color: "#58718d",
+      color:
+        "#58718d",
     },
   ];
 
   const palette =
-    palettes[index % palettes.length];
+    palettes[
+      index %
+      palettes.length
+    ];
 
   return (
     <div
       style={{
         ...styles.avatarFallback,
-        background: palette.background,
-        color: palette.color,
+
+        background:
+          palette.background,
+
+        color:
+          palette.color,
       }}
     >
       {admin.initials ||
         admin.displayName
-          ?.slice(0, 2)
+          ?.slice(
+            0,
+            2,
+          )
           .toUpperCase()}
     </div>
   );
@@ -157,123 +198,221 @@ export default function AdminTable({
     admin,
   ) {
     if (
-      event.key === "Enter" ||
-      event.key === " "
+      event.key ===
+        "Enter" ||
+      event.key ===
+        " "
     ) {
       event.preventDefault();
-      onViewDetails(admin);
+
+      onViewDetails(
+        admin,
+      );
     }
   }
 
   return (
-    <section style={styles.tableCard}>
-      <div style={styles.tableScroller}>
-        <table style={styles.table}>
+    <section
+      style={
+        styles.tableCard
+      }
+    >
+      <div
+        style={
+          styles.tableScroller
+        }
+      >
+        <table
+          style={
+            styles.table
+          }
+        >
           <thead>
-            <tr style={styles.headerRow}>
-              <th style={styles.adminHeader}>
+            <tr
+              style={
+                styles.headerRow
+              }
+            >
+              <th
+                style={
+                  styles.adminHeader
+                }
+              >
                 ADMINISTRADOR
               </th>
 
-              <th style={styles.headerCell}>
+              <th
+                style={
+                  styles.headerCell
+                }
+              >
                 ROL
               </th>
 
-              <th style={styles.headerCell}>
+              <th
+                style={
+                  styles.headerCell
+                }
+              >
                 FECHA DE ALTA
               </th>
 
-              <th style={styles.headerCell}>
-                CREADO POR
+              <th
+                style={
+                  styles.headerCell
+                }
+              >
+                ÚLTIMA INICIO DE SESIÓN
               </th>
 
-              <th style={styles.headerCell}>
-                ÚLTIMA ACTIVIDAD
-              </th>
-
-              <th style={styles.headerCell}>
+              <th
+                style={
+                  styles.headerCell
+                }
+              >
                 ESTADO
               </th>
 
               <th
                 aria-label="Abrir detalle"
-                style={styles.selectionHeader}
+                style={
+                  styles.selectionHeader
+                }
               />
             </tr>
           </thead>
 
           <tbody>
             {admins.map(
-              (admin, index) => (
+              (
+                admin,
+                index,
+              ) => (
                 <tr
-                  key={admin.id}
-                  tabIndex={0}
+                  key={
+                    admin.id
+                  }
+                  tabIndex={
+                    0
+                  }
                   role="button"
                   title={`Ver detalle de ${admin.displayName}`}
                   aria-label={`Ver detalle de ${admin.displayName}`}
                   onClick={() =>
-                    onViewDetails(admin)
+                    onViewDetails(
+                      admin,
+                    )
                   }
-                  onKeyDown={(event) =>
+                  onKeyDown={(
+                    event,
+                  ) =>
                     handleRowKeyDown(
                       event,
                       admin,
                     )
                   }
-                  onMouseEnter={(event) => {
-  event.currentTarget.style.background =
-    "rgba(234, 244, 255, 0.78)";
-}}
+                  onMouseEnter={(
+                    event,
+                  ) => {
+                    event
+                      .currentTarget
+                      .style
+                      .background =
+                      "rgba(234, 244, 255, 0.78)";
+                  }}
+                  onMouseLeave={(
+                    event,
+                  ) => {
+                    event
+                      .currentTarget
+                      .style
+                      .background =
+                      "transparent";
+                  }}
+                  onFocus={(
+                    event,
+                  ) => {
+                    event
+                      .currentTarget
+                      .style
+                      .background =
+                      "rgba(234, 244, 255, 0.78)";
 
-onMouseLeave={(event) => {
-  event.currentTarget.style.background =
-    "transparent";
-}}
+                    event
+                      .currentTarget
+                      .style
+                      .outline =
+                      "2px solid rgba(38, 128, 236, 0.28)";
 
-onFocus={(event) => {
-  event.currentTarget.style.background =
-    "rgba(234, 244, 255, 0.78)";
+                    event
+                      .currentTarget
+                      .style
+                      .outlineOffset =
+                      "-2px";
+                  }}
+                  onBlur={(
+                    event,
+                  ) => {
+                    event
+                      .currentTarget
+                      .style
+                      .background =
+                      "transparent";
 
-  event.currentTarget.style.outline =
-    "2px solid rgba(38, 128, 236, 0.28)";
-
-  event.currentTarget.style.outlineOffset =
-    "-2px";
-}}
-
-onBlur={(event) => {
-  event.currentTarget.style.background =
-    "transparent";
-
-  event.currentTarget.style.outline =
-    "none";
-}}
-                  style={styles.selectableRow}
+                    event
+                      .currentTarget
+                      .style
+                      .outline =
+                      "none";
+                  }}
+                  style={
+                    styles.selectableRow
+                  }
                 >
-                  <td style={styles.adminCell}>
+                  <td
+                    style={
+                      styles.adminCell
+                    }
+                  >
                     <div
-                      style={styles.adminProfile}
+                      style={
+                        styles.adminProfile
+                      }
                     >
                       <AdminAvatar
-                        admin={admin}
-                        index={index}
+                        admin={
+                          admin
+                        }
+                        index={
+                          index
+                        }
                       />
 
                       <div
-                        style={styles.adminText}
+                        style={
+                          styles.adminText
+                        }
                       >
                         <div
-                          style={styles.nameLine}
+                          style={
+                            styles.nameLine
+                          }
                         >
                           <strong
-                            style={styles.adminName}
+                            style={
+                              styles.adminName
+                            }
                           >
-                            {admin.displayName}
+                            {
+                              admin.displayName
+                            }
                           </strong>
 
                           {admin.isCurrentAdmin && (
                             <span
-                              style={styles.youBadge}
+                              style={
+                                styles.youBadge
+                              }
                             >
                               Tú
                             </span>
@@ -281,28 +420,48 @@ onBlur={(event) => {
                         </div>
 
                         <span
-                          style={styles.adminEmail}
+                          style={
+                            styles.adminEmail
+                          }
                         >
-                          {admin.email}
+                          {
+                            admin.email
+                          }
                         </span>
                       </div>
                     </div>
                   </td>
 
-                  <td style={styles.cell}>
+                  <td
+                    style={
+                      styles.cell
+                    }
+                  >
                     <AdminRoleBadge
-                      role={admin.role}
+                      role={
+                        admin.role
+                      }
                     />
                   </td>
 
-                  <td style={styles.cell}>
+                  <td
+                    style={
+                      styles.cell
+                    }
+                  >
                     <div
-                      style={styles.dateValue}
+                      style={
+                        styles.dateValue
+                      }
                     >
                       <CalendarDays
-                        size={40}
+                        size={
+                          40
+                        }
                         color="#2583f4"
-                        strokeWidth={2.2}
+                        strokeWidth={
+                          2.2
+                        }
                       />
 
                       <span>
@@ -313,18 +472,24 @@ onBlur={(event) => {
                     </div>
                   </td>
 
-                  <td style={styles.cell}>
-                    {admin.createdBy}
-                  </td>
-
-                  <td style={styles.cell}>
+                  <td
+                    style={
+                      styles.cell
+                    }
+                  >
                     <div
-                      style={styles.dateValue}
+                      style={
+                        styles.dateValue
+                      }
                     >
                       <CalendarDays
-                        size={40}
+                        size={
+                          40
+                        }
                         color="#2583f4"
-                        strokeWidth={2.2}
+                        strokeWidth={
+                          2.2
+                        }
                       />
 
                       <span>
@@ -335,9 +500,15 @@ onBlur={(event) => {
                     </div>
                   </td>
 
-                  <td style={styles.cell}>
+                  <td
+                    style={
+                      styles.cell
+                    }
+                  >
                     <AdminStatusBadge
-                      status={admin.status}
+                      status={
+                        admin.status
+                      }
                     />
                   </td>
 
@@ -347,22 +518,32 @@ onBlur={(event) => {
                     }
                   >
                     <ChevronRight
-                      size={24}
-                      strokeWidth={2.4}
+                      size={
+                        50
+                      }
+                      strokeWidth={
+                        2.4
+                      }
                     />
                   </td>
                 </tr>
               ),
             )}
 
-            {admins.length === 0 && (
+            {admins.length ===
+              0 && (
               <tr>
                 <td
-                  colSpan={7}
-                  style={styles.emptyCell}
+                  colSpan={
+                    6
+                  }
+                  style={
+                    styles.emptyCell
+                  }
                 >
                   No se encontraron
-                  administradores con el filtro
+                  administradores con
+                  el filtro
                   seleccionado.
                 </td>
               </tr>

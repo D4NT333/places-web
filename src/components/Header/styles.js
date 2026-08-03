@@ -71,8 +71,8 @@ const styles = {
     display: "grid",
     placeItems: "center",
 
-    width: "43px",
-    height: "43px",
+    width: "63px",
+    height: "63px",
 
     padding: 0,
 
@@ -112,7 +112,7 @@ const styles = {
   collapsedBrandTitle: {
     color: colors.navy,
 
-    fontSize: "35px",
+    fontSize: "40px",
     fontWeight: 800,
 
     lineHeight: 1.15,
@@ -123,7 +123,7 @@ const styles = {
 
     color: colors.blue,
 
-    fontSize: "16px",
+    fontSize: "22px",
     fontWeight: 700,
   },
 

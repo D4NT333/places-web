@@ -914,7 +914,7 @@ async function handleConfirmReactivate() {
 
               <ActivityCard
                 icon={Clock3}
-                label="Última acción"
+                label="Último inicio de sesión"
                 value={formatRelativeDate(
                   admin.activity
                     ?.lastAction ||
@@ -1086,9 +1086,7 @@ async function handleConfirmReactivate() {
                     />
 
                     <span>
-                      Las acciones realizadas
-                      quedarán registradas en la
-                      auditoría.
+                      Los cambios realizados se aplicarán inmediatamente a la cuenta administrativa.
                     </span>
                   </div>
                 )}

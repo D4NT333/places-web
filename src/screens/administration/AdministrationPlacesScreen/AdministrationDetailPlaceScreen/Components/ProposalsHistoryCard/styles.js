@@ -492,13 +492,22 @@ const styles = {
       "1px solid #ddd6fe",
   },
 
-  statusPendingDelete: {
-    color: "#c2410c",
-    backgroundColor: "#fff7ed",
+statusPendingDelete: {
+  color: "#c2410c",
+  backgroundColor: "#fff7ed",
 
-    border:
-      "1px solid #fed7aa",
-  },
+  border:
+    "1px solid #fed7aa",
+
+  minWidth: "0",
+  minHeight: "27px",
+
+  padding: "0 7px",
+  gap: "3px",
+
+  fontSize: "1rem",
+  lineHeight: 1,
+},
 
   detailCell: {
     display: "flex",

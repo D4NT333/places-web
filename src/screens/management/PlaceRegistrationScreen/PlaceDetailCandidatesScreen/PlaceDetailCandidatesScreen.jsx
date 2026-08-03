@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   CircleX,
+  LoaderCircle,
   MapPinned,
   ShieldCheck,
 } from "lucide-react";
@@ -34,6 +35,8 @@ import {
 import {
   registerPlaceFromCandidateService,
 } from "../../../../services/api/registerPlaceFromCandidate.service";
+
+import { rejectGooglePlaceCandidateService } from "../../../../services/api/managment/update/rejectGooglePlaceCandidate.service";
 
 import styles from "./styles";
 
@@ -131,6 +134,16 @@ export default function PlaceDetailCandidatesScreen() {
   const {
     candidateId,
   } = useParams();
+
+  const [
+  rejecting,
+  setRejecting,
+] = useState(false);
+
+const [
+  accepting,
+  setAccepting,
+] = useState(false);
 
   const candidateFromState =
     location.state?.candidate ||
@@ -483,18 +496,108 @@ export default function PlaceDetailCandidatesScreen() {
     );
   }
 
-  function handleReject() {
+  async function handleReject() {
+  if (!candidateId) {
+    alert(
+      "No se encontró el ID del candidato.",
+    );
+
+    return;
+  }
+
+  if (
+    status !== "in_review"
+  ) {
+    alert(
+      "Este candidato ya fue revisado.",
+    );
+
+    return;
+  }
+
+  if (
+    rejecting ||
+    accepting
+  ) {
+    return;
+  }
+
+  const confirmed =
+    window.confirm(
+      "¿Seguro que deseas rechazar este candidato? Ya no volverá a aparecer en futuras búsquedas.",
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setRejecting(true);
+
+    const result =
+      await rejectGooglePlaceCandidateService({
+        candidateId,
+
+        reason:
+          "not_suitable_for_lsearch",
+      });
+
+    console.log(
+      "Candidato rechazado:",
+      result,
+    );
+
     setStatus(
       "rejected",
     );
 
-    console.log(
-      "Candidato rechazado:",
-      candidateId,
+    alert(
+      "Candidato rechazado correctamente.",
     );
+
+    navigate(
+      "/management/place-registration/candidates",
+      {
+        replace: true,
+
+        state: {
+          hexId,
+        },
+      },
+    );
+  } catch (error) {
+    console.error(
+      "Error rechazando candidato:",
+      {
+        message:
+          error.message,
+
+        status:
+          error.response?.status,
+
+        data:
+          error.response?.data,
+      },
+    );
+
+    alert(
+      error.response?.data?.message ||
+      error.message ||
+      "No se pudo rechazar el candidato.",
+    );
+  } finally {
+    setRejecting(false);
   }
+}
 
   async function handleAccept() {
+    if (
+  accepting ||
+  rejecting ||
+  status !== "in_review"
+) {
+  return;
+}
     if (!candidateId) {
       alert(
         "No se encontró el ID del candidato.",
@@ -569,12 +672,10 @@ export default function PlaceDetailCandidatesScreen() {
       return;
     }
 
-    try {
-      setStatus(
-        "accepted",
-      );
+  try {
+  setAccepting(true);
 
-      const payload = {
+  const payload = {
         candidateId,
 
         googlePlaceId:
@@ -666,6 +767,10 @@ export default function PlaceDetailCandidatesScreen() {
           payload,
         );
 
+        setStatus(
+  "accepted",
+);
+
       console.log(
         "Lugar creado:",
         result,
@@ -684,21 +789,28 @@ export default function PlaceDetailCandidatesScreen() {
         },
       );
     } catch (error) {
-      console.error(
-        "Error aceptando candidato:",
-        error,
-      );
+  console.error(
+    "Error aceptando candidato:",
+    {
+      message:
+        error.message,
 
-      setStatus(
-        candidate.status ||
-          "in_review",
-      );
+      status:
+        error.response?.status,
 
-      alert(
-        error.message ||
-          "No se pudo aceptar el candidato.",
-      );
-    }
+      data:
+        error.response?.data,
+    },
+  );
+
+  alert(
+    error.response?.data?.message ||
+      error.message ||
+      "No se pudo aceptar el candidato.",
+  );
+} finally {
+  setAccepting(false);
+}
   }
 
   function handleBack() {
@@ -789,35 +901,87 @@ export default function PlaceDetailCandidatesScreen() {
           </div>
 
           <div style={styles.headerActions}>
+        <button
+  type="button"
+  style={{
+    ...styles.rejectButton,
+
+    ...((rejecting ||
+      accepting ||
+      status !== "in_review") &&
+      styles.actionButtonDisabled),
+  }}
+  onClick={
+    handleReject
+  }
+  disabled={
+    rejecting ||
+    accepting ||
+    status !== "in_review"
+  }
+>
+  {rejecting ? (
+    <>
+      <LoaderCircle
+        size={40}
+        strokeWidth={2.3}
+        className="spin"
+      />
+
+      Rechazando...
+    </>
+  ) : (
+    <>
+      <CircleX
+        size={40}
+        strokeWidth={2.3}
+      />
+
+      Rechazar
+    </>
+  )}
+</button>
+
             <button
-              type="button"
-              style={styles.rejectButton}
-              onClick={
-                handleReject
-              }
-            >
-              <CircleX
-                size={40}
-                strokeWidth={2.3}
-              />
+  type="button"
+  style={{
+    ...styles.acceptButton,
 
-              Rechazar
-            </button>
+    ...((accepting ||
+      rejecting ||
+      status !== "in_review") &&
+      styles.actionButtonDisabled),
+  }}
+  onClick={
+    handleAccept
+  }
+  disabled={
+    accepting ||
+    rejecting ||
+    status !== "in_review"
+  }
+>
+  {accepting ? (
+    <>
+      <LoaderCircle
+        size={40}
+        strokeWidth={2.3}
+        className="spin"
+      />
 
-            <button
-              type="button"
-              style={styles.acceptButton}
-              onClick={
-                handleAccept
-              }
-            >
-              <CheckCircle2
-                size={40}
-                strokeWidth={2.3}
-              />
+      Registrando...
+    </>
+  ) : (
+    <>
+      <CheckCircle2
+        size={40}
+        strokeWidth={2.3}
+      />
 
-              Aceptar candidato
-            </button>
+      Aceptar candidato
+    </>
+  )}
+</button>
           </div>
         </section>
 

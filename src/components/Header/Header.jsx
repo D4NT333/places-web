@@ -254,7 +254,7 @@ export default function Header({
               aria-label="Abrir panel"
             >
               <Menu
-                size={38}
+                size={60}
                 strokeWidth={3}
               />
             </button>
@@ -274,20 +274,7 @@ export default function Header({
         </div>
 
         <div style={styles.rightSection}>
-          <button
-            type="button"
-            style={styles.notificationButton}
-            onClick={handleNotificationsClick}
-            title="Notificaciones"
-          >
-            <img
-              src={icons.bell}
-              alt="Notificaciones"
-              style={styles.notificationIcon}
-            />
-
-          </button>
-
+          
           <UserBadge
   name={displayName}
   email={email}
