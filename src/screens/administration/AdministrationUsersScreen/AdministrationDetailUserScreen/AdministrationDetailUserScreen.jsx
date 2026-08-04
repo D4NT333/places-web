@@ -48,34 +48,43 @@ function formatDate(value) {
   }).format(date);
 }
 
-function normalizeUserForView(user) {
-  if (!user) {
-    return null;
+function normalizeUserStatus(status) {
+  const normalizedStatus =
+    String(status || "")
+      .trim()
+      .toLowerCase();
+
+  if (
+    normalizedStatus === "blocked" ||
+    normalizedStatus === "banned" ||
+    normalizedStatus === "permanently_banned"
+  ) {
+    return {
+      status: "blocked",
+      statusLabel: "Bloqueado",
+    };
+  }
+
+  if (normalizedStatus === "warned") {
+    return {
+      status: "warned",
+      statusLabel: "Advertido",
+    };
+  }
+
+  if (
+    normalizedStatus === "under_observation" ||
+    normalizedStatus === "in_review"
+  ) {
+    return {
+      status: "under_observation",
+      statusLabel: "En revisión",
+    };
   }
 
   return {
-    id: user.id || user.uid,
-    uid: user.uid || user.id,
-
-    name: user.name || "Usuario sin nombre",
-    email: user.email || "Sin correo",
-
-    profile: user.profile || "Sin perfil",
-
-    birthdate: user.birthday
-      ? formatDate(user.birthday)
-      : "Sin fecha",
-
-    registeredAt: formatDate(user.createdAt),
-    lastActivityAt: formatDate(user.lastLoginAt || user.updatedAt),
-
-    status: user.status || "active",
-    statusLabel: user.statusLabel || "Activo",
-
-    photoUrl: user.photoURL || null,
-
-    provider: user.provider || null,
-    providerLabel: user.providerLabel || "Sin proveedor",
+    status: "active",
+    statusLabel: "Activo",
   };
 }
 
@@ -155,6 +164,75 @@ function normalizeHistoryForView(history) {
   }));
 }
 
+function normalizeUserForView(user) {
+  if (!user) {
+    return null;
+  }
+
+  const normalizedStatus =
+    normalizeUserStatus(
+      user.status,
+    );
+
+  return {
+    id:
+      user.id ||
+      user.uid,
+
+    uid:
+      user.uid ||
+      user.id,
+
+    name:
+      user.name ||
+      "Usuario sin nombre",
+
+    email:
+      user.email ||
+      "Sin correo",
+
+    profile:
+      user.profile ||
+      "Sin perfil",
+
+    birthdate:
+      user.birthday
+        ? formatDate(
+            user.birthday,
+          )
+        : "Sin fecha",
+
+    registeredAt:
+      formatDate(
+        user.createdAt,
+      ),
+
+    lastActivityAt:
+      formatDate(
+        user.lastLoginAt ||
+        user.updatedAt,
+      ),
+
+    status:
+      normalizedStatus.status,
+
+    statusLabel:
+  normalizedStatus.statusLabel,
+
+    photoUrl:
+      user.photoURL ||
+      null,
+
+    provider:
+      user.provider ||
+      null,
+
+    providerLabel:
+      user.providerLabel ||
+      "Sin proveedor",
+  };
+}
+
 export default function AdministrationDetailUserScreen() {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -213,9 +291,30 @@ const [reportDetailError, setReportDetailError] =
 const [isResolvingReport, setIsResolvingReport] =
   useState(false);
 
-  const user = useMemo(() => {
-    return normalizeUserForView(userDetail?.user);
-  }, [userDetail]);
+const user = useMemo(() => {
+  const rawUser =
+    userDetail?.user;
+
+  if (!rawUser) {
+    return null;
+  }
+
+  return normalizeUserForView({
+    ...rawUser,
+
+    status:
+      navigationState.userStatus ||
+      rawUser.status,
+
+    statusLabel:
+      navigationState.userStatusLabel ||
+      rawUser.statusLabel,
+  });
+}, [
+  userDetail,
+  navigationState.userStatus,
+  navigationState.userStatusLabel,
+]);
 
   const activity = useMemo(() => {
     return normalizeActivityForView(userDetail?.activity);

@@ -419,7 +419,7 @@ export default function PlaceSubmissionScreen() {
                   }}
                 >
                   <Database
-                    size={25}
+                    size={60}
                     strokeWidth={1.9}
                   />
                 </div>
@@ -448,7 +448,7 @@ export default function PlaceSubmissionScreen() {
                   }}
                 >
                   <Layers3
-                    size={26}
+                    size={60}
                     strokeWidth={1.9}
                   />
                 </div>
@@ -508,7 +508,7 @@ export default function PlaceSubmissionScreen() {
                   }
                 >
                   <FilterIcon
-                    size={24}
+                    size={50}
                     strokeWidth={2}
                     color={
                       isActive
@@ -605,7 +605,7 @@ export default function PlaceSubmissionScreen() {
           submissions.length > 0 && (
             <div style={styles.paginationCompleted}>
               <CheckCircle2
-                size={42}
+                size={50}
                 strokeWidth={2.2}
               />
 

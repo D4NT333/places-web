@@ -40,26 +40,88 @@ import { rejectGooglePlaceCandidateService } from "../../../../services/api/mana
 
 import styles from "./styles";
 
-const genericDescriptions = [
-  {
-    id: "generic_food",
-    label: "Descripción gastronómica",
+const GENERIC_DESCRIPTIONS_BY_TAG = {
+  gastronomia: {
+    id: "generic_gastronomia",
+    label: "Descripción de Gastronomía",
     text:
-      "Lugar ideal para disfrutar una experiencia gastronómica agradable, con una propuesta pensada para quienes buscan descubrir nuevos espacios dentro de la ciudad.",
+      "Se ofrecen alimentos y bebidas preparados para disfrutar distintas experiencias gastronómicas, desde opciones tradicionales hasta propuestas especializadas.",
   },
-  {
-    id: "generic_local",
-    label: "Descripción local",
+
+  entretenimiento: {
+    id: "generic_entretenimiento",
+    label: "Descripción de Entretenimiento",
     text:
-      "Espacio local recomendado para quienes desean conocer opciones cercanas, explorar la zona y encontrar lugares con identidad propia.",
+      "Se ofrecen actividades recreativas, espectáculos y experiencias diseñadas para disfrutar momentos de diversión, convivencia y entretenimiento.",
   },
-  {
-    id: "generic_general",
-    label: "Descripción general",
+
+  naturaleza: {
+    id: "generic_naturaleza",
+    label: "Descripción de Naturaleza",
     text:
-      "Lugar ubicado dentro de la zona seleccionada, disponible para ser revisado y clasificado dentro de Lsearch según sus características principales.",
+      "Se brinda un espacio para disfrutar del entorno natural, realizar actividades al aire libre o simplemente descansar en un ambiente agradable.",
   },
-];
+
+  aprendizaje_y_formacion: {
+    id: "generic_aprendizaje_formacion",
+    label: "Descripción de Aprendizaje y formación",
+    text:
+      "Se ofrecen espacios y actividades orientados al aprendizaje, la enseñanza y el desarrollo de conocimientos, habilidades o nuevas experiencias.",
+  },
+
+  deportes: {
+    id: "generic_deportes",
+    label: "Descripción de Deportes",
+    text:
+      "Se brinda un espacio destinado a la práctica de actividades físicas, deportivas o recreativas para personas de diferentes edades e intereses.",
+  },
+
+  arte_y_cultura: {
+    id: "generic_arte_cultura",
+    label: "Descripción de Arte y cultura",
+    text:
+      "Se ofrecen experiencias relacionadas con el arte, la cultura, la historia y el patrimonio, promoviendo el aprendizaje y la apreciación cultural.",
+  },
+
+  compras: {
+    id: "generic_compras",
+    label: "Descripción de Compras",
+    text:
+      "Se ofrece una amplia variedad de productos y artículos que permiten satisfacer diferentes necesidades, intereses y preferencias de compra.",
+  },
+
+  hospedaje: {
+    id: "generic_hospedaje",
+    label: "Descripción de Hospedaje",
+    text:
+      "Se ofrecen espacios destinados al descanso y alojamiento temporal, acompañados de servicios pensados para brindar una estancia cómoda.",
+  },
+
+  servicios: {
+    id: "generic_servicios",
+    label: "Descripción de Servicios",
+    text:
+      "Se brindan servicios y soluciones orientados a satisfacer diferentes necesidades personales, comerciales o cotidianas de los usuarios.",
+  },
+};
+
+const TAGS_WITHOUT_APPROACH = new Set([
+  "compras",
+  "hospedaje",
+  "servicios",
+]);
+
+function normalizeTagKey(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, "y")
+    .replace(/\s+y\s+/g, "_y_")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
 
 function formatDate(value) {
   if (!value) {
@@ -321,6 +383,55 @@ const [
     priceConfig: null,
   });
 
+  const selectedTagData =
+  useMemo(
+    () =>
+      catalog.tags.find(
+        (tag) =>
+          (
+            tag?.tagId ||
+            tag?.id
+          ) === selectedTag,
+      ) ||
+      catalog.selectedTag ||
+      null,
+    [
+      catalog.tags,
+      catalog.selectedTag,
+      selectedTag,
+    ],
+  );
+
+const selectedTagLabel =
+  selectedTagData?.tagLabel ||
+  selectedTagData?.label ||
+  selectedTagData?.name ||
+  "";
+
+const selectedTagKey =
+  normalizeTagKey(
+    selectedTagLabel,
+  );
+
+const genericDescriptions =
+  useMemo(() => {
+    const suggestion =
+      GENERIC_DESCRIPTIONS_BY_TAG[
+        selectedTagKey
+      ];
+
+    return suggestion
+      ? [suggestion]
+      : [];
+  }, [
+    selectedTagKey,
+  ]);
+
+const selectedTagRequiresApproach =
+  !TAGS_WITHOUT_APPROACH.has(
+    selectedTagKey,
+  );
+
   const importedAtLabel =
     useMemo(
       () =>
@@ -464,13 +575,21 @@ const [
     );
   }
 
-  async function handleSelectTag(
-    tagId,
+ async function handleSelectTag(
+  tagId,
+) {
+  if (
+    tagId === selectedTag
   ) {
-    await loadFiltersCatalog(
-      tagId,
-    );
+    return;
   }
+
+  setDescription("");
+
+  await loadFiltersCatalog(
+    tagId,
+  );
+}
 
   function handleToggleSubtag(
     subtag,
@@ -653,14 +772,15 @@ const [
     }
 
     if (
-      !selectedApproach
-    ) {
-      alert(
-        "Selecciona un enfoque.",
-      );
+  selectedTagRequiresApproach &&
+  !selectedApproach
+) {
+  alert(
+    "Selecciona un enfoque.",
+  );
 
-      return;
-    }
+  return;
+}
 
     if (
       !selectedPrice

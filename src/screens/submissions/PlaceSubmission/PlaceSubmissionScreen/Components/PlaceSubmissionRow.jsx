@@ -178,7 +178,7 @@ export default function PlaceSubmissionRow({
         ) : (
           <div style={styles.placeImagePlaceholder}>
             <MapPin
-              size={24}
+              size={40}
               strokeWidth={2}
             />
           </div>
@@ -191,7 +191,7 @@ export default function PlaceSubmissionRow({
 
       <div style={styles.dateCell}>
         <CalendarDays
-          size={28}
+          size={60}
           strokeWidth={2}
           style={styles.dateIcon}
         />
@@ -220,7 +220,7 @@ export default function PlaceSubmissionRow({
           }}
         >
           <StatusIcon
-            size={24}
+            size={50}
             strokeWidth={2.4}
           />
 

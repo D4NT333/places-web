@@ -288,11 +288,22 @@ export default function UserAdministrationScreen() {
     };
 
   const handleSelectUser =
-    (user) => {
-      navigate(
-        `/administration/users/${user.id}`,
-      );
-    };
+  (user) => {
+    navigate(
+      `/administration/users/${user.id}`,
+      {
+        state: {
+          userStatus:
+            user.status ||
+            "active",
+
+          userStatusLabel:
+            user.statusLabel ||
+            "Activo",
+        },
+      },
+    );
+  };
 
   return (
     <LayoutScreen

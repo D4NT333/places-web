@@ -28,7 +28,7 @@ const styles = {
   title: {
     margin: 0,
     color: "#0b2150",
-    fontSize: "clamp(1.7rem, 2.2vw, 3.45rem)",
+    fontSize: "clamp(2rem, 2.2vw, 4.45rem)",
     fontWeight: 800,
     lineHeight: 1.08,
     letterSpacing: "-0.035em",
@@ -37,7 +37,7 @@ const styles = {
   subtitle: {
     margin: "9px 0 0",
     color: "#536a87",
-    fontSize: "1.2rem",
+    fontSize: "2rem",
     fontWeight: 500,
   },
 
@@ -74,8 +74,8 @@ const styles = {
     placeItems: "center",
     flexShrink: 0,
 
-    width: "46px",
-    height: "46px",
+    width: "66px",
+    height: "66px",
 
     borderRadius: "14px",
   },
@@ -100,12 +100,12 @@ const styles = {
 
   loadedInfoLabel: {
     color: "#405776",
-    fontSize: "1.3rem",
+    fontSize: "2rem",
     fontWeight: 600,
   },
 
   loadedInfoValue: {
-    fontSize: "1.45rem",
+    fontSize: "2.2rem",
     fontWeight: 800,
     lineHeight: 1,
   },
@@ -186,7 +186,7 @@ const styles = {
     background: "transparent",
 
     color: "#15284c",
-    fontSize: "1rem",
+    fontSize: "2rem",
     fontWeight: 650,
     whiteSpace: "nowrap",
 
@@ -226,7 +226,7 @@ const styles = {
     background: "#edf3fa",
     color: "#34506e",
 
-    fontSize: "0.65rem",
+    fontSize: "1.65rem",
     fontWeight: 800,
   },
 
@@ -271,7 +271,7 @@ const styles = {
     borderBottom: "1px solid rgba(77, 119, 169, 0.13)",
 
     color: "#102650",
-    fontSize: "1.4rem",
+    fontSize: "2.3rem",
     fontWeight: 800,
     textTransform: "uppercase",
     letterSpacing: "0.03em",
@@ -347,7 +347,7 @@ const styles = {
     padding: "28px",
 
     color: "#637993",
-    fontSize: "0.9rem",
+    fontSize: "1.9rem",
     fontWeight: 600,
 
     boxSizing: "border-box",
@@ -362,7 +362,7 @@ const styles = {
     padding: "22px",
 
     color: "#4d6580",
-    fontSize: "0.84rem",
+    fontSize: "1.84rem",
     fontWeight: 600,
     textAlign: "center",
   },
@@ -376,7 +376,7 @@ const styles = {
     marginTop: "25px",
 
     color: "#07893f",
-    fontSize: "1.85rem",
+    fontSize: "2rem",
     fontWeight: 750,
   },
 };

@@ -88,7 +88,7 @@ const styles = {
     overflow: "hidden",
 
     color: "#0c2450",
-    fontSize: "1.8rem",
+    fontSize: "2.2rem",
     fontWeight: 800,
 
     whiteSpace: "nowrap",
@@ -106,7 +106,7 @@ const styles = {
     gap: "11px",
 
     color: "#14294d",
-    fontSize: "1.6rem",
+    fontSize: "2rem",
     fontWeight: 550,
 
     textAlign: "center",
@@ -130,7 +130,7 @@ const styles = {
     overflow: "hidden",
 
     color: "#14294d",
-    fontSize: "1.6rem",
+    fontSize: "2.2rem",
     fontWeight: 550,
 
     textAlign: "center",
@@ -147,8 +147,8 @@ const styles = {
   },
 
   userImage: {
-    width: "108px",
-    height: "108px",
+    width: "118px",
+    height: "118px",
 
     border: "2px solid rgba(255, 255, 255, 0.9)",
     borderRadius: "50%",
@@ -209,7 +209,7 @@ const styles = {
 
     borderRadius: "999px",
 
-    fontSize: "1.2rem",
+    fontSize: "2rem",
     fontWeight: 750,
 
     boxSizing: "border-box",
