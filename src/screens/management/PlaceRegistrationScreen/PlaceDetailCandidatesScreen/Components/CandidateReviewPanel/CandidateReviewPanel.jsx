@@ -508,6 +508,12 @@ export default function CandidateReviewPanel({
         ?.hasFreeOption,
     );
 
+    const hasUndefinedOption =
+  Boolean(
+    priceConfig
+      ?.hasUndefinedOption,
+  );
+
   const googleType =
     details
       ?.googleMainType ||
@@ -1323,6 +1329,27 @@ export default function CandidateReviewPanel({
                 Gratis
               </button>
             )}
+
+            {hasUndefinedOption && (
+  <button
+    type="button"
+    style={{
+      ...styles.choiceChip,
+
+      ...(selectedPrice ===
+      "not_defined"
+        ? styles.choiceChipActiveOrange
+        : {}),
+    }}
+    onClick={() =>
+      setSelectedPrice(
+        "not_defined",
+      )
+    }
+  >
+    Sin definir
+  </button>
+)}
 
             {priceRanges.map(
               (

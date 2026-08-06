@@ -1,41 +1,173 @@
 import React from "react";
+
+import {
+  BarChart3,
+  Check,
+  ChevronRight,
+  FileText,
+  MapPinned,
+  MessageSquareWarning,
+  PieChart,
+  UsersRound,
+} from "lucide-react";
+
+import { useNavigate } from "react-router-dom";
+
 import LayoutScreen from "../../layout";
 import styles from "./styles";
 
-import ActivityPanel from "./components/ActivityPanel";
-import InfoPanel from "./components/InfoPanel";
-import StatsOverview from "./components/StatsOverview";
+const QUICK_ACCESS_ITEMS = [
+  {
+    label: "Propuestas",
+    description: "Revisar lugares enviados",
+    route: "/submissions/places",
+    icon: FileText,
+  },
+  {
+    label: "Lugares",
+    description: "Administrar lugares registrados",
+    route: "/administration/places",
+    icon: MapPinned,
+  },
+  {
+    label: "Usuarios",
+    description: "Consultar usuarios registrados",
+    route: "/administration/users",
+    icon: UsersRound,
+  },
+  {
+    label: "Reportes",
+    description: "Revisar reportes pendientes",
+    route: "/management/reports",
+    icon: MessageSquareWarning,
+  },
+];
+
+function DashboardIllustration() {
+  return (
+    <div
+      style={styles.illustrationContainer}
+      aria-hidden="true"
+    >
+      <div style={styles.illustrationBlob} />
+
+      <div style={styles.illustrationDots}>
+        {Array.from({
+          length: 24,
+        }).map((_, index) => (
+          <span
+            key={index}
+            style={styles.illustrationDot}
+          />
+        ))}
+      </div>
+
+      <div style={styles.dashboardPreview}>
+        <div style={styles.dashboardPreviewHeader}>
+          <span style={styles.previewHeaderLine} />
+          <span style={styles.previewHeaderLineSmall} />
+        </div>
+
+        <div style={styles.dashboardPreviewBody}>
+          <div style={styles.previewTopRow}>
+            <div style={styles.previewPieContainer}>
+              <PieChart
+                size={60}
+                strokeWidth={1.8}
+                style={styles.previewPie}
+              />
+            </div>
+
+            <div style={styles.previewTextLines}>
+              <span style={styles.previewTextLine} />
+              <span style={styles.previewTextLineSmall} />
+            </div>
+          </div>
+
+          <div style={styles.previewBottomRow}>
+            <div style={styles.previewBars}>
+              <span
+                style={{
+                  ...styles.previewBar,
+                  height: "43%",
+                }}
+              />
+
+              <span
+                style={{
+                  ...styles.previewBar,
+                  height: "72%",
+                }}
+              />
+
+              <span
+                style={{
+                  ...styles.previewBar,
+                  height: "94%",
+                }}
+              />
+            </div>
+
+            <div style={styles.previewTextLines}>
+              <span style={styles.previewTextLine} />
+              <span style={styles.previewTextLineSmall} />
+              <span style={styles.previewTextLine} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={styles.checkBadge}>
+        <Check
+          size={50}
+          strokeWidth={3}
+        />
+      </div>
+    </div>
+  );
+}
+
+function QuickAccessItem({
+  label,
+  description,
+  icon: Icon,
+  onClick,
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={styles.quickAccessButton}
+    >
+      <span style={styles.quickAccessIconContainer}>
+        <Icon
+          size={50}
+          strokeWidth={2}
+          style={styles.quickAccessIcon}
+        />
+      </span>
+
+      <span style={styles.quickAccessContent}>
+        <strong style={styles.quickAccessLabel}>
+          {label}
+        </strong>
+
+        <span style={styles.quickAccessDescription}>
+          {description}
+        </span>
+      </span>
+
+      <ChevronRight
+        size={40}
+        strokeWidth={2.4}
+        style={styles.quickAccessChevron}
+      />
+    </button>
+  );
+}
 
 export default function HomeScreen() {
-  const stats = [
-    {
-      title: "Usuarios activos",
-      value: "1,284",
-      subtitle: "esta semana",
-    },
-    {
-      title: "Nuevos lugares",
-      value: "73",
-      subtitle: "esta semana",
-    },
-    {
-      title: "Lugares pendientes",
-      value: "18",
-      subtitle: "de aprobación",
-    },
-    {
-      title: "Errores críticos",
-      value: "4",
-      subtitle: "requieren atención",
-    },
-  ];
-
-  const activities = [
-    "Se aprobó un nuevo lugar en Zapopan",
-    "Se rechazó una propuesta de fotografía",
-    "Se actualizó la información de un restaurante",
-    "Se detectó un error en la sincronización de Places",
-  ];
+  const navigate = useNavigate();
 
   return (
     <LayoutScreen
@@ -49,28 +181,80 @@ export default function HomeScreen() {
         },
       ]}
     >
-      <div style={styles.container}>
-        <StatsOverview stats={stats} />
-
+      <main style={styles.container}>
         <section style={styles.mainGrid}>
-          <ActivityPanel
-            title="Historial de Actividad Reciente"
-            items={activities}
-          />
+          <article style={styles.heroCard}>
+            <div style={styles.heroContent}>
+              <div style={styles.heroTitleRow}>
+                <span style={styles.heroIconContainer}>
+                  <BarChart3
+                    size={60}
+                    strokeWidth={1.9}
+                    style={styles.heroIcon}
+                  />
+                </span>
 
-          <div style={styles.rightColumn}>
-            <InfoPanel
-              title="Estado del sistema"
-              content="Aquí puedes mostrar alertas, estado de servicios o tareas internas."
-            />
+                <h1 style={styles.heroTitle}>
+                  Bienvenido al panel administrativo
+                </h1>
+              </div>
 
-            <InfoPanel
-              title="Resumen general"
-              content="Este espacio puede servir para indicadores rápidos del panel."
-            />
-          </div>
+              <p style={styles.heroDescription}>
+                Gestiona propuestas, usuarios, lugares y
+                reportes de forma rápida y clara desde un
+                solo lugar.
+              </p>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/submissions/places")
+                }
+                style={styles.primaryButton}
+              >
+                <FileText
+                  size={50}
+                  strokeWidth={2}
+                />
+
+                <span>Ir a propuestas</span>
+              </button>
+            </div>
+
+            <DashboardIllustration />
+          </article>
+
+          <aside style={styles.quickAccessPanel}>
+            <div style={styles.quickAccessHeader}>
+              <span style={styles.quickAccessEyebrow}>
+                Navegación
+              </span>
+
+              <h2 style={styles.quickAccessTitle}>
+                Accesos rápidos
+              </h2>
+
+              <p style={styles.quickAccessSubtitle}>
+                Selecciona una sección para comenzar.
+              </p>
+            </div>
+
+            <div style={styles.quickAccessList}>
+              {QUICK_ACCESS_ITEMS.map((item) => (
+                <QuickAccessItem
+                  key={item.route}
+                  label={item.label}
+                  description={item.description}
+                  icon={item.icon}
+                  onClick={() =>
+                    navigate(item.route)
+                  }
+                />
+              ))}
+            </div>
+          </aside>
         </section>
-      </div>
+      </main>
     </LayoutScreen>
   );
 }

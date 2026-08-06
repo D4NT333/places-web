@@ -70,7 +70,7 @@ const ACTIVITY_FILTERS = [
     tone: "orange",
   },
   {
-    value: "needs_confirmation",
+    value: "pending",
     label: "Por confirmar",
     icon: Radio,
     tone: "violet",

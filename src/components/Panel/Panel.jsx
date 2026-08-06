@@ -35,46 +35,46 @@ import {
 import styles from "./styles";
 
 const PANEL_SECTIONS = [
-  {
-    key: "metricas",
-    label: "Métricas",
-    icon: BarChart3,
-    routes: [
-      {
-        label: "Operaciones",
-        route: "/metrics/operations",
-        icon: Gauge,
-      },
-      {
-        label: "Demanda",
-        route: "/metrics/demand",
-        icon: Search,
-      },
-      {
-        label: "Interacciones",
-        route: "/metrics/interactions",
-        icon: Activity,
-      },
-    ],
-  },
-  {
-    key: "monitoreo",
-    label: "Monitoreo",
-    icon: MonitorCog,
-    badge: 73,
-    routes: [
-      {
-        label: "Resumen",
-        route: "/monitoring/summary",
-        icon: CircleGauge,
-      },
-      {
-        label: "Incidencias",
-        route: "/monitoring/issues",
-        icon: MessageSquareWarning,
-      },
-    ],
-  },
+  // {
+  //   key: "metricas",
+  //   label: "Métricas",
+  //   icon: BarChart3,
+  //   routes: [
+  //     {
+  //       label: "Operaciones",
+  //       route: "/metrics/operations",
+  //       icon: Gauge,
+  //     },
+  //     {
+  //       label: "Demanda",
+  //       route: "/metrics/demand",
+  //       icon: Search,
+  //     },
+  //     {
+  //       label: "Interacciones",
+  //       route: "/metrics/interactions",
+  //       icon: Activity,
+  //     },
+  //   ],
+  // },
+  // {
+  //   key: "monitoreo",
+  //   label: "Monitoreo",
+  //   icon: MonitorCog,
+  //   badge: 73,
+  //   routes: [
+  //     {
+  //       label: "Resumen",
+  //       route: "/monitoring/summary",
+  //       icon: CircleGauge,
+  //     },
+  //     {
+  //       label: "Incidencias",
+  //       route: "/monitoring/issues",
+  //       icon: MessageSquareWarning,
+  //     },
+  //   ],
+  // },
   {
     key: "propuestas",
     label: "Propuestas",

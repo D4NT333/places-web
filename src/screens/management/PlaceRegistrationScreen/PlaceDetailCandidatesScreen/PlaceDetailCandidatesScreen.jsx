@@ -106,6 +106,10 @@ const GENERIC_DESCRIPTIONS_BY_TAG = {
 };
 
 const TAGS_WITHOUT_APPROACH = new Set([
+  "tag_service",
+  "tag_shopping",
+  "tag_lodging",
+
   "compras",
   "hospedaje",
   "servicios",
@@ -427,9 +431,21 @@ const genericDescriptions =
     selectedTagKey,
   ]);
 
+const TAG_IDS_WITHOUT_APPROACH =
+  new Set([
+    "tag_service",
+    "tag_shopping",
+    "tag_lodging",
+  ]);
+
 const selectedTagRequiresApproach =
-  !TAGS_WITHOUT_APPROACH.has(
-    selectedTagKey,
+  !(
+    TAG_IDS_WITHOUT_APPROACH.has(
+      selectedTag,
+    ) ||
+    TAGS_WITHOUT_APPROACH.has(
+      selectedTagKey,
+    )
   );
 
   const importedAtLabel =

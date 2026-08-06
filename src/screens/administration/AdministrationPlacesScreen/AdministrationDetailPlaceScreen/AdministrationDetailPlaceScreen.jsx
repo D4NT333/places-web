@@ -57,6 +57,8 @@ import resolveAdminPlaceReportService from "../../../../services/api/administrat
 
 import moderateAdminPlaceService from "../../../../services/api/administration/places/moderateAdminPlace.service";
 
+import client from "../../../../services/api/client";
+
 import styles from "./styles";
 
 const PAGE_LIMIT = 10;
@@ -123,18 +125,209 @@ function getReportStatusLabel(status) {
   return labels[status] || status || "Sin estado";
 }
 
+function buildGooglePhotoUrl(reference) {
+  const cleanReference =
+    typeof reference === "string"
+      ? reference
+          .trim()
+          .replace(/\/media$/, "")
+      : "";
+
+  if (!cleanReference) {
+    return null;
+  }
+
+  const photoPath =
+    `/api/places/photos/google?reference=${encodeURIComponent(
+      cleanReference
+    )}&maxWidthPx=1080`;
+
+  const configuredBaseUrl =
+    client.defaults?.baseURL ||
+    "";
+
+  if (!configuredBaseUrl) {
+    return photoPath;
+  }
+
+  try {
+    const backendUrl =
+      new URL(
+        configuredBaseUrl,
+        window.location.origin
+      );
+
+    return new URL(
+      photoPath,
+      backendUrl.origin
+    ).toString();
+  } catch (error) {
+    console.warn(
+      "No se pudo construir la URL absoluta de la foto de Google:",
+      error
+    );
+
+    return photoPath;
+  }
+}
+
+function normalizePlacePhoto(photo, index = 0) {
+  if (!photo) {
+    return null;
+  }
+
+  if (typeof photo === "string") {
+    const cleanValue = photo.trim();
+
+    if (!cleanValue) {
+      return null;
+    }
+
+    const isGoogleReference =
+      cleanValue.startsWith("places/") &&
+      cleanValue.includes("/photos/");
+
+    const resolvedUrl =
+      isGoogleReference
+        ? buildGooglePhotoUrl(cleanValue)
+        : cleanValue;
+
+    if (!resolvedUrl) {
+      return null;
+    }
+
+    return {
+      id:
+        isGoogleReference
+          ? cleanValue
+          : `photo-${index}`,
+
+      order: index,
+
+      reference:
+        isGoogleReference
+          ? cleanValue
+          : null,
+
+      originalUrl: resolvedUrl,
+      thumbnailUrl: resolvedUrl,
+      url: resolvedUrl,
+
+      sourceType:
+        isGoogleReference
+          ? "google"
+          : "lsearch",
+    };
+  }
+
+  const googleReference =
+    photo.reference ||
+    photo.name ||
+    photo.googlePhotoReference ||
+    photo.photoReference ||
+    null;
+
+  const directUrl =
+    photo.originalUrl ||
+    photo.thumbnailUrl ||
+    photo.url ||
+    photo.photoURL ||
+    photo.photoUrl ||
+    photo.downloadURL ||
+    photo.downloadUrl ||
+    photo.uri ||
+    null;
+
+  const googlePhotoUrl =
+    buildGooglePhotoUrl(
+      googleReference
+    );
+
+  const resolvedUrl =
+    googlePhotoUrl ||
+    directUrl;
+
+  if (!resolvedUrl) {
+    return null;
+  }
+
+  return {
+    ...photo,
+
+    id:
+      photo.id ||
+      photo.photoId ||
+      googleReference ||
+      `photo-${index}`,
+
+    order:
+      Number.isFinite(
+        Number(photo.order)
+      )
+        ? Number(photo.order)
+        : index,
+
+    reference:
+      googleReference ||
+      null,
+
+    originalUrl:
+      googlePhotoUrl ||
+      photo.originalUrl ||
+      directUrl,
+
+    thumbnailUrl:
+      googlePhotoUrl ||
+      photo.thumbnailUrl ||
+      photo.originalUrl ||
+      directUrl,
+
+    url: resolvedUrl,
+
+    sourceType:
+      googlePhotoUrl
+        ? "google"
+        : photo.sourceType ||
+          photo.source ||
+          "lsearch",
+  };
+}
+
 function normalizePlace(place) {
   if (!place) {
     return null;
   }
 
-  const photos = Array.isArray(
-    place.media?.photos
+const rawPhotos = Array.isArray(
+  place.media?.photos
+)
+  ? place.media.photos
+  : Array.isArray(place.photos)
+    ? place.photos
+    : [];
+
+const photos = rawPhotos
+  .map((photo, index) =>
+    normalizePlacePhoto(
+      photo,
+      index
+    )
   )
-    ? place.media.photos
-    : Array.isArray(place.photos)
-      ? place.photos
-      : [];
+  .filter(Boolean);
+
+const rawMainPhoto =
+  place.media?.mainPhoto ||
+  place.mainPhoto ||
+  rawPhotos[0] ||
+  null;
+
+const mainPhoto =
+  normalizePlacePhoto(
+    rawMainPhoto,
+    0
+  ) ||
+  photos[0] ||
+  null;
 
   const moderationStatusId =
     place.moderationStatus ||
@@ -337,11 +530,7 @@ function normalizePlace(place) {
 
     photos,
 
-    mainPhoto:
-      place.media?.mainPhoto ||
-      place.mainPhoto ||
-      photos[0] ||
-      null,
+    mainPhoto,  
 
     photoCount:
       Number(
@@ -2335,7 +2524,10 @@ const selectedWeekLabel = useMemo(() => {
 const handleOpenPlaceGallery = async (
   selectedIndex = 0
 ) => {
-  if (loadingGallery || !place?.placeId) {
+  if (
+    loadingGallery ||
+    !place?.placeId
+  ) {
     return;
   }
 
@@ -2348,100 +2540,54 @@ const handleOpenPlaceGallery = async (
         place.placeId
       );
 
-    const lsearchPhotos = Array.isArray(
-      lsearchGallery?.photos
-    )
-      ? lsearchGallery.photos
-      : [];
+    const existingPhotos =
+      Array.isArray(place.photos)
+        ? place.photos
+            .map(normalizePlacePhoto)
+            .filter(Boolean)
+        : [];
 
-    const existingPhotos = Array.isArray(
-      place.photos
-    )
-      ? place.photos
-      : [];
+    const lsearchPhotos =
+      Array.isArray(
+        lsearchGallery?.photos
+      )
+        ? lsearchGallery.photos
+            .map(normalizePlacePhoto)
+            .filter(Boolean)
+        : [];
 
-    const normalizedExistingPhotos =
-      existingPhotos
-        .map((photo, index) => {
-          if (typeof photo === "string") {
-            return {
-              id: `existing-${index}`,
-              originalUrl: photo,
-              thumbnailUrl: photo,
-              sourceType: "existing",
-            };
-          }
+    const photosByKey =
+      new Map();
 
-          if (
-            photo?.originalUrl ||
-            photo?.url
-          ) {
-            const url =
-              photo.originalUrl ||
-              photo.url;
+    [
+      ...existingPhotos,
+      ...lsearchPhotos,
+    ].forEach((photo, index) => {
+      if (!photo) {
+        return;
+      }
 
-            return {
-              ...photo,
+      const key =
+        photo.reference ||
+        photo.originalUrl ||
+        photo.url ||
+        photo.id ||
+        `gallery-photo-${index}`;
 
-              id:
-                photo.id ||
-                `existing-${index}`,
+      if (!photosByKey.has(key)) {
+        photosByKey.set(
+          key,
+          photo
+        );
+      }
+    });
 
-              originalUrl: url,
+    const galleryPhotosToShow =
+      [...photosByKey.values()];
 
-              thumbnailUrl:
-                photo.thumbnailUrl ||
-                url,
-
-              sourceType:
-                photo.sourceType ||
-                "existing",
-            };
-          }
-
-          if (photo?.reference) {
-            const url =
-              `/api/places/photos/google?reference=${encodeURIComponent(
-                photo.reference
-              )}`;
-
-            return {
-              ...photo,
-
-              id:
-                photo.id ||
-                `google-${index}`,
-
-              originalUrl: url,
-              thumbnailUrl: url,
-              sourceType: "google",
-            };
-          }
-
-          return null;
-        })
-        .filter(Boolean);
-
-    /*
-     * Google:
-     * fotos originales de Google + aportes Lsearch.
-     *
-     * Lsearch:
-     * usamos solamente el endpoint Lsearch,
-     * porque ya incluye la propuesta de origen
-     * y las propuestas de fotos aprobadas.
-     */
-    const isGooglePlace =
-      place.sourceId === "google_candidate";
-
-    const galleryPhotosToShow = isGooglePlace
-      ? [
-          ...normalizedExistingPhotos,
-          ...lsearchPhotos,
-        ]
-      : lsearchPhotos;
-
-    if (galleryPhotosToShow.length === 0) {
+    if (
+      galleryPhotosToShow.length === 0
+    ) {
       setGalleryError(
         "Este lugar no tiene fotografías disponibles."
       );
@@ -2449,11 +2595,16 @@ const handleOpenPlaceGallery = async (
       return;
     }
 
-    setGalleryPhotos(galleryPhotosToShow);
+    setGalleryPhotos(
+      galleryPhotosToShow
+    );
 
     setGalleryIndex(
       Math.min(
-        Math.max(selectedIndex, 0),
+        Math.max(
+          Number(selectedIndex) || 0,
+          0
+        ),
         galleryPhotosToShow.length - 1
       )
     );
@@ -2474,6 +2625,7 @@ const handleOpenPlaceGallery = async (
     setLoadingGallery(false);
   }
 };
+
 
 
   if (loading) {

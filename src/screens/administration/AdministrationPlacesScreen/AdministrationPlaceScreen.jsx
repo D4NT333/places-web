@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -29,6 +30,9 @@ import styles from "./styles";
 
 const PAGE_LIMIT = 15;
 
+const LOAD_MORE_TRIGGER_PERCENTAGE =
+  0.8;
+
 const breadcrumbs = [
   {
     label: "Inicio",
@@ -40,17 +44,28 @@ const breadcrumbs = [
 ];
 
 export default function AdministrationPlaceScreen() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
+
+  const loadMoreTriggerRef =
+    useRef(null);
+
+  const requestInProgressRef =
+    useRef(false);
 
   const [
     moderationStatus,
     setModerationStatus,
-  ] = useState("all");
+  ] = useState(
+    "all",
+  );
 
   const [
     activityStatus,
     setActivityStatus,
-  ] = useState("all");
+  ] = useState(
+    "all",
+  );
 
   const [
     places,
@@ -90,118 +105,207 @@ export default function AdministrationPlaceScreen() {
   const loadedPlacesCount =
     places.length;
 
-  const loadPlaces = useCallback(
-    async ({
-      reset = false,
-    } = {}) => {
-      if (reset) {
-        setLoading(true);
-      } else {
+  const loadMoreTriggerIndex =
+    useMemo(() => {
+      if (
+        loadedPlacesCount ===
+        0
+      ) {
+        return -1;
+      }
+
+      return Math.max(
+        0,
+        Math.ceil(
+          loadedPlacesCount *
+            LOAD_MORE_TRIGGER_PERCENTAGE,
+        ) - 1,
+      );
+    }, [
+      loadedPlacesCount,
+    ]);
+
+  const loadPlaces =
+    useCallback(
+      async ({
+        reset = false,
+        cursor = null,
+      } = {}) => {
         if (
-          loadingMore ||
-          !hasMore ||
-          !nextCursor
+          requestInProgressRef
+            .current
         ) {
           return;
         }
 
-        setLoadingMore(true);
-      }
-
-      try {
-        setErrorMessage("");
-
-        const result =
-          await getAdminPlacesService({
-            limit: PAGE_LIMIT,
-            cursor:
-              reset
-                ? null
-                : nextCursor,
-            moderationStatus,
-            activityStatus,
-          });
-
-        const newPlaces =
-          Array.isArray(
-            result.places,
+        if (
+          !reset &&
+          (
+            !hasMore ||
+            !cursor
           )
-            ? result.places
-            : [];
-
-        if (reset) {
-          setPlaces(
-            newPlaces,
-          );
-
-          setLoadedBatchesCount(
-            1,
-          );
-        } else {
-          setPlaces(
-            (
-              currentPlaces,
-            ) => [
-              ...currentPlaces,
-              ...newPlaces,
-            ],
-          );
-
-          setLoadedBatchesCount(
-            (
-              currentCount,
-            ) =>
-              currentCount +
-              1,
-          );
+        ) {
+          return;
         }
 
-        setNextCursor(
-          result.nextCursor ||
-            null,
-        );
+        try {
+          requestInProgressRef
+            .current =
+            true;
 
-        setHasMore(
-          Boolean(
-            result.hasMore,
-          ),
-        );
-      } catch (error) {
-        console.error(
-          "Error cargando lugares:",
-          error,
-        );
+          setErrorMessage("");
 
-        setErrorMessage(
-          error.message ||
-            "No se pudieron cargar los lugares.",
-        );
+          if (reset) {
+            setLoading(true);
+          } else {
+            setLoadingMore(true);
+          }
 
-        if (reset) {
-          setPlaces([]);
-          setNextCursor(null);
-          setHasMore(false);
-          setLoadedBatchesCount(
-            0,
+          const result =
+            await getAdminPlacesService({
+              limit:
+                PAGE_LIMIT,
+
+              cursor:
+                reset
+                  ? null
+                  : cursor,
+
+              moderationStatus,
+
+              activityStatus,
+            });
+
+          const newPlaces =
+            Array.isArray(
+              result?.places,
+            )
+              ? result.places
+              : [];
+
+          if (reset) {
+            setPlaces(
+              newPlaces,
+            );
+
+            setLoadedBatchesCount(
+              newPlaces.length >
+                0
+                ? 1
+                : 0,
+            );
+          } else {
+            setPlaces(
+              (
+                currentPlaces,
+              ) => {
+                const existingIds =
+                  new Set(
+                    currentPlaces.map(
+                      (
+                        place,
+                      ) =>
+                        place.id ||
+                        place.placeId,
+                    ),
+                  );
+
+                const uniqueNewPlaces =
+                  newPlaces.filter(
+                    (
+                      place,
+                    ) => {
+                      const placeId =
+                        place.id ||
+                        place.placeId;
+
+                      return (
+                        placeId &&
+                        !existingIds.has(
+                          placeId,
+                        )
+                      );
+                    },
+                  );
+
+                return [
+                  ...currentPlaces,
+                  ...uniqueNewPlaces,
+                ];
+              },
+            );
+
+            if (
+              newPlaces.length >
+              0
+            ) {
+              setLoadedBatchesCount(
+                (
+                  currentCount,
+                ) =>
+                  currentCount +
+                  1,
+              );
+            }
+          }
+
+          setNextCursor(
+            result?.nextCursor ||
+              null,
           );
+
+          setHasMore(
+            Boolean(
+              result?.hasMore &&
+              result?.nextCursor,
+            ),
+          );
+        } catch (error) {
+          console.error(
+            "Error cargando lugares:",
+            error,
+          );
+
+          setErrorMessage(
+            error.message ||
+              "No se pudieron cargar los lugares.",
+          );
+
+          if (reset) {
+            setPlaces([]);
+            setNextCursor(null);
+            setHasMore(false);
+            setLoadedBatchesCount(
+              0,
+            );
+          }
+        } finally {
+          requestInProgressRef
+            .current =
+            false;
+
+          setLoading(false);
+          setLoadingMore(false);
         }
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
-    },
-    [
-      moderationStatus,
-      activityStatus,
-      nextCursor,
-      hasMore,
-      loadingMore,
-    ],
-  );
+      },
+      [
+        moderationStatus,
+        activityStatus,
+        hasMore,
+      ],
+    );
 
   useEffect(() => {
+    setPlaces([]);
+    setNextCursor(null);
+    setHasMore(false);
+    setLoadedBatchesCount(
+      0,
+    );
+
     loadPlaces({
-      reset: true,
+      reset:
+        true,
     });
   }, [
     moderationStatus,
@@ -209,61 +313,69 @@ export default function AdministrationPlaceScreen() {
   ]);
 
   useEffect(() => {
-    const handleScroll =
-      () => {
-        if (
-          loading ||
-          loadingMore ||
-          !hasMore
-        ) {
-          return;
-        }
+    const triggerElement =
+      loadMoreTriggerRef
+        .current;
 
-        const scrollTop =
-          window.scrollY ||
-          document
-            .documentElement
-            .scrollTop;
+    if (
+      !triggerElement ||
+      loading ||
+      loadingMore ||
+      !hasMore ||
+      !nextCursor
+    ) {
+      return undefined;
+    }
 
-        const viewportHeight =
-          window.innerHeight;
+    const observer =
+      new IntersectionObserver(
+        (
+          entries,
+        ) => {
+          const firstEntry =
+            entries[0];
 
-        const documentHeight =
-          document
-            .documentElement
-            .scrollHeight;
+          if (
+            !firstEntry
+              ?.isIntersecting ||
+            requestInProgressRef
+              .current
+          ) {
+            return;
+          }
 
-        const scrollProgress =
-          (
-            scrollTop +
-            viewportHeight
-          ) /
-          documentHeight;
+          loadPlaces({
+            reset:
+              false,
 
-        if (
-          scrollProgress >=
-          0.8
-        ) {
-          loadPlaces();
-        }
-      };
+            cursor:
+              nextCursor,
+          });
+        },
+        {
+          root:
+            null,
 
-    window.addEventListener(
-      "scroll",
-      handleScroll,
+          threshold:
+            0.1,
+        },
+      );
+
+    observer.observe(
+      triggerElement,
     );
 
     return () => {
-      window.removeEventListener(
-        "scroll",
-        handleScroll,
-      );
+      observer.disconnect();
     };
   }, [
-    loadPlaces,
+    loadMoreTriggerIndex,
+    loadedPlacesCount,
     loading,
     loadingMore,
     hasMore,
+    nextCursor,
+    loadPlaces,
   ]);
 
   const summaryBatchesCount =
@@ -281,45 +393,44 @@ export default function AdministrationPlaceScreen() {
       loadedBatchesCount,
     ]);
 
-  const handleChangeModerationStatus =
-    (newStatus) => {
-      setModerationStatus(
-        newStatus,
+  function handleChangeModerationStatus(
+    newStatus,
+  ) {
+    setModerationStatus(
+      newStatus,
+    );
+  }
+
+  function handleChangeActivityStatus(
+    newStatus,
+  ) {
+    setActivityStatus(
+      newStatus,
+    );
+  }
+
+  function handleSelectPlace(
+    place,
+  ) {
+    const selectedPlaceId =
+      place.id ||
+      place.placeId;
+
+    if (
+      !selectedPlaceId
+    ) {
+      console.warn(
+        "El lugar no tiene id:",
+        place,
       );
 
-      setNextCursor(null);
-      setHasMore(false);
-    };
+      return;
+    }
 
-  const handleChangeActivityStatus =
-    (newStatus) => {
-      setActivityStatus(
-        newStatus,
-      );
-
-      setNextCursor(null);
-      setHasMore(false);
-    };
-
-  const handleSelectPlace =
-    (place) => {
-      const selectedPlaceId =
-        place.id ||
-        place.placeId;
-
-      if (!selectedPlaceId) {
-        console.warn(
-          "El lugar no tiene id:",
-          place,
-        );
-
-        return;
-      }
-
-      navigate(
-        `/administration/places/${selectedPlaceId}`,
-      );
-    };
+    navigate(
+      `/administration/places/${selectedPlaceId}`,
+    );
+  }
 
   return (
     <LayoutScreen
@@ -354,7 +465,9 @@ export default function AdministrationPlaceScreen() {
               >
                 <MapPinned
                   size={50}
-                  strokeWidth={2.15}
+                  strokeWidth={
+                    2.15
+                  }
                 />
               </div>
 
@@ -402,7 +515,9 @@ export default function AdministrationPlaceScreen() {
                 >
                   <Database
                     size={50}
-                    strokeWidth={2.1}
+                    strokeWidth={
+                      2.1
+                    }
                   />
                 </div>
 
@@ -444,7 +559,9 @@ export default function AdministrationPlaceScreen() {
                 >
                   <Layers3
                     size={50}
-                    strokeWidth={2.1}
+                    strokeWidth={
+                      2.1
+                    }
                   />
                 </div>
 
@@ -504,12 +621,16 @@ export default function AdministrationPlaceScreen() {
             >
               <AlertCircle
                 size={50}
-                strokeWidth={2.2}
+                strokeWidth={
+                  2.2
+                }
               />
             </div>
 
             <span>
-              {errorMessage}
+              {
+                errorMessage
+              }
             </span>
           </div>
         ) : null}
@@ -575,7 +696,9 @@ export default function AdministrationPlaceScreen() {
                 >
                   <LoaderCircle
                     size={50}
-                    strokeWidth={2}
+                    strokeWidth={
+                      2
+                    }
                   />
                 </div>
 
@@ -611,7 +734,9 @@ export default function AdministrationPlaceScreen() {
                 >
                   <MapPinned
                     size={50}
-                    strokeWidth={2}
+                    strokeWidth={
+                      2
+                    }
                   />
                 </div>
 
@@ -636,20 +761,40 @@ export default function AdministrationPlaceScreen() {
               </div>
             ) : (
               places.map(
-                (place) => (
-                  <PlaceRow
-                    key={
-                      place.id ||
-                      place.placeId
-                    }
-                    place={
-                      place
-                    }
-                    onSelect={
-                      handleSelectPlace
-                    }
-                  />
-                ),
+                (
+                  place,
+                  index,
+                ) => {
+                  const placeId =
+                    place.id ||
+                    place.placeId;
+
+                  const isLoadMoreTrigger =
+                    index ===
+                    loadMoreTriggerIndex;
+
+                  return (
+                    <div
+                      key={
+                        placeId
+                      }
+                      ref={
+                        isLoadMoreTrigger
+                          ? loadMoreTriggerRef
+                          : null
+                      }
+                    >
+                      <PlaceRow
+                        place={
+                          place
+                        }
+                        onSelect={
+                          handleSelectPlace
+                        }
+                      />
+                    </div>
+                  );
+                },
               )
             )}
 
@@ -661,10 +806,13 @@ export default function AdministrationPlaceScreen() {
               >
                 <LoaderCircle
                   size={50}
-                  strokeWidth={2.1}
+                  strokeWidth={
+                    2.1
+                  }
                 />
 
-                Cargando más
+                Cargando los
+                siguientes 15
                 lugares...
               </div>
             ) : null}
@@ -680,7 +828,9 @@ export default function AdministrationPlaceScreen() {
               >
                 <CheckCircle2
                   size={50}
-                  strokeWidth={2.1}
+                  strokeWidth={
+                    2.1
+                  }
                 />
 
                 Se cargaron todos
